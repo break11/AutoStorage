@@ -16,6 +16,8 @@ class CGrafEdgeItem(QGraphicsItem):
         self.nodeID_1 = nodeID_1
         self.nodeID_2 = nodeID_2
 
+        self.setFlags( QGraphicsItem.ItemIsSelectable )
+
         node_1 = nxGraf.node[ self.nodeID_1 ]
         node_2 = nxGraf.node[ self.nodeID_2 ]
 
@@ -25,17 +27,25 @@ class CGrafEdgeItem(QGraphicsItem):
         polygonF << QPointF( node_2['x'], node_2['y'] )
 
         self.__path.addPolygon( polygonF )
+        self.__path.boundingRect()
 
     # def __del__(self):
     #     print( "del CGrafEdgeItem" )
 
     def boundingRect(self):
-        return self.__path.boundingRect()
+        return self.__path.boundingRect().adjusted(-50, -50, 50, 50)
 
     def paint(self, painter, option, widget):
         pen = QPen()
-        pen.setColor( Qt.green )
-        pen.setWidth( 10 )
+
+        if self.isSelected():
+            fillColor = Qt.red
+        else:
+            fillColor = Qt.green
+
+        pen.setColor( fillColor )
+
+        # pen.setWidth( 10 )
         painter.setPen(pen)
 
         node_1 = self.nxGraf.node[ self.nodeID_1 ]
