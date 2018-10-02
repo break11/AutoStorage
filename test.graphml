@@ -19,7 +19,7 @@
   <key attr.name="storageType" attr.type="string" for="node" id="d1" />
   <key attr.name="name" attr.type="string" for="graph" id="d0" />
 
-  <graph id="G" edgedefault="undirected">
+  <graph id="G" edgedefault="directed">
     <node id="nLU">
       <data key="d4">-200</data>
       <data key="d3">-200</data>

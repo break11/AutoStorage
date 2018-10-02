@@ -25,6 +25,7 @@ class CGrafManager():
 
         for e in nxGraf.edges():
             nodeEItem = CGrafEdgeItem( nxGraf, *e )
+            nodeEItem.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
             qGScene.addItem( nodeEItem )
 
     # def __del__(self):

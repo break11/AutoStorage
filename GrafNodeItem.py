@@ -14,7 +14,7 @@ class CGrafNodeItem(QGraphicsItem):
         self.nxGraf = nxGraf
         self.nodeID = nodeID
         # self.setFlags( QGraphicsItem.ItemIsFocusable | QGraphicsItem.ItemIsSelectable )
-        self.setFlags( QGraphicsItem.ItemIsSelectable )
+        self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
 
     def boundingRect(self):
         return QRectF( -self.__R/2, -self.__R/2, self.__R, self.__R )
