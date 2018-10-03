@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainW
 from GrafNodeItem import *
 from GrafEdgeItem import *
 from GV_Wheel_Zoom_EventFilter import *
+from GridGraphicsScene import *
 
 class CGrafManager():
     QGraphicsScene = None
@@ -38,9 +39,9 @@ class CMainWindow(QMainWindow):
         super(CMainWindow, self).__init__()
         uic.loadUi('mainwindow.ui', self)
 
-        self.SkladMap_Scene = QGraphicsScene( self )
-        self.SkladMap_Scene.addLine( -300, 0, 300, 0 )
-        self.SkladMap_Scene.addLine( 0, -300, 0, 300 )
+        self.SkladMap_Scene = CGridGraphicsScene( self )
+        # self.SkladMap_Scene.addLine( -300, 0, 300, 0 )
+        # self.SkladMap_Scene.addLine( 0, -300, 0, 300 )
 
         # G = nx.read_graphml( "test.graphml" )
         # G = nx.read_graphml( "vrn_test1.graphml" )
@@ -49,10 +50,7 @@ class CMainWindow(QMainWindow):
 
         self.SkladMap_View.setScene( self.SkladMap_Scene )
         self.SkladMap_View.viewport().installEventFilter( CGV_Wheel_Zoom_EventFilter(self.SkladMap_View) )
-        self.SkladMap_Scene.addRect( self.SkladMap_Scene.sceneRect() )
-
-        self.SkladMap_View.fitInView( self.SkladMap_Scene.sceneRect(), Qt.KeepAspectRatio )
-
+        # self.SkladMap_Scene.addRect( self.SkladMap_Scene.sceneRect() )
 
 def main():
     app = QApplication(sys.argv)

@@ -25,7 +25,7 @@ class CGrafNodeItem(QGraphicsItem):
         if self.isSelected():
             fillColor = Qt.red
         else:
-            fillColor = Qt.green
+            fillColor = Qt.darkGreen
 
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( self.boundingRect() )

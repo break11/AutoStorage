@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import ( Qt, QObject, QEvent, QTimer )
+from PyQt5.QtCore import ( Qt, QObject, QEvent, QTimer, QRectF )
 
 class CGV_Wheel_Zoom_EventFilter(QObject):
     __gView = None
@@ -13,6 +13,13 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         self.__tmFitOnFirstShow.setSingleShot( True )
         self.__tmFitOnFirstShow.timeout.connect( self.fitToPage )
         self.__tmFitOnFirstShow.start()
+
+        # увеличение размера области просмотра GraphicsView для более удобной навигации по сцене
+        tl = gView.sceneRect().topLeft()
+        br = gView.sceneRect().bottomRight()
+        tl = tl  + ( tl-br ) / 4
+        br = br  + ( br-tl ) / 4
+        gView.setSceneRect( QRectF( tl, br ) )
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonPress:

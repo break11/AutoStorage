@@ -17,10 +17,31 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QGraphicsView" name="SkladMap_View">
+      <property name="backgroundBrush">
+       <brush brushstyle="NoBrush">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </property>
+      <property name="foregroundBrush">
+       <brush brushstyle="NoBrush">
+        <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </property>
       <property name="dragMode">
        <enum>QGraphicsView::ScrollHandDrag</enum>
       </property>
       <property name="transformationAnchor">
+       <enum>QGraphicsView::AnchorUnderMouse</enum>
+      </property>
+      <property name="resizeAnchor">
        <enum>QGraphicsView::AnchorUnderMouse</enum>
       </property>
      </widget>
@@ -33,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
