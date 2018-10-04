@@ -4,10 +4,12 @@ from PyQt5.QtCore import ( Qt, QObject, QEvent, QTimer, QRectF )
 class CGV_Wheel_Zoom_EventFilter(QObject):
     __gView = None
     __tmFitOnFirstShow = QTimer()
+    ZoomFactor = 1.15
 
     def __init__(self, gView):
         super(CGV_Wheel_Zoom_EventFilter, self).__init__(gView)
         self.__gView = gView
+        gView.installEventFilter(self  )
 
         self.__tmFitOnFirstShow.setInterval( 50 )
         self.__tmFitOnFirstShow.setSingleShot( True )
@@ -22,20 +24,29 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         gView.setSceneRect( QRectF( tl, br ) )
 
     def eventFilter(self, object, event):
-        if event.type() == QEvent.MouseButtonPress:
+        if event.type() == QEvent.KeyRelease:
             if event.modifiers() & Qt.ControlModifier:
-                self.fitToPage()
+                if event.key() == Qt.Key_Left:
+                    self.__gView.rotate( -90 )
+                if event.key() == Qt.Key_Right:
+                    self.__gView.rotate( 90 )
 
         if event.type() == QEvent.Wheel:
             if event.modifiers() & Qt.ControlModifier:
                 if event.angleDelta().y() > 0:
-                    self.__gView.scale(1.15, 1.15)
+                    self.zoomIn()
                 else:
-                    self.__gView.scale(1/1.15, 1/1.15)
+                    self.zoomOut()
                 return True
         return False
 
     def fitToPage(self):
         self.__gView.fitInView( self.__gView.scene().sceneRect(), Qt.KeepAspectRatio )
+
+    def zoomIn(self):
+        self.__gView.scale( self.ZoomFactor, self.ZoomFactor )
+
+    def zoomOut(self):
+        self.__gView.scale( 1 / self.ZoomFactor, 1 / self.ZoomFactor )
 
 

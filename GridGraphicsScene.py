@@ -5,6 +5,7 @@ from PyQt5.QtGui import ( QPen )
 
 class CGridGraphicsScene(QGraphicsScene):
     gridSize = 400
+    bDrawGrid = False
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
 
@@ -13,6 +14,8 @@ class CGridGraphicsScene(QGraphicsScene):
 
         super(CGridGraphicsScene, self).drawBackground( painter, rect )
 
+        if self.bDrawGrid == False : return
+        
         # координатная сетка 
         left = rect.left() - rect.left() % self.gridSize
         top  = rect.top()  - rect.top()  % self.gridSize

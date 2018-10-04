@@ -9,6 +9,8 @@ class CGrafEdgeItem(QGraphicsItem):
     nxGraf   = None
     nodeID_1 = None
     nodeID_2 = None
+    bDrawBBox = False
+    
     __path   = None 
     __line   = None
     __rAngle = None
@@ -51,18 +53,17 @@ class CGrafEdgeItem(QGraphicsItem):
     #     print( "del CGrafEdgeItem" )
 
     def boundingRect(self):
-        # return self.__path.boundingRect().translated(-5000, -5000)
-        # return QRectF(-10, -1*self.__line.length(), 20, self.__line.length())
-        # return self.__path.boundingRect()
         return self.__path.boundingRect().adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
 
     def paint(self, painter, option, widget):
-        # Draw BBox
         pen = QPen()
+        
+        # Draw BBox
         pen.setWidth( 8 )
-        pen.setColor( Qt.blue )
-        painter.setPen(pen)
-        # painter.drawRect( self.__path.boundingRect().adjusted(-1 * self.__fBBoxD, -1 * self.__fBBoxD, self.__fBBoxD, self.__fBBoxD) )
+        if self.bDrawBBox == True:
+            pen.setColor( Qt.blue )
+            painter.setPen(pen)
+            painter.drawRect( self.__path.boundingRect().adjusted(-1 * self.__fBBoxD, -1 * self.__fBBoxD, self.__fBBoxD, self.__fBBoxD) )
 
         # Draw Edge
         if self.isSelected():
