@@ -18,13 +18,13 @@ class CGrafManager():
     QGraphicsScene = None
     nxGraf = None
     bDrawBBox = False
-    nodeGItems: typing.Dict[str, CGrafNodeItem] = {}
-    edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}
+    nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
+    edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # onlu for mypy linter
 
     def __init__(self, nxGraf, qGScene):
         self.QGraphicsScene = qGScene
         self.nxGraf         = nxGraf
-        
+
         for n in nxGraf.nodes():
             nodeGItem = CGrafNodeItem( nxGraf, n )
             nodeGItem.setPos( nxGraf.node[ n ]['x'], nxGraf.node[ n ]['y'] )
@@ -47,6 +47,8 @@ class CGrafManager():
         
     # def __del__(self):
         # print( "del CGrafSceneManager", self.QGraphicsScene )
+
+counter = 0
 
 class CMainWindow(QMainWindow):
     __GrafManager = None
@@ -73,29 +75,55 @@ class CMainWindow(QMainWindow):
         # self.SkladMap_Scene.addRect( self.SkladMap_Scene.sceneRect() )
 
     def SkladMap_Scene_SelectionChanged( self ):
+        global counter
+        counter += 1
+        # if counter > 2: return
+        print( counter, "************************************************" )
+
         self.objProps.clear()
 
         selItems = self.SkladMap_Scene.selectedItems()
-        if ( len( selItems ) != 1 ): return
+        print( len( selItems ), selItems )
+        if ( len( selItems ) < 1 ): return
+        print("***")
 
         edgeItem = selItems[ 0 ]
 
         if isinstance( edgeItem, CGrafEdgeItem ):
-            # Берем кратную вершину, если она есть
-            tKey = ( edgeItem.nodeID_2, edgeItem.nodeID_1 )
-            multEdgeItem = self.__GrafManager.edgeGItems.get( tKey )
-            if multEdgeItem != None:
-                multEdgeItem.setSelected( True )
+            nodeItem = self.__GrafManager.nodeGItems.get( edgeItem.nodeID_1 )
+            # print( nodeItem )
 
-            print( edgeItem, multEdgeItem )
-            self.objProps.setColumnCount(3)
-            print( self.__GrafManager.nxGraf.edges() )
+            path = QPainterPath()
+            path.addRect( edgeItem.boundingRect() )
+            self.SkladMap_Scene.setSelectionArea( path, edgeItem.transform() )
+            # nodeItem.setSelected( True )
+
+            # Берем кратную вершину, если она есть
+            # tKey = ( edgeItem.nodeID_2, edgeItem.nodeID_1 )
+            # multEdgeItem = self.__GrafManager.edgeGItems.get( tKey )
+            # if multEdgeItem != None:
+                # self.SkladMap_Scene.blockSignals( True )
+                # multEdgeItem.setSelected( True )
+                # self.SkladMap_Scene.blockSignals( False )
+
+            # print( edgeItem, multEdgeItem )
+            # self.objProps.setColumnCount( 3 )
+
+            # print( edgeItem.nxEdge(), "s" )
+            # print( multEdgeItem.nxEdge(), "0" )
+            # print( "!!!!!!!!!!!!!!!!!!!!!!!!!!!111" )
+
             # self.objProps.appendRow( [ QStandardItem("1111"), QStandardItem("2111"), QStandardItem("3111") ] )
             # print( selItems, len( selItems ), item.data(0), type( item ), isinstance( item, CGrafEdgeItem )  )
 
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
         self.SkladMap_View.fitInView( self.SkladMap_Scene.sceneRect(), Qt.KeepAspectRatio )
+        path = QPainterPath()
+        path.addRect( QRectF( -1000, -1000, 2000, 2000 ) )
+        self.SkladMap_Scene.addRect( QRectF( -1000, -1000, 2000, 2000 ) )
+        self.SkladMap_Scene.setSelectionArea( path )
+                
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):

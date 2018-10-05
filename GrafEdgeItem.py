@@ -2,7 +2,6 @@
 from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform )
 from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
-# from math import *
 import math
 
 class CGrafEdgeItem(QGraphicsItem):
@@ -10,7 +9,7 @@ class CGrafEdgeItem(QGraphicsItem):
     nodeID_1 = None
     nodeID_2 = None
     bDrawBBox = False
-    
+
     __path   = None 
     __line   = None
     __rAngle = None
@@ -48,9 +47,8 @@ class CGrafEdgeItem(QGraphicsItem):
         polygonF << t.map( p2 )
         self.__path.addPolygon( polygonF )
 
-
-    # def __del__(self):
-    #     print( "del CGrafEdgeItem" )
+    def nxEdge(self):
+        return self.nxGraf[ self.nodeID_1 ][ self.nodeID_2 ]
 
     def boundingRect(self):
         return self.__path.boundingRect().adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
