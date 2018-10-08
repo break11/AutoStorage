@@ -18,8 +18,10 @@ class CGrafManager():
     QGraphicsScene = None
     nxGraf = None
     bDrawBBox = False
-    nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
-    edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # onlu for mypy linter
+    # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
+    # edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # onlu for mypy linter
+    nodeGItems = {}
+    edgeGItems = {}
 
     def __init__(self, nxGraf, qGScene):
         self.QGraphicsScene = qGScene
@@ -32,26 +34,22 @@ class CGrafManager():
             nodeGItem.setZValue( 20 )
             self.nodeGItems[ n ] = nodeGItem
 
-        testDict = {}
-        # g1 = QGraphicsItemGroup()
-        # g1.setFlags( QGraphicsItem.ItemIsSelectable )
-        # qGScene.addItem( g1 )
+        groupsByEdge = {}
         for e in nxGraf.edges():
-            fs = frozenset( [ e[0], e[1] ] )
+            edgeGItem = CGrafEdgeItem( nxGraf, *e )
+            # g.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
+            edgeGItem.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
+            # qGScene.addItem( edgeGItem )
+            self.edgeGItems[ e ] = edgeGItem
 
-            g = testDict.get( fs )
-            print( g )
+            edgeKey = frozenset( [ e[0], e[1] ] )
+            g = groupsByEdge.get( edgeKey )
             if g == None:
                 g = QGraphicsItemGroup()
                 g.setFlags( QGraphicsItem.ItemIsSelectable )
-                testDict[ fs ] = g
+                groupsByEdge[ edgeKey ] = g
                 qGScene.addItem( g )
-
-            edgeGItem = CGrafEdgeItem( nxGraf, *e, parent = g )
-            edgeGItem.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
-            qGScene.addItem( edgeGItem )
-            self.edgeGItems[ e ] = edgeGItem
-        # print( testDict )
+            g.addToGroup( edgeGItem )
 
     def setDrawBBox( self, bVal ):
         for n, v in self.nodeGItems.items():
@@ -106,7 +104,11 @@ class CMainWindow(QMainWindow):
 
         edgeItem = selItems[ 0 ]
 
+        if isinstance( edgeItem, QGraphicsItemGroup ):
+            print( "222" )
+
         if isinstance( edgeItem, CGrafEdgeItem ):
+            print( "111" )
             nodeItem = self.__GrafManager.nodeGItems.get( edgeItem.nodeID_1 )
 
             # path = QPainterPath()
@@ -138,27 +140,7 @@ class CMainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
-        self.SkladMap_View.fitInView( self.SkladMap_Scene.sceneRect(), Qt.KeepAspectRatio )
-
-        # sV1 = "38"
-        # sV2 = "42"
-        # tKey = ( sV1, sV2 )
-        # edgeItem = self.__GrafManager.edgeGItems.get( tKey )
-
-        # # only test
-        # path = QPainterPath()
-        # path.addRect( edgeItem.sceneTransform().mapRect( edgeItem.boundingRect() ) )
-        # # print( edgeItem.boundingRect(), edgeItem.sceneTransform().mapRect( edgeItem.boundingRect() ) )
-        # # path.addRect( QRectF( 0,0,10000,10000 ) )
-
-        # pathI = self.SkladMap_Scene.addPath( path )
-        # pen = QPen( Qt.red )
-        # pen.setWidth( 5 )
-        # pathI.setPen( pen )
-        # # pathI.setTransform( edgeItem.sceneTransform() )
-
-        # self.SkladMap_Scene.setSelectionArea( path )
-                
+        self.SkladMap_View.fitInView( self.SkladMap_Scene.sceneRect(), Qt.KeepAspectRatio )                
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):

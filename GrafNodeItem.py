@@ -13,7 +13,7 @@ class CGrafNodeItem(QGraphicsItem):
     def __init__(self, nxGraf, nodeID):
         super(CGrafNodeItem, self).__init__()
 
-        self.nxGraf = nxGraf
+        self.nxGraf  = nxGraf
         self.nodeID = nodeID
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
 

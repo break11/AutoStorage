@@ -61,7 +61,7 @@ class CGrafEdgeItem(QGraphicsItem):
         if self.bDrawBBox == True:
             pen.setColor( Qt.blue )
             painter.setPen(pen)
-            painter.drawRect( self.__path.boundingRect().adjusted(-1 * self.__fBBoxD, -1 * self.__fBBoxD, self.__fBBoxD, self.__fBBoxD) )
+            painter.drawRect( self.boundingRect() )
 
         # Draw Edge
         if self.isSelected():
