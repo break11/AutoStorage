@@ -15,9 +15,9 @@ class CGrafEdgeItem(QGraphicsItem):
     __rAngle = None
     __fBBoxD = 20   # расширение BBox для удобства выделения
 
-    def __init__(self, nxGraf, nodeID_1, nodeID_2):
-        super(CGrafEdgeItem, self).__init__()
-
+    def __init__(self, nxGraf, nodeID_1, nodeID_2, parent = None):
+        super(CGrafEdgeItem, self ).__init__( parent )
+        
         self.nxGraf = nxGraf
         self.nodeID_1 = nodeID_1
         self.nodeID_2 = nodeID_2

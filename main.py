@@ -6,7 +6,7 @@ import typing
 from PyQt5 import uic
 from PyQt5.QtCore import (Qt, pyqtSlot)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow )
+from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup )
 
 from GrafNodeItem import *
 from GrafEdgeItem import *
@@ -32,11 +32,26 @@ class CGrafManager():
             nodeGItem.setZValue( 20 )
             self.nodeGItems[ n ] = nodeGItem
 
+        testDict = {}
+        # g1 = QGraphicsItemGroup()
+        # g1.setFlags( QGraphicsItem.ItemIsSelectable )
+        # qGScene.addItem( g1 )
         for e in nxGraf.edges():
-            nodeEItem = CGrafEdgeItem( nxGraf, *e )
-            nodeEItem.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
-            qGScene.addItem( nodeEItem )
-            self.edgeGItems[ e ] = nodeEItem
+            fs = frozenset( [ e[0], e[1] ] )
+
+            g = testDict.get( fs )
+            print( g )
+            if g == None:
+                g = QGraphicsItemGroup()
+                g.setFlags( QGraphicsItem.ItemIsSelectable )
+                testDict[ fs ] = g
+                qGScene.addItem( g )
+
+            edgeGItem = CGrafEdgeItem( nxGraf, *e, parent = g )
+            edgeGItem.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
+            qGScene.addItem( edgeGItem )
+            self.edgeGItems[ e ] = edgeGItem
+        # print( testDict )
 
     def setDrawBBox( self, bVal ):
         for n, v in self.nodeGItems.items():
@@ -80,31 +95,36 @@ class CMainWindow(QMainWindow):
         # if counter > 2: return
         print( counter, "************************************************" )
 
-        self.objProps.clear()
+        # self.objProps.clear()
 
         selItems = self.SkladMap_Scene.selectedItems()
         print( len( selItems ), selItems )
+
+        if (len( selItems ) == 0 ): print( "NULL SELECTED ITEMS" )
+
         if ( len( selItems ) < 1 ): return
-        print("***")
 
         edgeItem = selItems[ 0 ]
 
         if isinstance( edgeItem, CGrafEdgeItem ):
             nodeItem = self.__GrafManager.nodeGItems.get( edgeItem.nodeID_1 )
-            # print( nodeItem )
 
-            path = QPainterPath()
-            path.addRect( edgeItem.boundingRect() )
-            self.SkladMap_Scene.setSelectionArea( path, edgeItem.transform() )
-            # nodeItem.setSelected( True )
+            # path = QPainterPath()
+            # path.addRect( edgeItem.sceneTransform().mapRect( edgeItem.boundingRect() ) )
+            # pathI = self.SkladMap_Scene.addPath( path )
+            # pen = QPen( Qt.red )
+            # pen.setWidth( 5 )
+            # pathI.setPen( pen )
+            # # pathI.setTransform( edgeItem.sceneTransform() )
+            # self.SkladMap_Scene.setSelectionArea( path )
 
             # Берем кратную вершину, если она есть
             # tKey = ( edgeItem.nodeID_2, edgeItem.nodeID_1 )
             # multEdgeItem = self.__GrafManager.edgeGItems.get( tKey )
             # if multEdgeItem != None:
-                # self.SkladMap_Scene.blockSignals( True )
-                # multEdgeItem.setSelected( True )
-                # self.SkladMap_Scene.blockSignals( False )
+            #     self.SkladMap_Scene.blockSignals( True )
+            #     multEdgeItem.setSelected( True )
+            #     self.SkladMap_Scene.blockSignals( False )
 
             # print( edgeItem, multEdgeItem )
             # self.objProps.setColumnCount( 3 )
@@ -119,10 +139,25 @@ class CMainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
         self.SkladMap_View.fitInView( self.SkladMap_Scene.sceneRect(), Qt.KeepAspectRatio )
-        path = QPainterPath()
-        path.addRect( QRectF( -1000, -1000, 2000, 2000 ) )
-        self.SkladMap_Scene.addRect( QRectF( -1000, -1000, 2000, 2000 ) )
-        self.SkladMap_Scene.setSelectionArea( path )
+
+        # sV1 = "38"
+        # sV2 = "42"
+        # tKey = ( sV1, sV2 )
+        # edgeItem = self.__GrafManager.edgeGItems.get( tKey )
+
+        # # only test
+        # path = QPainterPath()
+        # path.addRect( edgeItem.sceneTransform().mapRect( edgeItem.boundingRect() ) )
+        # # print( edgeItem.boundingRect(), edgeItem.sceneTransform().mapRect( edgeItem.boundingRect() ) )
+        # # path.addRect( QRectF( 0,0,10000,10000 ) )
+
+        # pathI = self.SkladMap_Scene.addPath( path )
+        # pen = QPen( Qt.red )
+        # pen.setWidth( 5 )
+        # pathI.setPen( pen )
+        # # pathI.setTransform( edgeItem.sceneTransform() )
+
+        # self.SkladMap_Scene.setSelectionArea( path )
                 
 
     @pyqtSlot(bool)
