@@ -48,6 +48,28 @@ class CStorageGraf_GScene_Manager():
 
         for e, v in self.edgeGItems.items():
             v.bDrawBBox = bVal
+
+    def nodePropChanged( self, nodeID):
+        nodeGItem = self.nodeGItems[ nodeID ]
+        x = nodeGItem.nxNode()['x']
+        y = nodeGItem.nxNode()['y']
+        nodeGItem.setPos( x, y )
+
+        l = self.nxGraf.out_edges( nodeID ) 
+        for key in l:
+            edgeGItem = self.edgeGItems[ key ]
+            edgeGItem.buildEdge()
+            edgeGItem.setPos( x, y )
+            # edgeGItem.itemChange( QGraphicsItem.ItemPositionChange, QPointF( x, y ) )
+            self.groupsByEdge[ frozenset( key ) ].addToGroup( edgeGItem )
+
+        l = self.nxGraf.in_edges( nodeID )
+        for key in l:
+            edgeGItem = self.edgeGItems[ key ]
+            edgeGItem.buildEdge()
+            # self.groupsByEdge[ frozenset( key ) ].addToGroup( edgeGItem )
+            # edgeGItem.itemChange( QGraphicsItem.ItemPositionChange, QPointF( x, y ) )
+
         
     # def __del__(self):
         # print( "del CGrafSceneManager", self.QGraphicsScene )

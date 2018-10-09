@@ -15,8 +15,9 @@ from GridGraphicsScene import *
 from StorageGraf_GScene_Manager import *
 import images_rc
 
-def Std_Model_Item( text, bReadOnly = False ):
-    item = QStandardItem( str( text ) )
+def Std_Model_Item( val, bReadOnly = False ):
+    item = QStandardItem()
+    item.setData( val, Qt.EditRole )
     item.setEditable( not bReadOnly )
     return item
 
@@ -39,7 +40,8 @@ class CSMD_MainWindow(QMainWindow):
 
         # G = nx.read_graphml( "test.graphml" )
         # G = nx.read_graphml( "vrn_test1.graphml" )
-        G = nx.read_graphml( "magadanskaya.graphml" )
+        # G = nx.read_graphml( "magadanskaya.graphml" )
+        G = nx.read_graphml( "test_0123.graphml" )
         self.__SGraf_Manager = CStorageGraf_GScene_Manager( G, self.StorageMap_Scene )
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
@@ -48,13 +50,10 @@ class CSMD_MainWindow(QMainWindow):
         # self.SkladMap_Scene.addRect( self.SkladMap_Scene.sceneRect() )
 
     def StorageMap_Scene_SelectionChanged( self ):
-
         self.objProps.clear()
 
         selItems = self.StorageMap_Scene.selectedItems()
-
         if ( len( selItems ) != 1 ): return
-
         gItem = selItems[ 0 ]
 
         if isinstance( gItem, QGraphicsItemGroup ):
@@ -64,21 +63,41 @@ class CSMD_MainWindow(QMainWindow):
             self.objProps.setColumnCount( 2 )
             self.objProps.setHorizontalHeaderLabels( [ "property", "value" ] )
 
-            rowItems = [ Std_Model_Item( text="nodeID", bReadOnly=True ), Std_Model_Item( gItem.nodeID, True ) ]
+            rowItems = [ Std_Model_Item( val="nodeID", bReadOnly=True ), Std_Model_Item( gItem.nodeID, True ) ]
             self.objProps.appendRow( rowItems )
 
             for key, val in gItem.nxNode().items():
-                rowItems = [ Std_Model_Item( text=key, bReadOnly=True ), Std_Model_Item( val ) ]
+                rowItems = [ Std_Model_Item( val=key, bReadOnly=True ), Std_Model_Item( val ) ]
                 self.objProps.appendRow( rowItems )
-                # print( key, val )
             self.tvObjectProps.resizeColumnToContents( 0 )
 
     def objProps_itemChanged( self, item ):
         print( "prop changed", self.objProps.item( item.row(), 0 ).data( Qt.EditRole ), item.data( Qt.EditRole ) )
 
+        selItems = self.StorageMap_Scene.selectedItems()
+        if ( len( selItems ) != 1 ): return
+        gItem = selItems[ 0 ]
+
+        if isinstance( gItem, CNode_SGItem ):
+            propName  = self.objProps.item( item.row(), 0 ).data( Qt.EditRole )
+            propValue = item.data( Qt.EditRole )
+            gItem.nxNode()[ propName ] = propValue
+            self.__SGraf_Manager.nodePropChanged( gItem.nodeID )
+
+        # if isinstance( gItem, CNode_SGItem ):
+        #     i = 0
+        #     while i < self.objProps.rowCount():
+        #         print( self.objProps.item( i, 0 ),  )
+        #         i += 1
+
+        #     for key, val in gItem.nxNode().items():
+
+        #     gItem.updateFromProps()
+
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
-        self.StorageMap_View.fitInView( self.StorageMap_Scene.sceneRect(), Qt.KeepAspectRatio )                
+        # self.StorageMap_View.fitInView( self.StorageMap_Scene.sceneRect(), Qt.KeepAspectRatio )
+        nx.write_graphml(self.__SGraf_Manager.nxGraf, "test_0123.graphml")
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):

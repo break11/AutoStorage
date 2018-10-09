@@ -43,6 +43,10 @@ class CNode_SGItem(QGraphicsItem):
 
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
+        # print( self.nxGraf.degree( self.nodeID ), l )
+        # self.setPos( self.nxGraf.node[ self.nodeID ]['x'], self.nxGraf.node[ self.nodeID ]['y'] )
+        # print( type( self.nxGraf.node[ self.nodeID ]['x'] ), self.nxGraf.node[ self.nodeID ]['y'] )
+
     # def mousePressEvent(self, event):
     #     pos = event.pos()
     #     print( pos )

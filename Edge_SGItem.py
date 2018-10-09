@@ -24,8 +24,11 @@ class CEdge_SGItem(QGraphicsItem):
 
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
 
-        node_1 = nxGraf.node[ self.nodeID_1 ]
-        node_2 = nxGraf.node[ self.nodeID_2 ]
+        self.buildEdge()
+
+    def buildEdge(self):
+        node_1 = self.nxGraf.node[ self.nodeID_1 ]
+        node_2 = self.nxGraf.node[ self.nodeID_2 ]
 
         # исходная линия можеь быть полезной далее, например для получения длины
         self.__line = QLineF( node_1['x'], node_1['y'], node_2['x'], node_2['y'] )
