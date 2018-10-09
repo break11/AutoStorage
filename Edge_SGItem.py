@@ -4,7 +4,7 @@ from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform )
 from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
-class CGrafEdgeItem(QGraphicsItem):
+class CEdge_SGItem(QGraphicsItem):
     nxGraf   = None
     nodeID_1 = None
     nodeID_2 = None
@@ -15,8 +15,8 @@ class CGrafEdgeItem(QGraphicsItem):
     __rAngle = None
     __fBBoxD = 20   # расширение BBox для удобства выделения
 
-    def __init__(self, nxGraf, nodeID_1, nodeID_2, parent = None):
-        super(CGrafEdgeItem, self ).__init__( parent )
+    def __init__(self, nxGraf, nodeID_1, nodeID_2):
+        super(CEdge_SGItem, self ).__init__()
         
         self.nxGraf = nxGraf
         self.nodeID_1 = nodeID_1

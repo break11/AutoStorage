@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QBrush )
 from PyQt5.QtCore import ( Qt, QRectF )
 
-class CGrafNodeItem(QGraphicsItem):
+class CNode_SGItem(QGraphicsItem):
     nxGraf = None
     nodeID = None
     bDrawBBox = False
@@ -11,14 +11,14 @@ class CGrafNodeItem(QGraphicsItem):
     __R = 50
 
     def __init__(self, nxGraf, nodeID):
-        super(CGrafNodeItem, self).__init__()
+        super(CNode_SGItem, self).__init__()
 
         self.nxGraf  = nxGraf
         self.nodeID = nodeID
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
 
     def nxNode(self):
-        return self.nxGraf[ self.nodeID ]
+        return self.nxGraf.node[ self.nodeID ]
 
     def boundingRect(self):
         return QRectF( -self.__R/2, -self.__R/2, self.__R, self.__R )
