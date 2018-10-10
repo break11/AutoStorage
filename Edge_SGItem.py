@@ -49,6 +49,8 @@ class CEdge_SGItem(QGraphicsItem):
         polygonF << t.map( p1 )
         polygonF << t.map( p2 )
         self.__path.addPolygon( polygonF )
+        
+        self.prepareGeometryChange()
 
     def nxEdge(self):
         return self.nxGraf[ self.nodeID_1 ][ self.nodeID_2 ]

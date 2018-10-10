@@ -40,8 +40,8 @@ class CSMD_MainWindow(QMainWindow):
 
         # G = nx.read_graphml( "test.graphml" )
         # G = nx.read_graphml( "vrn_test1.graphml" )
-        # G = nx.read_graphml( "magadanskaya.graphml" )
-        G = nx.read_graphml( "test_0123.graphml" )
+        G = nx.read_graphml( "magadanskaya.graphml" )
+        # G = nx.read_graphml( "test_0123.graphml" )
         self.__SGraf_Manager = CStorageGraf_GScene_Manager( G, self.StorageMap_Scene )
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )

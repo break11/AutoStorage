@@ -1,5 +1,6 @@
 
 from PyQt5.QtCore import ( Qt, QObject, QEvent, QTimer, QRectF )
+from PyQt5.QtWidgets import ( QGraphicsView )
 
 class CGV_Wheel_Zoom_EventFilter(QObject):
     __gView = None
@@ -24,12 +25,18 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         gView.setSceneRect( QRectF( tl, br ) )
 
     def eventFilter(self, object, event):
+        if event.type() == QEvent.KeyPress:
+            if event.modifiers() & Qt.ControlModifier:
+                self.__gView.setDragMode( QGraphicsView.DragMode.ScrollHandDrag )
+
         if event.type() == QEvent.KeyRelease:
             if event.modifiers() & Qt.ControlModifier:
                 if event.key() == Qt.Key_Left:
                     self.__gView.rotate( -90 )
                 if event.key() == Qt.Key_Right:
                     self.__gView.rotate( 90 )
+            else:
+                self.__gView.setDragMode( QGraphicsView.DragMode.RubberBandDrag )
 
         if event.type() == QEvent.Wheel:
             if event.modifiers() & Qt.ControlModifier:

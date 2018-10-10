@@ -36,7 +36,7 @@
        </brush>
       </property>
       <property name="dragMode">
-       <enum>QGraphicsView::ScrollHandDrag</enum>
+       <enum>QGraphicsView::RubberBandDrag</enum>
       </property>
       <property name="transformationAnchor">
        <enum>QGraphicsView::AnchorUnderMouse</enum>

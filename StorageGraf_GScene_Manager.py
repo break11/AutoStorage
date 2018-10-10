@@ -60,15 +60,20 @@ class CStorageGraf_GScene_Manager():
             edgeGItem = self.edgeGItems[ key ]
             edgeGItem.buildEdge()
             edgeGItem.setPos( x, y )
-            # edgeGItem.itemChange( QGraphicsItem.ItemPositionChange, QPointF( x, y ) )
-            self.groupsByEdge[ frozenset( key ) ].addToGroup( edgeGItem )
+            groupItem = self.groupsByEdge[ frozenset( key ) ]
+            # https://bugreports.qt.io/browse/QTBUG-25974
+            # В связи с ошибкой в Qt группа не меняет свой размер при изменении геометрии чилдов
+            # поэтому приходится пересоздавать группу, убирая элементы и занося их в нее вновь 
+            groupItem.removeFromGroup( edgeGItem )
+            groupItem.addToGroup( edgeGItem )
 
         l = self.nxGraf.in_edges( nodeID )
         for key in l:
             edgeGItem = self.edgeGItems[ key ]
             edgeGItem.buildEdge()
-            # self.groupsByEdge[ frozenset( key ) ].addToGroup( edgeGItem )
-            # edgeGItem.itemChange( QGraphicsItem.ItemPositionChange, QPointF( x, y ) )
+            groupItem = self.groupsByEdge[ frozenset( key ) ]
+            groupItem.removeFromGroup( edgeGItem )
+            groupItem.addToGroup( edgeGItem )
 
         
     # def __del__(self):

@@ -33,7 +33,8 @@ class CNode_SGItem(QGraphicsItem):
         if self.isSelected():
             fillColor = Qt.red
         else:
-            if ( self.nxGraf.node[ self.nodeID ]["nodeType"] == "StorageSingle" ):
+            nodeType = self.nxGraf.node[ self.nodeID ].get( "nodeType" )
+            if ( nodeType is not None ) and ( nodeType == "StorageSingle" ):
                 fillColor = Qt.cyan
             else:
                 fillColor = Qt.darkGreen
@@ -42,10 +43,6 @@ class CNode_SGItem(QGraphicsItem):
         painter.drawEllipse( self.boundingRect() )
 
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
-
-        # print( self.nxGraf.degree( self.nodeID ), l )
-        # self.setPos( self.nxGraf.node[ self.nodeID ]['x'], self.nxGraf.node[ self.nodeID ]['y'] )
-        # print( type( self.nxGraf.node[ self.nodeID ]['x'] ), self.nxGraf.node[ self.nodeID ]['y'] )
 
     # def mousePressEvent(self, event):
     #     pos = event.pos()
