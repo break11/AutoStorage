@@ -104,6 +104,12 @@
      </property>
      <item>
       <widget class="QTableView" name="tvObjectProps">
+       <property name="minimumSize">
+        <size>
+         <width>325</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="styleSheet">
         <string notr="true">QTableView::item:focus
 {

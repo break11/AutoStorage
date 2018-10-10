@@ -5,8 +5,8 @@ from Node_SGItem import *
 from Edge_SGItem import *
 
 class CStorageGraf_GScene_Manager():
-    QGraphicsScene = None
-    nxGraf = None
+    qGScene = None
+    nxGraf  = None
     bDrawBBox = False
     # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
     # edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # onlu for mypy linter
@@ -15,8 +15,8 @@ class CStorageGraf_GScene_Manager():
     groupsByEdge = {}
 
     def __init__(self, nxGraf, qGScene):
-        self.QGraphicsScene = qGScene
-        self.nxGraf         = nxGraf
+        self.qGScene = qGScene
+        self.nxGraf  = nxGraf
 
         for n in nxGraf.nodes():
             nodeGItem = CNode_SGItem( nxGraf, n )
@@ -31,7 +31,7 @@ class CStorageGraf_GScene_Manager():
             edgeGItem.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
             # qGScene.addItem( edgeGItem )
             self.edgeGItems[ e ] = edgeGItem
-
+            
             edgeKey = frozenset( [ e[0], e[1] ] )
             edgeGroup = self.groupsByEdge.get( edgeKey )
             if edgeGroup == None:

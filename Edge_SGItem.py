@@ -52,6 +52,9 @@ class CEdge_SGItem(QGraphicsItem):
         
         self.prepareGeometryChange()
 
+    def edgeName(self):
+        return self.nodeID_1 +"-->"+ self.nodeID_2
+
     def nxEdge(self):
         return self.nxGraf[ self.nodeID_1 ][ self.nodeID_2 ]
 

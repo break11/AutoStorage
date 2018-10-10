@@ -56,18 +56,35 @@ class CSMD_MainWindow(QMainWindow):
         if ( len( selItems ) != 1 ): return
         gItem = selItems[ 0 ]
 
-        if isinstance( gItem, QGraphicsItemGroup ):
-            print( "Group" )
-
         if isinstance( gItem, CNode_SGItem ):
             self.objProps.setColumnCount( 2 )
             self.objProps.setHorizontalHeaderLabels( [ "property", "value" ] )
 
-            rowItems = [ Std_Model_Item( val="nodeID", bReadOnly=True ), Std_Model_Item( gItem.nodeID, True ) ]
+            rowItems = [ Std_Model_Item( "nodeID", True ), Std_Model_Item( gItem.nodeID, True ) ]
             self.objProps.appendRow( rowItems )
 
-            for key, val in gItem.nxNode().items():
-                rowItems = [ Std_Model_Item( val=key, bReadOnly=True ), Std_Model_Item( val ) ]
+            for key, val in sorted( gItem.nxNode().items() ):
+                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val ) ]
+                self.objProps.appendRow( rowItems )
+            self.tvObjectProps.resizeColumnToContents( 0 )
+
+        if isinstance( gItem, QGraphicsItemGroup ):
+            self.objProps.setColumnCount( 3 )
+            self.objProps.setHorizontalHeaderLabels( [ "property", "edge", "multi edge" ] )
+
+            rowItems = [ Std_Model_Item( "edge", True ) ]
+            uniqAttrSet = set()
+            for eGItem in gItem.childItems():
+                rowItems.append( Std_Model_Item( eGItem.edgeName(), True  ) )
+                uniqAttrSet = uniqAttrSet.union( eGItem.nxEdge().keys() )
+            self.objProps.appendRow( rowItems )
+
+            for key in sorted( uniqAttrSet ):
+                rowItems = []
+                rowItems.append( Std_Model_Item( key, True ) )
+                for eGItem in gItem.childItems():
+                    val = eGItem.nxEdge().get( key )
+                    rowItems.append( Std_Model_Item( val ) )
                 self.objProps.appendRow( rowItems )
             self.tvObjectProps.resizeColumnToContents( 0 )
 
@@ -83,16 +100,6 @@ class CSMD_MainWindow(QMainWindow):
             propValue = item.data( Qt.EditRole )
             gItem.nxNode()[ propName ] = propValue
             self.__SGraf_Manager.nodePropChanged( gItem.nodeID )
-
-        # if isinstance( gItem, CNode_SGItem ):
-        #     i = 0
-        #     while i < self.objProps.rowCount():
-        #         print( self.objProps.item( i, 0 ),  )
-        #         i += 1
-
-        #     for key, val in gItem.nxNode().items():
-
-        #     gItem.updateFromProps()
 
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
