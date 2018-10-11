@@ -1,4 +1,6 @@
 
+import networkx as nx
+
 from PyQt5.QtWidgets import (QGraphicsItemGroup )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
@@ -7,7 +9,7 @@ from Edge_SGItem import *
 from GItem_EventFilter import *
 
 class CStorageGraf_GScene_Manager():
-    qGScene = None
+    GScene = None
     nxGraf  = None
     bDrawBBox = False
     # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
@@ -16,25 +18,27 @@ class CStorageGraf_GScene_Manager():
     edgeGItems = {}
     groupsByEdge = {}
 
-    def __init__(self, nxGraf, qGScene):
-        self.qGScene = qGScene
-        self.nxGraf  = nxGraf
-        evI = CGItem_EventFilter()
-        qGScene.addItem( evI )
+    def __init__(self, qGScene):
+        self.GScene = qGScene
 
-        for n in nxGraf.nodes():
-            nodeGItem = CNode_SGItem( nxGraf, n )
-            nodeGItem.setPos( nxGraf.node[ n ]['x'], nxGraf.node[ n ]['y'] )
-            qGScene.addItem( nodeGItem )
+    def load( self, sFName ):
+        self.nxGraf  = nx.read_graphml( sFName )
+        evI = CGItem_EventFilter()
+        self.GScene.addItem( evI )
+
+        for n in self.nxGraf.nodes():
+            nodeGItem = CNode_SGItem( self.nxGraf, n )
+            nodeGItem.setPos( self.nxGraf.node[ n ]['x'], self.nxGraf.node[ n ]['y'] )
+            self.GScene.addItem( nodeGItem )
             nodeGItem.installSceneEventFilter( evI )
             nodeGItem.setZValue( 20 )
             self.nodeGItems[ n ] = nodeGItem
 
-        for e in nxGraf.edges():
-            edgeGItem = CEdge_SGItem( nxGraf, *e )
-            # g.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
-            edgeGItem.setPos( nxGraf.node[ e[0] ]['x'], nxGraf.node[ e[0] ]['y'] )
-            # qGScene.addItem( edgeGItem )
+        for e in self.nxGraf.edges():
+            edgeGItem = CEdge_SGItem( self.nxGraf, *e )
+            # g.setPos( self.nxGraf.node[ e[0] ]['x'], self.nxGraf.node[ e[0] ]['y'] )
+            edgeGItem.setPos( self.nxGraf.node[ e[0] ]['x'], self.nxGraf.node[ e[0] ]['y'] )
+            # self.GScene.addItem( edgeGItem )
             self.edgeGItems[ e ] = edgeGItem
             
             edgeKey = frozenset( [ e[0], e[1] ] )
@@ -43,11 +47,17 @@ class CStorageGraf_GScene_Manager():
                 edgeGroup = QGraphicsItemGroup()
                 edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
                 self.groupsByEdge[ edgeKey ] = edgeGroup
-                qGScene.addItem( edgeGroup )
+                self.GScene.addItem( edgeGroup )
                 edgeGroup.installSceneEventFilter( evI )
 
             edgeGroup.addToGroup( edgeGItem )
             edgeGItem.installSceneEventFilter( evI )
+
+        self.GScene.addRect( self.GScene.sceneRect() )
+
+
+    def save( self, sFName ):
+        nx.write_graphml(self.nxGraf, sFName)
 
     def setDrawBBox( self, bVal ):
         for n, v in self.nodeGItems.items():
@@ -97,25 +107,22 @@ class CStorageGraf_GScene_Manager():
 
         if isinstance( gItem, CNode_SGItem ):
             objProps.setColumnCount( 2 )
-            objProps.setHorizontalHeaderLabels( [ "property", "value" ] )
-
-            rowItems = [ Std_Model_Item( "nodeID", True ), Std_Model_Item( gItem.nodeID, True ) ]
-            objProps.appendRow( rowItems )
+            objProps.setHorizontalHeaderLabels( [ "nodeID", gItem.nodeID ] )
 
             for key, val in sorted( gItem.nxNode().items() ):
                 rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val ) ]
                 objProps.appendRow( rowItems )
 
         if isinstance( gItem, QGraphicsItemGroup ):
-            objProps.setColumnCount( 3 )
-            objProps.setHorizontalHeaderLabels( [ "property", "edge", "multi edge" ] )
-
-            rowItems = [ Std_Model_Item( "edge", True ) ]
+            objProps.setColumnCount( len( gItem.childItems() ) )
+            header = [ "edgeID" ]
             uniqAttrSet = set()
             for eGItem in gItem.childItems():
-                rowItems.append( Std_Model_Item( eGItem.edgeName(), True  ) )
+                eGItem.edgeName()
+                header.append( eGItem.edgeName() )
                 uniqAttrSet = uniqAttrSet.union( eGItem.nxEdge().keys() )
-            objProps.appendRow( rowItems )
+
+            objProps.setHorizontalHeaderLabels( header )
 
             for key in sorted( uniqAttrSet ):
                 rowItems = []

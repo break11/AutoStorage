@@ -38,18 +38,17 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
         self.objProps.itemChanged.connect( self.objProps_itemChanged )
 
-        # G = nx.read_graphml( "test.graphml" )
         # G = nx.read_graphml( "vrn_test1.graphml" )
-        G = nx.read_graphml( "magadanskaya.graphml" )
+        # G = nx.read_graphml( "magadanskaya.graphml" )
         # G = nx.read_graphml( "test_0123.graphml" )
-        self.__SGraf_Manager = CStorageGraf_GScene_Manager( G, self.StorageMap_Scene )
+        self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene )
+        self.__SGraf_Manager.load( "test.graphml" )
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.__GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.StorageMap_View.viewport().installEventFilter( self.__GV_EventFilter )
-        # self.SkladMap_Scene.addRect( self.SkladMap_Scene.sceneRect() )
 
-    # сигнал изменения выделенного объекта сцены
+    # сигнал изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
         self.objProps.clear()
 
@@ -69,13 +68,10 @@ class CSMD_MainWindow(QMainWindow):
 
         self.__SGraf_Manager.updateGItemFromProps( gItem, item )
 
-    # connect( triggered(), 23232 )
-    # connect( triggered(bool), 23232(bool) )
-
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
+        self.StorageMap_View.setSceneRect( self.StorageMap_Scene.sceneRect() )
         self.StorageMap_View.fitInView( self.StorageMap_Scene.sceneRect(), Qt.KeepAspectRatio )
-        # nx.write_graphml(self.__SGraf_Manager.nxGraf, "test_0123.graphml")
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):
@@ -93,10 +89,15 @@ class CSMD_MainWindow(QMainWindow):
     def on_acBBox_triggered(self, bChecked):
         self.__SGraf_Manager.setDrawBBox( bChecked )
 
+    @pyqtSlot(bool)
+    def on_acLoadGraphML_triggered(self, bChecked):
+        self.__SGraf_Manager.load( "magadanskaya.graphml" )
+
+    @pyqtSlot(bool)
+    def on_acSaveGraphML_triggered(self, bChecked):
+        self.__SGraf_Manager.save( "test_0123.graphml" )
+
 def main():
-
-    # qt_set_sequence_auto_mnemonic( False )
-
     app = QApplication(sys.argv)
     app.setStyle( CNoAltMenu_Style() )
 

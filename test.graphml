@@ -40,7 +40,12 @@
       <data key="d4">300</data>
       <data key="d3">-300</data>
     </node>
-    <edge source="nLU" target="n0"/>
+    <edge source="nLU" target="n0">
+      <data key="d13">300</data>
+    </edge>
+    <edge source="n0" target="nLU">
+      <data key="d14">300</data>
+    </edge>
     <edge source="nRD" target="n0"/>
     <edge source="nLD" target="n0"/>
     <edge source="nRU" target="n0"/>
