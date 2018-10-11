@@ -62,10 +62,13 @@ class CSMD_MainWindow(QMainWindow):
 
         self.__SGraf_Manager.updateGItemFromProps( gItem, item )
 
+    # connect( triggered(), 23232 )
+    # connect( triggered(bool), 23232(bool) )
+
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
-        # self.StorageMap_View.fitInView( self.StorageMap_Scene.sceneRect(), Qt.KeepAspectRatio )
-        nx.write_graphml(self.__SGraf_Manager.nxGraf, "test_0123.graphml")
+        self.StorageMap_View.fitInView( self.StorageMap_Scene.sceneRect(), Qt.KeepAspectRatio )
+        # nx.write_graphml(self.__SGraf_Manager.nxGraf, "test_0123.graphml")
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):

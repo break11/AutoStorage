@@ -4,6 +4,7 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
 from Node_SGItem import *
 from Edge_SGItem import *
+from GItem_EventFilter import *
 
 class CStorageGraf_GScene_Manager():
     qGScene = None
@@ -18,11 +19,14 @@ class CStorageGraf_GScene_Manager():
     def __init__(self, nxGraf, qGScene):
         self.qGScene = qGScene
         self.nxGraf  = nxGraf
+        evI = CGItem_EventFilter()
+        qGScene.addItem( evI )
 
         for n in nxGraf.nodes():
             nodeGItem = CNode_SGItem( nxGraf, n )
             nodeGItem.setPos( nxGraf.node[ n ]['x'], nxGraf.node[ n ]['y'] )
             qGScene.addItem( nodeGItem )
+            nodeGItem.installSceneEventFilter( evI )
             nodeGItem.setZValue( 20 )
             self.nodeGItems[ n ] = nodeGItem
 
@@ -40,8 +44,10 @@ class CStorageGraf_GScene_Manager():
                 edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
                 self.groupsByEdge[ edgeKey ] = edgeGroup
                 qGScene.addItem( edgeGroup )
+                edgeGroup.installSceneEventFilter( evI )
 
             edgeGroup.addToGroup( edgeGItem )
+            edgeGItem.installSceneEventFilter( evI )
 
     def setDrawBBox( self, bVal ):
         for n, v in self.nodeGItems.items():

@@ -26,7 +26,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.KeyPress:
-            if event.modifiers() & Qt.ControlModifier:
+            if event.modifiers() & Qt.AltModifier:
                 self.__gView.setDragMode( QGraphicsView.DragMode.ScrollHandDrag )
 
         if event.type() == QEvent.KeyRelease:
