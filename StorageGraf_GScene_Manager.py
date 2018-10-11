@@ -1,5 +1,6 @@
 
 from PyQt5.QtWidgets import (QGraphicsItemGroup )
+from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
 from Node_SGItem import *
 from Edge_SGItem import *
@@ -49,32 +50,74 @@ class CStorageGraf_GScene_Manager():
         for e, v in self.edgeGItems.items():
             v.bDrawBBox = bVal
 
-    def nodePropChanged( self, nodeID):
-        nodeGItem = self.nodeGItems[ nodeID ]
-        x = nodeGItem.nxNode()['x']
-        y = nodeGItem.nxNode()['y']
-        nodeGItem.setPos( x, y )
+    #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице модели свойств
+    def updateGItemFromProps( self, gItem, stdMItem ):
+        if isinstance( gItem, CNode_SGItem ):
+            propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
+            propValue = stdMItem.data( Qt.EditRole )
+            gItem.nxNode()[ propName ] = propValue
+            nodeID = gItem.nodeID
 
-        l = self.nxGraf.out_edges( nodeID ) 
-        for key in l:
-            edgeGItem = self.edgeGItems[ key ]
-            edgeGItem.buildEdge()
-            edgeGItem.setPos( x, y )
-            groupItem = self.groupsByEdge[ frozenset( key ) ]
-            # https://bugreports.qt.io/browse/QTBUG-25974
-            # В связи с ошибкой в Qt группа не меняет свой размер при изменении геометрии чилдов
-            # поэтому приходится пересоздавать группу, убирая элементы и занося их в нее вновь 
-            groupItem.removeFromGroup( edgeGItem )
-            groupItem.addToGroup( edgeGItem )
+            nodeGItem = self.nodeGItems[ nodeID ]
+            x = nodeGItem.nxNode()['x']
+            y = nodeGItem.nxNode()['y']
+            nodeGItem.setPos( x, y )
+            
+            incEdges = list( self.nxGraf.out_edges( nodeID ) ) +  list( self.nxGraf.in_edges( nodeID ) )
+            print( incEdges )
+            for key in incEdges:
+                edgeGItem = self.edgeGItems[ key ]
+                edgeGItem.buildEdge()
 
-        l = self.nxGraf.in_edges( nodeID )
-        for key in l:
-            edgeGItem = self.edgeGItems[ key ]
-            edgeGItem.buildEdge()
-            groupItem = self.groupsByEdge[ frozenset( key ) ]
-            groupItem.removeFromGroup( edgeGItem )
-            groupItem.addToGroup( edgeGItem )
+                # Граням выходящим из узла обновляем позицию, входящим - нет
+                if gItem.nodeID == key[0]:
+                    edgeGItem.setPos( x, y )
 
+                groupItem = self.groupsByEdge[ frozenset( key ) ]
+
+                # https://bugreports.qt.io/browse/QTBUG-25974
+                # В связи с ошибкой в Qt группа не меняет свой размер при изменении геометрии чилдов
+                # поэтому приходится пересоздавать группу, убирая элементы и занося их в нее вновь 
+                groupItem.removeFromGroup( edgeGItem )
+                groupItem.addToGroup( edgeGItem )
+
+    #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
+    def fillPropsForGItem( self, gItem, objProps ):
+        def Std_Model_Item( val, bReadOnly = False ):
+            item = QStandardItem()
+            item.setData( val, Qt.EditRole )
+            item.setEditable( not bReadOnly )
+            return item
+
+        if isinstance( gItem, CNode_SGItem ):
+            objProps.setColumnCount( 2 )
+            objProps.setHorizontalHeaderLabels( [ "property", "value" ] )
+
+            rowItems = [ Std_Model_Item( "nodeID", True ), Std_Model_Item( gItem.nodeID, True ) ]
+            objProps.appendRow( rowItems )
+
+            for key, val in sorted( gItem.nxNode().items() ):
+                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val ) ]
+                objProps.appendRow( rowItems )
+
+        if isinstance( gItem, QGraphicsItemGroup ):
+            objProps.setColumnCount( 3 )
+            objProps.setHorizontalHeaderLabels( [ "property", "edge", "multi edge" ] )
+
+            rowItems = [ Std_Model_Item( "edge", True ) ]
+            uniqAttrSet = set()
+            for eGItem in gItem.childItems():
+                rowItems.append( Std_Model_Item( eGItem.edgeName(), True  ) )
+                uniqAttrSet = uniqAttrSet.union( eGItem.nxEdge().keys() )
+            objProps.appendRow( rowItems )
+
+            for key in sorted( uniqAttrSet ):
+                rowItems = []
+                rowItems.append( Std_Model_Item( key, True ) )
+                for eGItem in gItem.childItems():
+                    val = eGItem.nxEdge().get( key )
+                    rowItems.append( Std_Model_Item( val ) )
+                objProps.appendRow( rowItems )
         
     # def __del__(self):
         # print( "del CGrafSceneManager", self.QGraphicsScene )

@@ -15,13 +15,6 @@ from GridGraphicsScene import *
 from StorageGraf_GScene_Manager import *
 import images_rc
 
-def Std_Model_Item( val, bReadOnly = False ):
-    item = QStandardItem()
-    item.setData( val, Qt.EditRole )
-    item.setEditable( not bReadOnly )
-    return item
-
-
 ## Storage Map Designer Main Window
 class CSMD_MainWindow(QMainWindow):
     __SGraf_Manager = None
@@ -49,6 +42,7 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_View.viewport().installEventFilter( self.__GV_EventFilter )
         # self.SkladMap_Scene.addRect( self.SkladMap_Scene.sceneRect() )
 
+    # сигнал изменения выделенного объекта сцены
     def StorageMap_Scene_SelectionChanged( self ):
         self.objProps.clear()
 
@@ -56,50 +50,17 @@ class CSMD_MainWindow(QMainWindow):
         if ( len( selItems ) != 1 ): return
         gItem = selItems[ 0 ]
 
-        if isinstance( gItem, CNode_SGItem ):
-            self.objProps.setColumnCount( 2 )
-            self.objProps.setHorizontalHeaderLabels( [ "property", "value" ] )
+        self.__SGraf_Manager.fillPropsForGItem( gItem, self.objProps )
 
-            rowItems = [ Std_Model_Item( "nodeID", True ), Std_Model_Item( gItem.nodeID, True ) ]
-            self.objProps.appendRow( rowItems )
+        self.tvObjectProps.resizeColumnToContents( 0 )
 
-            for key, val in sorted( gItem.nxNode().items() ):
-                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val ) ]
-                self.objProps.appendRow( rowItems )
-            self.tvObjectProps.resizeColumnToContents( 0 )
-
-        if isinstance( gItem, QGraphicsItemGroup ):
-            self.objProps.setColumnCount( 3 )
-            self.objProps.setHorizontalHeaderLabels( [ "property", "edge", "multi edge" ] )
-
-            rowItems = [ Std_Model_Item( "edge", True ) ]
-            uniqAttrSet = set()
-            for eGItem in gItem.childItems():
-                rowItems.append( Std_Model_Item( eGItem.edgeName(), True  ) )
-                uniqAttrSet = uniqAttrSet.union( eGItem.nxEdge().keys() )
-            self.objProps.appendRow( rowItems )
-
-            for key in sorted( uniqAttrSet ):
-                rowItems = []
-                rowItems.append( Std_Model_Item( key, True ) )
-                for eGItem in gItem.childItems():
-                    val = eGItem.nxEdge().get( key )
-                    rowItems.append( Std_Model_Item( val ) )
-                self.objProps.appendRow( rowItems )
-            self.tvObjectProps.resizeColumnToContents( 0 )
-
+    # сигнал изменения ячейки таблицы свойств объекта
     def objProps_itemChanged( self, item ):
-        print( "prop changed", self.objProps.item( item.row(), 0 ).data( Qt.EditRole ), item.data( Qt.EditRole ) )
-
         selItems = self.StorageMap_Scene.selectedItems()
         if ( len( selItems ) != 1 ): return
         gItem = selItems[ 0 ]
 
-        if isinstance( gItem, CNode_SGItem ):
-            propName  = self.objProps.item( item.row(), 0 ).data( Qt.EditRole )
-            propValue = item.data( Qt.EditRole )
-            gItem.nxNode()[ propName ] = propValue
-            self.__SGraf_Manager.nodePropChanged( gItem.nodeID )
+        self.__SGraf_Manager.updateGItemFromProps( gItem, item )
 
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
