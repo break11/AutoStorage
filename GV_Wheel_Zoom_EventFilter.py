@@ -35,7 +35,8 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
                     self.__gView.rotate( -90 )
                 if event.key() == Qt.Key_Right:
                     self.__gView.rotate( 90 )
-            else:
+            
+            if not ( event.modifiers() & Qt.AltModifier):
                 self.__gView.setDragMode( QGraphicsView.DragMode.RubberBandDrag )
 
         if event.type() == QEvent.Wheel:

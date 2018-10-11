@@ -6,7 +6,7 @@ import typing
 from PyQt5 import uic
 from PyQt5.QtCore import (Qt, pyqtSlot)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup )
+from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup, QProxyStyle, QStyle )
 
 from Node_SGItem import *
 from Edge_SGItem import *
@@ -14,6 +14,13 @@ from GV_Wheel_Zoom_EventFilter import *
 from GridGraphicsScene import *
 from StorageGraf_GScene_Manager import *
 import images_rc
+
+class CNoAltMenu_Style( QProxyStyle ):
+    def styleHint( self, stylehint, opt, widget, returnData):
+        if (stylehint == QStyle.SH_MenuBar_AltKeyNavigation):
+            return 0
+
+        return QProxyStyle.styleHint( self, stylehint, opt, widget, returnData)
 
 ## Storage Map Designer Main Window
 class CSMD_MainWindow(QMainWindow):
@@ -87,7 +94,11 @@ class CSMD_MainWindow(QMainWindow):
         self.__SGraf_Manager.setDrawBBox( bChecked )
 
 def main():
+
+    # qt_set_sequence_auto_mnemonic( False )
+
     app = QApplication(sys.argv)
+    app.setStyle( CNoAltMenu_Style() )
 
     window = CSMD_MainWindow()
     window.show()
