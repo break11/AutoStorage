@@ -64,6 +64,8 @@ class CStorageGraf_GScene_Manager():
             edgeGroup.addToGroup( edgeGItem )
             edgeGItem.installSceneEventFilter( evI )
 
+        self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
+        
         gvFitToPage( self.gView )
         # self.gScene.addRect( self.gScene.sceneRect() )
 
