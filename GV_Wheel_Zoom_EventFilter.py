@@ -14,7 +14,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         self.__gView = gView
         gView.installEventFilter( self )
 
-        self.__tmFitOnFirstShow.setInterval( 100 )
+        self.__tmFitOnFirstShow.setInterval( 300 )
         self.__tmFitOnFirstShow.setSingleShot( True )
         self.__tmFitOnFirstShow.timeout.connect( self.fitToPage )
         self.__tmFitOnFirstShow.start()

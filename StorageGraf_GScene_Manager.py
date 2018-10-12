@@ -110,6 +110,15 @@ class CStorageGraf_GScene_Manager():
                 groupItem.removeFromGroup( edgeGItem )
                 groupItem.addToGroup( edgeGItem )
 
+        if isinstance( gItem, QGraphicsItemGroup ):
+            propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
+            propValue = stdMItem.data( Qt.EditRole )
+            print( gItem.childItems()[ stdMItem.column() - 1 ].edgeName(), propName, propValue )
+            dict = nx.get_edge_attributes( self.nxGraf, propName )
+
+            print( dict[0] )
+            gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = propValue
+
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
         if isinstance( gItem, CNode_SGItem ):
