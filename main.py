@@ -2,6 +2,7 @@
 import sys
 import networkx as nx
 import typing
+import images_rc
 
 from PyQt5 import uic
 from PyQt5.QtCore import (Qt, pyqtSlot)
@@ -14,13 +15,13 @@ from Edge_SGItem import *
 from GV_Wheel_Zoom_EventFilter import *
 from GridGraphicsScene import *
 from StorageGraf_GScene_Manager import *
-import images_rc
+from GuiUtils import *
 
+# Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
 class CNoAltMenu_Style( QProxyStyle ):
     def styleHint( self, stylehint, opt, widget, returnData):
         if (stylehint == QStyle.SH_MenuBar_AltKeyNavigation):
             return 0
-
         return QProxyStyle.styleHint( self, stylehint, opt, widget, returnData)
 
 ## Storage Map Designer Main Window
@@ -39,15 +40,17 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
         self.objProps.itemChanged.connect( self.objProps_itemChanged )
 
-        # G = nx.read_graphml( "vrn_test1.graphml" )
-        # G = nx.read_graphml( "magadanskaya.graphml" )
-        # G = nx.read_graphml( "test_0123.graphml" )
-        self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene )
-        self.__SGraf_Manager.load( "test.graphml" )
-
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.__GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.StorageMap_View.viewport().installEventFilter( self.__GV_EventFilter )
+
+        # G = nx.read_graphml( "vrn_test1.graphml" )
+        # G = nx.read_graphml( "magadanskaya.graphml" )
+        # G = nx.read_graphml( "test_0123.graphml" )
+
+        self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
+        self.__SGraf_Manager.load( graphML_Path() + "test.graphml" )
+        # self.__SGraf_Manager.load( "magadanskaya.graphml" )
 
     # сигнал изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
@@ -71,8 +74,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acFitToPage_triggered(self, bChecked):
-        self.StorageMap_View.setSceneRect( self.StorageMap_Scene.sceneRect() )
-        self.StorageMap_View.fitInView( self.StorageMap_Scene.sceneRect(), Qt.KeepAspectRatio )
+        gvFitToPage( self.StorageMap_View )
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):
@@ -92,12 +94,12 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
-        path, extension = QFileDialog.getOpenFileName(self, "Open graph file", "","*.GraphML","", QFileDialog.DontUseNativeDialog)
+        path, extension = QFileDialog.getOpenFileName(self, "Open graph file", graphML_Path(),"*.GraphML","", QFileDialog.DontUseNativeDialog)
         if path != "": self.__SGraf_Manager.load( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
-        path, extension = QFileDialog.getSaveFileName(self, "Save graph file", "","*.GraphML","", QFileDialog.DontUseNativeDialog)
+        path, extension = QFileDialog.getSaveFileName(self, "Save graph file", graphML_Path(),"*.GraphML","", QFileDialog.DontUseNativeDialog)
         if path != "": self.__SGraf_Manager.save( path )
 
 def main():

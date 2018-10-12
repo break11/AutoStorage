@@ -2,6 +2,8 @@
 from PyQt5.QtCore import ( Qt, QObject, QEvent, QTimer, QRectF )
 from PyQt5.QtWidgets import ( QGraphicsView )
 
+from GuiUtils import *
+
 class CGV_Wheel_Zoom_EventFilter(QObject):
     __gView = None
     __tmFitOnFirstShow = QTimer()
@@ -10,19 +12,12 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
     def __init__(self, gView):
         super(CGV_Wheel_Zoom_EventFilter, self).__init__(gView)
         self.__gView = gView
-        gView.installEventFilter(self  )
+        gView.installEventFilter( self )
 
-        self.__tmFitOnFirstShow.setInterval( 50 )
+        self.__tmFitOnFirstShow.setInterval( 100 )
         self.__tmFitOnFirstShow.setSingleShot( True )
         self.__tmFitOnFirstShow.timeout.connect( self.fitToPage )
         self.__tmFitOnFirstShow.start()
-
-        # увеличение размера области просмотра GraphicsView для более удобной навигации по сцене
-        tl = gView.sceneRect().topLeft()
-        br = gView.sceneRect().bottomRight()
-        tl = tl  + ( tl-br ) / 4
-        br = br  + ( br-tl ) / 4
-        gView.setSceneRect( QRectF( tl, br ) )
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.KeyPress:
@@ -49,7 +44,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         return False
 
     def fitToPage(self):
-        self.__gView.fitInView( self.__gView.scene().sceneRect(), Qt.KeepAspectRatio )
+        gvFitToPage( self.__gView )
 
     def zoomIn(self):
         self.__gView.scale( self.ZoomFactor, self.ZoomFactor )
