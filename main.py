@@ -6,7 +6,8 @@ import typing
 from PyQt5 import uic
 from PyQt5.QtCore import (Qt, pyqtSlot)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup, QProxyStyle, QStyle )
+from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup, QProxyStyle, QStyle,
+                                QFileDialog )
 
 from Node_SGItem import *
 from Edge_SGItem import *
@@ -91,11 +92,13 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
-        self.__SGraf_Manager.load( "magadanskaya.graphml" )
+        path, extension = QFileDialog.getOpenFileName(self, "Open graph file", "","*.GraphML","", QFileDialog.DontUseNativeDialog)
+        if path != "": self.__SGraf_Manager.load( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
-        self.__SGraf_Manager.save( "test_0123.graphml" )
+        path, extension = QFileDialog.getSaveFileName(self, "Save graph file", "","*.GraphML","", QFileDialog.DontUseNativeDialog)
+        if path != "": self.__SGraf_Manager.save( path )
 
 def main():
     app = QApplication(sys.argv)
