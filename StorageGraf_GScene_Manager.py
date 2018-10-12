@@ -7,9 +7,11 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from Node_SGItem import *
 from Edge_SGItem import *
 from GItem_EventFilter import *
+from GuiUtils import *
 
 class CStorageGraf_GScene_Manager():
-    GScene = None
+    gScene = None
+    gView = None
     nxGraf  = None
     bDrawBBox = False
     # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
@@ -18,18 +20,19 @@ class CStorageGraf_GScene_Manager():
     edgeGItems = {}
     groupsByEdge = {}
 
-    def __init__(self, qGScene):
-        self.GScene = qGScene
+    def __init__(self, gScene, gView):
+        self.gScene = gScene
+        self.gView  = gView
 
     def load( self, sFName ):
         self.nxGraf  = nx.read_graphml( sFName )
         evI = CGItem_EventFilter()
-        self.GScene.addItem( evI )
+        self.gScene.addItem( evI )
 
         for n in self.nxGraf.nodes():
             nodeGItem = CNode_SGItem( self.nxGraf, n )
             nodeGItem.setPos( self.nxGraf.node[ n ]['x'], self.nxGraf.node[ n ]['y'] )
-            self.GScene.addItem( nodeGItem )
+            self.gScene.addItem( nodeGItem )
             nodeGItem.installSceneEventFilter( evI )
             nodeGItem.setZValue( 20 )
             self.nodeGItems[ n ] = nodeGItem
@@ -47,13 +50,14 @@ class CStorageGraf_GScene_Manager():
                 edgeGroup = QGraphicsItemGroup()
                 edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
                 self.groupsByEdge[ edgeKey ] = edgeGroup
-                self.GScene.addItem( edgeGroup )
+                self.gScene.addItem( edgeGroup )
                 edgeGroup.installSceneEventFilter( evI )
 
             edgeGroup.addToGroup( edgeGItem )
             edgeGItem.installSceneEventFilter( evI )
 
-        self.GScene.addRect( self.GScene.sceneRect() )
+        gvFitToPage( self.gView )
+        # self.gScene.addRect( self.gScene.sceneRect() )
 
 
     def save( self, sFName ):
@@ -80,7 +84,6 @@ class CStorageGraf_GScene_Manager():
             nodeGItem.setPos( x, y )
             
             incEdges = list( self.nxGraf.out_edges( nodeID ) ) +  list( self.nxGraf.in_edges( nodeID ) )
-            print( incEdges )
             for key in incEdges:
                 edgeGItem = self.edgeGItems[ key ]
                 edgeGItem.buildEdge()
@@ -99,12 +102,6 @@ class CStorageGraf_GScene_Manager():
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
-        def Std_Model_Item( val, bReadOnly = False ):
-            item = QStandardItem()
-            item.setData( val, Qt.EditRole )
-            item.setEditable( not bReadOnly )
-            return item
-
         if isinstance( gItem, CNode_SGItem ):
             objProps.setColumnCount( 2 )
             objProps.setHorizontalHeaderLabels( [ "nodeID", gItem.nodeID ] )
