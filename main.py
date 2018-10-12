@@ -28,7 +28,9 @@ class CNoAltMenu_Style( QProxyStyle ):
 class CSMD_MainWindow(QMainWindow):
     __SGraf_Manager = None
     __GV_EventFilter = None
+    __graphML_fname = ""
     objProps = QStandardItemModel()
+    __file_filters = "GraphML (*.graphml);;All Files (*)"
 
     def __init__(self):
         super(CSMD_MainWindow, self).__init__()
@@ -49,8 +51,19 @@ class CSMD_MainWindow(QMainWindow):
         # G = nx.read_graphml( "test_0123.graphml" )
 
         self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
-        self.__SGraf_Manager.load( graphML_Path() + "test.graphml" )
+
+        self.loadGraphML( graphML_Path() + "test.graphml" )
         # self.__SGraf_Manager.load( "magadanskaya.graphml" )
+
+    def loadGraphML( self, sFName ):
+        self.__graphML_fname = sFName
+        self.__SGraf_Manager.load( sFName )
+        self.setWindowTitle( "Storage Map Designer : " + sFName )
+
+    def saveGraphML( self, sFName ):
+        self.__graphML_fname = sFName
+        self.__SGraf_Manager.save( sFName )
+        self.setWindowTitle( "Storage Map Designer : " + sFName )
 
     # сигнал изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
@@ -94,13 +107,13 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
-        path, extension = QFileDialog.getOpenFileName(self, "Open graph file", graphML_Path(),"*.GraphML","", QFileDialog.DontUseNativeDialog)
-        if path != "": self.__SGraf_Manager.load( path )
+        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
+        if path != "" : self.loadGraphML( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
-        path, extension = QFileDialog.getSaveFileName(self, "Save graph file", graphML_Path(),"*.GraphML","", QFileDialog.DontUseNativeDialog)
-        if path != "": self.__SGraf_Manager.save( path )
+        path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.__graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
+        if path != "" : self.saveGraphML( path )
 
 def main():
     app = QApplication(sys.argv)

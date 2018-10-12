@@ -24,7 +24,15 @@ class CStorageGraf_GScene_Manager():
         self.gScene = gScene
         self.gView  = gView
 
+    def clear( self ):
+        self.nodeGItems = {}
+        self.edgeGItems = {}
+        self.groupsByEdge = {}
+        self.gScene.clear()
+
     def load( self, sFName ):
+        self.clear()
+
         self.nxGraf  = nx.read_graphml( sFName )
         evI = CGItem_EventFilter()
         self.gScene.addItem( evI )
