@@ -8,12 +8,56 @@ from Node_SGItem import *
 from Edge_SGItem import *
 from GItem_EventFilter import *
 from GuiUtils import *
+import xml.etree.ElementTree as ET
+
+graphML_attr_types = { "widthType"        : str,
+                       "edgeSize"         : float,
+                       "highRailSizeFrom" : float,
+                       "highRailSizeTo"   : float,
+                       "curvature"        : str,
+                       "edgeType"         : str,
+                       "sensorSide"       : str,
+                       "chargeSide"       : str,
+                       "containsAgent"    : int,
+                       "floor_num"        : int,
+                       "x"                : float,
+                       "y"                : float,
+                       "nodeType"         : str,
+                       "storageType"      : str,
+                       "name"             : str }
+
+
+class CGraphXmlAttr():
+    __known_types = { 'int'   : int,
+                      'float' : float,
+                      'string': str }
+    __known_attrs = {}
+                 
+    def load( self, sFName ):
+        tree = ET.parse( sFName )
+        root = tree.getroot()
+
+        for child in root.findall( "key" ):
+            self.__known_attrs[ child.get("attr.name") ] = child.get("attr.type")
+            print( child.get("attr.name"), child.get("attr.type") )
+
+    def clear( self ):
+        self.__known_attrs = {}
+
+    def getAttrType( self, sAttrName ):
+        sAttrType = self.__known_attrs.get( sAttrName )
+        # if sAttrType is None: return str
+
+        attrType = self.__known_types.get( sAttrType )
+        # if attrType is None: return str
+        return attrType
 
 class CStorageGraf_GScene_Manager():
     gScene = None
     gView = None
     nxGraf  = None
     bDrawBBox = False
+    graphXmlAttr = CGraphXmlAttr()
     # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
     # edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # onlu for mypy linter
     nodeGItems = {}
@@ -29,10 +73,12 @@ class CStorageGraf_GScene_Manager():
         self.edgeGItems = {}
         self.groupsByEdge = {}
         self.gScene.clear()
+        self.graphXmlAttr.clear()
 
     def load( self, sFName ):
         self.clear()
-
+        
+        self.graphXmlAttr.load( sFName )
         self.nxGraf  = nx.read_graphml( sFName )
         evI = CGItem_EventFilter()
         self.gScene.addItem( evI )
@@ -47,9 +93,7 @@ class CStorageGraf_GScene_Manager():
 
         for e in self.nxGraf.edges():
             edgeGItem = CEdge_SGItem( self.nxGraf, *e )
-            # g.setPos( self.nxGraf.node[ e[0] ]['x'], self.nxGraf.node[ e[0] ]['y'] )
             edgeGItem.setPos( self.nxGraf.node[ e[0] ]['x'], self.nxGraf.node[ e[0] ]['y'] )
-            # self.GScene.addItem( edgeGItem )
             self.edgeGItems[ e ] = edgeGItem
             
             edgeKey = frozenset( [ e[0], e[1] ] )
@@ -113,10 +157,10 @@ class CStorageGraf_GScene_Manager():
         if isinstance( gItem, QGraphicsItemGroup ):
             propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
             propValue = stdMItem.data( Qt.EditRole )
-            print( gItem.childItems()[ stdMItem.column() - 1 ].edgeName(), propName, propValue )
-            dict = nx.get_edge_attributes( self.nxGraf, propName )
 
-            print( dict[0] )
+            print( gItem.childItems()[ stdMItem.column() - 1 ].edgeName(), propName, propValue, self.graphXmlAttr.getAttrType( propName ) )
+
+            propValue = (graphML_attr_types[ propName ] )( propValue )
             gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = propValue
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
