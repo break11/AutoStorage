@@ -116,6 +116,25 @@ class CSMD_MainWindow(QMainWindow):
         if path != "" : self.saveGraphML( path )
 
 def main():
+
+    # test3()
+    # typesDict()
+    # typesDict()
+    # typesDict()
+    # test3()
+    # test3()
+    # a = SingleTone(2)
+    # print( a )   
+
+    # print( SingleTone(typesDict) )
+
+    # print( SingleTone(test3) )
+    # print( SingleTone(test3) )
+
+    # print( SingleTone(typesDict).ntDummyNode )
+
+    # test3()("123")
+
     app = QApplication(sys.argv)
     app.setStyle( CNoAltMenu_Style() )
 

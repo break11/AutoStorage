@@ -5,6 +5,41 @@ from PyQt5.QtCore import (Qt, QRectF)
 
 import os
 
+def singleton(cls):
+    instance = None
+    def getinstance():
+        nonlocal instance
+        if instance is None:
+            instance = cls()
+        return instance
+    return getinstance
+
+class SingleTone(object):
+    __instance = None
+    def __new__(cls, val):
+        if SingleTone.__instance is None:
+            SingleTone.__instance = object.__new__(cls)
+        SingleTone.__instance.val = val
+        return SingleTone.__instance
+    # def doPrin(self):
+    #     print( self )
+
+class test3():
+    def __init__(self):
+        # pass
+        print( self )
+    def __call__(self, s):
+        print( s )
+
+
+class typesDict():
+    ntDummyNode, ntStorageSingle, ntCross, ntPickStation,  ntServiceStation = range(5)
+    nodeType = { "DummyNode"      : ntDummyNode,
+                 "StorageSingle"  : ntStorageSingle,
+                 "Cross"          : ntCross,
+                 "PickStation"    : ntPickStation,
+                 "ServiceStation" : ntServiceStation }
+
 def graphML_Path():
     # return os.path.dirname( __file__ ) + "/GraphML/"
     return os.curdir + "/GraphML/"
