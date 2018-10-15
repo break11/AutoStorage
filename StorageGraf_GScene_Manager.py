@@ -11,53 +11,31 @@ from GuiUtils import *
 import xml.etree.ElementTree as ET
 
 graphML_attr_types = { "widthType"        : str,
-                       "edgeSize"         : float,
-                       "highRailSizeFrom" : float,
-                       "highRailSizeTo"   : float,
+                       "edgeSize"         : int,
+                       "highRailSizeFrom" : int,
+                       "highRailSizeTo"   : int,
                        "curvature"        : str,
                        "edgeType"         : str,
                        "sensorSide"       : str,
                        "chargeSide"       : str,
                        "containsAgent"    : int,
                        "floor_num"        : int,
-                       "x"                : float,
-                       "y"                : float,
+                       "x"                : int,
+                       "y"                : int,
                        "nodeType"         : str,
                        "storageType"      : str,
                        "name"             : str }
 
-
-class CGraphXmlAttr():
-    __known_types = { 'int'   : int,
-                      'float' : float,
-                      'string': str }
-    __known_attrs = {}
-                 
-    def load( self, sFName ):
-        tree = ET.parse( sFName )
-        root = tree.getroot()
-
-        for child in root.findall( "key" ):
-            self.__known_attrs[ child.get("attr.name") ] = child.get("attr.type")
-            print( child.get("attr.name"), child.get("attr.type") )
-
-    def clear( self ):
-        self.__known_attrs = {}
-
-    def getAttrType( self, sAttrName ):
-        sAttrType = self.__known_attrs.get( sAttrName )
-        # if sAttrType is None: return str
-
-        attrType = self.__known_types.get( sAttrType )
-        # if attrType is None: return str
-        return attrType
+def adjustAttrType( sAttrName, val ):
+    if val is None: return None
+    val = (graphML_attr_types[ sAttrName ] )( val )
+    return val
 
 class CStorageGraf_GScene_Manager():
     gScene = None
     gView = None
     nxGraf  = None
     bDrawBBox = False
-    graphXmlAttr = CGraphXmlAttr()
     # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
     # edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # onlu for mypy linter
     nodeGItems = {}
@@ -73,12 +51,10 @@ class CStorageGraf_GScene_Manager():
         self.edgeGItems = {}
         self.groupsByEdge = {}
         self.gScene.clear()
-        self.graphXmlAttr.clear()
 
     def load( self, sFName ):
         self.clear()
         
-        self.graphXmlAttr.load( sFName )
         self.nxGraf  = nx.read_graphml( sFName )
         evI = CGItem_EventFilter()
         self.gScene.addItem( evI )
@@ -129,7 +105,7 @@ class CStorageGraf_GScene_Manager():
         if isinstance( gItem, CNode_SGItem ):
             propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
             propValue = stdMItem.data( Qt.EditRole )
-            gItem.nxNode()[ propName ] = propValue
+            gItem.nxNode()[ propName ] = adjustAttrType( propName, propValue )
             nodeID = gItem.nodeID
 
             nodeGItem = self.nodeGItems[ nodeID ]
@@ -158,10 +134,7 @@ class CStorageGraf_GScene_Manager():
             propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
             propValue = stdMItem.data( Qt.EditRole )
 
-            print( gItem.childItems()[ stdMItem.column() - 1 ].edgeName(), propName, propValue, self.graphXmlAttr.getAttrType( propName ) )
-
-            propValue = (graphML_attr_types[ propName ] )( propValue )
-            gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = propValue
+            gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = adjustAttrType( propName, propValue )
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
@@ -170,7 +143,7 @@ class CStorageGraf_GScene_Manager():
             objProps.setHorizontalHeaderLabels( [ "nodeID", gItem.nodeID ] )
 
             for key, val in sorted( gItem.nxNode().items() ):
-                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val ) ]
+                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( adjustAttrType( key, val ) ) ]
                 objProps.appendRow( rowItems )
 
         if isinstance( gItem, QGraphicsItemGroup ):
@@ -189,7 +162,7 @@ class CStorageGraf_GScene_Manager():
                 rowItems.append( Std_Model_Item( key, True ) )
                 for eGItem in gItem.childItems():
                     val = eGItem.nxEdge().get( key )
-                    rowItems.append( Std_Model_Item( val ) )
+                    rowItems.append( Std_Model_Item( adjustAttrType( key, val ) ) )
                 objProps.appendRow( rowItems )
         
     # def __del__(self):
