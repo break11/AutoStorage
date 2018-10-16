@@ -14,31 +14,19 @@ def singleton(cls):
         return instance
     return getinstance
 
-class SingleTone(object):
-    __instance = None
-    def __new__(cls, val):
-        if SingleTone.__instance is None:
-            SingleTone.__instance = object.__new__(cls)
-        SingleTone.__instance.val = val
-        return SingleTone.__instance
-    # def doPrin(self):
-    #     print( self )
+class StorageGrafTypes:
+    ntDummyNode, ntStorageSingle, ntCross, ntPickStation, ntPickStationIn, ntPickStationOut, ntServiceStation, ntTerminal = range(8)
 
-class test3():
-    def __init__(self):
-        # pass
-        print( self )
-    def __call__(self, s):
-        print( s )
-
-
-class typesDict():
-    ntDummyNode, ntStorageSingle, ntCross, ntPickStation,  ntServiceStation = range(5)
-    nodeType = { "DummyNode"      : ntDummyNode,
-                 "StorageSingle"  : ntStorageSingle,
-                 "Cross"          : ntCross,
-                 "PickStation"    : ntPickStation,
-                 "ServiceStation" : ntServiceStation }
+    __nodeType = { "DummyNode"      : ntDummyNode,
+                   "StorageSingle"  : ntStorageSingle,
+                   "Cross"          : ntCross,
+                   "Pickstation"    : ntPickStation,
+                   "PickstationIn"  : ntPickStationIn,
+                   "PickstationOut" : ntPickStationOut,
+                   "ServiceStation" : ntServiceStation,
+                   "Terminal"       : ntTerminal }
+    
+    def ntFromString( sVal ) : return StorageGrafTypes.__nodeType[ sVal ]
 
 def graphML_Path():
     # return os.path.dirname( __file__ ) + "/GraphML/"

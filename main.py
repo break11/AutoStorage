@@ -15,7 +15,6 @@ from Edge_SGItem import *
 from GV_Wheel_Zoom_EventFilter import *
 from GridGraphicsScene import *
 from StorageGraf_GScene_Manager import *
-from GuiUtils import *
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
 class CNoAltMenu_Style( QProxyStyle ):
@@ -116,25 +115,6 @@ class CSMD_MainWindow(QMainWindow):
         if path != "" : self.saveGraphML( path )
 
 def main():
-
-    # test3()
-    # typesDict()
-    # typesDict()
-    # typesDict()
-    # test3()
-    # test3()
-    # a = SingleTone(2)
-    # print( a )   
-
-    # print( SingleTone(typesDict) )
-
-    # print( SingleTone(test3) )
-    # print( SingleTone(test3) )
-
-    # print( SingleTone(typesDict).ntDummyNode )
-
-    # test3()("123")
-
     app = QApplication(sys.argv)
     app.setStyle( CNoAltMenu_Style() )
 
