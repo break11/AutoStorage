@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QBrush )
 from PyQt5.QtCore import ( Qt, QRectF )
 
-from GuiUtils import StorageGrafTypes as SGT
+import StorageGrafTypes as SGT
 
 class CNode_SGItem(QGraphicsItem):
     nxGraf = None

@@ -5,29 +5,6 @@ from PyQt5.QtCore import (Qt, QRectF)
 
 import os
 
-def singleton(cls):
-    instance = None
-    def getinstance():
-        nonlocal instance
-        if instance is None:
-            instance = cls()
-        return instance
-    return getinstance
-
-class StorageGrafTypes:
-    ntDummyNode, ntStorageSingle, ntCross, ntPickStation, ntPickStationIn, ntPickStationOut, ntServiceStation, ntTerminal = range(8)
-
-    __nodeType = { "DummyNode"      : ntDummyNode,
-                   "StorageSingle"  : ntStorageSingle,
-                   "Cross"          : ntCross,
-                   "Pickstation"    : ntPickStation,
-                   "PickstationIn"  : ntPickStationIn,
-                   "PickstationOut" : ntPickStationOut,
-                   "ServiceStation" : ntServiceStation,
-                   "Terminal"       : ntTerminal }
-    
-    def ntFromString( sVal ) : return StorageGrafTypes.__nodeType[ sVal ]
-
 def graphML_Path():
     # return os.path.dirname( __file__ ) + "/GraphML/"
     return os.curdir + "/GraphML/"

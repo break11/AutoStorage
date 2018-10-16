@@ -8,28 +8,7 @@ from Node_SGItem import *
 from Edge_SGItem import *
 from GItem_EventFilter import *
 from GuiUtils import *
-import xml.etree.ElementTree as ET
-
-graphML_attr_types = { "widthType"        : str,
-                       "edgeSize"         : int,
-                       "highRailSizeFrom" : int,
-                       "highRailSizeTo"   : int,
-                       "curvature"        : str,
-                       "edgeType"         : str,
-                       "sensorSide"       : str,
-                       "chargeSide"       : str,
-                       "containsAgent"    : int,
-                       "floor_num"        : int,
-                       "x"                : int,
-                       "y"                : int,
-                       "nodeType"         : str,
-                       "storageType"      : str,
-                       "name"             : str }
-
-def adjustAttrType( sAttrName, val ):
-    if val is None: return None
-    val = (graphML_attr_types[ sAttrName ] )( val )
-    return val
+import StorageGrafTypes as SGT
 
 class CStorageGraf_GScene_Manager():
     gScene = None
@@ -105,7 +84,7 @@ class CStorageGraf_GScene_Manager():
         if isinstance( gItem, CNode_SGItem ):
             propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
             propValue = stdMItem.data( Qt.EditRole )
-            gItem.nxNode()[ propName ] = adjustAttrType( propName, propValue )
+            gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
             nodeID = gItem.nodeID
 
             nodeGItem = self.nodeGItems[ nodeID ]
@@ -134,7 +113,7 @@ class CStorageGraf_GScene_Manager():
             propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
             propValue = stdMItem.data( Qt.EditRole )
 
-            gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = adjustAttrType( propName, propValue )
+            gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
@@ -143,7 +122,7 @@ class CStorageGraf_GScene_Manager():
             objProps.setHorizontalHeaderLabels( [ "nodeID", gItem.nodeID ] )
 
             for key, val in sorted( gItem.nxNode().items() ):
-                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( adjustAttrType( key, val ) ) ]
+                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
                 objProps.appendRow( rowItems )
 
         if isinstance( gItem, QGraphicsItemGroup ):
@@ -162,7 +141,7 @@ class CStorageGraf_GScene_Manager():
                 rowItems.append( Std_Model_Item( key, True ) )
                 for eGItem in gItem.childItems():
                     val = eGItem.nxEdge().get( key )
-                    rowItems.append( Std_Model_Item( adjustAttrType( key, val ) ) )
+                    rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ) ) )
                 objProps.appendRow( rowItems )
         
     # def __del__(self):

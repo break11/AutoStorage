@@ -78,7 +78,7 @@ class CEdge_SGItem(QGraphicsItem):
             fillColor = Qt.darkGreen
 
         pen.setColor( fillColor )
-        pen.setWidth( 8 )
+        pen.setWidth( 5 )
         painter.setPen(pen)
 
         painter.rotate( -1 * math.degrees( self.__rAngle ) + 90 )
@@ -86,5 +86,10 @@ class CEdge_SGItem(QGraphicsItem):
         painter.drawLine( -1, -self.__line.length() + 30, -10, -self.__line.length() + 50 ) #     \
         painter.drawLine( 0, 0, 0, -self.__line.length() )                                  # -----
         painter.drawLine( 1,  -self.__line.length() + 30,  10, -self.__line.length() + 50 ) #     /
+
+        pen.setColor( Qt.black )
+        pen.setWidth( 5 )
+        painter.setPen(pen)
+        painter.drawLine( 15, 0, 15, -self.__line.length() )                                  # -----
 
 
