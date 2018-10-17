@@ -44,11 +44,13 @@ class CStorageGraf_GScene_Manager():
             self.gScene.addItem( nodeGItem )
             nodeGItem.installSceneEventFilter( evI )
             nodeGItem.setZValue( 20 )
+            nodeGItem.bDrawBBox = self.bDrawBBox
             self.nodeGItems[ n ] = nodeGItem
 
         for e in self.nxGraf.edges():
             edgeGItem = CEdge_SGItem( self.nxGraf, *e )
             edgeGItem.setPos( self.nxGraf.node[ e[0] ]['x'], self.nxGraf.node[ e[0] ]['y'] )
+            edgeGItem.bDrawBBox = self.bDrawBBox
             self.edgeGItems[ e ] = edgeGItem
             
             edgeKey = frozenset( [ e[0], e[1] ] )
@@ -73,6 +75,7 @@ class CStorageGraf_GScene_Manager():
         nx.write_graphml(self.nxGraf, sFName)
 
     def setDrawBBox( self, bVal ):
+        self.bDrawBBox = bVal
         for n, v in self.nodeGItems.items():
             v.bDrawBBox = bVal
 
