@@ -15,8 +15,8 @@ class CStorageGraf_GScene_Manager():
     gView = None
     nxGraf  = None
     bDrawBBox = False
-    # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # onlu for mypy linter
-    # edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # onlu for mypy linter
+    # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # only for mypy linter
+    # edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # only for mypy linter
     nodeGItems = {}
     edgeGItems = {}
     groupsByEdge = {}
@@ -40,7 +40,9 @@ class CStorageGraf_GScene_Manager():
 
         for n in self.nxGraf.nodes():
             nodeGItem = CNode_SGItem( self.nxGraf, n )
-            nodeGItem.setPos( self.nxGraf.node[ n ]['x'], self.nxGraf.node[ n ]['y'] )
+            x = self.nxGraf.node[ n ]['x']
+            y = self.nxGraf.node[ n ]['y']
+            nodeGItem.setPos( x, y )
             self.gScene.addItem( nodeGItem )
             nodeGItem.installSceneEventFilter( evI )
             nodeGItem.setZValue( 20 )
@@ -49,7 +51,9 @@ class CStorageGraf_GScene_Manager():
 
         for e in self.nxGraf.edges():
             edgeGItem = CEdge_SGItem( self.nxGraf, *e )
-            edgeGItem.setPos( self.nxGraf.node[ e[0] ]['x'], self.nxGraf.node[ e[0] ]['y'] )
+            x = self.nxGraf.node[ e[0] ]['x']
+            y = self.nxGraf.node[ e[0] ]['y']
+            edgeGItem.setPos( x, y )
             edgeGItem.bDrawBBox = self.bDrawBBox
             self.edgeGItems[ e ] = edgeGItem
             

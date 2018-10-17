@@ -40,17 +40,18 @@ class CNode_SGItem(QGraphicsItem):
             if nt is None:
                 fillColor = Qt.darkGreen
             else:
-                if SGT.ntFromString( nt ) == SGT.ntStorageSingle:
+                ntCode = SGT.ntFromString( nt )
+                if ntCode == SGT.ntStorageSingle:
                     fillColor = Qt.cyan
-                elif SGT.ntFromString( nt ) == SGT.ntTerminal:
+                elif ntCode == SGT.ntTerminal:
                     fillColor = Qt.lightGray
-                elif SGT.ntFromString( nt ) == SGT.ntCross:
+                elif ntCode == SGT.ntCross:
                     fillColor = Qt.darkMagenta
-                elif SGT.ntFromString( nt ) == SGT.ntServiceStation:
+                elif ntCode == SGT.ntServiceStation:
                     fillColor = Qt.darkBlue
-                elif SGT.ntFromString( nt ) == SGT.ntPickStationIn:
+                elif ntCode == SGT.ntPickStationIn:
                     fillColor = Qt.darkYellow
-                elif SGT.ntFromString( nt ) == SGT.ntPickStationOut:
+                elif ntCode == SGT.ntPickStationOut:
                     fillColor = Qt.yellow
                 else:
                     fillColor = Qt.darkGreen

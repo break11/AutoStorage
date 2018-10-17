@@ -103,7 +103,7 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acBBox_triggered(self, bChecked):
         self.__SGraf_Manager.setDrawBBox( bChecked )
-
+        
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
