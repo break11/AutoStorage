@@ -40,8 +40,8 @@ class CStorageGraf_GScene_Manager():
 
         for n in self.nxGraf.nodes():
             nodeGItem = CNode_SGItem( self.nxGraf, n )
-            x = self.nxGraf.node[ n ]['x']
-            y = self.nxGraf.node[ n ]['y']
+            x = self.nxGraf.node[ n ][ SGT.s_x ]
+            y = self.nxGraf.node[ n ][ SGT.s_y ]
             nodeGItem.setPos( x, y )
             self.gScene.addItem( nodeGItem )
             nodeGItem.installSceneEventFilter( evI )
@@ -51,8 +51,8 @@ class CStorageGraf_GScene_Manager():
 
         for e in self.nxGraf.edges():
             edgeGItem = CEdge_SGItem( self.nxGraf, *e )
-            x = self.nxGraf.node[ e[0] ]['x']
-            y = self.nxGraf.node[ e[0] ]['y']
+            x = self.nxGraf.node[ e[0] ][ SGT.s_x ]
+            y = self.nxGraf.node[ e[0] ][ SGT.s_y ]
             edgeGItem.setPos( x, y )
             edgeGItem.bDrawBBox = self.bDrawBBox
             self.edgeGItems[ e ] = edgeGItem
@@ -88,15 +88,16 @@ class CStorageGraf_GScene_Manager():
 
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице модели свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
+        propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
+        propValue = stdMItem.data( Qt.EditRole )
+
         if isinstance( gItem, CNode_SGItem ):
-            propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
-            propValue = stdMItem.data( Qt.EditRole )
             gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
             nodeID = gItem.nodeID
 
             nodeGItem = self.nodeGItems[ nodeID ]
-            x = nodeGItem.nxNode()['x']
-            y = nodeGItem.nxNode()['y']
+            x = nodeGItem.nxNode()[ SGT.s_x ]
+            y = nodeGItem.nxNode()[ SGT.s_y ]
             nodeGItem.setPos( x, y )
             
             incEdges = list( self.nxGraf.out_edges( nodeID ) ) +  list( self.nxGraf.in_edges( nodeID ) )
@@ -117,9 +118,6 @@ class CStorageGraf_GScene_Manager():
                 groupItem.addToGroup( edgeGItem )
 
         if isinstance( gItem, QGraphicsItemGroup ):
-            propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
-            propValue = stdMItem.data( Qt.EditRole )
-
             gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel

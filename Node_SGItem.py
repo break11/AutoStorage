@@ -36,25 +36,17 @@ class CNode_SGItem(QGraphicsItem):
             fillColor = Qt.red
         else:
             # раскраска вершины по ее типу
-            nt = self.nxGraf.node[ self.nodeID ].get( "nodeType" )
-            if nt is None:
-                fillColor = Qt.darkGreen
+            sNodeType = self.nxGraf.node[ self.nodeID ].get( SGT.s_nodeType )
+
+            if sNodeType is None:
+                fillColor = Qt.darkGray
             else:
-                ntCode = SGT.ntFromString( nt )
-                if ntCode == SGT.ntStorageSingle:
-                    fillColor = Qt.cyan
-                elif ntCode == SGT.ntTerminal:
-                    fillColor = Qt.lightGray
-                elif ntCode == SGT.ntCross:
-                    fillColor = Qt.darkMagenta
-                elif ntCode == SGT.ntServiceStation:
-                    fillColor = Qt.darkBlue
-                elif ntCode == SGT.ntPickStationIn:
-                    fillColor = Qt.darkYellow
-                elif ntCode == SGT.ntPickStationOut:
-                    fillColor = Qt.yellow
+                supportedNodeTypes = [item.name for item in SGT.ENodeTypes]
+                if sNodeType not in supportedNodeTypes:
+                    fillColor = Qt.darkRed
                 else:
-                    fillColor = Qt.darkGreen
+                    nt =  SGT.ENodeTypes[ sNodeType ]
+                    fillColor = SGT.nodeColors[ nt ]
 
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( self.boundingRect() )

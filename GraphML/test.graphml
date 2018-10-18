@@ -27,16 +27,20 @@
     <node id="n0">
       <data key="d4">0</data>
       <data key="d3">0</data>
+      <data key="d2">Cross</data>
     </node>
     <node id="nRD">
+      <data key="d2">DummyNode</data>
       <data key="d4">200</data>
       <data key="d3">200</data>
     </node>
     <node id="nLD">
+      <data key="d2">Terminal</data>
       <data key="d4">-100</data>
       <data key="d3">100</data>
     </node>
     <node id="nRU">
+      <data key="d2">Unsupported Node Type</data>
       <data key="d4">300</data>
       <data key="d3">-300</data>
     </node>

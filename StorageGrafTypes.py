@@ -1,5 +1,6 @@
 
 from enum import *
+from PyQt5.QtCore import (Qt)
 
 class EGrafAttrs( Enum ):
     widthType        = auto()
@@ -18,6 +19,9 @@ class EGrafAttrs( Enum ):
     storageType      = auto()
     # name            = auto() # не используем из-за конфликта со встроенными атрибутами класса, нужен только в пропертях графа
 
+# Экспортируем "короткие" алиасы имен атрибутов ( будет доступно по SGT.s_nodeType, SGT.s_x и т.д. )
+for attr in EGrafAttrs:
+    locals()[ "s_" + attr.name ] = attr.name
 
 graphAttrTypes = { EGrafAttrs.widthType        : str,
                    EGrafAttrs.edgeSize         : int,
@@ -43,24 +47,23 @@ def adjustAttrType( sAttrName, val ):
 
 #######################################################
 
-(
-ntDummyNode,
-ntStorageSingle,
-ntCross,
-ntPickStation,
-ntPickStationIn,
-ntPickStationOut,
-ntServiceStation,
-ntTerminal
-) = range(8)
+class ENodeTypes( Enum ):
+    DummyNode      = auto()
+    StorageSingle  = auto()
+    Cross          = auto()
+    PickStation    = auto()
+    PickStationIn  = auto()
+    PickStationOut = auto()
+    ServiceStation = auto()
+    Terminal       = auto()
 
-__nodeTypeFromString = { "DummyNode"      : ntDummyNode,
-                         "StorageSingle"  : ntStorageSingle,
-                         "Cross"          : ntCross,
-                         "Pickstation"    : ntPickStation,
-                         "PickstationIn"  : ntPickStationIn,
-                         "PickstationOut" : ntPickStationOut,
-                         "ServiceStation" : ntServiceStation,
-                         "Terminal"       : ntTerminal }
-
-def ntFromString( sVal ) : return __nodeTypeFromString[ sVal ]
+nodeColors = {
+    ENodeTypes.DummyNode      : Qt.darkGreen,
+    ENodeTypes.StorageSingle  : Qt.cyan,
+    ENodeTypes.Cross          : Qt.darkMagenta,
+    ENodeTypes.PickStation    : Qt.blue,
+    ENodeTypes.PickStationIn  : Qt.darkYellow,
+    ENodeTypes.PickStationOut : Qt.yellow,
+    ENodeTypes.ServiceStation : Qt.darkBlue,
+    ENodeTypes.Terminal       : Qt.lightGray,
+}
