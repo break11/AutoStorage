@@ -18,12 +18,19 @@ class CNode_SGItem(QGraphicsItem):
         self.nxGraf  = nxGraf
         self.nodeID = nodeID
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
+        self.setZValue( 20 )
 
     def nxNode(self):
         return self.nxGraf.node[ self.nodeID ]
 
     def boundingRect(self):
         return QRectF( -self.__R/2, -self.__R/2, self.__R, self.__R )
+    
+    # обновление позиции на сцене по атрибутам из графа
+    def updatePos(self):
+        x = self.nxGraf.node[ self.nodeID ][ SGT.s_x ]
+        y = self.nxGraf.node[ self.nodeID ][ SGT.s_y ]
+        self.setPos( x, y )
 
     def paint(self, painter, option, widget):
         if self.bDrawBBox == True:

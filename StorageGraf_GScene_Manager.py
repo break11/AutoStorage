@@ -10,17 +10,17 @@ from GItem_EventFilter import *
 from GuiUtils import *
 import StorageGrafTypes as SGT
 
+from typing import Dict
+
 class CStorageGraf_GScene_Manager():
     gScene = None
     gView = None
     nxGraf  = None
     bDrawBBox = False
-    # nodeGItems: typing.Dict[str, CGrafNodeItem]   = {}  # nodeGItems = {} # only for mypy linter
-    # edgeGItems: typing.Dict[tuple, CGrafEdgeItem] = {}  # nodeGItems = {} # only for mypy linter
-    nodeGItems = {}
-    edgeGItems = {}
-    groupsByEdge = {}
-
+    nodeGItems   : Dict[str, CNode_SGItem] = {}
+    edgeGItems   : Dict[tuple, CEdge_SGItem] = {}
+    groupsByEdge : Dict[frozenset, QGraphicsItemGroup ] = {}
+    
     def __init__(self, gScene, gView):
         self.gScene = gScene
         self.gView  = gView
@@ -40,20 +40,15 @@ class CStorageGraf_GScene_Manager():
 
         for n in self.nxGraf.nodes():
             nodeGItem = CNode_SGItem( self.nxGraf, n )
-            x = self.nxGraf.node[ n ][ SGT.s_x ]
-            y = self.nxGraf.node[ n ][ SGT.s_y ]
-            nodeGItem.setPos( x, y )
+            nodeGItem.updatePos()
             self.gScene.addItem( nodeGItem )
             nodeGItem.installSceneEventFilter( evI )
-            nodeGItem.setZValue( 20 )
             nodeGItem.bDrawBBox = self.bDrawBBox
             self.nodeGItems[ n ] = nodeGItem
 
         for e in self.nxGraf.edges():
             edgeGItem = CEdge_SGItem( self.nxGraf, *e )
-            x = self.nxGraf.node[ e[0] ][ SGT.s_x ]
-            y = self.nxGraf.node[ e[0] ][ SGT.s_y ]
-            edgeGItem.setPos( x, y )
+            edgeGItem.updatePos()
             edgeGItem.bDrawBBox = self.bDrawBBox
             self.edgeGItems[ e ] = edgeGItem
             
@@ -96,9 +91,7 @@ class CStorageGraf_GScene_Manager():
             nodeID = gItem.nodeID
 
             nodeGItem = self.nodeGItems[ nodeID ]
-            x = nodeGItem.nxNode()[ SGT.s_x ]
-            y = nodeGItem.nxNode()[ SGT.s_y ]
-            nodeGItem.setPos( x, y )
+            nodeGItem.updatePos()
             
             incEdges = list( self.nxGraf.out_edges( nodeID ) ) +  list( self.nxGraf.in_edges( nodeID ) )
             for key in incEdges:
@@ -107,7 +100,7 @@ class CStorageGraf_GScene_Manager():
 
                 # Граням выходящим из узла обновляем позицию, входящим - нет
                 if gItem.nodeID == key[0]:
-                    edgeGItem.setPos( x, y )
+                    edgeGItem.updatePos()
 
                 groupItem = self.groupsByEdge[ frozenset( key ) ]
 

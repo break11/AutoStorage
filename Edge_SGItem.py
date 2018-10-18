@@ -4,6 +4,8 @@ from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform )
 from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
+import StorageGrafTypes as SGT
+
 class CEdge_SGItem(QGraphicsItem):
     nxGraf   = None
     nodeID_1 = None
@@ -60,6 +62,12 @@ class CEdge_SGItem(QGraphicsItem):
 
     def boundingRect(self):
         return self.__path.boundingRect().adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+
+    # обновление позиции на сцене по атрибутам из графа
+    def updatePos(self):
+        x = self.nxGraf.node[ self.nodeID_1 ][ SGT.s_x ]
+        y = self.nxGraf.node[ self.nodeID_1 ][ SGT.s_y ]
+        self.setPos( x, y )
 
     def paint(self, painter, option, widget):
         pen = QPen()
