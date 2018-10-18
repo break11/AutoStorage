@@ -1,11 +1,12 @@
 
 import networkx as nx
 
-from PyQt5.QtWidgets import (QGraphicsItemGroup )
+# from PyQt5.QtWidgets import (QGraphicsItemGroup )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
 from Node_SGItem import *
 from Edge_SGItem import *
+from Rail_SGItem import *
 from GItem_EventFilter import *
 from GuiUtils import *
 import StorageGrafTypes as SGT
@@ -19,7 +20,7 @@ class CStorageGraf_GScene_Manager():
     bDrawBBox = False
     nodeGItems   : Dict[str, CNode_SGItem] = {}
     edgeGItems   : Dict[tuple, CEdge_SGItem] = {}
-    groupsByEdge : Dict[frozenset, QGraphicsItemGroup ] = {}
+    groupsByEdge : Dict[frozenset, CRail_SGItem ] = {}
     
     def __init__(self, gScene, gView):
         self.gScene = gScene
@@ -55,7 +56,7 @@ class CStorageGraf_GScene_Manager():
             edgeKey = frozenset( [ e[0], e[1] ] )
             edgeGroup = self.groupsByEdge.get( edgeKey )
             if edgeGroup == None:
-                edgeGroup = QGraphicsItemGroup()
+                edgeGroup = CRail_SGItem()
                 edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
                 self.groupsByEdge[ edgeKey ] = edgeGroup
                 self.gScene.addItem( edgeGroup )
@@ -110,7 +111,7 @@ class CStorageGraf_GScene_Manager():
                 groupItem.removeFromGroup( edgeGItem )
                 groupItem.addToGroup( edgeGItem )
 
-        if isinstance( gItem, QGraphicsItemGroup ):
+        if isinstance( gItem, CRail_SGItem ):
             gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
@@ -123,7 +124,7 @@ class CStorageGraf_GScene_Manager():
                 rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
                 objProps.appendRow( rowItems )
 
-        if isinstance( gItem, QGraphicsItemGroup ):
+        if isinstance( gItem, CRail_SGItem ):
             objProps.setColumnCount( len( gItem.childItems() ) )
             header = [ "edgeID" ]
             uniqAttrSet = set()

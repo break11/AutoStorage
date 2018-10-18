@@ -7,15 +7,15 @@ import math
 import StorageGrafTypes as SGT
 
 class CEdge_SGItem(QGraphicsItem):
-    nxGraf   = None
-    nodeID_1 = None
-    nodeID_2 = None
+    nxGraf    = None
+    nodeID_1  = None
+    nodeID_2  = None
     bDrawBBox = False
-
-    __path   = None 
-    __line   = None
-    __rAngle = None
-    __fBBoxD = 20   # расширение BBox для удобства выделения
+    baseLine  = None
+    
+    __rAngle  = None
+    __path    = None 
+    __fBBoxD  = 20   # расширение BBox для удобства выделения
 
     def __init__(self, nxGraf, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
@@ -25,6 +25,7 @@ class CEdge_SGItem(QGraphicsItem):
         self.nodeID_2 = nodeID_2
 
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
+        self.setZValue( 10 )
 
         self.buildEdge()
 
@@ -33,18 +34,18 @@ class CEdge_SGItem(QGraphicsItem):
         node_2 = self.nxGraf.node[ self.nodeID_2 ]
 
         # исходная линия может быть полезной далее, например для получения длины
-        self.__line = QLineF( node_1['x'], node_1['y'], node_2['x'], node_2['y'] )
+        self.baseLine = QLineF( node_1['x'], node_1['y'], node_2['x'], node_2['y'] )
 
         # угол поворота грани при рисовании (она рисуется вертикально в своей локальной системе координат, потом поворачивается)
-        self.__rAngle = math.acos( self.__line.dx() / self.__line.length())
-        if self.__line.dy() >= 0: self.__rAngle = (math.pi * 2.0) - self.__rAngle
+        self.__rAngle = math.acos( self.baseLine.dx() / self.baseLine.length())
+        if self.baseLine.dy() >= 0: self.__rAngle = (math.pi * 2.0) - self.__rAngle
 
         # расчет BBox-а поворачиваем точки BBox-а (topLeft, bottomRight) на тот же угол
         t = QTransform()
         t.rotate(  -1 * math.degrees( self.__rAngle ) + 90 )
 
         p1 = QPointF( 0, 0 )
-        p2 = QPointF( 0, -self.__line.length() )
+        p2 = QPointF( 0, -self.baseLine.length() )
 
         self.__path = QPainterPath()
         polygonF = QPolygonF()
@@ -69,6 +70,10 @@ class CEdge_SGItem(QGraphicsItem):
         y = self.nxGraf.node[ self.nodeID_1 ][ SGT.s_y ]
         self.setPos( x, y )
 
+    # угол поворта в градусах, с учетом того, что изначально грань рисуется по оси Y, для функции painter.rotate()
+    def rotateAngle(self):
+        return -1 * math.degrees( self.__rAngle ) + 90
+
     def paint(self, painter, option, widget):
         pen = QPen()
         
@@ -89,15 +94,15 @@ class CEdge_SGItem(QGraphicsItem):
         pen.setWidth( 5 )
         painter.setPen(pen)
 
-        painter.rotate( -1 * math.degrees( self.__rAngle ) + 90 )
+        painter.rotate( self.rotateAngle() )
 
-        painter.drawLine( -1, -self.__line.length() + 30, -10, -self.__line.length() + 50 ) #     \
-        painter.drawLine( 0, 0, 0, -self.__line.length() )                                  # -----
-        painter.drawLine( 1,  -self.__line.length() + 30,  10, -self.__line.length() + 50 ) #     /
+        painter.drawLine( -1, -self.baseLine.length() + 30, -10, -self.baseLine.length() + 50 ) #     \
+        painter.drawLine( 0, 0, 0, -self.baseLine.length() )                                  # -----
+        painter.drawLine( 1,  -self.baseLine.length() + 30,  10, -self.baseLine.length() + 50 ) #     /
 
-        pen.setColor( Qt.black )
-        pen.setWidth( 5 )
-        painter.setPen(pen)
-        painter.drawLine( 15, 0, 15, -self.__line.length() )                                  # -----
+        # pen.setColor( Qt.black )
+        # pen.setWidth( 5 )
+        # painter.setPen(pen)
+        # painter.drawLine( 15, 0, 15, -self.__line.length() )                                  # -----
 
 
