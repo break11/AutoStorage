@@ -1,69 +1,44 @@
 
-import enum
+from enum import *
 
-(
-gaWidthType,
-gaEdgeSize,
-gaHighRailSizeFrom,
-gaHighRailSizeTo,
-gaCurvature,
-gaEdgeType,
-gaSensorSide,
-gaChargeSide,
-gaContainsAgent,
-gaFloor_num,
-gaX,
-gaY,
-gaNodeType,
-gaStorageType,
-gaName
-) = range(15)
+class EGrafAttrs( Enum ):
+    widthType        = auto()
+    edgeSize         = auto()
+    highRailSizeFrom = auto()
+    highRailSizeTo   = auto()
+    curvature        = auto()
+    edgeType         = auto()
+    sensorSide       = auto()
+    chargeSide       = auto()
+    containsAgent    = auto()
+    floor_num        = auto()
+    x                = auto()
+    y                = auto()
+    nodeType         = auto()
+    storageType      = auto()
+    # name            = auto() # не используем из-за конфликта со встроенными атрибутами класса, нужен только в пропертях графа
 
-__GrafAttrsFromString = {
-    "widthType"        : gaWidthType,
-    "edgeSize"         : gaEdgeSize,
-    "highRailSizeFrom" : gaHighRailSizeFrom,
-    "highRailSizeTo"   : gaHighRailSizeTo,
-    "curvature"        : gaCurvature,
-    "edgeType"         : gaEdgeType,
-    "sensorSide"       : gaSensorSide,
-    "chargeSide"       : gaChargeSide,
-    "containsAgent"    : gaContainsAgent,
-    "floor_num"        : gaFloor_num,
-    "x"                : gaX,
-    "y"                : gaY,
-    "nodeType"         : gaNodeType,
-    "storageType"      : gaStorageType,
-    "name"             : gaName
-}
 
-__GrafAttrsToString = {
-    gaWidthType        : "widthType"
-}
-
-# sWidthType = gaToString[ gaWidthType ]
-# gasX = gaToString( gaX )
-
-graphAttrTypes = { gaWidthType        : str,
-                   gaEdgeSize         : int,
-                   gaHighRailSizeFrom : int,
-                   gaHighRailSizeTo   : int,
-                   gaCurvature        : str,
-                   gaEdgeType         : str,
-                   gaSensorSide       : str,
-                   gaChargeSide       : str,
-                   gaContainsAgent    : int,
-                   gaFloor_num        : int,
-                   gaX                : int,
-                   gaY                : int,
-                   gaNodeType         : str,
-                   gaStorageType      : str,
-                   gaName             : str
+graphAttrTypes = { EGrafAttrs.widthType        : str,
+                   EGrafAttrs.edgeSize         : int,
+                   EGrafAttrs.highRailSizeFrom : int,
+                   EGrafAttrs.highRailSizeTo   : int,
+                   EGrafAttrs.curvature        : str,
+                   EGrafAttrs.edgeType         : str,
+                   EGrafAttrs.sensorSide       : str,
+                   EGrafAttrs.chargeSide       : str,
+                   EGrafAttrs.containsAgent    : int,
+                   EGrafAttrs.floor_num        : int,
+                   EGrafAttrs.x                : int,
+                   EGrafAttrs.y                : int,
+                   EGrafAttrs.nodeType         : str,
+                   EGrafAttrs.storageType      : str,
+                #    GrafAttrs.name             : str,
 }
 
 def adjustAttrType( sAttrName, val ):
     if val is None: return None
-    val = (graphAttrTypes[ __GrafAttrsFromString[ sAttrName ] ] )( val )
+    val = (graphAttrTypes[ EGrafAttrs[sAttrName] ] )( val )
     return val
 
 #######################################################
