@@ -45,14 +45,10 @@ class CSMD_MainWindow(QMainWindow):
         self.__GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.StorageMap_View.viewport().installEventFilter( self.__GV_EventFilter )
 
-        # G = nx.read_graphml( "vrn_test1.graphml" )
-        # G = nx.read_graphml( "magadanskaya.graphml" )
-        # G = nx.read_graphml( "test_0123.graphml" )
-
         self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
-        self.loadGraphML( graphML_Path() + "test.graphml" )
-        # self.__SGraf_Manager.load( "magadanskaya.graphml" )
+        # self.loadGraphML( graphML_Path() + "test.graphml" )
+        self.loadGraphML( graphML_Path() + "magadanskaya.graphml" )
 
     def loadGraphML( self, sFName ):
         self.__graphML_fname = sFName

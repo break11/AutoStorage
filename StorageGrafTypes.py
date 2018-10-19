@@ -75,7 +75,7 @@ class EWidthType( Enum ):
     Wide   = auto()
 
 railWidth = {
-    EWidthType.Narrow.name : 100,
-    EWidthType.Wide.name   : 250,
-    None                   : 100,
+    EWidthType.Narrow.name : 500,
+    EWidthType.Wide.name   : 900,
+    None                   : 500,
 }

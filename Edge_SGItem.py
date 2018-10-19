@@ -15,7 +15,7 @@ class CEdge_SGItem(QGraphicsItem):
     
     __rAngle  = None
     __path    = None 
-    __fBBoxD  = 20   # расширение BBox для удобства выделения
+    __fBBoxD  =  100 # 20   # расширение BBox для удобства выделения
 
     def __readGrafAttrNode( self, sNodeID, sAttrName ): return self.nxGraf.node[ sNodeID ][ sAttrName ]
 
@@ -109,9 +109,27 @@ class CEdge_SGItem(QGraphicsItem):
         painter.drawLine( 0, 0, 0, -self.baseLine.length() )                                  # -----
         painter.drawLine( 1,  -self.baseLine.length() + 30,  10, -self.baseLine.length() + 50 ) #     /
 
-        # pen.setColor( Qt.black )
-        # pen.setWidth( 5 )
-        # painter.setPen(pen)
-        # painter.drawLine( 15, 0, 15, -self.__line.length() )                                  # -----
+        wt = self.nxEdge().get( SGT.s_widthType )
+        if wt is None: return
+
+        w = SGT.railWidth[ wt ] / 2
+
+        # adjustAttrType можно будет убрать, если перевести атрибуты ниже в инты в графе
+        eL     = SGT.adjustAttrType( SGT.s_edgeSize,         self.nxEdge()[ SGT.s_edgeSize       ] )
+        eHFrom = SGT.adjustAttrType( SGT.s_highRailSizeFrom, self.nxEdge()[ SGT.s_highRailSizeFrom ] )
+        eHTo   = SGT.adjustAttrType( SGT.s_highRailSizeTo,   self.nxEdge()[ SGT.s_highRailSizeTo   ] )
+
+        x = self.baseLine.length() / eL
+
+        pen.setColor( Qt.black )
+        pen.setWidth( 15 )
+        painter.setPen(pen)
+        # print( x )
+        painter.drawLine( w, 0, w, -eHFrom * x )
+
+        painter.drawLine( w, -self.baseLine.length() + eHTo * x, w, -self.baseLine.length() )
 
 
+        pen.setColor( Qt.darkGray )
+        painter.setPen(pen)
+        # painter.drawLine( w, -eHFrom * x, w, -self.baseLine.length() )
