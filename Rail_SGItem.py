@@ -1,38 +1,43 @@
 
 from PyQt5.QtWidgets import ( QGraphicsItemGroup )
-from PyQt5.QtGui import ( QPen )
+from PyQt5.QtGui import ( QPen, QColor )
 from PyQt5.QtCore import ( Qt )
 
 import StorageGrafTypes as SGT
 
 class CRail_SGItem(QGraphicsItemGroup):
+    __lineGItem = None
+    __lineEdgeName = None
+
     def __init__(self):
         super().__init__()
-        # self.setZValue( 30 )
+        self.setZValue( 10 )
 
-    def paint(self, painter, option, widget):
+    def removeFromGroup( self, item ):
+        super().removeFromGroup( item )
 
-        if len( self.childItems() ):
-            edgeGItem = self.childItems()[0]
+        if self.__lineGItem is None: return
+        if self.__lineEdgeName != item.edgeName(): return
 
-            nodeID_1 = edgeGItem.nxGraf.nodes[ edgeGItem.nodeID_1 ]
-            nodeID_2 = edgeGItem.nxGraf.nodes[ edgeGItem.nodeID_2 ]
+        self.scene().removeItem( self.__lineGItem )
+        del self.__lineGItem
+        self.__lineEdgeName = None
+
+    def addToGroup( self, item ):
+        super().addToGroup( item )
+
+        if self.__lineGItem is not None: return
+        
+        if self.__lineGItem is None:
+            self.__lineGItem = self.scene().addLine( item.x1, item.y1, item.x2, item.y2 )
+            self.__lineEdgeName = item.edgeName()
+            self.__lineGItem.setZValue( 0 )
+
+            wt = item.nxEdge().get( SGT.s_widthType )
 
             pen = QPen()
-            pen.setWidth( 20 )
-            pen.setColor( Qt.red )
-            painter.setPen(pen)
+            pen.setWidth( SGT.railWidth[ wt ] )
+            pen.setColor( QColor( 150, 150, 150 ) )
+            pen.setCapStyle( Qt.RoundCap )
 
-
-            painter.drawLine( nodeID_1["x"], nodeID_1["y"], nodeID_2["x"], nodeID_2["y"] )
-
-            # painter.save()
-            # painter.rotate( edgeGItem.rotateAngle() )
-            # painter.drawEllipse( -30, -30, 60, 60 )
-            # painter.drawLine( 0, 0, 0, -edgeGItem.baseLine.length() )
-            # painter.restore()
-        # print( edgeGItem.nodeID_1, edgeGItem.nodeID_2 )
-
-        super().paint(painter, option, widget)
-
-
+            self.__lineGItem.setPen( pen )

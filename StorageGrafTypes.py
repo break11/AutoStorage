@@ -67,3 +67,15 @@ nodeColors = {
     ENodeTypes.ServiceStation : Qt.darkBlue,
     ENodeTypes.Terminal       : Qt.lightGray,
 }
+
+#######################################################
+
+class EWidthType( Enum ):
+    Narrow = auto()
+    Wide   = auto()
+
+railWidth = {
+    EWidthType.Narrow.name : 100,
+    EWidthType.Wide.name   : 250,
+    None                   : 100,
+}

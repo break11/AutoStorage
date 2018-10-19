@@ -12,6 +12,20 @@ class CNode_SGItem(QGraphicsItem):
 
     __R = 50
 
+    def __readGrafAttr( self, sAttrName ): return self.nxGraf.node[ self.nodeID ][ sAttrName ]
+    def __writeGrafAttr( self, sAttrName, value ): self.nxGraf.node[ self.nodeID ][ sAttrName ] = value
+
+    @property
+    def x(self): return self.__readGrafAttr( SGT.s_x )
+    @x.setter
+    def x(self, value): self.__writeGrafAttr( SGT.s_x, value )
+
+    @property
+    def y(self): return self.__readGrafAttr( SGT.s_y )
+    @y.setter
+    def y(self, value): self.__writeGrafAttr( SGT.s_y, value )
+
+
     def __init__(self, nxGraf, nodeID):
         super().__init__()
 
@@ -28,9 +42,7 @@ class CNode_SGItem(QGraphicsItem):
     
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
-        x = self.nxGraf.node[ self.nodeID ][ SGT.s_x ]
-        y = self.nxGraf.node[ self.nodeID ][ SGT.s_y ]
-        self.setPos( x, y )
+        self.setPos( self.x, self.y )
 
     def paint(self, painter, option, widget):
         if self.bDrawBBox == True:

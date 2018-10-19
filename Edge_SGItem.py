@@ -17,6 +17,17 @@ class CEdge_SGItem(QGraphicsItem):
     __path    = None 
     __fBBoxD  = 20   # расширение BBox для удобства выделения
 
+    def __readGrafAttrNode( self, sNodeID, sAttrName ): return self.nxGraf.node[ sNodeID ][ sAttrName ]
+
+    @property
+    def x1(self): return self.__readGrafAttrNode( self.nodeID_1, SGT.s_x )
+    @property
+    def y1(self): return self.__readGrafAttrNode( self.nodeID_1, SGT.s_y )
+    @property
+    def x2(self): return self.__readGrafAttrNode( self.nodeID_2, SGT.s_x )
+    @property
+    def y2(self): return self.__readGrafAttrNode( self.nodeID_2, SGT.s_y )
+
     def __init__(self, nxGraf, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
         
@@ -30,11 +41,9 @@ class CEdge_SGItem(QGraphicsItem):
         self.buildEdge()
 
     def buildEdge(self):
-        node_1 = self.nxGraf.node[ self.nodeID_1 ]
-        node_2 = self.nxGraf.node[ self.nodeID_2 ]
 
         # исходная линия может быть полезной далее, например для получения длины
-        self.baseLine = QLineF( node_1['x'], node_1['y'], node_2['x'], node_2['y'] )
+        self.baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
 
         # угол поворота грани при рисовании (она рисуется вертикально в своей локальной системе координат, потом поворачивается)
         self.__rAngle = math.acos( self.baseLine.dx() / self.baseLine.length())
