@@ -40,4 +40,8 @@ class CRail_SGItem(QGraphicsItemGroup):
             pen.setColor( QColor( 150, 150, 150 ) )
             pen.setCapStyle( Qt.RoundCap )
 
+            # curv = item.nxEdge().get( SGT.s_curvature ) 
+            # if curv and curv == SGT.ECurvature.Curve.name:
+            #     pen.setCapStyle( Qt.RoundCap )
+
             self.__lineGItem.setPen( pen )

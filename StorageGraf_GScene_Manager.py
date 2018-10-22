@@ -41,17 +41,17 @@ class CStorageGraf_GScene_Manager():
 
         for n in self.nxGraf.nodes():
             nodeGItem = CNode_SGItem( self.nxGraf, n )
-            nodeGItem.updatePos()
             self.gScene.addItem( nodeGItem )
+            nodeGItem.updatePos()
             nodeGItem.installSceneEventFilter( evI )
             nodeGItem.bDrawBBox = self.bDrawBBox
             self.nodeGItems[ n ] = nodeGItem
 
         for e in self.nxGraf.edges():
             edgeGItem = CEdge_SGItem( self.nxGraf, *e )
-            edgeGItem.updatePos()
             edgeGItem.bDrawBBox = self.bDrawBBox
             self.edgeGItems[ e ] = edgeGItem
+            edgeGItem.updatePos()
             
             edgeKey = frozenset( [ e[0], e[1] ] )
             edgeGroup = self.groupsByEdge.get( edgeKey )
@@ -64,6 +64,8 @@ class CStorageGraf_GScene_Manager():
 
             edgeGroup.addToGroup( edgeGItem )
             edgeGItem.installSceneEventFilter( evI )
+            # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
+            edgeGItem.buildInfoRails() 
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
         
@@ -103,6 +105,9 @@ class CStorageGraf_GScene_Manager():
                 if gItem.nodeID == key[0]:
                     edgeGItem.updatePos()
 
+                # необходимо перестроить инфо-рельс, т.к. он является отдельным лайн-итемом чилдом грани
+                edgeGItem.rebuildInfoRails()
+
                 groupItem = self.groupsByEdge[ frozenset( key ) ]
 
                 # https://bugreports.qt.io/browse/QTBUG-25974
@@ -112,7 +117,10 @@ class CStorageGraf_GScene_Manager():
                 groupItem.addToGroup( edgeGItem )
 
         if isinstance( gItem, CRail_SGItem ):
-            gItem.childItems()[ stdMItem.column() - 1 ].nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
+            # грани лежат в группе по тем же индексам, что и столбцы полей в модели
+            edgeGItem = gItem.childItems()[ stdMItem.column() - 1 ]
+            edgeGItem.nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
+            edgeGItem.rebuildInfoRails()
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):

@@ -79,3 +79,7 @@ railWidth = {
     EWidthType.Wide.name   : 900,
     None                   : 500,
 }
+
+class ECurvature( Enum ):
+    Curve    = auto()
+    Straight = auto()

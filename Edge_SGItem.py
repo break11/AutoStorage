@@ -1,10 +1,11 @@
 
-from PyQt5.QtWidgets import ( QGraphicsItem )
+from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform )
 from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
 import StorageGrafTypes as SGT
+from typing import List
 
 class CEdge_SGItem(QGraphicsItem):
     nxGraf    = None
@@ -16,6 +17,8 @@ class CEdge_SGItem(QGraphicsItem):
     __rAngle  = None
     __path    = None 
     __fBBoxD  =  100 # 20   # расширение BBox для удобства выделения
+    __lineGItem = None
+    __InfoRails: List[ QGraphicsLineItem ]
 
     def __readGrafAttrNode( self, sNodeID, sAttrName ): return self.nxGraf.node[ sNodeID ][ sAttrName ]
 
@@ -30,6 +33,7 @@ class CEdge_SGItem(QGraphicsItem):
 
     def __init__(self, nxGraf, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
+        self.__InfoRails = []
         
         self.nxGraf = nxGraf
         self.nodeID_1 = nodeID_1
@@ -105,9 +109,23 @@ class CEdge_SGItem(QGraphicsItem):
 
         painter.rotate( self.rotateAngle() )
 
-        painter.drawLine( -1, -self.baseLine.length() + 30, -10, -self.baseLine.length() + 50 ) #     \
-        painter.drawLine( 0, 0, 0, -self.baseLine.length() )                                  # -----
-        painter.drawLine( 1,  -self.baseLine.length() + 30,  10, -self.baseLine.length() + 50 ) #     /
+        of = 10
+        painter.drawLine( -1 + of, -self.baseLine.length() + 30, -10 + of, -self.baseLine.length() + 50 ) #     \
+        painter.drawLine( of, 0, of, -self.baseLine.length() )                                  # -----
+        painter.drawLine( 1 + of,  -self.baseLine.length() + 30,  10 + of, -self.baseLine.length() + 50 ) #     /
+
+    def rebuildInfoRails( self ):
+        self.clearInfoRails()
+        self.buildInfoRails()
+
+    def clearInfoRails( self ):
+        for lItem in self.__InfoRails:
+            self.scene().removeItem( lItem )
+            del lItem
+        self.__InfoRails = []
+
+    def buildInfoRails( self ):
+        if len(self.__InfoRails) > 0: return
 
         wt = self.nxEdge().get( SGT.s_widthType )
         if wt is None: return
@@ -115,21 +133,32 @@ class CEdge_SGItem(QGraphicsItem):
         w = SGT.railWidth[ wt ] / 2
 
         # adjustAttrType можно будет убрать, если перевести атрибуты ниже в инты в графе
-        eL     = SGT.adjustAttrType( SGT.s_edgeSize,         self.nxEdge()[ SGT.s_edgeSize       ] )
+        eL     = SGT.adjustAttrType( SGT.s_edgeSize,         self.nxEdge()[ SGT.s_edgeSize         ] )
         eHFrom = SGT.adjustAttrType( SGT.s_highRailSizeFrom, self.nxEdge()[ SGT.s_highRailSizeFrom ] )
         eHTo   = SGT.adjustAttrType( SGT.s_highRailSizeTo,   self.nxEdge()[ SGT.s_highRailSizeTo   ] )
 
-        x = self.baseLine.length() / eL
+        kW = self.baseLine.length() / eL
 
+        pen = QPen()
         pen.setColor( Qt.black )
         pen.setWidth( 15 )
-        painter.setPen(pen)
-        # print( x )
-        painter.drawLine( w, 0, w, -eHFrom * x )
 
-        painter.drawLine( w, -self.baseLine.length() + eHTo * x, w, -self.baseLine.length() )
+        if eHFrom:
+            l = self.scene().addLine( w, 0, w, -eHFrom * kW )
+            l.setPen( pen )
+            l.setParentItem( self )
+            l.setRotation( self.rotateAngle() )
+            # l.setZValue( 100 )
+            self.__InfoRails.append( l )
+
+        # if self.l is None:
+        # self.l = self.scene().addLine( w, 0, w, -eHFrom * x )
+        # self.l.setRotation( self.rotateAngle() )
+        # self.l.setParentItem( self )
+
+        # if eHTo: painter.drawLine( w, -self.baseLine.length() + eHTo * x, w, -self.baseLine.length() )
 
 
-        pen.setColor( Qt.darkGray )
-        painter.setPen(pen)
+        # pen.setColor( Qt.darkGray )
+        # painter.setPen(pen)
         # painter.drawLine( w, -eHFrom * x, w, -self.baseLine.length() )
