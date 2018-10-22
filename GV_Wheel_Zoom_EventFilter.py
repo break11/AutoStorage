@@ -19,7 +19,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         self.__tmFitOnFirstShow.timeout.connect( self.fitToPage )
         self.__tmFitOnFirstShow.start()
 
-    def eventFilter(self, object, event):
+    def eventFilter(self, object, event):        
         if event.type() == QEvent.KeyPress:
             if event.modifiers() & Qt.AltModifier:
                 self.__gView.setDragMode( QGraphicsView.DragMode.ScrollHandDrag )

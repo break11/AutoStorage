@@ -16,7 +16,7 @@ class CEdge_SGItem(QGraphicsItem):
     
     __rAngle  = None
     __path    = None 
-    __fBBoxD  =  100 # 20   # расширение BBox для удобства выделения
+    __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
     __lineGItem = None
     __InfoRails: List[ QGraphicsLineItem ]
 
@@ -131,6 +131,7 @@ class CEdge_SGItem(QGraphicsItem):
         if wt is None: return
 
         w = SGT.railWidth[ wt ] / 2
+        # w = 50
 
         # adjustAttrType можно будет убрать, если перевести атрибуты ниже в инты в графе
         eL     = SGT.adjustAttrType( SGT.s_edgeSize,         self.nxEdge()[ SGT.s_edgeSize         ] )
@@ -139,26 +140,49 @@ class CEdge_SGItem(QGraphicsItem):
 
         kW = self.baseLine.length() / eL
 
+        def addInfoRailLine( lineGItem ):
+            lineGItem.setPen( pen )
+            lineGItem.setTransform( self.sceneTransform() )
+            lineGItem.setRotation( self.rotateAngle() )
+            lineGItem.setZValue( 5 )
+            self.__InfoRails.append( lineGItem )
+
+        sensorSide = self.nxEdge().get( SGT.s_sensorSide )
+        curvature  = self.nxEdge().get( SGT.s_curvature )
+        
+        color = Qt.blue
+        sides = []
+        if curvature == SGT.ECurvature.Straight.name:
+            sides = [-1, 1]
+            if sensorSide == SGT.ESensorSide.SPassive.name:
+                color = Qt.green
+                sides = [-1, 1]
+        elif curvature == SGT.ECurvature.Curve.name:
+            if sensorSide == SGT.ESensorSide.SBoth.name:
+                sides = [-1, 1]
+            elif sensorSide == SGT.ESensorSide.SLeft.name:
+                sides = [-1]
+            elif sensorSide == SGT.ESensorSide.SRight.name:
+                sides = [1]
+
+        # print( self.edgeName(), sensorSide, curvature, sides )
+
         pen = QPen()
-        pen.setColor( Qt.black )
-        pen.setWidth( 15 )
+        pen.setWidth( 20 )
+        pen.setCapStyle( Qt.FlatCap )
 
-        if eHFrom:
-            l = self.scene().addLine( w, 0, w, -eHFrom * kW )
-            l.setPen( pen )
-            l.setParentItem( self )
-            l.setRotation( self.rotateAngle() )
-            # l.setZValue( 100 )
-            self.__InfoRails.append( l )
+        for sK in sides:
+            x = w * sK
 
-        # if self.l is None:
-        # self.l = self.scene().addLine( w, 0, w, -eHFrom * x )
-        # self.l.setRotation( self.rotateAngle() )
-        # self.l.setParentItem( self )
+            pen.setColor( color )
+            l = self.scene().addLine( x, -eHFrom * kW, x, -self.baseLine.length() + eHTo * kW )
+            addInfoRailLine( l )
 
-        # if eHTo: painter.drawLine( w, -self.baseLine.length() + eHTo * x, w, -self.baseLine.length() )
+            pen.setColor( Qt.yellow )
+            if eHFrom:
+                l = self.scene().addLine( x, 0, x, -eHFrom * kW )
+                addInfoRailLine( l )
 
-
-        # pen.setColor( Qt.darkGray )
-        # painter.setPen(pen)
-        # painter.drawLine( w, -eHFrom * x, w, -self.baseLine.length() )
+            if eHTo:
+                l = self.scene().addLine( x, -self.baseLine.length() + eHTo * kW, x, -self.baseLine.length() )
+                addInfoRailLine( l )

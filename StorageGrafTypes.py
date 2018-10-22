@@ -75,11 +75,17 @@ class EWidthType( Enum ):
     Wide   = auto()
 
 railWidth = {
-    EWidthType.Narrow.name : 500,
-    EWidthType.Wide.name   : 900,
-    None                   : 500,
+    EWidthType.Narrow.name : 690,
+    EWidthType.Wide.name   : 1140,
+    None                   : 690,
 }
 
 class ECurvature( Enum ):
     Curve    = auto()
     Straight = auto()
+
+class ESensorSide( Enum ):
+    SLeft    = auto()
+    SRight   = auto()
+    SBoth    = auto()
+    SPassive = auto()
