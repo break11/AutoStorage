@@ -9,6 +9,10 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
     __tmFitOnFirstShow = QTimer()
     ZoomFactor = 1.15
 
+    __moveStartX = 0
+    __moveStartY = 0
+    __rightMousePressed = False
+
     def __init__(self, gView):
         super(CGV_Wheel_Zoom_EventFilter, self).__init__(gView)
         self.__gView = gView
@@ -19,10 +23,38 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         self.__tmFitOnFirstShow.timeout.connect( self.fitToPage )
         self.__tmFitOnFirstShow.start()
 
-    def eventFilter(self, object, event):        
+    def eventFilter(self, object, event):
+        ############### Right Click Mouse Move ###############
+        if event.type() == QEvent.MouseButtonPress:
+            if event.button() == Qt.RightButton:
+                self.__rightMousePressed = True
+                self.__moveStartX = event.x()
+                self.__moveStartY = event.y()
+                self.__gView.setCursor( Qt.ClosedHandCursor )
+                event.accept()
+                return True
+
+        if event.type() == QEvent.MouseButtonRelease:
+            if event.button() == Qt.RightButton:
+                self.__rightMousePressed = False
+                self.__gView.setCursor( Qt.ArrowCursor )
+                event.accept()
+                return True
+
+        if event.type() == QEvent.MouseMove:
+            if ( self.__rightMousePressed ):
+                self.__gView.horizontalScrollBar().setValue( self.__gView.horizontalScrollBar().value() - ( event.x() - self.__moveStartX ) )
+                self.__gView.verticalScrollBar().setValue  ( self.__gView.verticalScrollBar().value()   - ( event.y() - self.__moveStartY ) )
+                self.__moveStartX = event.x()
+                self.__moveStartY = event.y()
+                event.accept()
+                return True
+        ############### Right Click Mouse Move ###############
+
         if event.type() == QEvent.KeyPress:
             if event.modifiers() & Qt.AltModifier:
                 self.__gView.setDragMode( QGraphicsView.DragMode.ScrollHandDrag )
+                return True
 
         if event.type() == QEvent.KeyRelease:
             if event.modifiers() & Qt.ControlModifier:
@@ -33,6 +65,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
             
             if not ( event.modifiers() & Qt.AltModifier):
                 self.__gView.setDragMode( QGraphicsView.DragMode.RubberBandDrag )
+                return True
 
         if event.type() == QEvent.Wheel:
             if event.modifiers() & Qt.ControlModifier:
