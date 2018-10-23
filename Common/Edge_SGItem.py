@@ -136,7 +136,7 @@ class CEdge_SGItem(QGraphicsItem):
         eHFrom = self.nxEdge().get( SGT.s_highRailSizeFrom )
         eHTo   = self.nxEdge().get( SGT.s_highRailSizeTo   )
 
-        if not all( [ eL, eHFrom, eHTo ] ): return
+        if None in ( eL, eHFrom, eHTo ): return
 
         # adjustAttrType можно будет убрать, если перевести атрибуты ниже в инты в графе
         eL     = SGT.adjustAttrType( SGT.s_edgeSize,         eL )
