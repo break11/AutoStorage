@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import ( QGraphicsItemGroup )
 from PyQt5.QtGui import ( QPen, QColor )
 from PyQt5.QtCore import ( Qt )
 
-import StorageGrafTypes as SGT
+import Common.StorageGrafTypes as SGT
 
 class CRail_SGItem(QGraphicsItemGroup):
     __lineGItem = None

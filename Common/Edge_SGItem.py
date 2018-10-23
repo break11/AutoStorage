@@ -4,7 +4,7 @@ from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform )
 from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
-import StorageGrafTypes as SGT
+import Common.StorageGrafTypes as SGT
 from typing import List
 
 class CEdge_SGItem(QGraphicsItem):
@@ -131,12 +131,17 @@ class CEdge_SGItem(QGraphicsItem):
         if wt is None: return
 
         w = SGT.railWidth[ wt ] / 2
-        # w = 50
+
+        eL     = self.nxEdge().get( SGT.s_edgeSize         )
+        eHFrom = self.nxEdge().get( SGT.s_highRailSizeFrom )
+        eHTo   = self.nxEdge().get( SGT.s_highRailSizeTo   )
+
+        if not all( [ eL, eHFrom, eHTo ] ): return
 
         # adjustAttrType можно будет убрать, если перевести атрибуты ниже в инты в графе
-        eL     = SGT.adjustAttrType( SGT.s_edgeSize,         self.nxEdge()[ SGT.s_edgeSize         ] )
-        eHFrom = SGT.adjustAttrType( SGT.s_highRailSizeFrom, self.nxEdge()[ SGT.s_highRailSizeFrom ] )
-        eHTo   = SGT.adjustAttrType( SGT.s_highRailSizeTo,   self.nxEdge()[ SGT.s_highRailSizeTo   ] )
+        eL     = SGT.adjustAttrType( SGT.s_edgeSize,         eL )
+        eHFrom = SGT.adjustAttrType( SGT.s_highRailSizeFrom, eHFrom )
+        eHTo   = SGT.adjustAttrType( SGT.s_highRailSizeTo,   eHTo )
 
         kW = self.baseLine.length() / eL
 
@@ -150,7 +155,7 @@ class CEdge_SGItem(QGraphicsItem):
         sensorSide = self.nxEdge().get( SGT.s_sensorSide )
         curvature  = self.nxEdge().get( SGT.s_curvature )
         
-        color = Qt.blue
+        color = Qt.yellow
         sides = []
         if curvature == SGT.ECurvature.Straight.name:
             sides = [-1, 1]
@@ -174,11 +179,12 @@ class CEdge_SGItem(QGraphicsItem):
         for sK in sides:
             x = w * sK
 
-            pen.setColor( color )
-            l = self.scene().addLine( x, -eHFrom * kW, x, -self.baseLine.length() + eHTo * kW )
-            addInfoRailLine( l )
+            if sensorSide != SGT.ESensorSide.SPassive.name:
+                pen.setColor( Qt.blue )
+                l = self.scene().addLine( x, -eHFrom * kW, x, -self.baseLine.length() + eHTo * kW )
+                addInfoRailLine( l )
 
-            pen.setColor( Qt.yellow )
+            pen.setColor( color )
             if eHFrom:
                 l = self.scene().addLine( x, 0, x, -eHFrom * kW )
                 addInfoRailLine( l )

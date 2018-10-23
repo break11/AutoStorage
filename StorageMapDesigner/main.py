@@ -1,5 +1,7 @@
 
+import os
 import sys
+
 import networkx as nx
 import typing
 import images_rc
@@ -10,11 +12,9 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup, QProxyStyle, QStyle,
                                 QFileDialog )
 
-from Node_SGItem import *
-from Edge_SGItem import *
-from GV_Wheel_Zoom_EventFilter import *
-from GridGraphicsScene import *
-from StorageGraf_GScene_Manager import *
+from Common.GV_Wheel_Zoom_EventFilter import *
+from Common.GridGraphicsScene import *
+from Common.StorageGraf_GScene_Manager import *
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
 class CNoAltMenu_Style( QProxyStyle ):
@@ -33,7 +33,7 @@ class CSMD_MainWindow(QMainWindow):
 
     def __init__(self):
         super(CSMD_MainWindow, self).__init__()
-        uic.loadUi('mainwindow.ui', self)
+        uic.loadUi('StorageMapDesigner/mainwindow.ui', self)
 
         self.tvObjectProps.setModel( self.objProps )
 
@@ -99,7 +99,7 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acBBox_triggered(self, bChecked):
         self.__SGraf_Manager.setDrawBBox( bChecked )
-        
+
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)

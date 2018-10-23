@@ -4,12 +4,12 @@ import networkx as nx
 # from PyQt5.QtWidgets import (QGraphicsItemGroup )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
-from Node_SGItem import *
-from Edge_SGItem import *
-from Rail_SGItem import *
-from GItem_EventFilter import *
-from GuiUtils import *
-import StorageGrafTypes as SGT
+from Common.Node_SGItem import CNode_SGItem
+from Common.Edge_SGItem import CEdge_SGItem
+from Common.Rail_SGItem import CRail_SGItem
+from Common.GItem_EventFilter import *
+from Common.GuiUtils import *
+import Common.StorageGrafTypes as SGT
 
 from typing import Dict
 
