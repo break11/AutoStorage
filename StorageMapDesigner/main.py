@@ -1,5 +1,5 @@
 
-import Common.SettingsManager
+
 import os
 import sys
 
@@ -16,6 +16,9 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainW
 from Common.GV_Wheel_Zoom_EventFilter import *
 from Common.GridGraphicsScene import *
 from Common.StorageGraf_GScene_Manager import *
+
+# import Common.SettingsManager as SM
+from Common.SettingsManager import CSettingsManager as CSM
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
 class CNoAltMenu_Style( QProxyStyle ):
@@ -50,11 +53,13 @@ class CSMD_MainWindow(QMainWindow):
 
         # self.loadGraphML( graphML_Path() + "test.graphml" )
         self.loadGraphML( graphML_Path() + "magadanskaya.graphml" )
+        # print( SM.options[ "last_opened_file" ] )
 
     def loadGraphML( self, sFName ):
         self.__graphML_fname = sFName
         self.__SGraf_Manager.load( sFName )
         self.setWindowTitle( "Storage Map Designer : " + sFName )
+        # SM.options[ "last_opened_file" ] = sFName
 
     def saveGraphML( self, sFName ):
         self.__graphML_fname = sFName
@@ -112,6 +117,8 @@ class CSMD_MainWindow(QMainWindow):
         if path != "" : self.saveGraphML( path )
 
 def main():
+    CSM.loadSettings()
+
     app = QApplication(sys.argv)
     app.setStyle( CNoAltMenu_Style() )
 
@@ -119,6 +126,8 @@ def main():
     window.show()
 
     app.exec_()
+
+    CSM.saveSettings()
 
 if __name__ == '__main__':
     main()

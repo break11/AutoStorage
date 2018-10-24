@@ -1,7 +1,6 @@
 
 import networkx as nx
 
-# from PyQt5.QtWidgets import (QGraphicsItemGroup )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
 from Common.Node_SGItem import CNode_SGItem

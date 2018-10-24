@@ -1,27 +1,25 @@
 
 
-class A(type):
-    # pass
-    def __new__(cls, className, baseClasses, dictOfMethods):
-        return type.__new__(cls, className, baseClasses, dictOfMethods)
+import os
+import sys
+import __main__ as main
+import json
 
-    def __init__( cls, className, baseClasses, dictOfMethods):
-        print( "1111111111111111" )
+def settingsDir():
+    return os.path.abspath( os.curdir ) +  "/Settings/"
 
-    def __del__( cls ):
+def settingsFName():
+    return settingsDir() + os.path.basename( main.__file__ ).replace( ".py", ".json" )
 
-        print( "222222222222222222222222222222222" )
-        # super().__del__( cls )
-        # cls.options = {}
-        # print( "print!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11" )
+class CSettingsManager():
+    @classmethod
+    def loadSettings( cls ):
+        print( "load", settingsFName() )
+        # with open( cls.settingsFName(), "r" ) as read_file:
+        #     cls.options = json.load( read_file )
 
-# 
-    # def __del__( cls ):
-    #     cls.options = {}
-    #     print( "2222222222222222222222222222222222" )
-
-class SettingsManager( object, metaclass = A ):
-    # def __init__(self):
-    pass
-
-# print( type(SettingsManager) )
+    @classmethod
+    def saveSettings( cls ):
+        print( "save", settingsFName() )
+        # with open( cls.settingsFName(), "w") as write_file:
+        #     json.dump(data, write_file)
