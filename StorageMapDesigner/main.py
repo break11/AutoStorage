@@ -52,11 +52,9 @@ class CSMD_MainWindow(QMainWindow):
 
         self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
-        # self.loadGraphML( graphML_Path() + "test.graphml" )
-        # self.loadGraphML( graphML_Path() + "magadanskaya.graphml" )
         self.loadGraphML( CSM.opt( "last_opened_file" ) or "" ) # None не пропускаем в loadGraphML
 
-        winState = CSM.options["MainWindow"]
+        winState = CSM.opt( "MainWindow" )
         self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winState["Geometry"].encode() ) ) )
         self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winState["State"].encode() ) ) )
 

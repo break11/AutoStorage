@@ -9,9 +9,15 @@ from typing import Dict
 
 def settingsDir():
     return os.path.abspath( os.curdir ) +  "/Settings/"
+    
+def mainAppBaseName():
+    return os.path.basename( main.__file__ ).replace( ".py", "" )
 
 def settingsFName():
-    return settingsDir() + os.path.basename( main.__file__ ).replace( ".py", ".json" )
+    return settingsDir() + mainAppBaseName() + ".json"
+
+def defSettingsFName():
+    return os.path.abspath( os.curdir ) + "/" + mainAppBaseName() + "/def_settings.json"
 
 class CSettingsManager():
     options : Dict[str, str] = {} # MyPy Hack
@@ -19,6 +25,8 @@ class CSettingsManager():
 
     @classmethod
     def loadSettings( cls ):
+        with open( defSettingsFName(), "r" ) as read_file:
+            cls.options = json.load( read_file )
 
         try:
             with open( settingsFName(), "r" ) as read_file:
