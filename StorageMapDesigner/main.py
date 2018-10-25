@@ -8,7 +8,7 @@ import typing
 import images_rc
 
 from PyQt5 import uic
-from PyQt5.QtCore import (Qt, pyqtSlot)
+from PyQt5.QtCore import (Qt, pyqtSlot, QByteArray)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup, QProxyStyle, QStyle,
                                 QFileDialog )
@@ -17,7 +17,6 @@ from Common.GV_Wheel_Zoom_EventFilter import *
 from Common.GridGraphicsScene import *
 from Common.StorageGraf_GScene_Manager import *
 
-# import Common.SettingsManager as SM
 from Common.SettingsManager import CSettingsManager as CSM
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
@@ -34,6 +33,8 @@ class CSMD_MainWindow(QMainWindow):
     __graphML_fname = ""
     objProps = QStandardItemModel()
     __file_filters = "GraphML (*.graphml);;All Files (*)"
+    __sWindowTitle = "Storage Map Designer : "
+    global CSM
 
     def __init__(self):
         super(CSMD_MainWindow, self).__init__()
@@ -52,19 +53,27 @@ class CSMD_MainWindow(QMainWindow):
         self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
         # self.loadGraphML( graphML_Path() + "test.graphml" )
-        self.loadGraphML( graphML_Path() + "magadanskaya.graphml" )
-        # print( SM.options[ "last_opened_file" ] )
+        # self.loadGraphML( graphML_Path() + "magadanskaya.graphml" )
+        self.loadGraphML( CSM.opt( "last_opened_file" ) or "" ) # None не пропускаем в loadGraphML
+
+        winState = CSM.options["MainWindow"]
+        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winState["Geometry"].encode() ) ) )
+        self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winState["State"].encode() ) ) )
+
+    def closeEvent( self, event ):
+        CSM.options["MainWindow"] = { "Geometry" : self.saveGeometry().toHex().data().decode(),
+                                      "State"    : self.saveState().toHex().data().decode() }
 
     def loadGraphML( self, sFName ):
         self.__graphML_fname = sFName
         self.__SGraf_Manager.load( sFName )
-        self.setWindowTitle( "Storage Map Designer : " + sFName )
-        # SM.options[ "last_opened_file" ] = sFName
+        self.setWindowTitle( self.__sWindowTitle + sFName )
+        CSM.options[ "last_opened_file" ] = sFName
 
     def saveGraphML( self, sFName ):
         self.__graphML_fname = sFName
         self.__SGraf_Manager.save( sFName )
-        self.setWindowTitle( "Storage Map Designer : " + sFName )
+        self.setWindowTitle( self.__sWindowTitle + sFName )
 
     # сигнал изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):

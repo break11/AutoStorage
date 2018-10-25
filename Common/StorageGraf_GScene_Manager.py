@@ -1,4 +1,5 @@
 
+import os
 import networkx as nx
 
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
@@ -33,6 +34,10 @@ class CStorageGraf_GScene_Manager():
 
     def load( self, sFName ):
         self.clear()
+
+        if not os.path.exists( sFName ):
+            print( f"[Warning]: GraphML file not found '{sFName}'!" )
+            return
         
         self.nxGraf  = nx.read_graphml( sFName )
         evI = CGItem_EventFilter()
