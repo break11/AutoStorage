@@ -9,6 +9,10 @@ class CGridGraphicsScene(QGraphicsScene):
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
 
+    def itemChanged( self, gItem ):
+        print( gItem )
+        # emit someItemChanged( gItem )
+
     def drawBackground( self, painter, rect ):
         self.setBackgroundBrush( Qt.gray )
 

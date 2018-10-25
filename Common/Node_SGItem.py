@@ -72,6 +72,13 @@ class CNode_SGItem(QGraphicsItem):
 
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
+    def mouseMoveEvent( self, event ):
+        self.setPos( self.mapToScene( event.pos() ) )
+        self.nxNode()[ SGT.s_x ] = self.pos().x()
+        self.nxNode()[ SGT.s_y ] = self.pos().y()
+        self.scene().itemChanged( self )
+
+
     # def mousePressEvent(self, event):
     #     pos = event.pos()
     #     print( pos )

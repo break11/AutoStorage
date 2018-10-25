@@ -88,19 +88,16 @@ class CStorageGraf_GScene_Manager():
         for e, v in self.edgeGItems.items():
             v.bDrawBBox = bVal
 
-    #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице модели свойств
+    #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
         propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
         propValue = stdMItem.data( Qt.EditRole )
 
         if isinstance( gItem, CNode_SGItem ):
             gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
-            nodeID = gItem.nodeID
-
-            nodeGItem = self.nodeGItems[ nodeID ]
-            nodeGItem.updatePos()
+            gItem.updatePos()
             
-            incEdges = list( self.nxGraf.out_edges( nodeID ) ) +  list( self.nxGraf.in_edges( nodeID ) )
+            incEdges = list( self.nxGraf.out_edges( gItem.nodeID ) ) +  list( self.nxGraf.in_edges( gItem.nodeID ) )
             for key in incEdges:
                 edgeGItem = self.edgeGItems[ key ]
                 edgeGItem.buildEdge()
