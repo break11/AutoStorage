@@ -10,14 +10,15 @@ import images_rc
 from PyQt5 import uic
 from PyQt5.QtCore import (Qt, pyqtSlot, QByteArray)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem, QGraphicsItemGroup, QProxyStyle, QStyle,
-                                QFileDialog )
+from PyQt5.QtWidgets import (QApplication, QGraphicsView, QGraphicsScene, QMainWindow, QGraphicsRectItem,
+                             QGraphicsItemGroup, QProxyStyle, QStyle, QFileDialog )
 
 from Common.GV_Wheel_Zoom_EventFilter import *
 from Common.GridGraphicsScene import *
 from Common.StorageGraf_GScene_Manager import *
 
 from Common.SettingsManager import CSettingsManager as CSM
+import Common.StrConsts as SC
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
 class CNoAltMenu_Style( QProxyStyle ):
@@ -52,21 +53,21 @@ class CSMD_MainWindow(QMainWindow):
 
         self.__SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
-        self.loadGraphML( CSM.opt( "last_opened_file" ) or "" ) # None не пропускаем в loadGraphML
+        self.loadGraphML( CSM.opt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
 
-        winState = CSM.opt( "MainWindow" )
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winState["Geometry"].encode() ) ) )
-        self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winState["State"].encode() ) ) )
+        winState = CSM.opt( SC.s_MainWindow )
+        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winState[ SC.s_Geometry ].encode() ) ) )
+        self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winState[ SC.s_State ].encode() ) ) )
 
     def closeEvent( self, event ):
-        CSM.options["MainWindow"] = { "Geometry" : self.saveGeometry().toHex().data().decode(),
-                                      "State"    : self.saveState().toHex().data().decode() }
+        CSM.options[ SC.s_MainWindow ]  = { SC.s_Geometry : self.saveGeometry().toHex().data().decode(),
+                                            SC.s_State    : self.saveState().toHex().data().decode() }
 
     def loadGraphML( self, sFName ):
         self.__graphML_fname = sFName
         self.__SGraf_Manager.load( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
-        CSM.options[ "last_opened_file" ] = sFName
+        CSM.options[ SC.s_last_opened_file ] = sFName
 
     def saveGraphML( self, sFName ):
         self.__graphML_fname = sFName
