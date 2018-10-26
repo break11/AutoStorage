@@ -10,10 +10,10 @@ class CGridGraphicsScene(QGraphicsScene):
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
 
-    def drawBackground( self, painter, rect ):
+    def drawForeground( self, painter, rect ):
         self.setBackgroundBrush( Qt.gray )
 
-        super(CGridGraphicsScene, self).drawBackground( painter, rect )
+        super().drawForeground( painter, rect )
 
         if self.bDrawGrid == False : return
         
