@@ -50,7 +50,7 @@ class CEdge_SGItem(QGraphicsItem):
         self.baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
 
         # угол поворота грани при рисовании (она рисуется вертикально в своей локальной системе координат, потом поворачивается)
-        self.__rAngle = math.acos( self.baseLine.dx() / self.baseLine.length())
+        self.__rAngle = math.acos( self.baseLine.dx() / ( self.baseLine.length() or 1) )
         if self.baseLine.dy() >= 0: self.__rAngle = (math.pi * 2.0) - self.__rAngle
 
         # расчет BBox-а поворачиваем точки BBox-а (topLeft, bottomRight) на тот же угол

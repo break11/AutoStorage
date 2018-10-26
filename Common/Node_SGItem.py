@@ -74,11 +74,6 @@ class CNode_SGItem(QGraphicsItem):
 
     def mouseMoveEvent( self, event ):
         self.setPos( self.mapToScene( event.pos() ) )
-        self.nxNode()[ SGT.s_x ] = self.pos().x()
-        self.nxNode()[ SGT.s_y ] = self.pos().y()
-        self.scene().itemChanged( self )
-
-
-    # def mousePressEvent(self, event):
-    #     pos = event.pos()
-    #     print( pos )
+        self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.pos().x() )
+        self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.pos().y() )
+        self.scene().itemChanged.emit( self )

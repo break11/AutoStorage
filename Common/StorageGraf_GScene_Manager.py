@@ -3,6 +3,8 @@ import os
 import networkx as nx
 
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
+from PyQt5.QtCore import (pyqtSlot, QObject)
+from PyQt5.QtWidgets import ( QGraphicsItem )
 
 from Common.Node_SGItem import CNode_SGItem
 from Common.Edge_SGItem import CEdge_SGItem
@@ -14,14 +16,14 @@ import Common.StorageGrafTypes as SGT
 from typing import Dict
 
 class CStorageGraf_GScene_Manager():
-    gScene = None
-    gView = None
-    nxGraf  = None
+    gScene    = None
+    gView     = None
+    nxGraf    = None
     bDrawBBox = False
     nodeGItems   : Dict[str, CNode_SGItem] = {}
     edgeGItems   : Dict[tuple, CEdge_SGItem] = {}
     groupsByEdge : Dict[frozenset, CRail_SGItem ] = {}
-    
+        
     def __init__(self, gScene, gView):
         self.gScene = gScene
         self.gView  = gView
@@ -88,6 +90,28 @@ class CStorageGraf_GScene_Manager():
         for e, v in self.edgeGItems.items():
             v.bDrawBBox = bVal
 
+    # перестроение связанных с нодой граней
+    def updateNodeIncEdges(self, nodeGItem):
+        incEdges = list( self.nxGraf.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraf.in_edges( nodeGItem.nodeID ) )
+        for key in incEdges:
+            edgeGItem = self.edgeGItems[ key ]
+            edgeGItem.buildEdge()
+
+            # Граням выходящим из узла обновляем позицию, входящим - нет
+            if nodeGItem.nodeID == key[0]:
+                edgeGItem.updatePos()
+
+            # необходимо перестроить инфо-рельс, т.к. он является отдельным лайн-итемом чилдом грани
+            edgeGItem.rebuildInfoRails()
+
+            groupItem = self.groupsByEdge[ frozenset( key ) ]
+
+            # https://bugreports.qt.io/browse/QTBUG-25974
+            # В связи с ошибкой в Qt группа не меняет свой размер при изменении геометрии чилдов
+            # поэтому приходится пересоздавать группу, убирая элементы и занося их в нее вновь 
+            groupItem.removeFromGroup( edgeGItem )
+            groupItem.addToGroup( edgeGItem )
+
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
         propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
@@ -96,26 +120,7 @@ class CStorageGraf_GScene_Manager():
         if isinstance( gItem, CNode_SGItem ):
             gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
             gItem.updatePos()
-            
-            incEdges = list( self.nxGraf.out_edges( gItem.nodeID ) ) +  list( self.nxGraf.in_edges( gItem.nodeID ) )
-            for key in incEdges:
-                edgeGItem = self.edgeGItems[ key ]
-                edgeGItem.buildEdge()
-
-                # Граням выходящим из узла обновляем позицию, входящим - нет
-                if gItem.nodeID == key[0]:
-                    edgeGItem.updatePos()
-
-                # необходимо перестроить инфо-рельс, т.к. он является отдельным лайн-итемом чилдом грани
-                edgeGItem.rebuildInfoRails()
-
-                groupItem = self.groupsByEdge[ frozenset( key ) ]
-
-                # https://bugreports.qt.io/browse/QTBUG-25974
-                # В связи с ошибкой в Qt группа не меняет свой размер при изменении геометрии чилдов
-                # поэтому приходится пересоздавать группу, убирая элементы и занося их в нее вновь 
-                groupItem.removeFromGroup( edgeGItem )
-                groupItem.addToGroup( edgeGItem )
+            self.updateNodeIncEdges( gItem )
 
         if isinstance( gItem, CRail_SGItem ):
             # грани лежат в группе по тем же индексам, что и столбцы полей в модели
@@ -152,5 +157,3 @@ class CStorageGraf_GScene_Manager():
                     rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ) ) )
                 objProps.appendRow( rowItems )
         
-    # def __del__(self):
-        # print( "del CGrafSceneManager", self.QGraphicsScene )

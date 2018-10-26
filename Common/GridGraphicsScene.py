@@ -1,17 +1,14 @@
 
-from PyQt5.QtWidgets import ( QGraphicsScene )
-from PyQt5.QtCore import ( Qt, QLineF )
+from PyQt5.QtWidgets import ( QGraphicsScene, QGraphicsItem )
+from PyQt5.QtCore import ( Qt, QLineF, pyqtSignal )
 from PyQt5.QtGui import ( QPen )
 
 class CGridGraphicsScene(QGraphicsScene):
+    itemChanged = pyqtSignal( QGraphicsItem )
     gridSize = 400
     bDrawGrid = False
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
-
-    def itemChanged( self, gItem ):
-        print( gItem )
-        # emit someItemChanged( gItem )
 
     def drawBackground( self, painter, rect ):
         self.setBackgroundBrush( Qt.gray )

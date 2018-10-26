@@ -38,7 +38,7 @@ class CSMD_MainWindow(QMainWindow):
     global CSM
 
     def __init__(self):
-        super(CSMD_MainWindow, self).__init__()
+        super().__init__()
         uic.loadUi('StorageMapDesigner/mainwindow.ui', self)
 
         self.tvObjectProps.setModel( self.objProps )
@@ -46,6 +46,7 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_Scene = CGridGraphicsScene( self )
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
         self.objProps.itemChanged.connect( self.objProps_itemChanged )
+        self.StorageMap_Scene.itemChanged.connect( self.itemChangedOnScene )
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.__GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
@@ -74,7 +75,7 @@ class CSMD_MainWindow(QMainWindow):
         self.__SGraf_Manager.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
 
-    # сигнал изменения выделения на сцене
+    # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
         self.objProps.clear()
 
@@ -86,7 +87,7 @@ class CSMD_MainWindow(QMainWindow):
 
         self.tvObjectProps.resizeColumnToContents( 0 )
 
-    # сигнал изменения ячейки таблицы свойств объекта
+    # событие изменения ячейки таблицы свойств объекта
     def objProps_itemChanged( self, item ):
         selItems = self.StorageMap_Scene.selectedItems()
         if ( len( selItems ) != 1 ): return
@@ -94,7 +95,13 @@ class CSMD_MainWindow(QMainWindow):
 
         self.__SGraf_Manager.updateGItemFromProps( gItem, item )
 
-    @pyqtSlot(bool)
+    # событие изменения итема (ноды вызывают при перемещении)
+    def itemChangedOnScene(self, nodeGItem):
+        self.__SGraf_Manager.updateNodeIncEdges( nodeGItem )
+        self.objProps.clear()
+        self.__SGraf_Manager.fillPropsForGItem( nodeGItem, self.objProps )
+
+    @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
         gvFitToPage( self.StorageMap_View )
 
