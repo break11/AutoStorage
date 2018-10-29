@@ -23,6 +23,9 @@ class CSettingsManager():
     options : Dict[str, str] = {} # MyPy Hack
     __bFileDamaged = False
 
+    def __new__( self ):
+        raise NotImplementedError( "No need to have an instance of CSettingsManager." )
+
     @classmethod
     def loadSettings( cls ):
         with open( defSettingsFName(), "r" ) as read_file:

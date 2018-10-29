@@ -5,19 +5,18 @@ from PyQt5.QtWidgets import ( QGraphicsView )
 from Common.GuiUtils import *
 
 class CGV_Wheel_Zoom_EventFilter(QObject):
-    __gView = None
-    __tmFitOnFirstShow = QTimer()
     ZoomFactor = 1.15
-
-    __moveStartX = 0
-    __moveStartY = 0
-    __rightMousePressed = False
 
     def __init__(self, gView):
         super(CGV_Wheel_Zoom_EventFilter, self).__init__(gView)
         self.__gView = gView
-        gView.installEventFilter( self )
+        self.__gView.installEventFilter( self )
 
+        self.__moveStartX = 0
+        self.__moveStartY = 0
+        self.__rightMousePressed = False
+
+        self.__tmFitOnFirstShow = QTimer(self)
         self.__tmFitOnFirstShow.setInterval( 100 )
         self.__tmFitOnFirstShow.setSingleShot( True )
         self.__tmFitOnFirstShow.timeout.connect( self.fitToPage )

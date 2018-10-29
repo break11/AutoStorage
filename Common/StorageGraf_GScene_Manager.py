@@ -16,15 +16,15 @@ import Common.StorageGrafTypes as SGT
 from typing import Dict
 
 class CStorageGraf_GScene_Manager():
-    gScene    = None
-    gView     = None
-    nxGraf    = None
-    bDrawBBox = False
-    nodeGItems   : Dict[str, CNode_SGItem] = {}
-    edgeGItems   : Dict[tuple, CEdge_SGItem] = {}
-    groupsByEdge : Dict[frozenset, CRail_SGItem ] = {}
-        
     def __init__(self, gScene, gView):
+        self.nodeGItems   = {}
+        self.edgeGItems   = {}
+        self.groupsByEdge = {}
+        self.gScene       = None
+        self.gView        = None
+        self.nxGraf       = None
+        self.bDrawBBox    = False
+        
         self.gScene = gScene
         self.gView  = gView
 

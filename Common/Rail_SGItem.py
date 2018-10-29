@@ -6,12 +6,11 @@ from PyQt5.QtCore import ( Qt )
 import Common.StorageGrafTypes as SGT
 
 class CRail_SGItem(QGraphicsItemGroup):
-    __lineGItem = None
-    __lineEdgeName = None
-
     def __init__(self):
         super().__init__()
         self.setZValue( 10 )
+        self.__lineGItem = None
+        self.__lineEdgeName = None
 
     def removeFromGroup( self, item ):
         super().removeFromGroup( item )
@@ -20,7 +19,7 @@ class CRail_SGItem(QGraphicsItemGroup):
         if self.__lineEdgeName != item.edgeName(): return
 
         self.scene().removeItem( self.__lineGItem )
-        del self.__lineGItem
+        self.__lineGItem = None # удаление QLineGraohicsItem произойдет автоматически
         self.__lineEdgeName = None
 
     def addToGroup( self, item ):

@@ -6,9 +6,10 @@ from PyQt5.QtGui import ( QPen )
 class CGridGraphicsScene(QGraphicsScene):
     itemChanged = pyqtSignal( QGraphicsItem )
     gridSize = 400
-    bDrawGrid = False
+    
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
+        self.bDrawGrid = False
 
     def drawForeground( self, painter, rect ):
         self.setBackgroundBrush( Qt.gray )

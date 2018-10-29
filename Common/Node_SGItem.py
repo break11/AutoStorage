@@ -6,10 +6,6 @@ from PyQt5.QtCore import ( Qt, QRectF )
 import Common.StorageGrafTypes as SGT
 
 class CNode_SGItem(QGraphicsItem):
-    nxGraf = None
-    nodeID = None
-    bDrawBBox = False
-
     __R = 50
 
     def __readGrafAttr( self, sAttrName ): return self.nxGraf.node[ self.nodeID ][ sAttrName ]
@@ -25,10 +21,10 @@ class CNode_SGItem(QGraphicsItem):
     @y.setter
     def y(self, value): self.__writeGrafAttr( SGT.s_y, value )
 
-
     def __init__(self, nxGraf, nodeID):
         super().__init__()
 
+        self.bDrawBBox = False
         self.nxGraf  = nxGraf
         self.nodeID = nodeID
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )

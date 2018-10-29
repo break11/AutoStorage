@@ -8,17 +8,8 @@ import Common.StorageGrafTypes as SGT
 from typing import List
 
 class CEdge_SGItem(QGraphicsItem):
-    nxGraf    = None
-    nodeID_1  = None
-    nodeID_2  = None
-    bDrawBBox = False
-    baseLine  = None
-    
-    __rAngle  = None
-    __path    = None 
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
-    __lineGItem = None
-    __InfoRails: List[ QGraphicsLineItem ]
+    
 
     def __readGrafAttrNode( self, sNodeID, sAttrName ): return self.nxGraf.node[ sNodeID ][ sAttrName ]
 
@@ -34,7 +25,11 @@ class CEdge_SGItem(QGraphicsItem):
     def __init__(self, nxGraf, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
         self.__InfoRails = []
+        self.__rAngle  = None
+        self.__path    = None     
+        self.__baseLine  = None
         
+        self.bDrawBBox = False
         self.nxGraf = nxGraf
         self.nodeID_1 = nodeID_1
         self.nodeID_2 = nodeID_2
@@ -47,18 +42,18 @@ class CEdge_SGItem(QGraphicsItem):
     def buildEdge(self):
 
         # исходная линия может быть полезной далее, например для получения длины
-        self.baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
+        self.__baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
 
         # угол поворота грани при рисовании (она рисуется вертикально в своей локальной системе координат, потом поворачивается)
-        self.__rAngle = math.acos( self.baseLine.dx() / ( self.baseLine.length() or 1) )
-        if self.baseLine.dy() >= 0: self.__rAngle = (math.pi * 2.0) - self.__rAngle
+        self.__rAngle = math.acos( self.__baseLine.dx() / ( self.__baseLine.length() or 1) )
+        if self.__baseLine.dy() >= 0: self.__rAngle = (math.pi * 2.0) - self.__rAngle
 
         # расчет BBox-а поворачиваем точки BBox-а (topLeft, bottomRight) на тот же угол
         t = QTransform()
         t.rotate(  -1 * math.degrees( self.__rAngle ) + 90 )
 
         p1 = QPointF( 0, 0 )
-        p2 = QPointF( 0, -self.baseLine.length() )
+        p2 = QPointF( 0, -self.__baseLine.length() )
 
         self.__path = QPainterPath()
         polygonF = QPolygonF()
@@ -110,9 +105,9 @@ class CEdge_SGItem(QGraphicsItem):
         painter.rotate( self.rotateAngle() )
 
         of = 10
-        painter.drawLine( -1 + of, -self.baseLine.length() + 30, -10 + of, -self.baseLine.length() + 50 ) #     \
-        painter.drawLine( of, 0, of, -self.baseLine.length() )                                  # -----
-        painter.drawLine( 1 + of,  -self.baseLine.length() + 30,  10 + of, -self.baseLine.length() + 50 ) #     /
+        painter.drawLine( -1 + of, -self.__baseLine.length() + 30, -10 + of, -self.__baseLine.length() + 50 ) #     \
+        painter.drawLine( of, 0, of, -self.__baseLine.length() )                                  # -----
+        painter.drawLine( 1 + of,  -self.__baseLine.length() + 30,  10 + of, -self.__baseLine.length() + 50 ) #     /
 
     def rebuildInfoRails( self ):
         self.clearInfoRails()
@@ -143,7 +138,7 @@ class CEdge_SGItem(QGraphicsItem):
         eHFrom = SGT.adjustAttrType( SGT.s_highRailSizeFrom, eHFrom )
         eHTo   = SGT.adjustAttrType( SGT.s_highRailSizeTo,   eHTo )
 
-        kW = self.baseLine.length() / eL
+        kW = self.__baseLine.length() / eL
 
         def addInfoRailLine( lineGItem ):
             lineGItem.setPen( pen )
@@ -181,7 +176,7 @@ class CEdge_SGItem(QGraphicsItem):
 
             if sensorSide != SGT.ESensorSide.SPassive.name:
                 pen.setColor( Qt.blue )
-                l = self.scene().addLine( x, -eHFrom * kW, x, -self.baseLine.length() + eHTo * kW )
+                l = self.scene().addLine( x, -eHFrom * kW, x, -self.__baseLine.length() + eHTo * kW )
                 addInfoRailLine( l )
 
             pen.setColor( color )
@@ -190,5 +185,5 @@ class CEdge_SGItem(QGraphicsItem):
                 addInfoRailLine( l )
 
             if eHTo:
-                l = self.scene().addLine( x, -self.baseLine.length() + eHTo * kW, x, -self.baseLine.length() )
+                l = self.scene().addLine( x, -self.__baseLine.length() + eHTo * kW, x, -self.__baseLine.length() )
                 addInfoRailLine( l )
