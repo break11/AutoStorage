@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/">
+    <file>images/add_node.png</file>
     <file>images/bbox.png</file>
     <file>images/grid.png</file>
     <file>images/zoom_fit.png</file>

@@ -34,6 +34,9 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_View.viewport().installEventFilter( self.GV_EventFilter )
 
         self.SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
+
+        self.NC_EventFilter = CNodeCreation_EventFilter ( self.StorageMap_View, self.SGraf_Manager )
+        self.StorageMap_View.viewport().installEventFilter( self.NC_EventFilter )
         
         self.loadGraphML( CSM.opt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
 
@@ -100,7 +103,12 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acBBox_triggered(self, bChecked):
-        self.SGraf_Manager.setDrawBBox( bChecked )
+        self.SGraf_Manager.setDrawBBox(bChecked)
+
+    @pyqtSlot(bool)
+    def on_acAddNode_triggered(self, bChecked):
+        self.SGraf_Manager.Mode = SGT.EGManagerMode.AddNode
+        self.StorageMap_View.setCursor( Qt.CrossCursor )
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):

@@ -24,6 +24,7 @@ class CStorageGraf_GScene_Manager():
         self.gView        = None
         self.nxGraf       = None
         self.bDrawBBox    = False
+        self.Mode         = SGT.EGManagerMode.Edit
         
         self.gScene = gScene
         self.gView  = gView
@@ -157,3 +158,36 @@ class CStorageGraf_GScene_Manager():
                     rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ) ) )
                 objProps.appendRow( rowItems )
         
+    def addNode( self, x, y, nodeID = "" ):
+        self.nxGraf.add_node ( nodeID )
+        nodeGItem = CNode_SGItem ( self.nxGraf, nodeID )
+        nodeGItem.x = x
+        nodeGItem.y = y
+        self.gScene.addItem( nodeGItem )
+        self.nodeGItems[ nodeID ] = nodeGItem
+
+
+        nodeGItem.updatePos()
+        # nodeGItem.installSceneEventFilter( evI )
+        nodeGItem.bDrawBBox = self.bDrawBBox
+
+class CNodeCreation_EventFilter(QObject):
+
+    def __init__(self, gView, SGraf_Manager):
+        super().__init__(gView)
+        self.__gView = gView
+        self.__gView.installEventFilter( self )
+        self.__SGraf_Manager = SGraf_Manager
+
+    def eventFilter(self, object, event):
+        if event.type() == QEvent.MouseButtonPress:
+            if event.button() == Qt.LeftButton and self.__SGraf_Manager.Mode == SGT.EGManagerMode.AddNode:
+                # print ( event.pos(), self.__gView.mapToScene(event.pos()))
+                x = self.__gView.mapToScene(event.pos()).x()
+                y = self.__gView.mapToScene(event.pos()).y()
+                self.__SGraf_Manager.addNode( x, y )
+                self.__SGraf_Manager.Mode = SGT.EGManagerMode.Edit
+                self.__gView.setCursor( Qt.ArrowCursor )
+                # event.accept()
+                return True
+        return False

@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>27</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -80,8 +80,15 @@
     <addaction name="acGrid"/>
     <addaction name="acBBox"/>
    </widget>
+   <widget class="QMenu" name="menuGraph_Edit">
+    <property name="title">
+     <string>Graph Edit</string>
+    </property>
+    <addaction name="acAddNode"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuGraph_Edit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -257,6 +264,15 @@ selection-background-color: red;*/
    </property>
    <property name="toolTip">
     <string>Save Graph ML</string>
+   </property>
+  </action>
+  <action name="acAddNode">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/add_node.png</normaloff>:/images/add_node.png</iconset>
+   </property>
+   <property name="text">
+    <string>add Node</string>
    </property>
   </action>
  </widget>
