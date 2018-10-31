@@ -21,13 +21,16 @@ class CStorageGraf_GScene_Manager():
         self.edgeGItems   = {}
         self.groupsByEdge = {}
         self.gScene       = None
+        self.gScene_evI   = None
         self.gView        = None
         self.nxGraf       = None
         self.bDrawBBox    = False
         self.Mode         = SGT.EGManagerMode.Edit
-        
+
         self.gScene = gScene
         self.gView  = gView
+
+        self.__maxNodeID    = 0
 
     def clear( self ):
         self.nodeGItems = {}
@@ -43,16 +46,18 @@ class CStorageGraf_GScene_Manager():
             return
         
         self.nxGraf  = nx.read_graphml( sFName )
-        evI = CGItem_EventFilter()
-        self.gScene.addItem( evI )
+        self.gScene_evI = CGItem_EventFilter()
+        self.gScene.addItem( self.gScene_evI )
 
         for n in self.nxGraf.nodes():
             nodeGItem = CNode_SGItem( self.nxGraf, n )
             self.gScene.addItem( nodeGItem )
             nodeGItem.updatePos()
-            nodeGItem.installSceneEventFilter( evI )
+            nodeGItem.installSceneEventFilter( self.gScene_evI )
             nodeGItem.bDrawBBox = self.bDrawBBox
             self.nodeGItems[ n ] = nodeGItem
+
+        self.updateMaxNodeID()
 
         for e in self.nxGraf.edges():
             edgeGItem = CEdge_SGItem( self.nxGraf, *e )
@@ -67,10 +72,10 @@ class CStorageGraf_GScene_Manager():
                 edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
                 self.groupsByEdge[ edgeKey ] = edgeGroup
                 self.gScene.addItem( edgeGroup )
-                edgeGroup.installSceneEventFilter( evI )
+                edgeGroup.installSceneEventFilter( self.gScene_evI )
 
             edgeGroup.addToGroup( edgeGItem )
-            edgeGItem.installSceneEventFilter( evI )
+            edgeGItem.installSceneEventFilter( self.gScene_evI )
             # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
             edgeGItem.buildInfoRails() 
 
@@ -157,8 +162,22 @@ class CStorageGraf_GScene_Manager():
                     val = eGItem.nxEdge().get( key )
                     rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ) ) )
                 objProps.appendRow( rowItems )
+
+    def updateMaxNodeID(self):
+        maxNodeID = 0
+        for nodeID in self.nodeGItems.keys():
+            try:
+                maxNodeID = int (nodeID) if int (nodeID) > maxNodeID else maxNodeID
+            except ValueError:
+                pass
+        self.__maxNodeID = maxNodeID
+    
+    def genStrNodeID(self):
+        self.__maxNodeID += 1
+        return str(self.__maxNodeID)
         
-    def addNode( self, x, y, nodeID = "" ):
+    def addNode( self, x, y ):
+        nodeID = self.genStrNodeID()
         self.nxGraf.add_node ( nodeID )
         nodeGItem = CNode_SGItem ( self.nxGraf, nodeID )
         nodeGItem.x = x
@@ -166,12 +185,11 @@ class CStorageGraf_GScene_Manager():
         self.gScene.addItem( nodeGItem )
         self.nodeGItems[ nodeID ] = nodeGItem
 
-
         nodeGItem.updatePos()
-        # nodeGItem.installSceneEventFilter( evI )
+        nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.bDrawBBox = self.bDrawBBox
 
-class CNodeCreation_EventFilter(QObject):
+class CAddNode_EventFilter(QObject):
 
     def __init__(self, gView, SGraf_Manager):
         super().__init__(gView)
@@ -182,12 +200,11 @@ class CNodeCreation_EventFilter(QObject):
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and self.__SGraf_Manager.Mode == SGT.EGManagerMode.AddNode:
-                # print ( event.pos(), self.__gView.mapToScene(event.pos()))
                 x = self.__gView.mapToScene(event.pos()).x()
                 y = self.__gView.mapToScene(event.pos()).y()
                 self.__SGraf_Manager.addNode( x, y )
                 self.__SGraf_Manager.Mode = SGT.EGManagerMode.Edit
                 self.__gView.setCursor( Qt.ArrowCursor )
-                # event.accept()
+                event.accept()
                 return True
         return False

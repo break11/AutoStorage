@@ -9,7 +9,7 @@ class CNode_SGItem(QGraphicsItem):
     __R = 50
 
     def __readGrafAttr( self, sAttrName ): return self.nxGraf.node[ self.nodeID ][ sAttrName ]
-    def __writeGrafAttr( self, sAttrName, value ): self.nxGraf.node[ self.nodeID ][ sAttrName ] = value
+    def __writeGrafAttr( self, sAttrName, value ): self.nxGraf.node[ self.nodeID ][ sAttrName ] = SGT.adjustAttrType(sAttrName, value)
 
     @property
     def x(self): return self.__readGrafAttr( SGT.s_x )
