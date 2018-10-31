@@ -26,6 +26,3 @@ def main():
     app.exec_()
 
     CSM.saveSettings()
-
-if __name__ == '__main__':
-    main()
