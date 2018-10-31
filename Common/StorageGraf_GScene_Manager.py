@@ -189,13 +189,20 @@ class CStorageGraf_GScene_Manager():
         nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.bDrawBBox = self.bDrawBBox
 
+    def deleteNode(self, nodeID):
+        self.nxGraf.remove_node( nodeID )
+        self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
+        del self.nodeGItems[ nodeID ]
+
 class CAddNode_EventFilter(QObject):
 
-    def __init__(self, gView, SGraf_Manager):
-        super().__init__(gView)
-        self.__gView = gView
-        self.__gView.installEventFilter( self )
+    def __init__(self, SGraf_Manager):
+        super().__init__(SGraf_Manager.gView)
         self.__SGraf_Manager = SGraf_Manager
+        self.__gView  = SGraf_Manager.gView
+        self.__gScene = SGraf_Manager.gScene
+
+        self.__gView.installEventFilter( self )
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonPress:
@@ -207,4 +214,12 @@ class CAddNode_EventFilter(QObject):
                 self.__gView.setCursor( Qt.ArrowCursor )
                 event.accept()
                 return True
+
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:
+            for item in self.__gScene.selectedItems():
+                if isinstance( item, CNode_SGItem ):
+                    self.__SGraf_Manager.deleteNode( item.nodeID )
+            event.accept()
+            return True
+        
         return False

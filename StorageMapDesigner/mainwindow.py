@@ -35,7 +35,7 @@ class CSMD_MainWindow(QMainWindow):
 
         self.SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
-        self.NC_EventFilter = CAddNode_EventFilter ( self.StorageMap_View, self.SGraf_Manager )
+        self.NC_EventFilter = CAddNode_EventFilter ( self.SGraf_Manager )
         self.StorageMap_View.viewport().installEventFilter( self.NC_EventFilter )
         
         self.loadGraphML( CSM.opt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
