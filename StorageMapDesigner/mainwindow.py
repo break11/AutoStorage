@@ -112,6 +112,11 @@ class CSMD_MainWindow(QMainWindow):
             self.StorageMap_View.setCursor( Qt.CrossCursor )
 
     @pyqtSlot(bool)
+    def on_acAddEdge_triggered(self):
+        pass
+        # self.SGraf_Manager.addEdge("1", "2")
+
+    @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
         if path != "" : self.loadGraphML( path )
