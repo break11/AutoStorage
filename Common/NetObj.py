@@ -19,25 +19,25 @@ class CNetworkManager:
     def nodeTypeUID(cls, nodeType):
         return cls.__nodeTypes[ nodeType ]
 
+genNodeObj_UID = 0
+
+def genUID():
+    global genNodeObj_UID
+    genNodeObj_UID += 1
+    return genNodeObj_UID
+
 class CNetObj( NodeMixin ):
-    __sName = "Name"
-    __sUID  = "UID"
-    __sType  = "Type"
+    __sName    = "Name"
+    __sUID     = "UID"
+    __sType    = "Type"
     __sTypeUID = "TypeUID"
     __modelHeaderData = [ __sName, __sUID, __sType, __sTypeUID, ]
 
     typeUID = 0 # fill after registration
 
-    __genUID = 0
-    
-    @classmethod
-    def genUID(cls):
-        cls.__genUID += 1
-        return cls.__genUID
-
     def __init__( self, name="", parent=None ):
         super().__init__()
-        self.UID     = self.__class__.genUID()
+        self.UID     = genUID()
         self.name    = name
         self.parent  = parent
 
