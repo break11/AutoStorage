@@ -13,8 +13,6 @@ from Common.GItem_EventFilter import *
 from Common.GuiUtils import *
 import Common.StorageGrafTypes as SGT
 
-from typing import Dict
-
 class CStorageGraf_GScene_Manager():
     def __init__(self, gScene, gView):
         self.nodeGItems   = {}

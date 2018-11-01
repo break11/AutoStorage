@@ -18,3 +18,6 @@ class CNetObj_Monitor(QWidget):
     def setRootNetObj( self, root ):
         self.netObjModel.setRootNetObj( root )
 
+        self.tvNetObj.expandAll()
+        self.tvNetObj.resizeColumnToContents( 0 )
+

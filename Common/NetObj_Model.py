@@ -2,8 +2,9 @@
 
 from PyQt5.QtCore import ( Qt, QAbstractItemModel, QModelIndex )
 
-class CNetObj_Model( QAbstractItemModel ):
+from Common.NetObj import *
 
+class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.__rootNetObj = None
@@ -37,13 +38,15 @@ class CNetObj_Model( QAbstractItemModel ):
     def rowCount( self, parentIndex ):
         if parentIndex.column() > 0: return 0
 
-        return len( self.getNetObj_or_Root( parentIndex ).children )
+        netObj = self.getNetObj_or_Root( parentIndex )
+        if netObj:
+            return len( netObj.children )
+        else:
+            return 0
 
-    def columnCount( self, parentIndex ):
-        return 3
+    def columnCount( self, parentIndex ): return CNetObj.modelDataColCount()
     
-    def netObj_From_Index( self, index ):
-        return index.internalPointer()
+    def netObj_From_Index( self, index ): return index.internalPointer()
         
 
     def netObj_To_Index( self, netObj ):
@@ -62,12 +65,21 @@ class CNetObj_Model( QAbstractItemModel ):
         else:
             return self.__rootNetObj
 
+    def headerData( self, section, orientation, role ):
+        if( orientation != Qt.Horizontal ):
+            return None
+
+        if role == Qt.DisplayRole:
+            return CNetObj.modelHeaderData( section )
+
     def data( self, index, role ):
+        
         if not index.isValid(): return None
 
         netObj = self.netObj_From_Index( index )
 
-        if role == Qt.DisplayRole:
-            if index.column() == 0:
-                return netObj.name
-
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            return netObj.modelData( index.column() )
+                
+    def flags( self, index ):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled

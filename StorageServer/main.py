@@ -17,10 +17,12 @@ def main():
     app = QApplication(sys.argv)
 
 
-    # nxGraf  = nx.read_graphml( "GraphML/test.graphml" )
-    nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
+    nxGraf  = nx.read_graphml( "GraphML/test.graphml" )
+    # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
 
     # root2 = AnyNode(id="0", name="root2")
+
+    registerNetNodeTypes()
 
     root  = CNetObj(name="root")
     Graf  = CGraf_NO(name="Graf", parent=root)
@@ -29,16 +31,11 @@ def main():
 
     for nodeID in nxGraf.nodes():
         node = CNode_NO(name=nodeID, parent=Nodes)
-        # for k,v in nxGraf.nodes().items():
-        #     prop = CNetObj( name=k,  )
 
     for edgeID in nxGraf.edges():
-        print( str(edgeID) )
         edge = CEdge_NO(name = str(edgeID), parent=Edges)
 
     print( RenderTree(root) )
-
-
 
     objMonitor = CNetObj_Monitor()
     objMonitor.setRootNetObj( root )
