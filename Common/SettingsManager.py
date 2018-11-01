@@ -50,6 +50,9 @@ class CSettingsManager():
         # не перезаписываем файл настроек, если он был поврежден, т.к. пользователь возможно хочет исправить ошибку
         if ( cls.__bFileDamaged ): return
 
+        if not os.path.exists( settingsDir() ):
+            os.mkdir( settingsDir() )
+
         with open( settingsFName(), "w") as write_file:
             json.dump(cls.options, write_file, indent=4)
 
