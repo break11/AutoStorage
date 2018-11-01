@@ -85,6 +85,7 @@
      <string>Graph Edit</string>
     </property>
     <addaction name="acAddNode"/>
+    <addaction name="actionAdd_Edge"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -273,6 +274,15 @@ selection-background-color: red;*/
    </property>
    <property name="text">
     <string>add Node</string>
+   </property>
+  </action>
+  <action name="actionAdd_Edge">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/add_edge.png</normaloff>:/images/add_edge.png</iconset>
+   </property>
+   <property name="text">
+    <string>add Edge</string>
    </property>
   </action>
  </widget>
