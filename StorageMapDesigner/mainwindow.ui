@@ -85,14 +85,14 @@
      <string>Graph Edit</string>
     </property>
     <addaction name="acAddNode"/>
-    <addaction name="actionAdd_Edge"/>
+    <addaction name="acAddEdge"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuGraph_Edit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QToolBar" name="toolBar">
+  <widget class="QToolBar" name="toolMain">
    <property name="windowTitle">
     <string>Tool Bar</string>
    </property>
@@ -110,6 +110,22 @@
    <addaction name="acZoomOut"/>
    <addaction name="acGrid"/>
    <addaction name="acBBox"/>
+  </widget>
+  <widget class="QToolBar" name="toolEdit">
+   <property name="windowTitle">
+    <string>Tool Bar</string>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="acAddNode"/>
+   <addaction name="acAddEdge"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
    <property name="windowTitle">
@@ -268,6 +284,9 @@ selection-background-color: red;*/
    </property>
   </action>
   <action name="acAddNode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="images.qrc">
      <normaloff>:/images/add_node.png</normaloff>:/images/add_node.png</iconset>
@@ -276,7 +295,7 @@ selection-background-color: red;*/
     <string>add Node</string>
    </property>
   </action>
-  <action name="actionAdd_Edge">
+  <action name="acAddEdge">
    <property name="icon">
     <iconset resource="images.qrc">
      <normaloff>:/images/add_edge.png</normaloff>:/images/add_edge.png</iconset>

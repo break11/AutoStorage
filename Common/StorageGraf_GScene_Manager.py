@@ -202,7 +202,8 @@ class CAddNode_EventFilter(QObject):
         self.__gView  = SGraf_Manager.gView
         self.__gScene = SGraf_Manager.gScene
 
-        self.__gView.installEventFilter( self )
+        self.__gView.installEventFilter(self)
+        self.__gView.viewport().installEventFilter(self)
 
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonPress:
@@ -210,8 +211,6 @@ class CAddNode_EventFilter(QObject):
                 x = self.__gView.mapToScene(event.pos()).x()
                 y = self.__gView.mapToScene(event.pos()).y()
                 self.__SGraf_Manager.addNode( x, y )
-                self.__SGraf_Manager.Mode = SGT.EGManagerMode.Edit
-                self.__gView.setCursor( Qt.ArrowCursor )
                 event.accept()
                 return True
 

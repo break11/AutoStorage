@@ -31,16 +31,12 @@
       <data key="d0">1000</data>
       <data key="d1">-1000</data>
     </node>
-    <node id="1">
-      <data key="d0">-144</data>
-      <data key="d1">-804</data>
-    </node>
     <edge source="nLU" target="n0">
       <data key="d3">300</data>
       <data key="d4">300</data>
     </edge>
     <edge source="n0" target="nLU">
-      <data key="d5">Narrow</data>
+      <data key="d5">Wide</data>
       <data key="d4">400</data>
     </edge>
     <edge source="nRD" target="n0" />
