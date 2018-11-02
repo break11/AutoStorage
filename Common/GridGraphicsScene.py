@@ -10,6 +10,9 @@ class CGridGraphicsScene(QGraphicsScene):
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
         self.bDrawGrid = False
+        self.orderedSelection = [] #массив, куда элементы добавляются в порядке выделения
+
+        self.selectionChanged.connect( self.updateOrderedSelection )
 
     def drawForeground( self, painter, rect ):
         self.setBackgroundBrush( Qt.gray )
@@ -47,3 +50,7 @@ class CGridGraphicsScene(QGraphicsScene):
         painter.setPen( pen )
         painter.drawLine( -300, 0, 300, 0 )
         painter.drawLine( 0, -300, 0, 300 )
+    
+    def updateOrderedSelection(self):
+        #заготовка для функции, набивающей self.orderedSelection в порядке выделения
+        self.orderedSelection = self.selectedItems()

@@ -191,6 +191,12 @@ class CStorageGraf_GScene_Manager():
         self.addEdgeToGrop( edgeGItem )
         edgeGItem.buildInfoRails()
     
+    def addEdgesForSelection(self):
+        nodeGItems = [ n for n in self.gScene.selectedItems() if isinstance(n, CNode_SGItem) ] # выбираем из selectedItems ноды
+        nodePairCount = len(nodeGItems) - 1
+        for i in range(nodePairCount):
+            self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
+    
     def addEdgeToGrop(self, edgeGItem):
         edgeKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
         edgeGroup = self.groupsByEdge.get( edgeKey )
