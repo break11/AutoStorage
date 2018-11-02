@@ -2,7 +2,7 @@
 
 from PyQt5.QtCore import ( Qt, QAbstractItemModel, QModelIndex )
 
-from Common.NetObj import *
+from Net.NetObj import *
 
 class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):

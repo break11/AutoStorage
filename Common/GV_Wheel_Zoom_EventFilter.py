@@ -8,7 +8,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
     ZoomFactor = 1.15
 
     def __init__(self, gView):
-        super(CGV_Wheel_Zoom_EventFilter, self).__init__(gView)
+        super(CGV_Wheel_Zoom_EventFilter, self).__init__( parent = gView )
         self.__gView = gView
         self.__gView.installEventFilter( self )
 

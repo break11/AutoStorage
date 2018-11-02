@@ -5,11 +5,11 @@ import networkx as nx
 from PyQt5.QtWidgets import ( QApplication, QWidget )
 
 from Common.SettingsManager import CSettingsManager as CSM
-from Common.NetObj_Monitor import CNetObj_Monitor
-from Common.NetObj import *
+from Net.NetObj_Monitor import CNetObj_Monitor
+from Net.NetObj import *
+from Net.NetObj_Widgets import *
 
 from anytree import AnyNode, NodeMixin, RenderTree
-# from mainwindow import CSMD_MainWindow
 
 def main():
     # CSM.loadSettings()
@@ -23,6 +23,7 @@ def main():
     # root2 = AnyNode(id="0", name="root2")
 
     registerNetNodeTypes()
+    registerNetNodeWidgets()
 
     root  = CNetObj(name="root")
     Graf  = CGraf_NO(name="Graf", parent=root)
@@ -30,10 +31,10 @@ def main():
     Edges = CNetObj(name="Edges", parent=Graf)
 
     for nodeID in nxGraf.nodes():
-        node = CNode_NO(name=nodeID, parent=Nodes)
+        node = CGrafNode_NO(name=nodeID, parent=Nodes)
 
     for edgeID in nxGraf.edges():
-        edge = CEdge_NO(name = str(edgeID), parent=Edges)
+        edge = CGrafEdge_NO(name = str(edgeID), parent=Edges)
 
     print( RenderTree(root) )
 

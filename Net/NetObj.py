@@ -3,21 +3,21 @@ from anytree import NodeMixin
 
 from typing import Dict
 
-class CNetworkManager:
+class CNetObj_TypeManager:
     __genTypeUID = 0
-    __nodeTypes : Dict[ object, int ] = {}
+    __nodeTypes : Dict[ int, object ] = {}
 
     @classmethod
-    def registerNodeType(cls, nodeType):
-        assert issubclass( nodeType, CNetObj ), "nodeType must be instance of CNetObj!"
+    def registerType(cls, netObjClass):
+        assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
         cls.__genTypeUID += 1
-        cls.__nodeTypes[ nodeType ] = cls.__genTypeUID
-        nodeType.typeUID = cls.__genTypeUID
+        cls.__nodeTypes[ cls.__genTypeUID ] = netObjClass
+        netObjClass.typeUID = cls.__genTypeUID
         return cls.__genTypeUID
 
-    @classmethod
-    def nodeTypeUID(cls, nodeType):
-        return cls.__nodeTypes[ nodeType ]
+    # @classmethod
+    # def nodeTypeUID(cls, nodeType):
+    #     return cls.__nodeTypes[ nodeType ]
 
 genNodeObj_UID = 0
 
@@ -63,6 +63,8 @@ class CNetObj( NodeMixin ):
 
     def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
 
+###################################################################################
+
 class CGraf_NO( CNetObj ):
     def __init__( self, name="", parent=None):
         super().__init__( name = name, parent = parent )
@@ -72,7 +74,7 @@ class CGraf_NO( CNetObj ):
         # create nxGraf from childNodes
         pass
 
-class CNode_NO( CNetObj ):
+class CGrafNode_NO( CNetObj ):
     def __init__( self, name="", parent=None):
         super().__init__( name = name, parent = parent )
 
@@ -83,13 +85,21 @@ class CNode_NO( CNetObj ):
         r = Resolver('name')
         return r.get(self, '../../')
 
-class CEdge_NO( CNetObj ):
+    def afterLoad( self ):
+        # graf = queryNode(self, '../../', CGraf_NO)
+
+        # for attr
+        #     graf.nxGraf().nodes[ name ][ attr ] = val
+        # # create nxGraf from childNodes
+        pass
+
+class CGrafEdge_NO( CNetObj ):
     def __init__( self, name="", parent=None):
         super().__init__( name = name, parent = parent )
 
 def registerNetNodeTypes():
-    reg = CNetworkManager.registerNodeType
+    reg = CNetObj_TypeManager.registerType
     reg( CNetObj )
     reg( CGraf_NO )
-    reg( CNode_NO )
-    reg( CEdge_NO )
+    reg( CGrafNode_NO )
+    reg( CGrafEdge_NO )
