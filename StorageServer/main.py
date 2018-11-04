@@ -23,7 +23,6 @@ def main():
     # root2 = AnyNode(id="0", name="root2")
 
     registerNetNodeTypes()
-    registerNetNodeWidgets()
 
     root  = CNetObj(name="root")
     Graf  = CGraf_NO(name="Graf", parent=root)
@@ -40,6 +39,7 @@ def main():
 
     objMonitor = CNetObj_Monitor()
     objMonitor.setRootNetObj( root )
+    registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
     objMonitor.show()
 
     app.exec_()

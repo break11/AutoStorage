@@ -38,7 +38,6 @@ class CTreeView_Arrows_EventFilter( QObject ):
         return False
 
 class CNetObj_Monitor(QWidget):
-
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/NetObj_Monitor.ui', self )
@@ -51,20 +50,22 @@ class CNetObj_Monitor(QWidget):
         self.tvNetObj.setModel( self.netObjModel )
         self.tvNetObj.selectionModel().currentChanged.connect( self.treeView_select )
 
-        self.saNetObj.setWidget( CNetObj_Widget( self.saNetObj ) )
+    def initOrDone_NetObj_Widget( self, index, bInit ):
+        if not index.isValid(): return
 
-    def treeView_select( self, currentIndex, prevIndex ):
-        # CNodeWidgetsManager
-        netObj = self.netObjModel.netObj_From_Index( currentIndex )
+        netObj = self.netObjModel.netObj_From_Index( index )
+        if not netObj: return
+
         typeUID = netObj.typeUID
         widget = CNetObj_WidgetsManager.getWidget( typeUID )
-        if widget:
-            # nodeWidget.setParent( self.saNetObj )
-            self.saNetObj.widget().done()
-            self.saNetObj.takeWidget()
-            self.saNetObj.setWidget( widget )
-            self.saNetObj.widget().init( netObj )
-            widget.show()
+
+        if not widget: return
+        if bInit: widget.init( netObj )
+        else: widget.done()
+
+    def treeView_select( self, currentIndex, prevIndex ):
+        self.initOrDone_NetObj_Widget( prevIndex, False )
+        self.initOrDone_NetObj_Widget( currentIndex, True )
 
     def setRootNetObj( self, root ):
         self.netObjModel.setRootNetObj( root )

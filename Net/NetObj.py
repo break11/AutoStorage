@@ -33,7 +33,7 @@ class CNetObj( NodeMixin ):
     __sTypeUID = "TypeUID"
     __modelHeaderData = [ __sName, __sUID, __sType, __sTypeUID, ]
 
-    typeUID = 0 # fill after registration
+    typeUID = 0 # fill after registration --> registerType
 
     def __init__( self, name="", parent=None ):
         super().__init__()
