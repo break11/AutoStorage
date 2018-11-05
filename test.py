@@ -1,4 +1,41 @@
 
+class Test: 
+    note = 10 
+
+    if note >= 10:
+            print("yes")
+    else:
+            print("NO")
+
+# def func():  
+#     try:  
+#        print( "98" )  
+#        return 'ok' 
+#     finally: 
+#        print( "98" ) 
+
+# print( func() )
+
+# from copy import *
+
+# # for c in range(1,3):
+# #     a = 3
+# #     b = a
+# #     if c == 2:
+# #         notB = 1
+# #         notB = copy( a )
+# #     a + 1
+
+# b = 2
+# if b == 1:
+#     b = TruеTrue
+
+# for c in range(1, 3):
+#     a = 1
+#     b = copy(a)
+#     a + 2
+
+# print( a, b, a is b )
 
 # class test:
 #     x = 1
@@ -387,25 +424,25 @@
 # print( a, "end !!!!!!!!!!!!!!!!!!!!!!!!!!!!!" )
 
 
-from PyQt5.QtCore import ( QObject, pyqtSignal )
+# from PyQt5.QtCore import ( QObject, pyqtSignal )
 
-class CTestSignal(QObject):
-    itemChanged = pyqtSignal(QObject)
-    def __init__(self):
-        super().__init__()
-        pass
+# class CTestSignal(QObject):
+#     itemChanged = pyqtSignal(QObject)
+#     def __init__(self):
+#         super().__init__()
+#         pass
 
-class CTestSLOT(QObject):
-    def slot(self, signal_id):
-        print ("Recivied signal from:", signal_id)
-
-
+# class CTestSLOT(QObject):
+#     def slot(self, signal_id):
+#         print ("Recivied signal from:", signal_id)
 
 
-signal_1 = CTestSignal()
-signal_2 = CTestSignal()
-slot = CTestSLOT()
-signal_1.itemChanged.connect( slot.slot )
 
-signal_1.itemChanged.emit( signal_1 )
-signal_2.itemChanged.emit( signal_2 )
+
+# signal_1 = CTestSignal()
+# signal_2 = CTestSignal()
+# slot = CTestSLOT()
+# signal_1.itemChanged.connect( slot.slot )
+
+# signal_1.itemChanged.emit( signal_1 )
+# signal_2.itemChanged.emit( signal_2 )

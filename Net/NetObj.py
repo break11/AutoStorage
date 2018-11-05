@@ -82,8 +82,9 @@ class CGrafNode_NO( CNetObj ):
         return self.grafNode().nxGraf
 
     def grafNode(self):
-        r = Resolver('name')
-        return r.get(self, '../../')
+        # r = Resolver('name')
+        # return r.get(self, '../../')
+        pass
 
     def afterLoad( self ):
         # graf = queryNode(self, '../../', CGraf_NO)

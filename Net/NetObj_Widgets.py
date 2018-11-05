@@ -2,7 +2,7 @@
 from typing import Dict
 
 from PyQt5.QtWidgets import ( QWidget, QLineEdit, QVBoxLayout, QPushButton )
-from Net.NetObj import *
+from NetObj import *
 
 class CNetObj_WidgetsManager:
     __nodeWidgets : Dict[ int, object ] = {}

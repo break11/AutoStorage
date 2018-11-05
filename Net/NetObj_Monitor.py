@@ -5,8 +5,8 @@ from PyQt5 import uic
 
 from PyQt5.QtWidgets import ( QWidget )
 
-from Net.NetObj_Model import CNetObj_Model
-from Net.NetObj_Widgets import *
+from NetObj_Model import CNetObj_Model
+from NetObj_Widgets import *
 
 from PyQt5.QtCore import ( Qt, QObject, QEvent )
 class CTreeView_Arrows_EventFilter( QObject ):
