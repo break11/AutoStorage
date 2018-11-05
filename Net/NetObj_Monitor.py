@@ -6,7 +6,10 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import ( QWidget )
 
 from NetObj_Model import CNetObj_Model
-from NetObj_Widgets import *
+
+import NetObj_Widgets
+# from NetObj_Widgets import *
+# from NetObj_Widgets import ( CNetObj_WidgetsManager )
 
 from PyQt5.QtCore import ( Qt, QObject, QEvent )
 class CTreeView_Arrows_EventFilter( QObject ):
@@ -57,11 +60,16 @@ class CNetObj_Monitor(QWidget):
         if not netObj: return
 
         typeUID = netObj.typeUID
-        widget = CNetObj_WidgetsManager.getWidget( typeUID )
+        widget = NetObj_Widgets.CNetObj_WidgetsManager.getWidget( typeUID )
 
         if not widget: return
-        if bInit: widget.init( netObj )
-        else: widget.done()
+
+        if bInit:
+            widget.init( netObj )
+            widget.show()
+        else:
+            widget.done()
+            widget.hide()
 
     def treeView_select( self, currentIndex, prevIndex ):
         self.initOrDone_NetObj_Widget( prevIndex, False )

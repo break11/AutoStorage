@@ -5,20 +5,22 @@ from PyQt5.QtWidgets import ( QWidget, QLineEdit, QVBoxLayout, QPushButton )
 from NetObj import *
 
 class CNetObj_WidgetsManager:
-    __nodeWidgets : Dict[ int, object ] = {}
+    __netObj_Widgets : Dict[ int, object ] = {}
 
     @classmethod
     def registerWidget(cls, netObj, netObj_Widget_Class, parent):
         assert issubclass( netObj, CNetObj )
-        # assert issubclass( netObj_Widget, CNetObj_Widget )
+        assert issubclass( netObj_Widget_Class, CNetObj_Widget )
         w = netObj_Widget_Class( parent )
-        cls.__nodeWidgets[ netObj.typeUID ] = w
+        cls.__netObj_Widgets[ netObj.typeUID ] = w
+        print( cls.__netObj_Widgets, id(cls) )
         parent.layout().addWidget( w )
         # w.show()
 
     @classmethod
     def getWidget( cls, typeUID ):
-        widget = cls.__nodeWidgets.get( typeUID )
+        print( cls.__netObj_Widgets, id(cls) )
+        widget = cls.__netObj_Widgets.get( typeUID )
         return widget
 
 class CNetObj_Widget( QWidget ):
@@ -34,7 +36,9 @@ class CNetObj_Widget( QWidget ):
 class CGrafNode_Widget( CNetObj_Widget ):
     def __init__( self, parent = None):
         super().__init__(parent = parent)
-        # self.setStyleSheet( "background-color:red; color: red;" )
+        QPushButton( parent )
+        QLineEdit( parent )
+        self.setStyleSheet( "background-color:red" )
 
 def registerNetNodeWidgets( parent ):
     reg = CNetObj_WidgetsManager.registerWidget
