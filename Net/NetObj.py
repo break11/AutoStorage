@@ -55,6 +55,8 @@ class CNetObj( NodeMixin ):
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
     def modelData( self, col ): return self.__modelData[ col ]
 
+    def propList(self): raise NotImplementedError
+
     def afterLoad( self ):
         pass
 
@@ -65,7 +67,7 @@ class CNetObj( NodeMixin ):
 
 ###################################################################################
 
-class CGraf_NO( CNetObj ):
+class CGrafRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None):
         super().__init__( name = name, parent = parent )
         self.nxGraf = None
@@ -75,11 +77,14 @@ class CGraf_NO( CNetObj ):
         pass
 
 class CGrafNode_NO( CNetObj ):
-    def __init__( self, name="", parent=None):
+    def __init__( self, name="", parent=None, nxNode=None):
         super().__init__( name = name, parent = parent )
+        self.nxNode = nxNode
 
-    def nxGraf(self):
-        return self.grafNode().nxGraf
+    def propList(self): return self.nxNode
+
+    # def nxGraf(self):
+    #     return self.grafNode().nxGraf
 
     def grafNode(self):
         # r = Resolver('name')
@@ -87,7 +92,7 @@ class CGrafNode_NO( CNetObj ):
         pass
 
     def afterLoad( self ):
-        # graf = queryNode(self, '../../', CGraf_NO)
+        # graf = queryNode(self, '../../', CGrafRoot_NO)
 
         # for attr
         #     graf.nxGraf().nodes[ name ][ attr ] = val
@@ -95,12 +100,15 @@ class CGrafNode_NO( CNetObj ):
         pass
 
 class CGrafEdge_NO( CNetObj ):
-    def __init__( self, name="", parent=None):
+    def __init__( self, name="", parent=None, nxEdge=None):
         super().__init__( name = name, parent = parent )
+        self.nxEdge = nxEdge
+
+    def propList(self): return self.nxEdge
 
 def registerNetNodeTypes():
     reg = CNetObj_TypeManager.registerType
     reg( CNetObj )
-    reg( CGraf_NO )
+    reg( CGrafRoot_NO )
     reg( CGrafNode_NO )
     reg( CGrafEdge_NO )

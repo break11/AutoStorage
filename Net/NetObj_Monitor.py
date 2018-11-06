@@ -55,11 +55,8 @@ class CNetObj_Monitor(QWidget):
         netObj = self.netObjModel.netObj_From_Index( index )
         if not netObj: return
 
-        typeUID = netObj.typeUID
-        # widget = NetObj_Widgets.CNetObj_WidgetsManager.getWidget( typeUID )
-        widget = CNetObj_WidgetsManager.getWidget( typeUID )
-        # print (NetObj_Widgets.Test, id(NetObj_Widgets.Test), NetObj_Widgets.ttt)
-
+        widget = CNetObj_WidgetsManager.getWidget( netObj )
+        print( widget )
 
         if not widget: return
 

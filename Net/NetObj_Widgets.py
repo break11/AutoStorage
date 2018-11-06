@@ -1,9 +1,13 @@
 
 from typing import Dict
 
-from PyQt5.QtWidgets import ( QWidget, QLineEdit, QVBoxLayout, QPushButton )
+from PyQt5.QtWidgets import ( QWidget, QVBoxLayout, QTableView )
+from PyQt5.QtGui import ( QStandardItemModel )
 
 from .NetObj import *
+
+from Common.GuiUtils import *
+from Common import StorageGrafTypes as SGT
 
 class CNetObj_WidgetsManager:
     __netObj_Widgets : Dict[ int, object ] = {}
@@ -16,12 +20,12 @@ class CNetObj_WidgetsManager:
         cls.__netObj_Widgets[ netObj.typeUID ] = w
         # print( cls.__netObj_Widgets, id(cls), netObj.typeUID )
         parent.layout().addWidget( w )
-        # w.show()
+        w.hide()
 
     @classmethod
-    def getWidget( cls, typeUID ):
+    def getWidget( cls, netObj ):
         # print( cls.__netObj_Widgets, id(cls) )
-        widget = cls.__netObj_Widgets.get( typeUID )
+        widget = cls.__netObj_Widgets.get( netObj.typeUID )
         return widget
 
 class CNetObj_Widget( QWidget ):
@@ -34,15 +38,36 @@ class CNetObj_Widget( QWidget ):
         print( "done" )
         pass
 
-class CGrafNode_Widget( CNetObj_Widget ):
+class CDictProps_Widget( CNetObj_Widget ):
+
     def __init__( self, parent = None):
         super().__init__(parent = parent)
-        QPushButton( parent )
-        QLineEdit( parent )
-        self.setStyleSheet( "background-color:red" )
+
+        self.__model = QStandardItemModel( self )
+
+        self.tvProps = QTableView( self )
+        l = QVBoxLayout( self )
+        self.setLayout( l )
+        l.addWidget( self.tvProps )
+        self.tvProps.setModel( self.__model )
+        self.tvProps.horizontalHeader().setStretchLastSection( True )
+
+        # self.setStyleSheet( "background-color:red" )
+
+    def init( self, netObj ):
+        m = self.__model
+        m.setColumnCount( 2 )
+        m.setHorizontalHeaderLabels( [ "name", "value" ] )
+
+        for key, val in sorted( netObj.propList().items() ):
+            rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
+            m.appendRow( rowItems )
+
+    def done( self ):
+        self.__model.clear()
 
 def registerNetNodeWidgets( parent ):
     reg = CNetObj_WidgetsManager.registerWidget
     reg( CNetObj,      CNetObj_Widget, parent )
-    reg( CGrafNode_NO, CGrafNode_Widget, parent )
-    # reg( CGrafEdge_NO, QLineEdit, parent )
+    reg( CGrafNode_NO, CDictProps_Widget, parent )
+    reg( CGrafEdge_NO, CDictProps_Widget, parent )
