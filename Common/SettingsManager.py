@@ -1,8 +1,7 @@
 
-
 import os
 import sys
-import __main__ as main
+from __main__ import __file__ as baseFName
 import json
 
 from typing import Dict
@@ -11,7 +10,7 @@ def settingsDir():
     return os.path.abspath( os.curdir ) +  "/Settings/"
     
 def mainAppBaseName():
-    return os.path.basename( main.__file__ ).replace( ".py", "" )
+    return os.path.basename( baseFName ).replace( ".py", "" )
 
 def settingsFName():
     return settingsDir() + mainAppBaseName() + ".json"

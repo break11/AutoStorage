@@ -6,12 +6,13 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtCore import (pyqtSlot, QObject)
 from PyQt5.QtWidgets import ( QGraphicsItem )
 
-from Common.Node_SGItem import CNode_SGItem
-from Common.Edge_SGItem import CEdge_SGItem
-from Common.Rail_SGItem import CRail_SGItem
-from Common.GItem_EventFilter import *
-from Common.GuiUtils import *
-import Common.StorageGrafTypes as SGT
+from .Node_SGItem import CNode_SGItem
+from .Edge_SGItem import CEdge_SGItem
+from .Rail_SGItem import CRail_SGItem
+from .GItem_EventFilter import *
+from .GuiUtils import *
+
+from . import StorageGrafTypes as SGT
 
 class CStorageGraf_GScene_Manager():
     def __init__(self, gScene, gView):

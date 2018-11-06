@@ -2,7 +2,8 @@
 from typing import Dict
 
 from PyQt5.QtWidgets import ( QWidget, QLineEdit, QVBoxLayout, QPushButton )
-from NetObj import *
+
+from .NetObj import *
 
 class CNetObj_WidgetsManager:
     __netObj_Widgets : Dict[ int, object ] = {}
@@ -13,13 +14,13 @@ class CNetObj_WidgetsManager:
         assert issubclass( netObj_Widget_Class, CNetObj_Widget )
         w = netObj_Widget_Class( parent )
         cls.__netObj_Widgets[ netObj.typeUID ] = w
-        print( cls.__netObj_Widgets, id(cls) )
+        # print( cls.__netObj_Widgets, id(cls), netObj.typeUID )
         parent.layout().addWidget( w )
         # w.show()
 
     @classmethod
     def getWidget( cls, typeUID ):
-        print( cls.__netObj_Widgets, id(cls) )
+        # print( cls.__netObj_Widgets, id(cls) )
         widget = cls.__netObj_Widgets.get( typeUID )
         return widget
 

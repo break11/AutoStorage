@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import (QApplication, QProxyStyle, QStyle )
 
 from Common.SettingsManager import CSettingsManager as CSM
 
-import images_rc
-from mainwindow import CSMD_MainWindow
+from .images_rc import *
+from .mainwindow import CSMD_MainWindow
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
 class CNoAltMenu_Style( QProxyStyle ):

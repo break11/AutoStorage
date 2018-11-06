@@ -7,7 +7,11 @@ from PyQt5.QtWidgets import ( QApplication, QWidget )
 from Common.SettingsManager import CSettingsManager as CSM
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj import *
+# from Net.NetObj_Widgets import (CNetObj_WidgetsManager, registerNetNodeWidgets, Test, ttt)
+# from Net.NetObj_Widgets import CNetObj_WidgetsManager, registerNetNodeWidgets
 from Net.NetObj_Widgets import *
+
+from Net import NetObj_Monitor
 
 from anytree import AnyNode, NodeMixin, RenderTree
 
@@ -41,6 +45,8 @@ def main():
     objMonitor.setRootNetObj( root )
     registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
     objMonitor.show()
+
+    # print(  [_ for _ in sys.modules if 'netobj' in _.lower()]   )
 
     app.exec_()
 

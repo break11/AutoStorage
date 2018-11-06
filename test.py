@@ -1,11 +1,22 @@
+# for i in range(1,3):
+    # a = 5
+    # b = a
+    # # a = a + 1
+    # a -= 1
+    # b -= 1
 
-class Test: 
-    note = 10 
+# a = 4
+# b = 4
 
-    if note >= 10:
-            print("yes")
-    else:
-            print("NO")
+# print( a, b, a is b )
+
+# class Test: 
+#     note = 10 
+
+#     if note >= 10:
+#             print("yes")
+#     else:
+#             print("NO")
 
 # def func():  
 #     try:  
@@ -81,10 +92,10 @@ class Test:
 
 # test = [ "12", "123" ]
 
-# class test2:
+# class test_mod:
 #     pass
 
-# t2 = test2()
+# t2 = test_mod()
 
 # class test3(Enum):
 #     HRSF = "HRSF"

@@ -2,14 +2,10 @@
 import os
 
 from PyQt5 import uic
-
 from PyQt5.QtWidgets import ( QWidget )
 
-from NetObj_Model import CNetObj_Model
-
-import NetObj_Widgets
-# from NetObj_Widgets import *
-# from NetObj_Widgets import ( CNetObj_WidgetsManager )
+from .NetObj_Model import CNetObj_Model
+from .NetObj_Widgets import ( CNetObj_WidgetsManager )
 
 from PyQt5.QtCore import ( Qt, QObject, QEvent )
 class CTreeView_Arrows_EventFilter( QObject ):
@@ -60,7 +56,10 @@ class CNetObj_Monitor(QWidget):
         if not netObj: return
 
         typeUID = netObj.typeUID
-        widget = NetObj_Widgets.CNetObj_WidgetsManager.getWidget( typeUID )
+        # widget = NetObj_Widgets.CNetObj_WidgetsManager.getWidget( typeUID )
+        widget = CNetObj_WidgetsManager.getWidget( typeUID )
+        # print (NetObj_Widgets.Test, id(NetObj_Widgets.Test), NetObj_Widgets.ttt)
+
 
         if not widget: return
 
