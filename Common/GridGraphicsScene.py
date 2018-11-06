@@ -10,7 +10,7 @@ class CGridGraphicsScene(QGraphicsScene):
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
         self.bDrawGrid = False
-        self.orderedSelection = [] #массив, куда элементы добавляются в порядке выделения
+        self.orderedSelection = [] #элементы в порядке выделения (стандартая функция selectedItems() возвращает в неопределенном порядке)
 
         self.selectionChanged.connect( self.updateOrderedSelection )
 
@@ -53,4 +53,12 @@ class CGridGraphicsScene(QGraphicsScene):
     
     def updateOrderedSelection(self):
         #заготовка для функции, набивающей self.orderedSelection в порядке выделения
-        self.orderedSelection = self.selectedItems()
+
+        selectedItems = self.selectedItems()
+        itemsToPop = set(self.orderedSelection) - set(selectedItems)
+        for item in itemsToPop:
+            self.orderedSelection.pop( self.orderedSelection.index(item) )
+        
+        itemsToAdd = [item for item in selectedItems if not self.orderedSelection.count(item)]
+
+        self.orderedSelection += itemsToAdd

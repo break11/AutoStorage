@@ -58,8 +58,6 @@ class CSMD_MainWindow(QMainWindow):
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
-        nodeIDs = [ n.nodeID for n in self.StorageMap_Scene.orderedSelection if isinstance(n, CNode_SGItem) ]
-        print(nodeIDs)
         self.objProps.clear()
 
         selItems = self.StorageMap_Scene.selectedItems()

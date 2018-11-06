@@ -179,6 +179,8 @@ class CStorageGraf_GScene_Manager():
         nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.bDrawBBox = self.bDrawBBox
 
+        self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
+
     def addEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get((nodeID_1, nodeID_2)):return
         self.nxGraf.add_edge (nodeID_1, nodeID_2)
@@ -190,9 +192,11 @@ class CStorageGraf_GScene_Manager():
         edgeGItem.installSceneEventFilter( self.gScene_evI )
         self.addEdgeToGrop( edgeGItem )
         edgeGItem.buildInfoRails()
+
+        self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
     
     def addEdgesForSelection(self):
-        nodeGItems = [ n for n in self.gScene.selectedItems() if isinstance(n, CNode_SGItem) ] # выбираем из selectedItems ноды
+        nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ] # выбираем из selectedItems ноды
         nodePairCount = len(nodeGItems) - 1
         for i in range(nodePairCount):
             self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
