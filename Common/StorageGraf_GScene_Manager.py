@@ -209,6 +209,15 @@ class CStorageGraf_GScene_Manager():
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
 
+    def deleteEdge(self, nodeID_1, nodeID_2):
+        e = (nodeID_1, nodeID_2)
+        self.nxGraf.remove_edge(*e)
+        self.gScene.removeItem(self.edgeGItems[e])
+        del self.edgeGItems[e]
+    
+    def deleteGroup(self, groupItem):
+        pass
+
 class CAddNode_EventFilter(QObject):
 
     def __init__(self, SGraf_Manager):
