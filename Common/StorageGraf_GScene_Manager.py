@@ -60,20 +60,10 @@ class CStorageGraf_GScene_Manager():
         self.updateMaxNodeID()
 
         for e in self.nxGraf.edges():
-            edgeGItem = CEdge_SGItem( self.nxGraf, *e )
-            edgeGItem.bDrawBBox = self.bDrawBBox
-            self.edgeGItems[ e ] = edgeGItem
-            edgeGItem.updatePos()
-            self.addEdgeToGrop(edgeGItem)
-            edgeGItem.installSceneEventFilter( self.gScene_evI )
-            # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
-            edgeGItem.buildInfoRails() 
-
-        self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
+            self.addEdge(*e)
         
         gvFitToPage( self.gView )
         # self.gScene.addRect( self.gScene.sceneRect() )
-
 
     def save( self, sFName ):
         nx.write_graphml(self.nxGraf, sFName)
@@ -184,13 +174,14 @@ class CStorageGraf_GScene_Manager():
     def addEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get((nodeID_1, nodeID_2)):return
         self.nxGraf.add_edge (nodeID_1, nodeID_2)
+
         edgeGItem = CEdge_SGItem ( self.nxGraf, nodeID_1, nodeID_2 )
-        self.gScene.addItem( edgeGItem )
-        self.edgeGItems[ (nodeID_1, nodeID_2) ] = edgeGItem
         edgeGItem.bDrawBBox = self.bDrawBBox
+        self.edgeGItems[ (nodeID_1, nodeID_2) ] = edgeGItem
         edgeGItem.updatePos()
-        edgeGItem.installSceneEventFilter( self.gScene_evI )
         self.addEdgeToGrop( edgeGItem )
+        edgeGItem.installSceneEventFilter( self.gScene_evI )
+        # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
         edgeGItem.buildInfoRails()
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
