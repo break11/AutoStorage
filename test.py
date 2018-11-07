@@ -457,3 +457,12 @@
 
 # signal_1.itemChanged.emit( signal_1 )
 # signal_2.itemChanged.emit( signal_2 )
+
+# class test:
+#     def __init__(self):
+#         self.__test1 = 1
+#         self.__test2__ = 2
+
+# t = test()
+
+# print( t.__test1__ )

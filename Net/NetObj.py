@@ -55,7 +55,7 @@ class CNetObj( NodeMixin ):
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
     def modelData( self, col ): return self.__modelData[ col ]
 
-    def propList(self): raise NotImplementedError
+    def propsDict(self): raise NotImplementedError
 
     def afterLoad( self ):
         pass
@@ -68,9 +68,11 @@ class CNetObj( NodeMixin ):
 ###################################################################################
 
 class CGrafRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None):
+    def __init__( self, name="", parent=None, nxGraf=None):
         super().__init__( name = name, parent = parent )
-        self.nxGraf = None
+        self.nxGraf = nxGraf
+
+    def propsDict(self): return self.nxGraf.graph
 
     def afterLoad( self ):
         # create nxGraf from childNodes
@@ -81,7 +83,7 @@ class CGrafNode_NO( CNetObj ):
         super().__init__( name = name, parent = parent )
         self.nxNode = nxNode
 
-    def propList(self): return self.nxNode
+    def propsDict(self): return self.nxNode
 
     # def nxGraf(self):
     #     return self.grafNode().nxGraf
@@ -104,7 +106,7 @@ class CGrafEdge_NO( CNetObj ):
         super().__init__( name = name, parent = parent )
         self.nxEdge = nxEdge
 
-    def propList(self): return self.nxEdge
+    def propsDict(self): return self.nxEdge
 
 def registerNetNodeTypes():
     reg = CNetObj_TypeManager.registerType

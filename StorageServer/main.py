@@ -18,9 +18,8 @@ def main():
 
     app = QApplication(sys.argv)
 
-
-    # nxGraf  = nx.read_graphml( "GraphML/test.graphml" )
-    nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
+    nxGraf  = nx.read_graphml( "GraphML/test.graphml" )
+    # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
 
     # root2 = AnyNode(id="0", name="root2")
 
@@ -28,7 +27,7 @@ def main():
 
     root  = CNetObj(name="root")
 
-    Graf  = CGrafRoot_NO(name="Graf", parent=root)
+    Graf  = CGrafRoot_NO(name="Graf", parent=root, nxGraf=nxGraf)
     Nodes = CNetObj(name="Nodes", parent=Graf)
     Edges = CNetObj(name="Edges", parent=Graf)
 

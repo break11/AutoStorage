@@ -56,7 +56,6 @@ class CNetObj_Monitor(QWidget):
         if not netObj: return
 
         widget = CNetObj_WidgetsManager.getWidget( netObj )
-        print( widget )
 
         if not widget: return
 
