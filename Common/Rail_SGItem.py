@@ -6,11 +6,15 @@ from PyQt5.QtCore import ( Qt )
 import Common.StorageGrafTypes as SGT
 
 class CRail_SGItem(QGraphicsItemGroup):
-    def __init__(self):
+    def __init__(self, groupKey):
         super().__init__()
+        self.groupKey = groupKey #frozenset из nodeID_1, nodeID_2 любой грани
         self.setZValue( 10 )
         self.__lineGItem = None
         self.__lineEdgeName = None
+
+    def __del__(self):
+        print(f"------> destr Group: {self.groupKey}")
 
     def removeFromGroup( self, item ):
         super().removeFromGroup( item )

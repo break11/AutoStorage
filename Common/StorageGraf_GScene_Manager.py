@@ -46,14 +46,14 @@ class CStorageGraf_GScene_Manager():
             return
         
         self.nxGraf  = nx.read_graphml( sFName )
-        self.gScene_evI = CGItem_EventFilter()
-        self.gScene.addItem( self.gScene_evI )
+        # self.gScene_evI = CGItem_EventFilter()
+        # self.gScene.addItem( self.gScene_evI )
 
         for n in self.nxGraf.nodes():
             nodeGItem = CNode_SGItem( self.nxGraf, n )
             self.gScene.addItem( nodeGItem )
             nodeGItem.updatePos()
-            nodeGItem.installSceneEventFilter( self.gScene_evI )
+            # nodeGItem.installSceneEventFilter( self.gScene_evI )
             nodeGItem.bDrawBBox = self.bDrawBBox
             self.nodeGItems[ n ] = nodeGItem
 
@@ -166,7 +166,7 @@ class CStorageGraf_GScene_Manager():
         self.nodeGItems[ nodeID ] = nodeGItem
 
         nodeGItem.updatePos()
-        nodeGItem.installSceneEventFilter( self.gScene_evI )
+        # nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.bDrawBBox = self.bDrawBBox
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
@@ -180,7 +180,7 @@ class CStorageGraf_GScene_Manager():
         self.edgeGItems[ (nodeID_1, nodeID_2) ] = edgeGItem
         edgeGItem.updatePos()
         self.addEdgeToGrop( edgeGItem )
-        edgeGItem.installSceneEventFilter( self.gScene_evI )
+        # edgeGItem.installSceneEventFilter( self.gScene_evI )
         # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
         edgeGItem.buildInfoRails()
 
@@ -193,14 +193,14 @@ class CStorageGraf_GScene_Manager():
             self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
     
     def addEdgeToGrop(self, edgeGItem):
-        edgeKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
-        edgeGroup = self.groupsByEdge.get( edgeKey )
+        groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
+        edgeGroup = self.groupsByEdge.get( groupKey )
         if edgeGroup == None:
-            edgeGroup = CRail_SGItem()
+            edgeGroup = CRail_SGItem(groupKey)
             edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
-            self.groupsByEdge[ edgeKey ] = edgeGroup
+            self.groupsByEdge[ groupKey ] = edgeGroup
             self.gScene.addItem( edgeGroup )
-            edgeGroup.installSceneEventFilter( self.gScene_evI )
+            # edgeGroup.installSceneEventFilter( self.gScene_evI )
 
         edgeGroup.addToGroup( edgeGItem )
 
@@ -208,15 +208,25 @@ class CStorageGraf_GScene_Manager():
         self.nxGraf.remove_node( nodeID )
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
+        # print(f"deleted Node: {nodeID}")
 
     def deleteEdge(self, nodeID_1, nodeID_2):
         e = (nodeID_1, nodeID_2)
         self.nxGraf.remove_edge(*e)
         self.gScene.removeItem(self.edgeGItems[e])
         del self.edgeGItems[e]
+        # print (f"deleted edge: {nodeID_1} {nodeID_2}")
     
-    def deleteGroup(self, groupItem):
-        pass
+    def deleteEdgeGroup(self, groupKey):
+        groupByEdge = self.groupsByEdge[groupKey]
+        groupChilds = groupByEdge.childItems()
+        for edgeGItem in groupChilds:
+            edgeGItem.clearInfoRails()
+            groupByEdge.removeFromGroup(edgeGItem)
+            self.deleteEdge(edgeGItem.nodeID_1, edgeGItem.nodeID_2)
+        self.gScene.removeItem(groupByEdge)
+        del self.groupsByEdge[ groupByEdge.groupKey ]
+        # print (f"deleted group")
 
 class CAddNode_EventFilter(QObject):
 
@@ -239,9 +249,26 @@ class CAddNode_EventFilter(QObject):
                 return True
 
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:
+            print("\n============== DELETION ==============")
+
+            childScene = self.__gScene.items()
+            print( "\n", childScene, "\n",len(childScene) )
+
             for item in self.__gScene.selectedItems():
                 if isinstance( item, CNode_SGItem ):
+                    incEdges = list( self.__SGraf_Manager.nxGraf.out_edges( item.nodeID ) ) +  list( self.__SGraf_Manager.nxGraf.in_edges( item.nodeID ) )
+                    groupsKeys = set( [ frozenset(s) for s in incEdges ] )
+                    for k in groupsKeys:
+                        self.__SGraf_Manager.deleteEdgeGroup(k)
                     self.__SGraf_Manager.deleteNode( item.nodeID )
+            
+            childScene = self.__gScene.items()
+            print( "\n", childScene, "\n",len(childScene) )
+            
+            # for item in self.__gScene.selectedItems():
+            #     if isinstance( item, CRail_SGItem ):
+            #         self.__SGraf_Manager.deleteEdgeGroup( item.groupKey )
+            
             event.accept()
             return True
         
