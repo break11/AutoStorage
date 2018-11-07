@@ -215,18 +215,24 @@ class CStorageGraf_GScene_Manager():
         self.nxGraf.remove_edge(*e)
         self.gScene.removeItem(self.edgeGItems[e])
         del self.edgeGItems[e]
-        # print (f"deleted edge: {nodeID_1} {nodeID_2}")
+        print (f"deleted edge: {nodeID_1} {nodeID_2}")
     
     def deleteEdgeGroup(self, groupKey):
-        groupByEdge = self.groupsByEdge[groupKey]
-        groupChilds = groupByEdge.childItems()
+        print (f"deleting group ", groupKey)
+        groupGItem = self.groupsByEdge[groupKey]
+        # self.gScene.removeItem(group)
+        # del self.groupsByEdge[groupKey]
+        print( groupGItem )
+        groupChilds = groupGItem.childItems()
         for edgeGItem in groupChilds:
+            print(edgeGItem, "***")
             edgeGItem.clearInfoRails()
-            groupByEdge.removeFromGroup(edgeGItem)
+            groupGItem.removeFromGroup(edgeGItem)
             self.deleteEdge(edgeGItem.nodeID_1, edgeGItem.nodeID_2)
-        self.gScene.removeItem(groupByEdge)
-        del self.groupsByEdge[ groupByEdge.groupKey ]
-        # print (f"deleted group")
+        del edgeGItem
+        del groupChilds
+        self.gScene.removeItem(groupGItem)
+        del self.groupsByEdge[ groupKey ]
 
 class CAddNode_EventFilter(QObject):
 
@@ -251,8 +257,8 @@ class CAddNode_EventFilter(QObject):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:
             print("\n============== DELETION ==============")
 
-            childScene = self.__gScene.items()
-            print( "\n", childScene, "\n",len(childScene) )
+            # childScene = self.__gScene.items()
+            # print( "\n", childScene, "\n",len(childScene) )
 
             for item in self.__gScene.selectedItems():
                 if isinstance( item, CNode_SGItem ):
@@ -260,10 +266,10 @@ class CAddNode_EventFilter(QObject):
                     groupsKeys = set( [ frozenset(s) for s in incEdges ] )
                     for k in groupsKeys:
                         self.__SGraf_Manager.deleteEdgeGroup(k)
-                    self.__SGraf_Manager.deleteNode( item.nodeID )
+                    # self.__SGraf_Manager.deleteNode( item.nodeID )
             
-            childScene = self.__gScene.items()
-            print( "\n", childScene, "\n",len(childScene) )
+            # childScene = self.__gScene.items()
+            # print( "\n", childScene, "\n",len(childScene) )
             
             # for item in self.__gScene.selectedItems():
             #     if isinstance( item, CRail_SGItem ):
