@@ -44,6 +44,11 @@ def main():
 
     registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
 
+    import redis
+    r = redis.StrictRedis(host='localhost', port=6379, db=0)
+    r.flushdb()
+    CNetObj_Manager.sendAll( r )
+
     objMonitor.show()
 
     # print(  [_ for _ in sys.modules if 'netobj' in _.lower()]   )

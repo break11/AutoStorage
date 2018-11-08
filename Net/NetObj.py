@@ -3,28 +3,46 @@ from anytree import NodeMixin
 
 from typing import Dict
 
-class CNetObj_TypeManager:
+class CNetObj_Manager:
     __genTypeUID = 0
-    __nodeTypes : Dict[ int, object ] = {}
+    __netObj_Types : Dict[ int, object ] = {}
+
+    __genNetObj_UID = 0
+    __objects : Dict[ int, object ] = {}
 
     @classmethod
     def registerType(cls, netObjClass):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
         cls.__genTypeUID += 1
-        cls.__nodeTypes[ cls.__genTypeUID ] = netObjClass
+        cls.__netObj_Types[ cls.__genTypeUID ] = netObjClass
         netObjClass.typeUID = cls.__genTypeUID
         return cls.__genTypeUID
 
-    # @classmethod
-    # def nodeTypeUID(cls, nodeType):
-    #     return cls.__nodeTypes[ nodeType ]
+    @classmethod
+    def netObj_Type(cls, netObjClass):
+        return cls.__netObj_Types[ netObjClass.typeUID ]
 
-genNodeObj_UID = 0
+    @classmethod
+    def genNetObj_UID( cls ):
+        cls.__genNetObj_UID += 1
+        return cls.__genNetObj_UID
 
-def genUID():
-    global genNodeObj_UID
-    genNodeObj_UID += 1
-    return genNodeObj_UID
+    @classmethod
+    def registerObj( cls, netObj ):
+        cls.__objects[ netObj.UID ] = netObj
+    
+    @classmethod
+    def unregisterObj( cls, netObj ):
+        del cls.__objects[ netObj.UID ]
+
+    @classmethod
+    def sendAll( cls, netLink ):
+        # print( cls.__objects )
+        for k, netObj in cls.__objects.items():
+            # print( netObj )
+            netObj.sendToNet( netLink )
+
+###############################################################################################
 
 class CNetObj( NodeMixin ):
     __sName    = "Name"
@@ -37,9 +55,10 @@ class CNetObj( NodeMixin ):
 
     def __init__( self, name="", parent=None ):
         super().__init__()
-        self.UID     = genUID()
+        self.UID     = CNetObj_Manager.genNetObj_UID()
         self.name    = name
         self.parent  = parent
+        self.isUpdated = False
 
         hd = self.__modelHeaderData
         self.__modelData = {
@@ -49,6 +68,11 @@ class CNetObj( NodeMixin ):
                             hd.index( self.__sTypeUID ) : self.typeUID,
                             }
 
+        CNetObj_Manager.registerObj( self )
+
+    def __del__(self):
+        CNetObj_Manager.unregisterObj( self )
+
     @classmethod
     def modelDataColCount( cls ): return len( cls.__modelHeaderData )
     @classmethod
@@ -56,6 +80,10 @@ class CNetObj( NodeMixin ):
     def modelData( self, col ): return self.__modelData[ col ]
 
     def propsDict(self): raise NotImplementedError
+
+    def sendToNet( self, netLink ):
+        netLink.set( f"obj:{self.UID}:{self.name}", self.name )
+        netLink.set( f"obj:{self.UID}:{self.__class__.typeUID}", self.__class__.typeUID )
 
     def afterLoad( self ):
         pass
@@ -109,7 +137,7 @@ class CGrafEdge_NO( CNetObj ):
     def propsDict(self): return self.nxEdge
 
 def registerNetNodeTypes():
-    reg = CNetObj_TypeManager.registerType
+    reg = CNetObj_Manager.registerType
     reg( CNetObj )
     reg( CGrafRoot_NO )
     reg( CGrafNode_NO )
