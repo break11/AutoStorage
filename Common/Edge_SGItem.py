@@ -25,8 +25,8 @@ class CEdge_SGItem(QGraphicsItem):
     def __init__(self, nxGraf, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
         self.__InfoRails = []
-        self.__rAngle  = None
-        self.__path    = None     
+        self.__rAngle    = None
+        self.__BBoxRect  = None     
         self.__baseLine  = None
         
         self.bDrawBBox = False
@@ -55,13 +55,7 @@ class CEdge_SGItem(QGraphicsItem):
 
         p1 = QPointF( 0, 0 )
         p2 = QPointF( 0, -self.__baseLine.length() )
-
-        self.map_p1 = QPointF( t.map( p1 ))
-        self.map_p2 = QPointF( t.map( p2 ))
-
-        self.__path = QPainterPath()
-        polygonF = QPolygonF( [self.map_p1, self.map_p2] )
-        self.__path.addPolygon( polygonF )
+        self.__BBoxRect = QRectF( t.map( p1 ), t.map( p2 ) ).normalized()
         
         self.prepareGeometryChange()
 
@@ -72,7 +66,7 @@ class CEdge_SGItem(QGraphicsItem):
         return self.nxGraf[ self.nodeID_1 ][ self.nodeID_2 ]
 
     def boundingRect(self):
-        return self.__path.boundingRect().adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+        return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
 
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
