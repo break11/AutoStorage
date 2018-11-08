@@ -30,9 +30,6 @@ class CNode_SGItem(QGraphicsItem):
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
 
-    def __del__(self):
-        print(f"------> destr Node: {self.nodeID}")
-
     def nxNode(self):
         return self.nxGraf.node[ self.nodeID ]
 

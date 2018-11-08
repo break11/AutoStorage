@@ -7,14 +7,12 @@ from PyQt5.QtCore import ( Qt, QEvent, QRectF )
 class CGItem_EventFilter(QGraphicsItem):
     
     def __init__(self):
-        print("CGItem_EventFilter !!!")
         super().__init__()
 
     def boundingRect(self):
         return QRectF( 0, 0, 0, 0 )
 
     def paint(self, painter, option, widget):
-        print("paint CGItem_EventFilter")
         pass
 
     def sceneEventFilter( self, watched, event ):

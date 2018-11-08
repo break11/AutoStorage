@@ -13,9 +13,6 @@ class CRail_SGItem(QGraphicsItemGroup):
         self.__lineGItem = None
         self.__lineEdgeName = None
 
-    def __del__(self):
-        print(f"------> destr Group: {self.groupKey}")
-
     def removeFromGroup( self, item ):
         super().removeFromGroup( item )
 

@@ -89,9 +89,3 @@ class ESensorSide( Enum ):
     SRight   = auto()
     SBoth    = auto()
     SPassive = auto()
-
-class EGManagerMode( Enum ):
-    View    = auto()
-    Edit    = auto()
-    AddNode = auto()
-    AddEdge = auto()

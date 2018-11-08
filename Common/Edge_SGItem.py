@@ -39,10 +39,8 @@ class CEdge_SGItem(QGraphicsItem):
 
         self.buildEdge()
 
-    def __del__(self):
-        print(f"------> destr Edge: {self.nodeID_1, self.nodeID_2}")
-
     def buildEdge(self):
+        self.prepareGeometryChange()
 
         # исходная линия может быть полезной далее, например для получения длины
         self.__baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
@@ -61,16 +59,11 @@ class CEdge_SGItem(QGraphicsItem):
         self.map_p1 = QPointF( t.map( p1 ))
         self.map_p2 = QPointF( t.map( p2 ))
 
-
         self.__path = QPainterPath()
         polygonF = QPolygonF( [self.map_p1, self.map_p2] )
-        # polygonF << t.map( p1 )
-        # polygonF << t.map( p2 )
-        # polygonF << self.map_p1
-        # polygonF << self.map_p2
         self.__path.addPolygon( polygonF )
         
-        # self.prepareGeometryChange()
+        self.prepareGeometryChange()
 
     def edgeName(self):
         return self.nodeID_1 +"-->"+ self.nodeID_2

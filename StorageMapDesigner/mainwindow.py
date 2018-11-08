@@ -33,7 +33,7 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
-        self.NC_EventFilter = CAddNode_EventFilter ( self.SGraf_Manager )
+        self.CD_EventFilter = CGItem_CDEventFilter ( self.SGraf_Manager )
         
         self.loadGraphML( CSM.opt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
 
@@ -104,11 +104,11 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):
-        if self.SGraf_Manager.Mode == SGT.EGManagerMode.AddNode:
-            self.SGraf_Manager.Mode = SGT.EGManagerMode.Edit
+        if self.SGraf_Manager.Mode == EGManagerMode.AddNode:
+            self.SGraf_Manager.Mode = EGManagerMode.Edit
             self.StorageMap_View.setCursor( Qt.ArrowCursor )
         else:
-            self.SGraf_Manager.Mode = SGT.EGManagerMode.AddNode
+            self.SGraf_Manager.Mode = EGManagerMode.AddNode
             self.StorageMap_View.setCursor( Qt.CrossCursor )
 
     @pyqtSlot(bool)
