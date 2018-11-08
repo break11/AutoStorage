@@ -125,6 +125,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="acAddNode"/>
+   <addaction name="acAddEdge_1_2"/>
+   <addaction name="acAddEdge_2-1"/>
    <addaction name="acAddEdge"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
@@ -302,6 +304,36 @@ selection-background-color: red;*/
    </property>
    <property name="text">
     <string>add Edge</string>
+   </property>
+  </action>
+  <action name="acAddEdge_1_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/add_edge_1-2.png</normaloff>:/images/add_edge_1-2.png</iconset>
+   </property>
+   <property name="text">
+    <string>add Edge 1-2</string>
+   </property>
+   <property name="toolTip">
+    <string>add Edge 1 --&gt; 2</string>
+   </property>
+  </action>
+  <action name="acAddEdge_2-1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/add_edge_2-1.png</normaloff>:/images/add_edge_2-1.png</iconset>
+   </property>
+   <property name="text">
+    <string>add Edge 2-1</string>
+   </property>
+   <property name="toolTip">
+    <string>add Edge 2 --&gt; 1</string>
    </property>
   </action>
  </widget>

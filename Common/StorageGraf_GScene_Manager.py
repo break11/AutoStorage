@@ -177,7 +177,7 @@ class CStorageGraf_GScene_Manager():
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
 
     def addEdge(self, nodeID_1, nodeID_2):
-        if self.edgeGItems.get((nodeID_1, nodeID_2)):return
+        if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return
         self.nxGraf.add_edge (nodeID_1, nodeID_2)
 
         edgeGItem = CEdge_SGItem ( self.nxGraf, nodeID_1, nodeID_2 )
@@ -196,6 +196,7 @@ class CStorageGraf_GScene_Manager():
         nodePairCount = len(nodeGItems) - 1
         for i in range(nodePairCount):
             self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
+            self.addEdge(  nodeGItems[i+1].nodeID, nodeGItems[i].nodeID )
     
     def addEdgeToGrop(self, edgeGItem):
         groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )

@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/">
+    <file>images/add_edge_1-2.png</file>
+    <file>images/add_edge_2-1.png</file>
     <file>images/add_edge.png</file>
     <file>images/add_node.png</file>
     <file>images/bbox.png</file>
