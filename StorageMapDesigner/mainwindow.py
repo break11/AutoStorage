@@ -113,7 +113,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):
-        self.SGraf_Manager.addEdgesForSelection()
+        self.SGraf_Manager.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):

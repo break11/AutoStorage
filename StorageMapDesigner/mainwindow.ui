@@ -125,9 +125,11 @@
     <bool>false</bool>
    </attribute>
    <addaction name="acAddNode"/>
-   <addaction name="acAddEdge_1_2"/>
-   <addaction name="acAddEdge_2-1"/>
+   <addaction name="acAddEdge_direct"/>
+   <addaction name="acAddEdge_reverse"/>
    <addaction name="acAddEdge"/>
+   <addaction name="acDelEdge"/>
+   <addaction name="acRevertEdge"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
    <property name="windowTitle">
@@ -306,34 +308,60 @@ selection-background-color: red;*/
     <string>add Edge</string>
    </property>
   </action>
-  <action name="acAddEdge_1_2">
+  <action name="acAddEdge_direct">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/images/add_edge_1-2.png</normaloff>:/images/add_edge_1-2.png</iconset>
+     <normaloff>:/images/add_edge_1-2_off.png</normaloff>
+     <normalon>:/images/add_edge_1-2.png</normalon>:/images/add_edge_1-2_off.png</iconset>
    </property>
    <property name="text">
-    <string>add Edge 1-2</string>
+    <string>add Edge direct</string>
    </property>
    <property name="toolTip">
-    <string>add Edge 1 --&gt; 2</string>
+    <string>Add edges in a direct order (1 --&gt; 2)</string>
    </property>
   </action>
-  <action name="acAddEdge_2-1">
+  <action name="acAddEdge_reverse">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/images/add_edge_2-1.png</normaloff>:/images/add_edge_2-1.png</iconset>
+     <normaloff>:/images/add_edge_2-1_off.png</normaloff>
+     <normalon>:/images/add_edge_2-1.png</normalon>:/images/add_edge_2-1_off.png</iconset>
    </property>
    <property name="text">
-    <string>add Edge 2-1</string>
+    <string>add Edge reverse</string>
    </property>
    <property name="toolTip">
-    <string>add Edge 2 --&gt; 1</string>
+    <string>Add edges in a reverse order (1 --&gt; 2)</string>
+   </property>
+  </action>
+  <action name="acDelEdge">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/del_edge.png</normaloff>:/images/del_edge.png</iconset>
+   </property>
+   <property name="text">
+    <string>delete Edge</string>
+   </property>
+   <property name="toolTip">
+    <string>delete Edge</string>
+   </property>
+  </action>
+  <action name="acRevertEdge">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/revert_edge.png</normaloff>:/images/revert_edge.png</iconset>
+   </property>
+   <property name="text">
+    <string>revert Edges</string>
+   </property>
+   <property name="toolTip">
+    <string>revert Edge</string>
    </property>
   </action>
  </widget>

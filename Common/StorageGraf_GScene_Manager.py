@@ -191,12 +191,17 @@ class CStorageGraf_GScene_Manager():
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
     
-    def addEdgesForSelection(self):
+    def addEdgesForSelection(self, direct = True, reverse = True):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ] # выбираем из selectedItems ноды
         nodePairCount = len(nodeGItems) - 1
-        for i in range(nodePairCount):
-            self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
-            self.addEdge(  nodeGItems[i+1].nodeID, nodeGItems[i].nodeID )
+        
+        if direct: #создание граней в прямом направлении
+            for i in range(nodePairCount):
+                self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
+
+        if reverse: #создание граней в обратном направлении
+            for i in range(nodePairCount):
+                self.addEdge(  nodeGItems[i+1].nodeID, nodeGItems[i].nodeID )
     
     def addEdgeToGrop(self, edgeGItem):
         groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
