@@ -128,7 +128,7 @@
    <addaction name="acAddEdge_direct"/>
    <addaction name="acAddEdge_reverse"/>
    <addaction name="acAddEdge"/>
-   <addaction name="acDelEdge"/>
+   <addaction name="acDelMultiEdge"/>
    <addaction name="acRevertEdge"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
@@ -337,19 +337,19 @@ selection-background-color: red;*/
     <string>add Edge reverse</string>
    </property>
    <property name="toolTip">
-    <string>Add edges in a reverse order (1 --&gt; 2)</string>
+    <string>Add edges in a reverse order (1 &lt;-- 2)</string>
    </property>
   </action>
-  <action name="acDelEdge">
+  <action name="acDelMultiEdge">
    <property name="icon">
     <iconset resource="images.qrc">
      <normaloff>:/images/del_edge.png</normaloff>:/images/del_edge.png</iconset>
    </property>
    <property name="text">
-    <string>delete Edge</string>
+    <string>delete multiple edge</string>
    </property>
    <property name="toolTip">
-    <string>delete Edge</string>
+    <string>delete multiple edge</string>
    </property>
   </action>
   <action name="acRevertEdge">

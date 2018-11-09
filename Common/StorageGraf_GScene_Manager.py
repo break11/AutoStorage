@@ -229,16 +229,25 @@ class CStorageGraf_GScene_Manager():
         del self.edgeGItems[e]
     
     def deleteEdgeGroup(self, groupKey):
-        groupGItem = self.groupsByEdge[groupKey]
-        groupChilds = groupGItem.childItems()
+        edgeGroup = self.groupsByEdge[groupKey]
+        groupChilds = edgeGroup.childItems()
         for edgeGItem in groupChilds:
             edgeGItem.clearInfoRails()
-            groupGItem.removeFromGroup(edgeGItem)
+            edgeGroup.removeFromGroup(edgeGItem)
             self.deleteEdge(edgeGItem.nodeID_1, edgeGItem.nodeID_2)
-        groupGItem.prepareGeometryChange()
-        self.gScene.removeItem(groupGItem)
+        edgeGroup.prepareGeometryChange()
+        self.gScene.removeItem(edgeGroup)
         del self.groupsByEdge[ groupKey ]
         del edgeGItem, groupChilds
+
+    def deleteMultiEdge(self, groupKey): #удаление кратной грани
+        edgeGroup = self.groupsByEdge[groupKey]
+        groupChilds = edgeGroup.childItems()
+        if len (groupChilds) < 2: return
+        edgeGItem = groupChilds[1]
+        edgeGItem.clearInfoRails()
+        edgeGroup.removeFromGroup(edgeGItem)
+        self.deleteEdge(edgeGItem.nodeID_1, edgeGItem.nodeID_2)
 
 class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
 
