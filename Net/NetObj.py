@@ -135,10 +135,3 @@ class CGrafEdge_NO( CNetObj ):
         self.nxEdge = nxEdge
 
     def propsDict(self): return self.nxEdge
-
-def registerNetNodeTypes():
-    reg = CNetObj_Manager.registerType
-    reg( CNetObj )
-    reg( CGrafRoot_NO )
-    reg( CGrafNode_NO )
-    reg( CGrafEdge_NO )
