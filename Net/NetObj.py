@@ -37,9 +37,7 @@ class CNetObj_Manager:
 
     @classmethod
     def sendAll( cls, netLink ):
-        # print( cls.__objects )
         for k, netObj in cls.__objects.items():
-            # print( netObj )
             netObj.sendToNet( netLink )
 
 ###############################################################################################

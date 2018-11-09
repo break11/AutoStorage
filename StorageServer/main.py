@@ -15,6 +15,22 @@ from Net import NetObj_Monitor
 from anytree import AnyNode, NodeMixin, RenderTree
 import redis
 
+import threading
+
+class CNetCMDReader( threading.Thread ):
+    def __init__(self, netLink, bAppWorking):
+        super().__init__()
+        self.r = netLink
+        self.receiver = netLink.pubsub()
+        self.receiver.subscribe('net-cmd')
+        self.bAppWorking = bAppWorking
+    
+    def run(self):
+        while self.bAppWorking.value:
+            # print("Hello from the thread!", self.bAppWorking.value)
+            msg = self.receiver.get_message(False, 0.5)
+            if msg: print( msg )
+
 def registerNetNodeTypes():
     reg = CNetObj_Manager.registerType
     reg( CNetObj )
@@ -40,6 +56,9 @@ def loadStorageGraph( parentBranch ):
     # print( RenderTree(root) )
 
 def main():
+    class bAppWorking: pass
+    bAppWorking.value = True
+
     try:
         r = redis.StrictRedis(host='localhost', port=6379, db=0)
         r.flushdb()
@@ -64,8 +83,13 @@ def main():
         registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
         objMonitor.show()
 
+    netReader = CNetCMDReader( r, bAppWorking )
+    # netReader.setDaemon(True)
+    netReader.start()
+
     app.exec_()
 
     CSM.saveSettings()
 
     r.flushdb()
+    bAppWorking.value = False

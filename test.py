@@ -1,3 +1,114 @@
+import os
+import threading
+import urllib.request
+from queue import Queue
+ 
+ 
+class Downloader(threading.Thread):
+    """Потоковый загрузчик файлов"""
+    
+    def __init__(self, queue, name):
+        """Инициализация потока"""
+        threading.Thread.__init__(self)
+        self.queue = queue
+        self.name = name
+    
+    def run(self):
+        """Запуск потока"""
+        print( f"< {self.name,} start run >{self.queue.qsize()}\n" )
+        while True:
+            # Получаем url из очереди
+            url = self.queue.get()
+            
+            print( f" {self.name} before download {self.queue.qsize()}\n" )
+
+            # Скачиваем файл
+            self.download_file(url)
+
+            print( f" {self.name} after download\n" )
+            
+            # Отправляем сигнал о том, что задача завершена
+            self.queue.task_done()
+        print( f" {self.name} end run\n" )
+ 
+    def download_file(self, url):
+        """Скачиваем файл"""
+        handle = urllib.request.urlopen(url)
+        fname = os.path.basename(url)
+        
+        with open(fname, "wb") as f:
+            while True:
+                chunk = handle.read(1024)
+                if not chunk:
+                    break
+                f.write(chunk)
+ 
+def main(urls):
+    """
+    Запускаем программу
+    """
+    queue = Queue()
+    
+    # Запускаем потом и очередь
+    for i in range(5):
+        t = Downloader(queue, i)
+        t.setDaemon(True)
+        t.start()
+    
+    # Даем очереди нужные нам ссылки для скачивания
+    for url in urls:
+        queue.put(url)
+ 
+    # Ждем завершения работы очереди
+    queue.join()
+ 
+if __name__ == "__main__":
+    urls = ["http://www.irs.gov/pub/irs-pdf/f1040.pdf",
+            "http://www.irs.gov/pub/irs-pdf/f1040a.pdf",
+            "http://www.irs.gov/pub/irs-pdf/f1040ez.pdf",
+            "http://www.irs.gov/pub/irs-pdf/f1040es.pdf",
+            "http://www.irs.gov/pub/irs-pdf/f1040sb.pdf"]
+    
+    main(urls)
+
+
+
+# import random
+# import time
+# from threading import Thread
+ 
+# class MyThread(Thread):
+#     """
+#     A threading example
+#     """
+    
+#     def __init__(self, name):
+#         """Инициализация потока"""
+#         Thread.__init__(self)
+#         self.name = name
+    
+#     def run(self):
+#         """Запуск потока"""
+#         amount = random.randint(3, 15)
+#         time.sleep(amount)
+#         msg = "%s is running" % self.name
+#         print(msg)
+    
+# def create_threads():
+#     """
+#     Создаем группу потоков
+#     """
+#     for i in range(5):
+#         name = "Thread #%s" % (i+1)
+#         my_thread = MyThread(name)
+#         my_thread.start()
+ 
+# if __name__ == "__main__":
+#     create_threads()
+
+
+
+
 # for i in range(1,3):
     # a = 5
     # b = a
