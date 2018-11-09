@@ -224,16 +224,21 @@ class CStorageGraf_GScene_Manager():
     def deleteEdge(self, nodeID_1, nodeID_2):
         e = (nodeID_1, nodeID_2)
         self.nxGraf.remove_edge(*e)
-        self.edgeGItems[e].prepareGeometryChange()
-        self.gScene.removeItem(self.edgeGItems[e])
+        edgeGItem = self.edgeGItems[e]
+        edgeGItem.prepareGeometryChange()
+        edgeGItem.clearInfoRails()
+        edgeGroup = self.groupsByEdge[ frozenset(e) ]
+        edgeGroup.removeFromGroup( edgeGItem )
+        self.gScene.removeItem( edgeGItem )
         del self.edgeGItems[e]
+
+    def revertEdge(self):
+        pass
     
     def deleteEdgeGroup(self, groupKey):
         edgeGroup = self.groupsByEdge[groupKey]
         groupChilds = edgeGroup.childItems()
         for edgeGItem in groupChilds:
-            edgeGItem.clearInfoRails()
-            edgeGroup.removeFromGroup(edgeGItem)
             self.deleteEdge(edgeGItem.nodeID_1, edgeGItem.nodeID_2)
         edgeGroup.prepareGeometryChange()
         self.gScene.removeItem(edgeGroup)
