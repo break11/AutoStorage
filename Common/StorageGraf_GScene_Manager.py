@@ -177,7 +177,7 @@ class CStorageGraf_GScene_Manager():
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
 
     def addEdge(self, nodeID_1, nodeID_2):
-        if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return
+        if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return False
         self.nxGraf.add_edge (nodeID_1, nodeID_2)
 
         edgeGItem = CEdge_SGItem ( self.nxGraf, nodeID_1, nodeID_2 )
@@ -190,6 +190,7 @@ class CStorageGraf_GScene_Manager():
         edgeGItem.buildInfoRails()
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
+        return True
     
     def addEdgesForSelection(self, direct = True, reverse = True):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ] # выбираем из selectedItems ноды
@@ -232,8 +233,10 @@ class CStorageGraf_GScene_Manager():
         self.gScene.removeItem( edgeGItem )
         del self.edgeGItems[e]
 
-    def revertEdge(self):
-        pass
+    def revertEdge(self, nodeID_1, nodeID_2):
+        print (nodeID_1, nodeID_2)
+        if self.addEdge( nodeID_2, nodeID_1 ):
+            self.deleteEdge ( nodeID_1, nodeID_2 )
     
     def deleteEdgeGroup(self, groupKey):
         edgeGroup = self.groupsByEdge[groupKey]
