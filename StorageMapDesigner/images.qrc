@@ -2,8 +2,8 @@
   <qresource prefix="/">
     <file>images/add_edge_1-2_off.png</file>
     <file>images/add_edge_2-1_off.png</file>
-    <file>images/revert_edge.png</file>
     <file>images/del_edge.png</file>
+    <file>images/reverse_edge.png</file>
     <file>images/add_edge_1-2.png</file>
     <file>images/add_edge_2-1.png</file>
     <file>images/add_edge.png</file>

@@ -85,7 +85,11 @@
      <string>Graph Edit</string>
     </property>
     <addaction name="acAddNode"/>
+    <addaction name="acAddEdge_direct"/>
+    <addaction name="acAddEdge_reverse"/>
     <addaction name="acAddEdge"/>
+    <addaction name="acDelMultiEdge"/>
+    <addaction name="acReverseEdges"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -129,7 +133,7 @@
    <addaction name="acAddEdge_reverse"/>
    <addaction name="acAddEdge"/>
    <addaction name="acDelMultiEdge"/>
-   <addaction name="acRevertEdge"/>
+   <addaction name="acReverseEdges"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
    <property name="windowTitle">
@@ -296,7 +300,10 @@ selection-background-color: red;*/
      <normaloff>:/images/add_node.png</normaloff>:/images/add_node.png</iconset>
    </property>
    <property name="text">
-    <string>add Node</string>
+    <string>Add node mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Add node mode</string>
    </property>
   </action>
   <action name="acAddEdge">
@@ -305,7 +312,10 @@ selection-background-color: red;*/
      <normaloff>:/images/add_edge.png</normaloff>:/images/add_edge.png</iconset>
    </property>
    <property name="text">
-    <string>add Edge</string>
+    <string>Add edges</string>
+   </property>
+   <property name="toolTip">
+    <string>Add edges for selected nodes</string>
    </property>
   </action>
   <action name="acAddEdge_direct">
@@ -318,7 +328,7 @@ selection-background-color: red;*/
      <normalon>:/images/add_edge_1-2.png</normalon>:/images/add_edge_1-2_off.png</iconset>
    </property>
    <property name="text">
-    <string>add Edge direct</string>
+    <string>Add edges direct mode</string>
    </property>
    <property name="toolTip">
     <string>Add edges in a direct order (1 --&gt; 2)</string>
@@ -334,7 +344,7 @@ selection-background-color: red;*/
      <normalon>:/images/add_edge_2-1.png</normalon>:/images/add_edge_2-1_off.png</iconset>
    </property>
    <property name="text">
-    <string>add Edge reverse</string>
+    <string>Add edges reverse mode</string>
    </property>
    <property name="toolTip">
     <string>Add edges in a reverse order (1 &lt;-- 2)</string>
@@ -346,22 +356,22 @@ selection-background-color: red;*/
      <normaloff>:/images/del_edge.png</normaloff>:/images/del_edge.png</iconset>
    </property>
    <property name="text">
-    <string>delete multiple edge</string>
+    <string>Delete multiple edge</string>
    </property>
    <property name="toolTip">
-    <string>delete multiple edge</string>
+    <string>Delete multiple edge</string>
    </property>
   </action>
-  <action name="acRevertEdge">
+  <action name="acReverseEdges">
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/images/revert_edge.png</normaloff>:/images/revert_edge.png</iconset>
+     <normaloff>:/images/reverse_edge.png</normaloff>:/images/reverse_edge.png</iconset>
    </property>
    <property name="text">
-    <string>revert Edges</string>
+    <string>Reverse selected edges</string>
    </property>
    <property name="toolTip">
-    <string>revert Edge</string>
+    <string>Reverse selected edges</string>
    </property>
   </action>
  </widget>

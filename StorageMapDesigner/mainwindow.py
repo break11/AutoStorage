@@ -118,12 +118,12 @@ class CSMD_MainWindow(QMainWindow):
             self.SGraf_Manager.deleteMultiEdge( edgeGroup.groupKey )
 
     @pyqtSlot(bool)
-    def on_acRevertEdge_triggered (self, bChecked):
+    def on_acReverseEdges_triggered (self, bChecked):
         edgeGroups = [ g for g in self.StorageMap_Scene.selectedItems() if isinstance(g, CRail_SGItem) ]
         for edgeGroup in edgeGroups:
             groupChilds = edgeGroup.childItems()
             for edgeGItem in groupChilds:
-                self.SGraf_Manager.revertEdge( edgeGItem.nodeID_1, edgeGItem.nodeID_2 )
+                self.SGraf_Manager.reverseEdge( edgeGItem.nodeID_1, edgeGItem.nodeID_2 )
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):
