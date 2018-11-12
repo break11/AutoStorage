@@ -47,6 +47,7 @@ class CNetObj_Manager:
 
     #####################################################
 
+    redisConn = None
     @classmethod
     def connect( cls ):
         try:
@@ -54,15 +55,22 @@ class CNetObj_Manager:
             cls.redisConn.flushdb()
         except redis.exceptions.ConnectionError as e:
             print( f"[Error]: Can not connect to REDIS: {e}" )
+            return False
 
         cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerConnected )
+        return True
 
     @classmethod
     def disconnect( cls ):
-        
+        if not cls.redisConn: return
+
         cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerDisconnected )
         cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
+        cls.redisConn = None
+
+    @classmethod
+    def isConnect( cls ): return not redisConn is None
 
     #####################################################
 

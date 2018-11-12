@@ -59,16 +59,9 @@ def main():
     class bAppWorking: pass
     bAppWorking.value = True
 
-    try:
-        r = redis.StrictRedis(host='localhost', port=6379, db=0)
-        r.flushdb()
-    except redis.exceptions.ConnectionError as k:
-        print( "[Error]: Can not connect to REDIS!" )
-        return
-
-    CNetObj_Manager.connect()
+    if not CNetObj_Manager.connect(): return
     CNetObj_Manager.disconnect()
-
+    
     CSM.loadSettings()
 
     registerNetNodeTypes()
@@ -76,7 +69,7 @@ def main():
     rootObj  = CNetObj(name="root")
     loadStorageGraph( rootObj )
         
-    CNetObj_Manager.sendAll( r )
+    # CNetObj_Manager.sendAll( r )
 
     app = QApplication(sys.argv)
 
@@ -86,13 +79,14 @@ def main():
     registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
     objMonitor.show()
 
-    netReader = CNetCMDReader( r, bAppWorking )
+    # netReader = CNetCMDReader( r, bAppWorking )
     # netReader.setDaemon(True)
-    netReader.start()
+    # netReader.start()
 
     app.exec_()
 
     CSM.saveSettings()
 
-    r.flushdb()
     bAppWorking.value = False
+
+    CNetObj_Manager.disconnect()

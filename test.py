@@ -594,3 +594,15 @@
 # t = test()
 
 # print( t.__test1__ )
+
+
+def fu(i):
+    print (50/i)
+
+
+# try:
+#     fu()
+# except:
+#     print("COOL GIRL")
+
+# print("NEXT")
