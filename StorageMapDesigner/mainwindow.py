@@ -121,8 +121,9 @@ class CSMD_MainWindow(QMainWindow):
     def on_acRevertEdge_triggered (self, bChecked):
         edgeGroups = [ g for g in self.StorageMap_Scene.selectedItems() if isinstance(g, CRail_SGItem) ]
         for edgeGroup in edgeGroups:
-            pass
-            # self.SGraf_Manager.revertEdge( *edgeGroup.groupKey )
+            groupChilds = edgeGroup.childItems()
+            for edgeGItem in groupChilds:
+                self.SGraf_Manager.revertEdge( edgeGItem.nodeID_1, edgeGItem.nodeID_2 )
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):

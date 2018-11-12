@@ -234,9 +234,9 @@ class CStorageGraf_GScene_Manager():
         del self.edgeGItems[e]
 
     def revertEdge(self, nodeID_1, nodeID_2):
-        print (nodeID_1, nodeID_2)
-        if self.addEdge( nodeID_2, nodeID_1 ):
-            self.deleteEdge ( nodeID_1, nodeID_2 )
+        if self.edgeGItems.get( (nodeID_2, nodeID_1) ) is None:
+            self.deleteEdge( nodeID_1, nodeID_2 )
+            self.addEdge ( nodeID_2, nodeID_1 )
     
     def deleteEdgeGroup(self, groupKey):
         edgeGroup = self.groupsByEdge[groupKey]
