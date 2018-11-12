@@ -37,11 +37,15 @@ graphAttrTypes = { EGrafAttrs.widthType        : str,
                    EGrafAttrs.y                : int,
                    EGrafAttrs.nodeType         : str,
                    EGrafAttrs.storageType      : str,
-                #    GrafAttrs.name             : str,
+                #    EGrafAttrs.name             : str,
 }
 
 def adjustAttrType( sAttrName, val ):
     if val is None: return None
+
+    # для атрибутов, которых нет в списке возвращаем без преобразования типа
+    if not EGrafAttrs.__members__.get( sAttrName ): return val
+    
     val = (graphAttrTypes[ EGrafAttrs[sAttrName] ] )( val )
     return val
 

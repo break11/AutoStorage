@@ -10,9 +10,10 @@ def graphML_Path():
     return os.curdir + "/GraphML/"
 
 # хелперная функция создание итема стандартной модели с дополнительными параметрами
-def Std_Model_Item( val, bReadOnly = False ):
+def Std_Model_Item( val, bReadOnly = False, userData = None ):
     item = QStandardItem()
     item.setData( val, Qt.EditRole )
+    if userData: item.setData( userData ) # Qt.UserRole + 1
     item.setEditable( not bReadOnly )
     return item
 

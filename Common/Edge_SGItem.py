@@ -4,7 +4,7 @@ from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform )
 from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
-import Common.StorageGrafTypes as SGT
+from . import StorageGrafTypes as SGT
 from typing import List
 
 class CEdge_SGItem(QGraphicsItem):

@@ -18,7 +18,7 @@ class CSMD_MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        uic.loadUi('StorageMapDesigner/mainwindow.ui', self)
+        uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self)
 
         self.graphML_fname = ""
         self.objProps = QStandardItemModel( self )
