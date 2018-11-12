@@ -33,19 +33,29 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
-        self.CD_EventFilter = CGItem_CDEventFilter ( self.SGraf_Manager )
+        self.CD_EventFilter = CGItem_CDEventFilter (self.SGraf_Manager )
         
         self.loadGraphML( CSM.opt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
 
-        winSettings = CSM.opt( SC.s_main_window )
-        if not winSettings: return
-            
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_geometry ].encode() ) ) )
-        self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_state ].encode() ) ) )
+        #load settings
+        winSettings   = CSM.opt( SC.s_main_window )
+        sceneSettings = CSM.opt( SC.s_scene )
+
+        if winSettings:
+            self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_geometry ].encode() ) ) )
+            self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_state ].encode() ) ) )
+
+        if sceneSettings:
+            self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid]        
+        #ui
+        self.sbGridSize.setValue(self.StorageMap_Scene.gridSize)
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
+        CSM.options[SC.s_scene] =   {
+                                        SC.s_grid : self.StorageMap_Scene.gridSize
+                                    }
 
     def loadGraphML( self, sFName ):
         self.graphML_fname = sFName
@@ -133,8 +143,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(int)
     def on_sbGridSize_valueChanged(self, value):
-        pass
-        # self.StorageMap_Scene.gridSize = value
+        self.StorageMap_Scene.gridSize = value
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
