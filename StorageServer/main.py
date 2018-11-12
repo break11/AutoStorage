@@ -55,29 +55,37 @@ def loadStorageGraph( parentBranch ):
 
     # print( RenderTree(root) )
 
+def test():
+    rootObj2  = CNetObj(name="22222222222222222")
+    rootObj2 = None
+    del rootObj2
+
 def main():
+    test()
+
     class bAppWorking: pass
     bAppWorking.value = True
 
     if not CNetObj_Manager.connect(): return
-    CNetObj_Manager.disconnect()
     
     CSM.loadSettings()
 
     registerNetNodeTypes()
 
     rootObj  = CNetObj(name="root")
+
+
     loadStorageGraph( rootObj )
         
     # CNetObj_Manager.sendAll( r )
 
     app = QApplication(sys.argv)
 
-    # if CSM.opt( SC.s_obj_monitor ):
-    objMonitor = CNetObj_Monitor()
-    objMonitor.setRootNetObj( rootObj )
-    registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
-    objMonitor.show()
+    if CNetObj_Monitor.enaledInOptions():
+        objMonitor = CNetObj_Monitor()
+        objMonitor.setRootNetObj( rootObj )
+        registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
+        objMonitor.show()
 
     # netReader = CNetCMDReader( r, bAppWorking )
     # netReader.setDaemon(True)

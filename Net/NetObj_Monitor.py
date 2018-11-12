@@ -10,7 +10,6 @@ from .NetObj_Widgets import ( CNetObj_WidgetsManager )
 
 from Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
-import Common.StrConsts as SC
 
 _strList = [
             "obj_monitor",
@@ -23,6 +22,10 @@ for str_item in _strList:
     locals()[ "s_" + str_item ] = str_item
 
 class CNetObj_Monitor(QWidget):
+    @staticmethod
+    def enaledInOptions():
+        return CSM.opt( s_obj_monitor )[ s_active ]
+
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/NetObj_Monitor.ui', self )
@@ -44,7 +47,6 @@ class CNetObj_Monitor(QWidget):
     def closeEvent( self, event ):
         settings = CSM.opt( s_obj_monitor )
         settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
-        # CSM.options[ s_window ]  = { s_geometry : self.saveGeometry().toHex().data().decode() }
 
     def initOrDone_NetObj_Widget( self, index, bInit ):
         if not index.isValid(): return

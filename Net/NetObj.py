@@ -1,7 +1,9 @@
 
-from anytree import NodeMixin
 from typing import Dict
+
 import redis
+from anytree import NodeMixin
+
 from Common.SettingsManager import CSettingsManager as CSM
 
 
@@ -12,6 +14,7 @@ s_CMD_ServerDisconnected = "server_disconnected"
 
 class CNetObj_Manager:
     redisConn = None
+
     __genTypeUID = 0
     __netObj_Types : Dict[ int, object ] = {}
 
@@ -40,10 +43,14 @@ class CNetObj_Manager:
     @classmethod
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
+        if cls.isConnect():
+            CNetObj_Manager.sendNetCMD( f"obj_created:{netObj.UID}:{netObj.name}" )
     
     @classmethod
     def unregisterObj( cls, netObj ):
         del cls.__objects[ netObj.UID ]
+        if cls.isConnect():
+            CNetObj_Manager.sendNetCMD( f"obj_deleted:{netObj.UID}:{netObj.name}" )
 
     #####################################################
 
@@ -70,9 +77,13 @@ class CNetObj_Manager:
         cls.redisConn = None
 
     @classmethod
-    def isConnect( cls ): return not redisConn is None
+    def isConnect( cls ): return not cls.redisConn is None
 
     #####################################################
+
+    @classmethod
+    def sendNetCMD( cls, cmd ):
+        cls.redisConn.publish( s_Redis_CMD_Channel, cmd )
 
     @classmethod
     def sendAll( cls, netLink ):
@@ -108,6 +119,9 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
+        print( "dest", self.UID, type(self) )
+        # for child in children:
+        #     print( children )
         CNetObj_Manager.unregisterObj( self )
 
     @classmethod
