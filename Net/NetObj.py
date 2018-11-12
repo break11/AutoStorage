@@ -1,30 +1,85 @@
 
 from anytree import NodeMixin
-
 from typing import Dict
+import redis
+from Common.SettingsManager import CSettingsManager as CSM
 
-class CNetObj_TypeManager:
+
+s_Redis_CMD_Channel = "net-cmd"
+
+s_CMD_ServerConnected = "server_connected"
+s_CMD_ServerDisconnected = "server_disconnected"
+
+class CNetObj_Manager:
+    redisConn = None
     __genTypeUID = 0
-    __nodeTypes : Dict[ int, object ] = {}
+    __netObj_Types : Dict[ int, object ] = {}
+
+    __genNetObj_UID = 0
+    __objects : Dict[ int, object ] = {}
 
     @classmethod
     def registerType(cls, netObjClass):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
         cls.__genTypeUID += 1
-        cls.__nodeTypes[ cls.__genTypeUID ] = netObjClass
+        cls.__netObj_Types[ cls.__genTypeUID ] = netObjClass
         netObjClass.typeUID = cls.__genTypeUID
         return cls.__genTypeUID
 
-    # @classmethod
-    # def nodeTypeUID(cls, nodeType):
-    #     return cls.__nodeTypes[ nodeType ]
+    @classmethod
+    def netObj_Type(cls, netObjClass):
+        return cls.__netObj_Types[ netObjClass.typeUID ]
 
-genNodeObj_UID = 0
+    #####################################################
 
-def genUID():
-    global genNodeObj_UID
-    genNodeObj_UID += 1
-    return genNodeObj_UID
+    @classmethod
+    def genNetObj_UID( cls ):
+        cls.__genNetObj_UID += 1
+        return cls.__genNetObj_UID
+
+    @classmethod
+    def registerObj( cls, netObj ):
+        cls.__objects[ netObj.UID ] = netObj
+    
+    @classmethod
+    def unregisterObj( cls, netObj ):
+        del cls.__objects[ netObj.UID ]
+
+    #####################################################
+
+    redisConn = None
+    @classmethod
+    def connect( cls ):
+        try:
+            cls.redisConn = redis.StrictRedis(host='localhost', port=6379, db=0)
+            cls.redisConn.flushdb()
+        except redis.exceptions.ConnectionError as e:
+            print( f"[Error]: Can not connect to REDIS: {e}" )
+            return False
+
+        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerConnected )
+        return True
+
+    @classmethod
+    def disconnect( cls ):
+        if not cls.redisConn: return
+
+        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerDisconnected )
+        cls.redisConn.flushdb()
+        cls.redisConn.connection_pool.disconnect()
+        cls.redisConn = None
+
+    @classmethod
+    def isConnect( cls ): return not redisConn is None
+
+    #####################################################
+
+    @classmethod
+    def sendAll( cls, netLink ):
+        for k, netObj in cls.__objects.items():
+            netObj.sendToNet( netLink )
+
+###############################################################################################
 
 class CNetObj( NodeMixin ):
     __sName    = "Name"
@@ -37,9 +92,10 @@ class CNetObj( NodeMixin ):
 
     def __init__( self, name="", parent=None ):
         super().__init__()
-        self.UID     = genUID()
+        self.UID     = CNetObj_Manager.genNetObj_UID()
         self.name    = name
         self.parent  = parent
+        self.isUpdated = False
 
         hd = self.__modelHeaderData
         self.__modelData = {
@@ -49,6 +105,11 @@ class CNetObj( NodeMixin ):
                             hd.index( self.__sTypeUID ) : self.typeUID,
                             }
 
+        CNetObj_Manager.registerObj( self )
+
+    def __del__(self):
+        CNetObj_Manager.unregisterObj( self )
+
     @classmethod
     def modelDataColCount( cls ): return len( cls.__modelHeaderData )
     @classmethod
@@ -56,6 +117,10 @@ class CNetObj( NodeMixin ):
     def modelData( self, col ): return self.__modelData[ col ]
 
     def propsDict(self): raise NotImplementedError
+
+    def sendToNet( self, netLink ):
+        netLink.set( f"obj:{self.UID}:{self.name}", self.name )
+        netLink.set( f"obj:{self.UID}:{self.__class__.typeUID}", self.__class__.typeUID )
 
     def afterLoad( self ):
         pass
@@ -107,10 +172,3 @@ class CGrafEdge_NO( CNetObj ):
         self.nxEdge = nxEdge
 
     def propsDict(self): return self.nxEdge
-
-def registerNetNodeTypes():
-    reg = CNetObj_TypeManager.registerType
-    reg( CNetObj )
-    reg( CGrafRoot_NO )
-    reg( CGrafNode_NO )
-    reg( CGrafEdge_NO )

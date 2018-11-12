@@ -31,11 +31,11 @@ class CNetObj_WidgetsManager:
 class CNetObj_Widget( QWidget ):
     def init( self, netObj ):
         assert isinstance( netObj, CNetObj )
-        print( "init" )
+        # print( "init" )
         pass
 
     def done( self ):
-        print( "done" )
+        # print( "done" )
         pass
 
 class CDictProps_Widget( CNetObj_Widget ):

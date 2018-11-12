@@ -3,38 +3,24 @@ import os
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import ( QWidget )
+from PyQt5.QtCore import (QByteArray)
 
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Widgets import ( CNetObj_WidgetsManager )
 
-from PyQt5.QtCore import ( Qt, QObject, QEvent )
-class CTreeView_Arrows_EventFilter( QObject ):
-    def __init__( self, treeView ):
-        super().__init__( treeView )
-        self.__treeView = treeView
+from Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
+from Common.SettingsManager import CSettingsManager as CSM
+import Common.StrConsts as SC
 
-    def eventFilter(self, object, event):
-        if event.type() == QEvent.KeyPress:
+_strList = [
+            "obj_monitor",
+            "active",
+            "window",
+            "geometry",
+            ]
 
-            if event.key() == Qt.Key_Right or event.key() == Qt.Key_Left:
-                v = self.__treeView
-                index = v.currentIndex()
-
-                dMulti = { Qt.Key_Right : 1, Qt.Key_Left : -1 }
-                dCheck = { Qt.Key_Right : v.model().columnCount(index) - 1, Qt.Key_Left : 0 }
-
-                multi = dMulti[ event.key() ]
-                check = dCheck[ event.key() ]
-
-                if index.column() == check: return False
-                v.setCurrentIndex( v.model().index( index.row(), index.column() + multi, index.parent() ) )
-
-                return True
-
-            elif event.key() == Qt.Key_Left:
-                return True
-
-        return False
+for str_item in _strList:
+    locals()[ "s_" + str_item ] = str_item
 
 class CNetObj_Monitor(QWidget):
     def __init__(self):
@@ -48,6 +34,17 @@ class CNetObj_Monitor(QWidget):
         self.netObjModel = CNetObj_Model( self )
         self.tvNetObj.setModel( self.netObjModel )
         self.tvNetObj.selectionModel().currentChanged.connect( self.treeView_select )
+
+        settings = CSM.opt( s_obj_monitor )
+        geometry = settings[ s_window ][ s_geometry ]
+        if not geometry: return
+
+        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
+
+    def closeEvent( self, event ):
+        settings = CSM.opt( s_obj_monitor )
+        settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
+        # CSM.options[ s_window ]  = { s_geometry : self.saveGeometry().toHex().data().decode() }
 
     def initOrDone_NetObj_Widget( self, index, bInit ):
         if not index.isValid(): return
