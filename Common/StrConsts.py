@@ -5,7 +5,6 @@ _strList = [
             "main_window",
             "geometry",
             "state",
-            "obj_monitor"
           ]
 
 # Экспортируем "короткие" алиасы имен атрибутов ( будет доступно по SGT.s_nodeType, SGT.s_x и т.д. )

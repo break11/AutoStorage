@@ -1,3 +1,9 @@
 {
-    "storage_graph_file": "/home/break1/Projects/ChelnokSklad/GraphML/test.graphml"
+    "storage_graph_file": "/home/break1/Projects/ChelnokSklad/GraphML/test.graphml",
+    "obj_monitor": {
+        "active": true,
+        "window": {
+            "geometry": "01d9d0cb0002000000000849000000eb00000b760000037c000008490000010900000b760000037c00000000000000000780"
+        }
+    }
 }

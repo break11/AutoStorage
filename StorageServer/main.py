@@ -66,6 +66,9 @@ def main():
         print( "[Error]: Can not connect to REDIS!" )
         return
 
+    CNetObj_Manager.connect()
+    CNetObj_Manager.disconnect()
+
     CSM.loadSettings()
 
     registerNetNodeTypes()
@@ -77,11 +80,11 @@ def main():
 
     app = QApplication(sys.argv)
 
-    if CSM.opt( SC.s_obj_monitor ):
-        objMonitor = CNetObj_Monitor()
-        objMonitor.setRootNetObj( rootObj )
-        registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
-        objMonitor.show()
+    # if CSM.opt( SC.s_obj_monitor ):
+    objMonitor = CNetObj_Monitor()
+    objMonitor.setRootNetObj( rootObj )
+    registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
+    objMonitor.show()
 
     netReader = CNetCMDReader( r, bAppWorking )
     # netReader.setDaemon(True)

@@ -12,6 +12,16 @@ from Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
+_strList = [
+            "obj_monitor",
+            "active",
+            "window",
+            "geometry",
+            ]
+
+for str_item in _strList:
+    locals()[ "s_" + str_item ] = str_item
+
 class CNetObj_Monitor(QWidget):
     def __init__(self):
         super().__init__()
@@ -25,13 +35,16 @@ class CNetObj_Monitor(QWidget):
         self.tvNetObj.setModel( self.netObjModel )
         self.tvNetObj.selectionModel().currentChanged.connect( self.treeView_select )
 
-        winState = CSM.opt( SC.s_main_window )
-        if not winState: return
+        settings = CSM.opt( s_obj_monitor )
+        geometry = settings[ s_window ][ s_geometry ]
+        if not geometry: return
 
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winState[ SC.s_geometry ].encode() ) ) )
+        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 
     def closeEvent( self, event ):
-        CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode() }
+        settings = CSM.opt( s_obj_monitor )
+        settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
+        # CSM.options[ s_window ]  = { s_geometry : self.saveGeometry().toHex().data().decode() }
 
     def initOrDone_NetObj_Widget( self, index, bInit ):
         if not index.isValid(): return

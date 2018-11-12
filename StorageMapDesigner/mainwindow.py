@@ -37,15 +37,15 @@ class CSMD_MainWindow(QMainWindow):
         
         self.loadGraphML( CSM.opt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
 
-        winState = CSM.opt( SC.s_main_window )
-        if not winState: return
+        winSettings = CSM.opt( SC.s_main_window )
+        if not winSettings: return
             
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winState[ SC.s_geometry ].encode() ) ) )
-        self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winState[ SC.s_state ].encode() ) ) )
+        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_geometry ].encode() ) ) )
+        self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_state ].encode() ) ) )
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
-                                            SC.s_state    : self.saveState().toHex().data().decode() }
+                                             SC.s_state    : self.saveState().toHex().data().decode() }
 
     def loadGraphML( self, sFName ):
         self.graphML_fname = sFName

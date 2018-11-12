@@ -1,75 +1,92 @@
-import os
-import threading
-import urllib.request
-from queue import Queue
- 
- 
-class Downloader(threading.Thread):
-    """Потоковый загрузчик файлов"""
-    
-    def __init__(self, queue, name):
-        """Инициализация потока"""
-        threading.Thread.__init__(self)
-        self.queue = queue
-        self.name = name
-    
-    def run(self):
-        """Запуск потока"""
-        print( f"< {self.name,} start run >{self.queue.qsize()}\n" )
-        while True:
-            # Получаем url из очереди
-            url = self.queue.get()
-            
-            print( f" {self.name} before download {self.queue.qsize()}\n" )
+# import socket
 
-            # Скачиваем файл
-            self.download_file(url)
+# sock = socket.socket()
+# sock.bind(('', 9090))
+# sock.listen(1)
+# conn, addr = sock.accept()
 
-            print( f" {self.name} after download\n" )
-            
-            # Отправляем сигнал о том, что задача завершена
-            self.queue.task_done()
-        print( f" {self.name} end run\n" )
+# print ('connected:', addr)
+
+# while True:
+#     data = conn.recv(1024)
+#     if not data:
+#         break
+#     conn.send(data.upper())
+
+# conn.close()
+
+# import os
+# import threading
+# import urllib.request
+# from queue import Queue
  
-    def download_file(self, url):
-        """Скачиваем файл"""
-        handle = urllib.request.urlopen(url)
-        fname = os.path.basename(url)
+ 
+# class Downloader(threading.Thread):
+#     """Потоковый загрузчик файлов"""
+    
+#     def __init__(self, queue, name):
+#         """Инициализация потока"""
+#         threading.Thread.__init__(self)
+#         self.queue = queue
+#         self.name = name
+    
+#     def run(self):
+#         """Запуск потока"""
+#         print( f"< {self.name,} start run >{self.queue.qsize()}\n" )
+#         while True:
+#             # Получаем url из очереди
+#             url = self.queue.get()
+            
+#             print( f" {self.name} before download {self.queue.qsize()}\n" )
+
+#             # Скачиваем файл
+#             self.download_file(url)
+
+#             print( f" {self.name} after download\n" )
+            
+#             # Отправляем сигнал о том, что задача завершена
+#             self.queue.task_done()
+#         print( f" {self.name} end run\n" )
+ 
+#     def download_file(self, url):
+#         """Скачиваем файл"""
+#         handle = urllib.request.urlopen(url)
+#         fname = os.path.basename(url)
         
-        with open(fname, "wb") as f:
-            while True:
-                chunk = handle.read(1024)
-                if not chunk:
-                    break
-                f.write(chunk)
+#         with open(fname, "wb") as f:
+#             while True:
+#                 chunk = handle.read(1024)
+#                 if not chunk:
+#                     break
+#                 f.write(chunk)
  
-def main(urls):
-    """
-    Запускаем программу
-    """
-    queue = Queue()
+# def main(urls):
+#     """
+#     Запускаем программу
+#     """
+#     queue = Queue()
     
-    # Запускаем потом и очередь
-    for i in range(5):
-        t = Downloader(queue, i)
-        t.setDaemon(True)
-        t.start()
+#     # Запускаем потом и очередь
+#     for i in range(5):
+#         t = Downloader(queue, i)
+#         t.setDaemon(True)
+#         t.start()
     
-    # Даем очереди нужные нам ссылки для скачивания
-    for url in urls:
-        queue.put(url)
+#     # Даем очереди нужные нам ссылки для скачивания
+#     for url in urls:
+#         queue.put(url)
  
-    # Ждем завершения работы очереди
-    queue.join()
+#     # Ждем завершения работы очереди
+#     queue.join()
  
-if __name__ == "__main__":
-    urls = ["http://www.irs.gov/pub/irs-pdf/f1040.pdf",
-            "http://www.irs.gov/pub/irs-pdf/f1040a.pdf",
-            "http://www.irs.gov/pub/irs-pdf/f1040ez.pdf",
-            "http://www.irs.gov/pub/irs-pdf/f1040es.pdf",
-            "http://www.irs.gov/pub/irs-pdf/f1040sb.pdf"]
+# if __name__ == "__main__":
+#     urls = ["http://www.irs.gov/pub/irs-pdf/f1040.pdf",
+#             "http://www.irs.gov/pub/irs-pdf/f1040a.pdf",
+#             "http://www.irs.gov/pub/irs-pdf/f1040ez.pdf",
+#             "http://www.irs.gov/pub/irs-pdf/f1040es.pdf",
+#             "http://www.irs.gov/pub/irs-pdf/f1040sb.pdf"]
     
-    main(urls)
+#     main(urls)
 
 
 

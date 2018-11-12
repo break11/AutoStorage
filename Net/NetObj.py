@@ -1,9 +1,17 @@
 
 from anytree import NodeMixin
-
 from typing import Dict
+import redis
+from Common.SettingsManager import CSettingsManager as CSM
+
+
+s_Redis_CMD_Channel = "net-cmd"
+
+s_CMD_ServerConnected = "server_connected"
+s_CMD_ServerDisconnected = "server_disconnected"
 
 class CNetObj_Manager:
+    redisConn = None
     __genTypeUID = 0
     __netObj_Types : Dict[ int, object ] = {}
 
@@ -22,6 +30,8 @@ class CNetObj_Manager:
     def netObj_Type(cls, netObjClass):
         return cls.__netObj_Types[ netObjClass.typeUID ]
 
+    #####################################################
+
     @classmethod
     def genNetObj_UID( cls ):
         cls.__genNetObj_UID += 1
@@ -34,6 +44,27 @@ class CNetObj_Manager:
     @classmethod
     def unregisterObj( cls, netObj ):
         del cls.__objects[ netObj.UID ]
+
+    #####################################################
+
+    @classmethod
+    def connect( cls ):
+        try:
+            cls.redisConn = redis.StrictRedis(host='localhost', port=6379, db=0)
+            cls.redisConn.flushdb()
+        except redis.exceptions.ConnectionError as e:
+            print( f"[Error]: Can not connect to REDIS: {e}" )
+
+        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerConnected )
+
+    @classmethod
+    def disconnect( cls ):
+        
+        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerDisconnected )
+        cls.redisConn.flushdb()
+        cls.redisConn.connection_pool.disconnect()
+
+    #####################################################
 
     @classmethod
     def sendAll( cls, netLink ):
