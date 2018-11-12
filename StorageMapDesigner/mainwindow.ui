@@ -197,6 +197,55 @@ selection-background-color: red;*/
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="dkView">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0" columnstretch="0,0,1" rowminimumheight="0,0,0" columnminimumwidth="0,0,0">
+     <item row="0" column="0">
+      <widget class="QLabel" name="lbGridSize">
+       <property name="text">
+        <string>Grid size:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QSpinBox" name="sbGridSize">
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="1">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="acFitToPage">
    <property name="icon">
     <iconset resource="images.qrc">

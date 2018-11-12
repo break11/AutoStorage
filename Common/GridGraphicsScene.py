@@ -52,8 +52,6 @@ class CGridGraphicsScene(QGraphicsScene):
         painter.drawLine( 0, -300, 0, 300 )
     
     def updateOrderedSelection(self):
-        #заготовка для функции, набивающей self.orderedSelection в порядке выделения
-
         selectedItems = self.selectedItems()
         itemsToPop = set(self.orderedSelection) - set(selectedItems)
         for item in itemsToPop:

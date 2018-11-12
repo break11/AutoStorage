@@ -129,6 +129,11 @@ class CSMD_MainWindow(QMainWindow):
     def on_acAddEdge_triggered(self):
         self.SGraf_Manager.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
 
+    @pyqtSlot(int)
+    def on_sbGridSize_valueChanged(self, value):
+        pass
+        # self.StorageMap_Scene.gridSize = value
+
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
