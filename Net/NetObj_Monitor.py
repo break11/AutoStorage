@@ -3,7 +3,7 @@ import os
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import ( QWidget )
-from PyQt5.QtCore import (QByteArray)
+from PyQt5.QtCore import (Qt, QByteArray)
 
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Widgets import ( CNetObj_WidgetsManager )
@@ -43,6 +43,17 @@ class CNetObj_Monitor(QWidget):
         if not geometry: return
 
         self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
+
+    def keyPressEvent( self, event ):
+        if ( event.key() != Qt.Key_Delete ): return
+
+        index = self.tvNetObj.selectionModel().currentIndex()
+
+        netObj = self.netObjModel.netObj_From_Index( index )
+        if not netObj: return
+        
+        print("Test delete tree element", netObj)
+        netObj.parent = None
 
     def closeEvent( self, event ):
         settings = CSM.opt( s_obj_monitor )

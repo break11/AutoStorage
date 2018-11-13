@@ -1,96 +1,10 @@
+# from . import NetObj_Manager
 
-from typing import Dict
+import sys
 
-import redis
 from anytree import NodeMixin
 
 from Common.SettingsManager import CSettingsManager as CSM
-
-
-s_Redis_CMD_Channel = "net-cmd"
-
-s_CMD_ServerConnected = "server_connected"
-s_CMD_ServerDisconnected = "server_disconnected"
-
-class CNetObj_Manager:
-    redisConn = None
-
-    __genTypeUID = 0
-    __netObj_Types : Dict[ int, object ] = {}
-
-    __genNetObj_UID = 0
-    __objects : Dict[ int, object ] = {}
-
-    @classmethod
-    def registerType(cls, netObjClass):
-        assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
-        cls.__genTypeUID += 1
-        cls.__netObj_Types[ cls.__genTypeUID ] = netObjClass
-        netObjClass.typeUID = cls.__genTypeUID
-        return cls.__genTypeUID
-
-    @classmethod
-    def netObj_Type(cls, netObjClass):
-        return cls.__netObj_Types[ netObjClass.typeUID ]
-
-    #####################################################
-
-    @classmethod
-    def genNetObj_UID( cls ):
-        cls.__genNetObj_UID += 1
-        return cls.__genNetObj_UID
-
-    @classmethod
-    def registerObj( cls, netObj ):
-        cls.__objects[ netObj.UID ] = netObj
-        if cls.isConnect():
-            CNetObj_Manager.sendNetCMD( f"obj_created:{netObj.UID}:{netObj.name}" )
-    
-    @classmethod
-    def unregisterObj( cls, netObj ):
-        del cls.__objects[ netObj.UID ]
-        if cls.isConnect():
-            CNetObj_Manager.sendNetCMD( f"obj_deleted:{netObj.UID}:{netObj.name}" )
-
-    #####################################################
-
-    redisConn = None
-    @classmethod
-    def connect( cls ):
-        try:
-            cls.redisConn = redis.StrictRedis(host='localhost', port=6379, db=0)
-            cls.redisConn.flushdb()
-        except redis.exceptions.ConnectionError as e:
-            print( f"[Error]: Can not connect to REDIS: {e}" )
-            return False
-
-        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerConnected )
-        return True
-
-    @classmethod
-    def disconnect( cls ):
-        if not cls.redisConn: return
-
-        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerDisconnected )
-        cls.redisConn.flushdb()
-        cls.redisConn.connection_pool.disconnect()
-        cls.redisConn = None
-
-    @classmethod
-    def isConnect( cls ): return not cls.redisConn is None
-
-    #####################################################
-
-    @classmethod
-    def sendNetCMD( cls, cmd ):
-        cls.redisConn.publish( s_Redis_CMD_Channel, cmd )
-
-    @classmethod
-    def sendAll( cls, netLink ):
-        for k, netObj in cls.__objects.items():
-            netObj.sendToNet( netLink )
-
-###############################################################################################
 
 class CNetObj( NodeMixin ):
     __sName    = "Name"
@@ -119,9 +33,7 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        print( "dest", self.UID, type(self) )
-        # for child in children:
-        #     print( children )
+        print("123")
         CNetObj_Manager.unregisterObj( self )
 
     @classmethod
@@ -186,3 +98,5 @@ class CGrafEdge_NO( CNetObj ):
         self.nxEdge = nxEdge
 
     def propsDict(self): return self.nxEdge
+
+from .NetObj_Manager import CNetObj_Manager

@@ -1,5 +1,3 @@
-import sys
-
 import networkx as nx
 
 from PyQt5.QtWidgets import ( QApplication, QWidget )
@@ -7,10 +5,9 @@ from PyQt5.QtWidgets import ( QApplication, QWidget )
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 from Net.NetObj import *
+from Net.NetObj_Manager import *
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj_Widgets import *
-
-from Net import NetObj_Monitor
 
 from anytree import AnyNode, NodeMixin, RenderTree
 import redis
@@ -31,7 +28,7 @@ class CNetCMDReader( threading.Thread ):
             msg = self.receiver.get_message(False, 0.5)
             if msg: print( msg )
 
-def registerNetNodeTypes():
+def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
     reg( CNetObj )
     reg( CGrafRoot_NO )
@@ -55,27 +52,19 @@ def loadStorageGraph( parentBranch ):
 
     # print( RenderTree(root) )
 
-def test():
-    rootObj2  = CNetObj(name="22222222222222222")
-    rootObj2 = None
-    del rootObj2
 
 def main():
-    test()
-
+    CSM.loadSettings()
+    
     class bAppWorking: pass
     bAppWorking.value = True
 
+    registerNetObjTypes()
+
     if not CNetObj_Manager.connect(): return
-    
-    CSM.loadSettings()
+    CNetObj_Manager.init()
 
-    registerNetNodeTypes()
-
-    rootObj  = CNetObj(name="root")
-
-
-    loadStorageGraph( rootObj )
+    loadStorageGraph( CNetObj_Manager.rootObj )
         
     # CNetObj_Manager.sendAll( r )
 
@@ -83,7 +72,7 @@ def main():
 
     if CNetObj_Monitor.enaledInOptions():
         objMonitor = CNetObj_Monitor()
-        objMonitor.setRootNetObj( rootObj )
+        objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
         registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
         objMonitor.show()
 
@@ -97,4 +86,5 @@ def main():
 
     bAppWorking.value = False
 
+    objMonitor.setRootNetObj( None )
     CNetObj_Manager.disconnect()
