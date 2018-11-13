@@ -10,6 +10,7 @@ class CGridGraphicsScene(QGraphicsScene):
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
         self.bDrawGrid = False
+        self.bSnapToGrid = False
         self.orderedSelection = [] #элементы в порядке выделения (стандартая функция selectedItems() возвращает в неопределенном порядке)
 
         self.selectionChanged.connect( self.updateOrderedSelection )
@@ -45,7 +46,7 @@ class CGridGraphicsScene(QGraphicsScene):
         painter.drawLines( lines )
 
         # рисуем короткие оси абсцисс и ординат в нулевой точке сцены для визуального ориентира
-        pen.setColor( Qt.blue )
+        pen.setColor( Qt.black )
         pen.setWidth( 10 )
         painter.setPen( pen )
         painter.drawLine( -300, 0, 300, 0 )

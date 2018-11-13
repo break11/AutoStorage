@@ -111,6 +111,10 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_Scene.bDrawGrid = bChecked
 
     @pyqtSlot(bool)
+    def on_acSnapToGrid_triggered(self, bChecked):
+        self.StorageMap_Scene.bSnapToGrid = bChecked
+
+    @pyqtSlot(bool)
     def on_acBBox_triggered(self, bChecked):
         self.SGraf_Manager.setDrawBBox(bChecked)
 

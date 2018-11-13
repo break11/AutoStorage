@@ -69,7 +69,21 @@ class CNode_SGItem(QGraphicsItem):
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
     def mouseMoveEvent( self, event ):
-        self.setPos( self.mapToScene( event.pos() ) )
+        # self.setPos( self.mapToScene( event.pos() ) )
+        pos = self.mapToScene (event.pos())
+
+        x = pos.x()
+        y = pos.y()
+        
+        if self.scene().bDrawGrid and self.scene().bSnapToGrid:
+            gridSize = self.scene().gridSize
+            snap_x = round( pos.x()/gridSize ) * gridSize
+            snap_y = round( pos.y()/gridSize ) * gridSize
+            if abs(x - snap_x) < gridSize/5:
+                x = snap_x
+            if abs(y - snap_y) < gridSize/5:
+                y = snap_y
+        self.setPos( x, y )
         self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.pos().x() )
         self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.pos().y() )
         self.scene().itemChanged.emit( self )
