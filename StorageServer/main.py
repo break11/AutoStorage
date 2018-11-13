@@ -37,8 +37,11 @@ def registerNetObjTypes():
 
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
-    nxGraf  = nx.read_graphml( CSM.opt( SC.s_storage_graph_file ) )
+    try:
+        nxGraf  = nx.read_graphml( CSM.opt( SC.s_storage_graph_file ) )
     # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
+    except Exception as e:
+        return
 
     Graf  = CGrafRoot_NO(name="Graf", parent=parentBranch, nxGraf=nxGraf)
     Nodes = CNetObj(name="Nodes", parent=Graf)
@@ -51,7 +54,6 @@ def loadStorageGraph( parentBranch ):
         edge = CGrafEdge_NO( name = str(edgeID), parent=Edges, nxEdge=nxGraf.edges()[edgeID] )
 
     # print( RenderTree(root) )
-
 
 def main():
     CSM.loadSettings()
@@ -86,5 +88,6 @@ def main():
 
     bAppWorking.value = False
 
-    objMonitor.setRootNetObj( None )
+    # objMonitor.setRootNetObj( None )
+    CNetObj_Manager.rootObj.clearChildren()
     CNetObj_Manager.disconnect()

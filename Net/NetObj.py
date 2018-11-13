@@ -33,8 +33,27 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        print("123")
+        # for child in self.children:
+        #     print( child )
+        #     child.parent = None
+
+        print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
+
+###################################################################################
+
+    def prepareDelete(self):
+        for child in self.children:
+            child.prepareDelete()
+            child.parent = None
+            child.children = []
+        self.parent = None
+
+    def clearChildren(self):
+        for child in self.children:
+            child.prepareDelete()
+
+###################################################################################
 
     @classmethod
     def modelDataColCount( cls ): return len( cls.__modelHeaderData )

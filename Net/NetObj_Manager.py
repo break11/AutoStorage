@@ -77,20 +77,13 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def disconnect( cls ):
-        for child in cls.rootObj.children:
-            # print( child )
-            child.parent = None
-        print( child, sys.getrefcount(child) )
-        del child
-        gc.collect()
-
         if not cls.redisConn: return
         
         cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerDisconnected )
         cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None
-        print("111111111111111111111111111")
+        print( cls, "disconnect")
     @classmethod
     def isConnected( cls ): return not cls.redisConn is None
 
