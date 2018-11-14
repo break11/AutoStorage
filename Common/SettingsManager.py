@@ -1,22 +1,20 @@
 
 import os
 import sys
-from __main__ import __file__ as baseFName
 import json
 
 from typing import Dict
+from .FileUtils import *
 
 def settingsDir():
-    return os.path.abspath( os.curdir ) +  "/Settings/"
-    
-def mainAppBaseName():
-    return os.path.basename( baseFName ).replace( ".py", "" )
+    return projectDir() + "/Settings/"
 
 def settingsFName():
     return settingsDir() + mainAppBaseName() + ".json"
 
 def defSettingsFName():
     return os.path.abspath( os.curdir ) + "/" + mainAppBaseName() + "/def_settings.json"
+
 
 class CSettingsManager():
     options : Dict[str, str] = {} # MyPy Hack

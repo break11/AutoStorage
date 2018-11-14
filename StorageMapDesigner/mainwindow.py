@@ -10,6 +10,8 @@ from Common.GV_Wheel_Zoom_EventFilter import *
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
+from Common.FileUtils import *
+
 # Storage Map Designer Main Window
 class CSMD_MainWindow(QMainWindow):
     __file_filters = "GraphML (*.graphml);;All Files (*)"
@@ -57,6 +59,7 @@ class CSMD_MainWindow(QMainWindow):
         self.graphML_fname = sFName
         self.SGraf_Manager.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
+        CSM.options[ SC.s_last_opened_file ] = sFName
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
@@ -104,12 +107,18 @@ class CSMD_MainWindow(QMainWindow):
     def on_acBBox_triggered(self, bChecked):
         self.SGraf_Manager.setDrawBBox( bChecked )
 
+    def doSaveLoad(self, path, func):
+        if path == "": return
+        if path.startswith( projectDir() ):
+            path = path.replace( projectDir(), "" )
+        func( path )
+
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path != "" : self.loadGraphML( path )
+        self.doSaveLoad(path, self.loadGraphML)
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path != "" : self.saveGraphML( path )
+        self.doSaveLoad(path, self.saveGraphML)

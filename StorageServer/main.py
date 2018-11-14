@@ -11,6 +11,7 @@ from Net.NetObj_Widgets import *
 
 from anytree import AnyNode, NodeMixin, RenderTree
 import redis
+import os
 
 import threading
 
@@ -37,11 +38,14 @@ def registerNetObjTypes():
 
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
-    try:
-        nxGraf  = nx.read_graphml( CSM.opt( SC.s_storage_graph_file ) )
-    # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
-    except Exception as e:
+
+    sFName = CSM.opt( SC.s_storage_graph_file )
+    if not os.path.exists( sFName ):
+        print( f"[Warning]: GraphML file not found '{sFName}'!" )
         return
+
+    nxGraf  = nx.read_graphml( sFName )
+    # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
 
     Graf  = CGrafRoot_NO(name="Graf", parent=parentBranch, nxGraf=nxGraf)
     Nodes = CNetObj(name="Nodes", parent=Graf)
