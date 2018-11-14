@@ -54,6 +54,9 @@ selection-color: black;
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
+      <property name="rootIsDecorated">
+       <bool>false</bool>
+      </property>
      </widget>
      <widget class="QScrollArea" name="saNetObj">
       <property name="minimumSize">
@@ -82,8 +85,8 @@ selection-color: black;
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>298</width>
-         <height>626</height>
+         <width>296</width>
+         <height>624</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout"/>

@@ -1,5 +1,3 @@
-import sys
-
 import networkx as nx
 
 from PyQt5.QtWidgets import ( QApplication, QWidget )
@@ -7,13 +5,13 @@ from PyQt5.QtWidgets import ( QApplication, QWidget )
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 from Net.NetObj import *
+from Net.NetObj_Manager import *
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj_Widgets import *
 
-from Net import NetObj_Monitor
-
 from anytree import AnyNode, NodeMixin, RenderTree
 import redis
+import os
 
 import threading
 
@@ -31,7 +29,7 @@ class CNetCMDReader( threading.Thread ):
             msg = self.receiver.get_message(False, 0.5)
             if msg: print( msg )
 
-def registerNetNodeTypes():
+def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
     reg( CNetObj )
     reg( CGrafRoot_NO )
@@ -40,7 +38,13 @@ def registerNetNodeTypes():
 
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
-    nxGraf  = nx.read_graphml( CSM.opt( SC.s_storage_graph_file ) )
+
+    sFName = CSM.opt( SC.s_storage_graph_file )
+    if not os.path.exists( sFName ):
+        print( f"[Warning]: GraphML file not found '{sFName}'!" )
+        return
+
+    nxGraf  = nx.read_graphml( sFName )
     # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
 
     Graf  = CGrafRoot_NO(name="Graf", parent=parentBranch, nxGraf=nxGraf)
@@ -56,28 +60,27 @@ def loadStorageGraph( parentBranch ):
     # print( RenderTree(root) )
 
 def main():
+    CSM.loadSettings()
+    
     class bAppWorking: pass
     bAppWorking.value = True
 
+    registerNetObjTypes()
+
     if not CNetObj_Manager.connect(): return
-    CNetObj_Manager.disconnect()
-    
-    CSM.loadSettings()
+    CNetObj_Manager.init()
 
-    registerNetNodeTypes()
-
-    rootObj  = CNetObj(name="root")
-    loadStorageGraph( rootObj )
+    loadStorageGraph( CNetObj_Manager.rootObj )
         
     # CNetObj_Manager.sendAll( r )
 
     app = QApplication(sys.argv)
 
-    # if CSM.opt( SC.s_obj_monitor ):
-    objMonitor = CNetObj_Monitor()
-    objMonitor.setRootNetObj( rootObj )
-    registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
-    objMonitor.show()
+    if CNetObj_Monitor.enaledInOptions():
+        objMonitor = CNetObj_Monitor()
+        objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
+        registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
+        objMonitor.show()
 
     # netReader = CNetCMDReader( r, bAppWorking )
     # netReader.setDaemon(True)
@@ -89,4 +92,6 @@ def main():
 
     bAppWorking.value = False
 
+    # objMonitor.setRootNetObj( None )
+    CNetObj_Manager.rootObj.clearChildren()
     CNetObj_Manager.disconnect()

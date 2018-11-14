@@ -3,6 +3,7 @@
 from PyQt5.QtCore import ( Qt, QAbstractItemModel, QModelIndex )
 
 from .NetObj import *
+from .NetObj_Manager import CNetObj_Manager
 
 class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
@@ -11,6 +12,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
     def setRootNetObj( self, rootNetObj ):
         self.__rootNetObj = rootNetObj
+        self.modelReset.emit()
 
     def index( self, row, column, parent ):
         if not self.hasIndex( row, column, parent ):
@@ -20,7 +22,7 @@ class CNetObj_Model( QAbstractItemModel ):
         child  = parent.children[ row ]
 
         if child:
-            return self.createIndex( row, column, child )
+            return self.createIndex( row, column, child.UID )
         else:
             return QModelIndex()
 
@@ -46,7 +48,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
     def columnCount( self, parentIndex ): return CNetObj.modelDataColCount()
     
-    def netObj_From_Index( self, index ): return index.internalPointer()
+    def netObj_From_Index( self, index ): return CNetObj_Manager.accessObj( index.internalId() )
         
 
     def netObj_To_Index( self, netObj ):
@@ -57,11 +59,11 @@ class CNetObj_Model( QAbstractItemModel ):
         
         indexInParent = parentNetObj.children.index( netObj )
 
-        return self.createIndex( indexInParent, 0, netObj )
+        return self.createIndex( indexInParent, 0, netObj.UID )
 
     def getNetObj_or_Root( self, index ):
         if index.isValid():
-            return index.internalPointer()
+            return CNetObj_Manager.accessObj( index.internalId() )
         else:
             return self.__rootNetObj
 
@@ -83,3 +85,14 @@ class CNetObj_Model( QAbstractItemModel ):
                 
     def flags( self, index ):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
+    def removeRows ( self, row, count, parent ):
+        netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
+        
+        self.beginRemoveRows( parent, row, row )
+        netObj.prepareDelete()
+        self.endRemoveRows()
+
+        self.dataChanged.emit( parent, parent )
+
+        return True

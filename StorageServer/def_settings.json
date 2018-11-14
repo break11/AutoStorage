@@ -1,5 +1,5 @@
 {
-    "storage_graph_file": "/home/break1/Projects/ChelnokSklad/GraphML/test.graphml",
+    "storage_graph_file": "GraphML/test.graphml",
     "obj_monitor": {
         "active": true,
         "window": {

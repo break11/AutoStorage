@@ -3,12 +3,6 @@ from PyQt5.QtWidgets import ( QGraphicsView )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtCore import (Qt, QRectF)
 
-import os
-
-def graphML_Path():
-    # return os.path.dirname( __file__ ) + "/GraphML/"
-    return os.curdir + "/GraphML/"
-
 # хелперная функция создание итема стандартной модели с дополнительными параметрами
 def Std_Model_Item( val, bReadOnly = False, userData = None ):
     item = QStandardItem()

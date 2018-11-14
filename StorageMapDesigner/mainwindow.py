@@ -13,6 +13,7 @@ import Common.StrConsts as SC
 import sys
 sys.path.append( "./QtCustomWidgets/widgets" ) #Путь к кастомным виджетам для загрузки через .ui
 
+from Common.FileUtils import *
 
 # Storage Map Designer Main Window
 class CSMD_MainWindow(QMainWindow):
@@ -71,6 +72,7 @@ class CSMD_MainWindow(QMainWindow):
         self.graphML_fname = sFName
         self.SGraf_Manager.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
+        CSM.options[ SC.s_last_opened_file ] = sFName
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
@@ -153,12 +155,18 @@ class CSMD_MainWindow(QMainWindow):
     def on_sbGridSize_valueChanged(self, value):
         self.StorageMap_Scene.gridSize = value
 
+    def doSaveLoad(self, path, func):
+        if path == "": return
+        if path.startswith( projectDir() ):
+            path = path.replace( projectDir(), "" )
+        func( path )
+
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path != "" : self.loadGraphML( path )
+        self.doSaveLoad(path, self.loadGraphML)
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path != "" : self.saveGraphML( path )
+        self.doSaveLoad(path, self.saveGraphML)
