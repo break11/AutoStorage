@@ -1,0 +1,5 @@
+redis==2.10.6
+anytree==2.4.3
+networkx==1.11
+PyQt5==5.11.3
+typing==3.6.6
