@@ -10,6 +10,10 @@ from Common.GV_Wheel_Zoom_EventFilter import *
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
+import sys
+sys.path.append( "./QtCustomWidgets/widgets" ) #Путь к кастомным виджетам для загрузки через .ui
+
+
 # Storage Map Designer Main Window
 class CSMD_MainWindow(QMainWindow):
     __file_filters = "GraphML (*.graphml);;All Files (*)"
