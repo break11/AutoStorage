@@ -54,8 +54,8 @@ selection-color: black;
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
-      <property name="rootIsDecorated">
-       <bool>false</bool>
+      <property name="indentation">
+       <number>25</number>
       </property>
      </widget>
      <widget class="QScrollArea" name="saNetObj">

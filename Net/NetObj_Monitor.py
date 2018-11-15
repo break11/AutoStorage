@@ -88,5 +88,7 @@ class CNetObj_Monitor(QWidget):
         self.netObjModel.setRootNetObj( root )
 
         self.tvNetObj.expandAll()
-        self.tvNetObj.resizeColumnToContents( 0 )
+
+        for col in range( 0, self.tvNetObj.header().count() ):
+            self.tvNetObj.resizeColumnToContents( col )
 

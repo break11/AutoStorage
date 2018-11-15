@@ -1,3 +1,21 @@
+
+# from enum import Enum
+
+# class ExistingEnum(Enum):
+#     pass
+
+# names = [m.name for m in ExistingEnum] + ['newname1', 'newname2']
+
+
+# ExistingEnum = Enum('ExistingEnum', names)
+
+
+# print( hash( "CNetObj" ) )
+# print( hash( "CNet_Graf" ) )
+# print( hash( "CNet_Node" ) )
+# print( hash( "CNet_Edge" ) )
+# print( hash( "CNetObj" ) )
+
 # import socket
 
 # sock = socket.socket()
@@ -329,14 +347,24 @@
 # print( c.__dict__ )
 
 # from collections import namedtuple
-# Car = namedtuple('Car', 'color mileage')
+# Car = namedtuple('Car', 'color111 mileage')
+# Car1 = namedtuple('Car', 'color mileage')
 
-# # Our new "Car" class works as expected:
+# print( type(Car) )
+# print( type(Car1) )
+
+# # # Our new "Car" class works as expected:
 # my_car = Car('red', 3812.4)
-# print( my_car.color )
+# my_car1 = Car1('red', 3812.4)
+# print( my_car )
+# print( my_car1 )
+#  print( my_car.color )
 # # 'red'
 # print( my_car.mileage )
 # # 3812.4
+# print( my_car.__class__.__name__ )
+
+# car = Car('red_1', 3812.4)
 
 # # We get a nice string repr for free:
 # print( my_car )
@@ -596,8 +624,8 @@
 # print( t.__test1__ )
 
 
-def fu(i):
-    print (50/i)
+# def fu(i):
+#     print (50/i)
 
 
 # try:

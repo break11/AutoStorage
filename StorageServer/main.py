@@ -67,6 +67,7 @@ def main():
 
     registerNetObjTypes()
 
+    CNetObj_Manager.clientID = -1 # признак того, что сервер
     if not CNetObj_Manager.connect(): return
     CNetObj_Manager.init()
 

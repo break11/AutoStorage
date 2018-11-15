@@ -5,29 +5,32 @@ import weakref
 import redis
 import gc
 
-s_Redis_CMD_Channel      = "net-cmd"
+s_Redis_CMD_Channel = "net-cmd"
 
-s_CMD_ServerConnected    = "server_connected"
-s_CMD_ServerDisconnected = "server_disconnected"
+s_Client            = "client"
+s_CMD_Connected     = "connected"
+s_CMD_Disconnected  = "disconnected"
+s_CMD_Obj_Created   = "obj:created"
+s_CMD_Obj_Deleted   = "obj:deleted"
+s_CMD_Obj_Updated   = "obj:updated"
 
-s_NetObj_UID = "obj_UID"
+s_NetObj_UID = "obj_uid_gen"
+s_Client_UID = "client_uid_gen"
+
+s_ObjectsSet = "objects_set"
 
 class CNetObj_Manager( object ):
     redisConn = None
+    clientID  = None
 
-    __genTypeUID = 0
     __netObj_Types : Dict[ int, object ] = {}
 
-    __genNetObj_UID = 0
     __objects : weakref.WeakValueDictionary = weakref.WeakValueDictionary() # for type annotation from mypy linter warning done
 
     @classmethod
     def registerType(cls, netObjClass):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
-        cls.__genTypeUID += 1
-        cls.__netObj_Types[ cls.__genTypeUID ] = netObjClass
-        netObjClass.typeUID = cls.__genTypeUID
-        return cls.__genTypeUID
+        cls.__netObj_Types[ netObjClass.typeUID ] = netObjClass
 
     @classmethod
     def netObj_Type(cls, netObjClass):
@@ -41,21 +44,22 @@ class CNetObj_Manager( object ):
             raise redis.exceptions.ConnectionError("[Error]: Can't get generator value from redis! No connection!")
 
         cls.__genNetObj_UID = cls.redisConn.incr( s_NetObj_UID, 1 )
-        print( cls.__genNetObj_UID )
 
         return cls.__genNetObj_UID
 
     @classmethod
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
-        if cls.isConnected():
-            CNetObj_Manager.sendNetCMD( f"obj_created:{netObj.UID}:{netObj.name}" )
+        if cls.isConnected() and netObj.UID > 0:
+            CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
+            CNetObj_Manager.sendNetCMD( f"{s_Client}:{cls.clientID}:{s_CMD_Obj_Created}:{netObj.UID}:{netObj.name}" )
     
     @classmethod
     def unregisterObj( cls, netObj ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
-        if cls.isConnected():
-            CNetObj_Manager.sendNetCMD( f"obj_deleted:{netObj.UID}:{netObj.name}" )
+        if cls.isConnected() and netObj.UID > 0:
+            CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
+            CNetObj_Manager.sendNetCMD( f"{s_Client}:{cls.clientID}:{s_CMD_Obj_Deleted}:{netObj.UID}:{netObj.name}" )
 
     @classmethod
     def accessObj( cls, UID ):
@@ -66,7 +70,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def init(cls):
         # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
-        cls.rootObj = CNetObj(name="root")
+        cls.rootObj = CNetObj(name="root", id=-1)
 
     @classmethod
     def connect( cls ):
@@ -77,14 +81,16 @@ class CNetObj_Manager( object ):
             print( f"[Error]: Can not connect to REDIS: {e}" )
             return False
 
-        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerConnected )
+        if cls.clientID is None:
+            cls.clientID = cls.redisConn.incr( s_Client_UID, 1 )
+        cls.redisConn.publish( s_Redis_CMD_Channel, f"{s_Client}:{cls.clientID}:{s_CMD_Connected}" )
         return True
 
     @classmethod
     def disconnect( cls ):
         if not cls.redisConn: return
         
-        cls.redisConn.publish( s_Redis_CMD_Channel, s_CMD_ServerDisconnected )
+        cls.redisConn.publish( s_Redis_CMD_Channel, f"{s_Client}:{cls.clientID}:{s_CMD_Disconnected}" )
         cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None

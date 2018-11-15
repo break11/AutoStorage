@@ -7,33 +7,35 @@ from anytree import NodeMixin
 from Common.SettingsManager import CSettingsManager as CSM
 
 class CNetObj( NodeMixin ):
-    __sName    = "Name"
-    __sUID     = "UID"
-    __sType    = "Type"
-    __sTypeUID = "TypeUID"
-    __modelHeaderData = [ __sName, __sUID, __sType, __sTypeUID, ]
+    __sName     = "Name"
+    __sUID      = "UID"
+    __sTypeName = "TypeName"
+    __sTypeUID  = "TypeUID"
+    __modelHeaderData = [ __sName, __sUID, __sTypeName, __sTypeUID, ]
+    __sParent   = "Parent"
 
-    typeUID = 0 # fill after registration --> registerType
+    typeUID = 0 # hash of the class name - fill in instance init
 
-    def __init__( self, name="", parent=None ):
+    def __init__( self, name="", parent=None, id=None ):
         super().__init__()
-        self.UID     = CNetObj_Manager.genNetObj_UID()
+        self.UID     = id if id else CNetObj_Manager.genNetObj_UID()
         self.name    = name
         self.parent  = parent
         self.isUpdated = False
+        self.__class__.typeUID = hash( self.__class__.__name__ )
 
         hd = self.__modelHeaderData
         self.__modelData = {
-                            hd.index( self.__sName    ) : self.name,
-                            hd.index( self.__sUID     ) : self.UID,
-                            hd.index( self.__sType    ) : self.__class__.__name__,
-                            hd.index( self.__sTypeUID ) : self.typeUID,
+                            hd.index( self.__sName     ) : self.name,
+                            hd.index( self.__sUID      ) : self.UID,
+                            hd.index( self.__sTypeName ) : self.__class__.__name__,
+                            hd.index( self.__sTypeUID  ) : self.typeUID,
                             }
 
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        print("CNetObj destructor", self)
+        # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
 ###################################################################################
@@ -61,8 +63,12 @@ class CNetObj( NodeMixin ):
 
 ###################################################################################
     def sendToNet( self, netLink ):
-        netLink.set( f"obj:{self.UID}:{self.name}", self.name )
-        netLink.set( f"obj:{self.UID}:{self.__class__.typeUID}", self.__class__.typeUID )
+        hd = self.__modelHeaderData
+
+        netLink.set( f"obj:{self.UID}:{self.__sName}",    self.__modelData[ hd.index( self.__sName    ) ] )
+        netLink.set( f"obj:{self.UID}:{self.__sTypeUID}", self.__modelData[ hd.index( self.__sTypeUID ) ] )
+        parent = self.parent.UID if self.parent else None
+        netLink.set( f"obj:{self.UID}:{self.__sParent}", parent )
 
     def afterLoad( self ):
         pass
