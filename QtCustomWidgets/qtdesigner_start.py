@@ -9,7 +9,7 @@ from PyQt5.QtCore import QProcess, QProcessEnvironment
 # Python where it can find the widgets.
 base = os.path.dirname(__file__)
 env = QProcessEnvironment.systemEnvironment()
-env.insert('PYQTDESIGNERPATH', os.path.join(base, 'python'))
+env.insert('PYQTDESIGNERPATH', os.path.join(base, 'plugins'))
 env.insert('PYTHONPATH', os.path.join(base, 'widgets'))
 
 # Start Designer.
