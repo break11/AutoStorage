@@ -33,10 +33,6 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        # for child in self.children:
-        #     print( child )
-        #     child.parent = None
-
         print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
@@ -63,6 +59,7 @@ class CNetObj( NodeMixin ):
 
     def propsDict(self): raise NotImplementedError
 
+###################################################################################
     def sendToNet( self, netLink ):
         netLink.set( f"obj:{self.UID}:{self.name}", self.name )
         netLink.set( f"obj:{self.UID}:{self.__class__.typeUID}", self.__class__.typeUID )

@@ -72,7 +72,7 @@ def main():
 
     loadStorageGraph( CNetObj_Manager.rootObj )
         
-    # CNetObj_Manager.sendAll( r )
+    CNetObj_Manager.sendAll()
 
     app = QApplication(sys.argv)
 
@@ -82,9 +82,9 @@ def main():
         registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
         objMonitor.show()
 
-    # netReader = CNetCMDReader( r, bAppWorking )
-    # netReader.setDaemon(True)
-    # netReader.start()
+    netReader = CNetCMDReader( CNetObj_Manager.redisConn, bAppWorking )
+    netReader.setDaemon(True)
+    netReader.start()
 
     app.exec_()
 
@@ -92,6 +92,6 @@ def main():
 
     bAppWorking.value = False
 
-    # objMonitor.setRootNetObj( None )
-    CNetObj_Manager.rootObj.clearChildren()
+    # удаление объектов до димсконнекта, чтобы в сеть попали команды удаления объектов ( для других клиентов )
+    CNetObj_Manager.rootObj.clearChildren() 
     CNetObj_Manager.disconnect()

@@ -10,6 +10,8 @@ s_Redis_CMD_Channel      = "net-cmd"
 s_CMD_ServerConnected    = "server_connected"
 s_CMD_ServerDisconnected = "server_disconnected"
 
+s_NetObj_UID = "obj_UID"
+
 class CNetObj_Manager( object ):
     redisConn = None
 
@@ -38,7 +40,9 @@ class CNetObj_Manager( object ):
         if not cls.isConnected():
             raise redis.exceptions.ConnectionError("[Error]: Can't get generator value from redis! No connection!")
 
-        cls.__genNetObj_UID += 1
+        cls.__genNetObj_UID = cls.redisConn.incr( s_NetObj_UID, 1 )
+        print( cls.__genNetObj_UID )
+
         return cls.__genNetObj_UID
 
     @classmethod
@@ -61,6 +65,7 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def init(cls):
+        # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
         cls.rootObj = CNetObj(name="root")
 
     @classmethod
@@ -94,8 +99,11 @@ class CNetObj_Manager( object ):
         cls.redisConn.publish( s_Redis_CMD_Channel, cmd )
 
     @classmethod
-    def sendAll( cls, netLink ):
+    def sendAll( cls ):
+        if not cls.isConnected():
+            raise redis.exceptions.ConnectionError("[Error]: Can't get send data to redis! No connection!")
+
         for k, netObj in cls.__objects.items():
-            netObj.sendToNet( netLink )
+            netObj.sendToNet( cls.redisConn )
 
 from .NetObj import CNetObj
