@@ -33,6 +33,7 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
         self.objProps.itemChanged.connect( self.objProps_itemChanged )
         self.StorageMap_Scene.itemChanged.connect( self.itemChangedOnScene )
+        # self.actionButton.clicked.connect (self.on_actionButton_clicked)
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
@@ -170,3 +171,7 @@ class CSMD_MainWindow(QMainWindow):
     def on_acSaveGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
         self.doSaveLoad(path, self.saveGraphML)
+
+    # @pyqtSlot()
+    # def on_actionButton_clicked(self):
+    #     print ("!!!!!!!!!!!!!")
