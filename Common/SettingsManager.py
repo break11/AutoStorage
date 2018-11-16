@@ -7,7 +7,7 @@ from typing import Dict
 from .FileUtils import *
 
 def settingsDir():
-    return projectDir() + "/Settings/"
+    return projectDir() + "Settings/"
 
 def settingsFName():
     return settingsDir() + mainAppBaseName() + ".json"

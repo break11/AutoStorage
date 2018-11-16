@@ -1,3 +1,19 @@
+from threading import *
+from time import *
+
+done = Lock()
+
+def idle_release():
+    print("Running!")
+    sleep(15)
+    done.release()
+
+done.acquire()
+
+Thread(target=idle_release).start()
+
+done.acquire() and print("WAT?")
+
 
 # from enum import Enum
 

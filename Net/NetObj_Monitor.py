@@ -11,6 +11,8 @@ from .NetObj_Widgets import ( CNetObj_WidgetsManager )
 from Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
 
+from __main__ import __file__ as baseFName
+
 _strList = [
             "obj_monitor",
             "active",
@@ -40,9 +42,10 @@ class CNetObj_Monitor(QWidget):
 
         settings = CSM.opt( s_obj_monitor )
         geometry = settings[ s_window ][ s_geometry ]
-        if not geometry: return
+        if geometry:
+            self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
+        self.setWindowTitle( self.windowTitle() + " " + baseFName.rsplit(os.sep, 1)[1] )
 
     def keyPressEvent( self, event ):
         if ( event.key() != Qt.Key_Delete ): return
