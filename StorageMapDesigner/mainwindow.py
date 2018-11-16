@@ -167,9 +167,9 @@ class CSMD_MainWindow(QMainWindow):
     def on_acAddEdge_triggered(self):
         self.SGraf_Manager.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
 
-    @pyqtSlot(int)
-    def on_sbGridSize_valueChanged(self, value):
-        self.StorageMap_Scene.gridSize = value
+    @pyqtSlot()
+    def on_sbGridSize_editingFinished(self):
+        self.StorageMap_Scene.gridSize = self.sbGridSize.value()
 
     def doSaveLoad(self, path, func):
         if path == "": return

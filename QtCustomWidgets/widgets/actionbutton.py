@@ -29,7 +29,7 @@ class CActionButton(QPushButton):
         self.clicked.disconnect()
 
     def updateButtonStatusFromAction(self):
-        # self.setText(self.buttonQAction.text())
+        self.setText("")
         self.setStatusTip(self.buttonQAction.statusTip())
         self.setToolTip(self.buttonQAction.toolTip())
         self.setIcon(self.buttonQAction.icon())
