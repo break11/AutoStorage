@@ -63,12 +63,14 @@ class CNetObj( NodeMixin ):
 
 ###################################################################################
     def sendToNet( self, netLink ):
+        if self.UID < 0: return
+
         hd = self.__modelHeaderData
 
         netLink.set( f"obj:{self.UID}:{self.__sName}",    self.__modelData[ hd.index( self.__sName    ) ] )
         netLink.set( f"obj:{self.UID}:{self.__sTypeUID}", self.__modelData[ hd.index( self.__sTypeUID ) ] )
         parent = self.parent.UID if self.parent else None
-        netLink.set( f"obj:{self.UID}:{self.__sParent}", parent )
+        netLink.set( f"obj:{self.UID}:{self.__sParent}", self.parent.UID )
 
     def afterLoad( self ):
         pass

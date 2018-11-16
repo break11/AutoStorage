@@ -28,6 +28,7 @@ class CNetCMDReader( threading.Thread ):
     
     def run(self):
         while not self.bStop:
+            # print( threading.get_ident() )
             # print("Hello from the thread!", self.bAppWorking.value)
             msg = self.receiver.get_message(False, 0.5)
             if msg: print( msg )
@@ -63,6 +64,8 @@ def registerNetObjTypes():
 #     # print( RenderTree(root) )
 
 def main():
+    # print( threading.get_ident() )
+
     CSM.loadSettings()
     
     registerNetObjTypes()
