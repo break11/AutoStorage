@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -230,7 +230,7 @@ selection-background-color: red;*/
        </property>
       </spacer>
      </item>
-     <item row="0" column="4">
+     <item row="0" column="3">
       <widget class="QSpinBox" name="sbGridSize">
        <property name="maximum">
         <number>1000</number>
@@ -238,7 +238,7 @@ selection-background-color: red;*/
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QPushButton" name="pbGrid">
+      <widget class="CActionButton" name="abGrid">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -275,7 +275,7 @@ selection-background-color: red;*/
        </property>
       </widget>
      </item>
-     <item row="3" column="4">
+     <item row="3" column="3">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -288,7 +288,7 @@ selection-background-color: red;*/
        </property>
       </spacer>
      </item>
-     <item row="2" column="0" colspan="5">
+     <item row="2" column="0" colspan="4">
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -296,7 +296,7 @@ selection-background-color: red;*/
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QPushButton" name="pbSnapToGrid">
+      <widget class="CActionButton" name="abSnapToGrid">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -334,7 +334,7 @@ selection-background-color: red;*/
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QPushButton" name="pbBBox">
+      <widget class="CActionButton" name="abBBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -567,105 +567,15 @@ selection-background-color: red;*/
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CActionButton</class>
+   <extends>QPushButton</extends>
+   <header>actionbutton</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="images.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>pbGrid</sender>
-   <signal>clicked()</signal>
-   <receiver>acGrid</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>229</x>
-     <y>145</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbBBox</sender>
-   <signal>clicked()</signal>
-   <receiver>acBBox</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>62</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbSnapToGrid</sender>
-   <signal>clicked()</signal>
-   <receiver>acSnapToGrid</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>100</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>acBBox</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>pbBBox</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>62</x>
-     <y>147</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>acGrid</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>pbGrid</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>24</x>
-     <y>147</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>acSnapToGrid</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>pbSnapToGrid</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>62</x>
-     <y>147</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import (pyqtSlot, QByteArray)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog )
+from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QAction )
 from PyQt5 import uic
 
 from Common.StorageGraf_GScene_Manager import *
@@ -12,6 +12,7 @@ import Common.StrConsts as SC
 
 import sys
 sys.path.append( "./QtCustomWidgets/widgets" ) #Путь к кастомным виджетам для загрузки через .ui
+import actionbutton #есть путь к виджетам(см выше) если ипортить через'from QtCustomWidgets.widgets import actionbutton' будут двойные имена
 
 from Common.FileUtils import *
 
@@ -55,6 +56,20 @@ class CSMD_MainWindow(QMainWindow):
             self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid]        
         #ui
         self.sbGridSize.setValue(self.StorageMap_Scene.gridSize)
+        self.connect_ActionsToButtons_byName()
+
+    def connect_ActionsToButtons_byName(self):
+        actionsList = self.findChildren(QAction)
+        buttonsList = self.findChildren(actionbutton.CActionButton)
+
+        actionsDict = {}
+        for a in actionsList:
+            actionsDict[ a.objectName()[2::] ] = a #имя без префикса, т.е. acGrid[2::] == Grid
+
+        for b in buttonsList:
+            a = actionsDict.get( b.objectName()[2::] )
+            if a is not None:
+                b.setAction( a )
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
