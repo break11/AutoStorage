@@ -1,6 +1,7 @@
 import networkx as nx
 
 from PyQt5.QtWidgets import ( QApplication, QWidget )
+from PyQt5.QtCore import ( QTimer )
 
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
@@ -14,24 +15,36 @@ import redis
 import os
 
 import threading
+import queue
 
 class CNetCMDReader( threading.Thread ):
-    def __init__(self, netLink):
+    def __init__(self, netLink, q):
         super().__init__()
+        self.setDaemon(True)
         self.r = netLink
         self.receiver = netLink.pubsub()
         self.receiver.subscribe('net-cmd')
-        self.bStop = False
-
-    def terminate(self):
-        print( "test" )
+        self.__bIsRunning = False
+        self.__bStop = False
+        self.q = q
     
     def run(self):
-        while not self.bStop:
+        self.__bStop = False
+        self.__bIsRunning = True
+        while self.__bIsRunning:
             # print( threading.get_ident() )
             # print("Hello from the thread!", self.bAppWorking.value)
             msg = self.receiver.get_message(False, 0.5)
-            if msg: print( msg )
+            if msg:
+                print( msg )
+                self.q.put( msg )
+
+            if self.__bStop: self.__bIsRunning = False
+
+    def stop(self):
+        self.__bStop = True
+        while self.__bIsRunning: pass
+        
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -63,6 +76,18 @@ def registerNetObjTypes():
 
 #     # print( RenderTree(root) )
 
+class CBaseApplication( QApplication ):
+    def __init__(self, argv ):
+        super().__init__( argv )
+        self.timer = QTimer()
+        self.timer.timeout.connect( self.onTick )
+        self.timer.start()
+
+    def onTick(self):
+        print( "tick" )
+
+
+
 def main():
     # print( threading.get_ident() )
 
@@ -78,7 +103,7 @@ def main():
         
     CNetObj_Manager.sendAll()
 
-    app = QApplication(sys.argv)
+    app = CBaseApplication(sys.argv)
 
     if CNetObj_Monitor.enaledInOptions():
         objMonitor = CNetObj_Monitor()
@@ -86,15 +111,18 @@ def main():
         registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
         objMonitor.show()
 
-    netReader = CNetCMDReader( CNetObj_Manager.redisConn )
-    netReader.setDaemon(True)
+    q = queue.Queue()
+    netReader = CNetCMDReader( CNetObj_Manager.redisConn, q )
     netReader.start()
+
+    # while not q.empty(): process( q )
+    # process 
 
     app.exec_()
 
     CSM.saveSettings()
 
-    netReader.bStop = True
+    netReader.stop()
 
     CNetObj_Manager.disconnect()
     # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
