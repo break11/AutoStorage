@@ -260,10 +260,6 @@ selection-background-color: red;*/
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="images.qrc">
-         <normaloff>:/images/grid.png</normaloff>:/images/grid.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>32</width>
@@ -272,6 +268,9 @@ selection-background-color: red;*/
        </property>
        <property name="checkable">
         <bool>true</bool>
+       </property>
+       <property name="Action" stdset="0">
+        <string>acGrid</string>
        </property>
       </widget>
      </item>
@@ -318,10 +317,6 @@ selection-background-color: red;*/
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="images.qrc">
-         <normaloff>:/images/snap_to_grid.png</normaloff>:/images/snap_to_grid.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>32</width>
@@ -330,6 +325,9 @@ selection-background-color: red;*/
        </property>
        <property name="checkable">
         <bool>true</bool>
+       </property>
+       <property name="Action" stdset="0">
+        <string>acSnapToGrid</string>
        </property>
       </widget>
      </item>
@@ -356,10 +354,6 @@ selection-background-color: red;*/
        <property name="text">
         <string/>
        </property>
-       <property name="icon">
-        <iconset resource="images.qrc">
-         <normaloff>:/images/bbox.png</normaloff>:/images/bbox.png</iconset>
-       </property>
        <property name="iconSize">
         <size>
          <width>32</width>
@@ -368,6 +362,9 @@ selection-background-color: red;*/
        </property>
        <property name="checkable">
         <bool>true</bool>
+       </property>
+       <property name="Action" stdset="0">
+        <string>acBBox</string>
        </property>
       </widget>
      </item>

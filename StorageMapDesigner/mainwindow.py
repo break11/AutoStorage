@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import (pyqtSlot, QByteArray)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QAction )
+from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QAction)
 from PyQt5 import uic
 
 from Common.StorageGraf_GScene_Manager import *
@@ -34,7 +34,6 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
         self.objProps.itemChanged.connect( self.objProps_itemChanged )
         self.StorageMap_Scene.itemChanged.connect( self.itemChangedOnScene )
-        # self.actionButton.clicked.connect (self.on_actionButton_clicked)
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGraf_Manager = CStorageGraf_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
@@ -54,22 +53,12 @@ class CSMD_MainWindow(QMainWindow):
 
         if sceneSettings:
             self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid]        
-        #ui
+        
+        #setup ui
         self.sbGridSize.setValue(self.StorageMap_Scene.gridSize)
-        self.connect_ActionsToButtons_byName()
 
-    def connect_ActionsToButtons_byName(self):
-        actionsList = self.findChildren(QAction)
-        buttonsList = self.findChildren(actionbutton.CActionButton)
-
-        actionsDict = {}
-        for a in actionsList:
-            actionsDict[ a.objectName()[2::] ] = a #имя без префикса, т.е. acGrid[2::] == Grid
-
-        for b in buttonsList:
-            a = actionsDict.get( b.objectName()[2::] )
-            if a is not None:
-                b.setAction( a )
+        for button in self.findChildren(actionbutton.CActionButton):
+            button.reconnectAction() #в момент создания кнопки она может ещё не дотягиваться до нужного QAction, делаем отдельным проходом
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
@@ -186,7 +175,3 @@ class CSMD_MainWindow(QMainWindow):
     def on_acSaveGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
         self.doSaveLoad(path, self.saveGraphML)
-
-    # @pyqtSlot()
-    # def on_actionButton_clicked(self):
-    #     print ("!!!!!!!!!!!!!")
