@@ -89,7 +89,10 @@ class CNetObj_Monitor(QWidget):
 
     def setRootNetObj( self, root ):
         self.netObjModel.setRootNetObj( root )
+        self.clearView()
 
+
+    def clearView( self ):
         self.tvNetObj.expandAll()
 
         for col in range( 0, self.tvNetObj.header().count() ):

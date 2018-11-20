@@ -3,6 +3,7 @@ import networkx as nx
 from PyQt5.QtWidgets import ( QApplication, QWidget )
 
 from Common.SettingsManager import CSettingsManager as CSM
+from Common.BaseApplication import CBaseApplication
 import Common.StrConsts as SC
 from Net.NetObj import *
 from Net.NetObj_Manager import *
@@ -12,22 +13,6 @@ from Net.NetObj_Widgets import *
 from anytree import AnyNode, NodeMixin, RenderTree
 import redis
 import os
-
-import threading
-
-class CNetCMDReader( threading.Thread ):
-    def __init__(self, netLink, bAppWorking):
-        super().__init__()
-        self.r = netLink
-        self.receiver = netLink.pubsub()
-        self.receiver.subscribe('net-cmd')
-        self.bAppWorking = bAppWorking
-    
-    def run(self):
-        while self.bAppWorking.value:
-            # print("Hello from the thread!", self.bAppWorking.value)
-            msg = self.receiver.get_message(False, 0.5)
-            if msg: print( msg )
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -59,40 +44,19 @@ def loadStorageGraph( parentBranch ):
 
     # print( RenderTree(root) )
 
-def main():
-    CSM.loadSettings()
-    
-    class bAppWorking: pass
-    bAppWorking.value = True
-
+def main():    
     registerNetObjTypes()
 
-    CNetObj_Manager.clientID = -1 # признак того, что сервер
-    if not CNetObj_Manager.connect(): return
-    CNetObj_Manager.init()
-
+    app = CBaseApplication(sys.argv)
+    app.bIsServer = True    
+    if not app.init(): return -1
+    
     loadStorageGraph( CNetObj_Manager.rootObj )
-        
+    app.objMonitor.clearView()
+
     CNetObj_Manager.sendAll()
 
-    app = QApplication(sys.argv)
+    app.exec_() # главный цикл сообщений Qt
 
-    if CNetObj_Monitor.enaledInOptions():
-        objMonitor = CNetObj_Monitor()
-        objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
-        registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
-        objMonitor.show()
-
-    netReader = CNetCMDReader( CNetObj_Manager.redisConn, bAppWorking )
-    netReader.setDaemon(True)
-    netReader.start()
-
-    app.exec_()
-
-    CSM.saveSettings()
-
-    bAppWorking.value = False
-
-    # удаление объектов до димсконнекта, чтобы в сеть попали команды удаления объектов ( для других клиентов )
-    CNetObj_Manager.rootObj.clearChildren() 
-    CNetObj_Manager.disconnect()
+    app.done()
+    return 0

@@ -38,6 +38,8 @@ class CNetObj( NodeMixin ):
         # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
+    def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
+
 ###################################################################################
 
     def prepareDelete(self):
@@ -77,8 +79,6 @@ class CNetObj( NodeMixin ):
 
     def afterUpdate( self ):
         pass
-
-    def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
 
 ###################################################################################
 

@@ -3,23 +3,58 @@ import sys
 from typing import Dict
 import weakref
 import redis
-import gc
+from Net.NetCmd import *
+from queue import Queue
+import threading
 
-s_Redis_CMD_Channel = "net-cmd"
+s_Redis_NetObj_Channel = "net-cmd"
 
-s_Client            = "client"
-s_CMD_Connected     = "connected"
-s_CMD_Disconnected  = "disconnected"
-s_CMD_Obj_Created   = "obj:created"
-s_CMD_Obj_Deleted   = "obj:deleted"
-s_CMD_Obj_Updated   = "obj:updated"
+s_Redis_channel = "channel"
+s_Redis_type    = "type"
+s_Redis_message = "message"
+s_Redis_data    = "data"
 
 s_NetObj_UID = "obj_uid_gen"
 s_Client_UID = "client_uid_gen"
 
 s_ObjectsSet = "objects_set"
 
+########################################################
+
 class CNetObj_Manager( object ):
+    ########################################################
+    class CNetCMDReader( threading.Thread ):
+        def __init__(self):
+            super().__init__()
+            self.setDaemon(True)
+            self.receiver = CNetObj_Manager.redisConn.pubsub()
+            self.receiver.subscribe( s_Redis_NetObj_Channel )
+
+            self.__bIsRunning = False
+            self.__bStop = False
+        
+        def run(self):
+            self.__bStop = False
+            self.__bIsRunning = True
+
+            while self.__bIsRunning:
+                msg = self.receiver.get_message(False, 0.5)
+                if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
+                    msgData = msg[ s_Redis_data ].decode()
+                    cmd = CNetCmd.fromString( msgData )
+
+                    # принимаем сообщения от всех клиентов кроме себя самого
+                    # print( cmd.Client_UID, CNetObj_Manager.clientID, cmd.Client_UID != CNetObj_Manager.clientID )
+                    if cmd.Client_UID != CNetObj_Manager.clientID:
+                        CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
+
+                if self.__bStop: self.__bIsRunning = False
+
+        def stop(self):
+            self.__bStop = True
+            while self.__bIsRunning: pass
+    ########################################################
+
     redisConn = None
     clientID  = None
 
@@ -37,6 +72,14 @@ class CNetObj_Manager( object ):
         return cls.__netObj_Types[ netObjClass.typeUID ]
 
     #####################################################
+    @classmethod
+    def onTick( cls ):
+        # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
+        while not cls.qNetCmds.empty():
+            t = cls.qNetCmds.get()
+            print( t )
+            cls.qNetCmds.task_done()
+    #####################################################
 
     @classmethod
     def genNetObj_UID( cls ):
@@ -52,14 +95,14 @@ class CNetObj_Manager( object ):
         cls.__objects[ netObj.UID ] = netObj
         if cls.isConnected() and netObj.UID > 0:
             CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
-            CNetObj_Manager.sendNetCMD( f"{s_Client}:{cls.clientID}:{s_CMD_Obj_Created}:{netObj.UID}:{netObj.name}" )
+            CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_created, netObj.UID ) )
     
     @classmethod
     def unregisterObj( cls, netObj ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
         if cls.isConnected() and netObj.UID > 0:
             CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
-            CNetObj_Manager.sendNetCMD( f"{s_Client}:{cls.clientID}:{s_CMD_Obj_Deleted}:{netObj.UID}:{netObj.name}" )
+            CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_deleted, netObj.UID ) )
 
     @classmethod
     def accessObj( cls, UID ):
@@ -68,33 +111,42 @@ class CNetObj_Manager( object ):
     #####################################################
 
     @classmethod
-    def init(cls):
+    def initRoot(cls):
         # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
         cls.rootObj = CNetObj(name="root", id=-1)
 
     @classmethod
-    def connect( cls ):
+    def connect( cls, bFlushDB ):
         try:
             cls.redisConn = redis.StrictRedis(host='localhost', port=6379, db=0)
-            cls.redisConn.flushdb()
+            cls.redisConn.info() # for genering exception if no connection
+            if bFlushDB: cls.redisConn.flushdb()
         except redis.exceptions.ConnectionError as e:
             print( f"[Error]: Can not connect to REDIS: {e}" )
             return False
 
         if cls.clientID is None:
             cls.clientID = cls.redisConn.incr( s_Client_UID, 1 )
-        cls.redisConn.publish( s_Redis_CMD_Channel, f"{s_Client}:{cls.clientID}:{s_CMD_Connected}" )
+        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_connected, cls.clientID ) )
+
+        cls.qNetCmds = Queue()
+        cls.netCmds_Reader = cls.CNetCMDReader()
+        cls.netCmds_Reader.start()
+
         return True
 
     @classmethod
-    def disconnect( cls ):
+    def disconnect( cls, bFlushDB ):
         if not cls.redisConn: return
         
-        cls.redisConn.publish( s_Redis_CMD_Channel, f"{s_Client}:{cls.clientID}:{s_CMD_Disconnected}" )
-        cls.redisConn.flushdb()
+        cls.netCmds_Reader.stop()
+
+        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_disconnected, cls.clientID ) )
+        if bFlushDB: cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None
-        print( cls, "disconnect")
+        print( cls.__name__, cls.disconnect.__name__ )
+        
     @classmethod
     def isConnected( cls ): return not cls.redisConn is None
 
@@ -102,7 +154,7 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def sendNetCMD( cls, cmd ):
-        cls.redisConn.publish( s_Redis_CMD_Channel, cmd )
+        cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
 
     @classmethod
     def sendAll( cls ):
