@@ -83,6 +83,7 @@ class CNode_SGItem(QGraphicsItem):
                 x = snap_x
             if abs(y - snap_y) < gridSize/5:
                 y = snap_y
+
         self.setPos( x, y )
         self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.pos().x() )
         self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.pos().y() )

@@ -80,6 +80,12 @@ class CStorageGraf_GScene_Manager():
             v.bDrawInfoRails = self.bDrawInfoRails
             v.rebuildInfoRails()
 
+    def setDrawMainRail( self, bVal ):
+        self.bDrawMainRail = bVal
+        for e, g in self.groupsByEdge.items():
+            g.bDrawMainRail = self.bDrawMainRail
+            g.rebuildMainRail()
+
     def setDrawBBox( self, bVal ):
         self.bDrawBBox = bVal
         for n, v in self.nodeGItems.items():
@@ -216,6 +222,7 @@ class CStorageGraf_GScene_Manager():
         edgeGroup = self.groupsByEdge.get( groupKey )
         if edgeGroup == None:
             edgeGroup = CRail_SGItem(groupKey)
+            edgeGroup.bDrawMainRail = self.bDrawMainRail
             edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
             self.groupsByEdge[ groupKey ] = edgeGroup
             self.gScene.addItem( edgeGroup )

@@ -52,10 +52,12 @@ class CSMD_MainWindow(QMainWindow):
             self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_state ].encode() ) ) )
 
         if sceneSettings:
-            self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid]        
+            self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid_size]
+            self.StorageMap_Scene.bDrawGrid = sceneSettings[SC.s_draw_grid]
         
         #setup ui
         self.sbGridSize.setValue(self.StorageMap_Scene.gridSize)
+        self.acGrid.setChecked(self.StorageMap_Scene.bDrawGrid)
 
         for button in self.findChildren(actionbutton.CActionButton):
             button.reconnectAction() #в момент создания кнопки она может ещё не дотягиваться до нужного QAction, делаем отдельным проходом
@@ -64,7 +66,10 @@ class CSMD_MainWindow(QMainWindow):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
         CSM.options[SC.s_scene] =   {
-                                        SC.s_grid : self.StorageMap_Scene.gridSize
+                                        SC.s_grid_size : self.StorageMap_Scene.gridSize,
+                                        SC.s_draw_grid : self.StorageMap_Scene.bDrawGrid,
+                                        SC.s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
+                                        SC.s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
                                     }
 
     def loadGraphML( self, sFName ):
@@ -132,6 +137,10 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acInfoRails_triggered(self, bChecked):
         self.SGraf_Manager.setDrawInfoRails(bChecked)
+
+    @pyqtSlot(bool)
+    def on_acMainRail_triggered(self, bChecked):
+        self.SGraf_Manager.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):
