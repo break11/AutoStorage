@@ -116,6 +116,8 @@
    <addaction name="acGrid"/>
    <addaction name="acSnapToGrid"/>
    <addaction name="acBBox"/>
+   <addaction name="acInfoRails"/>
+   <addaction name="acMainRail"/>
   </widget>
   <widget class="QToolBar" name="toolEdit">
    <property name="windowTitle">
@@ -561,6 +563,36 @@ selection-background-color: red;*/
    </property>
    <property name="toolTip">
     <string>Snap to grid</string>
+   </property>
+  </action>
+  <action name="acInfoRails">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/info_rails.png</normaloff>:/images/info_rails.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show/hide info rails</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/hide info rails</string>
+   </property>
+  </action>
+  <action name="acMainRail">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/main_rail.png</normaloff>:/images/main_rail.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show/hide main rail</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/hide main rail</string>
    </property>
   </action>
  </widget>

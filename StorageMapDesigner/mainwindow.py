@@ -130,6 +130,10 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawBBox(bChecked)
 
     @pyqtSlot(bool)
+    def on_acInfoRails_triggered(self, bChecked):
+        self.SGraf_Manager.setDrawInfoRails(bChecked)
+
+    @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):
         if self.SGraf_Manager.Mode == EGManagerMode.AddNode:
             self.SGraf_Manager.Mode = EGManagerMode.Edit

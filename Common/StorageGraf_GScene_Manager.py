@@ -29,7 +29,9 @@ class CStorageGraf_GScene_Manager():
         self.gScene_evI   = None
         self.gView        = None
         self.nxGraf       = None
-        self.bDrawBBox    = False
+        self.bDrawBBox      = False
+        self.bDrawInfoRails = False
+        self.bDrawMainRail  = False
         self.Mode         = EGManagerMode.Edit
 
         self.gScene = gScene
@@ -71,6 +73,12 @@ class CStorageGraf_GScene_Manager():
 
     def save( self, sFName ):
         nx.write_graphml(self.nxGraf, sFName)
+
+    def setDrawInfoRails( self, bVal ):
+        self.bDrawInfoRails = bVal
+        for e, v in self.edgeGItems.items():
+            v.bDrawInfoRails = self.bDrawInfoRails
+            v.rebuildInfoRails()
 
     def setDrawBBox( self, bVal ):
         self.bDrawBBox = bVal

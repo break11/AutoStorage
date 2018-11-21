@@ -10,6 +10,7 @@ class CRail_SGItem(QGraphicsItemGroup):
         super().__init__()
         self.groupKey = groupKey #frozenset из nodeID_1, nodeID_2 любой грани
         self.setZValue( 10 )
+        self.bDrawMainRail  = True
         self.__lineGItem = None
         self.__lineEdgeName = None
 
