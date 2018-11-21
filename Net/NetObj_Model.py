@@ -9,6 +9,15 @@ class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.__rootNetObj = None
+        CNetObj_Manager.add_ObjCreatedF( self.onObjCreated )
+
+    def onObjCreated( self, netObj ):
+        parentIDX = self.netObj_To_Index( netObj.parent )
+        print( parentIDX.row(), parentIDX.column(), parentIDX.internalId() )
+        self.rowsInserted.emit( parentIDX, 1, 1 )
+        
+    
+    #####################################################
 
     def setRootNetObj( self, rootNetObj ):
         self.__rootNetObj = rootNetObj

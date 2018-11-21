@@ -1,6 +1,6 @@
 import sys
 
-from typing import Dict
+from typing import *
 import weakref
 import redis
 from Net.NetCmd import *
@@ -56,28 +56,47 @@ class CNetObj_Manager( object ):
     ########################################################
 
     redisConn = None
+    serviceConn = None
     clientID  = None
 
     __netObj_Types : Dict[ int, object ] = {}
 
     __objects : weakref.WeakValueDictionary = weakref.WeakValueDictionary() # for type annotation from mypy linter warning done
 
+    #####################################################
+    __ObjCreatedFunctions : List [object] = []
+
+    @classmethod
+    def add_ObjCreatedF( cls, f ): cls.__ObjCreatedFunctions.append( f )
+    #####################################################
+
     @classmethod
     def registerType(cls, netObjClass):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
-        cls.__netObj_Types[ netObjClass.typeUID ] = netObjClass
+        typeUID = netObjClass.__name__
+        netObjClass.typeUID = typeUID
+        cls.__netObj_Types[ typeUID ] = netObjClass
 
     @classmethod
-    def netObj_Type(cls, netObjClass):
-        return cls.__netObj_Types[ netObjClass.typeUID ]
+    def netObj_Type(cls, typeUID):
+        return cls.__netObj_Types[ typeUID ]
 
     #####################################################
     @classmethod
     def onTick( cls ):
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while not cls.qNetCmds.empty():
-            t = cls.qNetCmds.get()
-            print( t )
+            cmd = cls.qNetCmds.get()
+            if cmd.CMD == ECmd.obj_created:
+                netObj = CNetObj.loadFromRedis( cls.redisConn, cmd.Obj_UID )
+                for f in cls.__ObjCreatedFunctions:
+                    f( netObj )
+
+            # elif cmd.CMD == ECmd.obj_deleted:
+            #     netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
+            #     if netObj:
+            #         print( "delete Obj from net ", cmd.Obj_UID )
+            #         netObj.prepareDelete()
             cls.qNetCmds.task_done()
     #####################################################
 
@@ -86,7 +105,7 @@ class CNetObj_Manager( object ):
         if not cls.isConnected():
             raise redis.exceptions.ConnectionError("[Error]: Can't get generator value from redis! No connection!")
 
-        cls.__genNetObj_UID = cls.redisConn.incr( s_NetObj_UID, 1 )
+        cls.__genNetObj_UID = cls.serviceConn.incr( s_NetObj_UID, 1 )
 
         return cls.__genNetObj_UID
 
@@ -94,19 +113,23 @@ class CNetObj_Manager( object ):
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
         if cls.isConnected() and netObj.UID > 0:
-            CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
-            CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_created, netObj.UID ) )
+            if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
+                CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
+                netObj.sendToRedis( cls.redisConn )
+                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_created, netObj.UID ) )
     
     @classmethod
     def unregisterObj( cls, netObj ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
         if cls.isConnected() and netObj.UID > 0:
-            CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
-            CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_deleted, netObj.UID ) )
+            if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
+                CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
+                netObj.delFromRedis( cls.redisConn )
+                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_deleted, netObj.UID ) )
 
     @classmethod
     def accessObj( cls, UID ):
-        return cls.__objects[ UID ]
+        return cls.__objects.get( UID )
 
     #####################################################
 
@@ -114,19 +137,21 @@ class CNetObj_Manager( object ):
     def initRoot(cls):
         # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
         cls.rootObj = CNetObj(name="root", id=-1)
+        cls.__objects[ cls.rootObj.UID ] = cls.rootObj
 
     @classmethod
     def connect( cls, bFlushDB ):
         try:
             cls.redisConn = redis.StrictRedis(host='localhost', port=6379, db=0)
             cls.redisConn.info() # for genering exception if no connection
+            cls.serviceConn = redis.StrictRedis(host='localhost', port=6379, db=1)
             if bFlushDB: cls.redisConn.flushdb()
         except redis.exceptions.ConnectionError as e:
             print( f"[Error]: Can not connect to REDIS: {e}" )
             return False
 
         if cls.clientID is None:
-            cls.clientID = cls.redisConn.incr( s_Client_UID, 1 )
+            cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
         CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_connected, cls.clientID ) )
 
         cls.qNetCmds = Queue()
@@ -162,6 +187,6 @@ class CNetObj_Manager( object ):
             raise redis.exceptions.ConnectionError("[Error]: Can't get send data to redis! No connection!")
 
         for k, netObj in cls.__objects.items():
-            netObj.sendToNet( cls.redisConn )
+            netObj.sendToRedis( cls.redisConn )
 
 from .NetObj import CNetObj

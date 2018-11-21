@@ -9,12 +9,14 @@ from Common.SettingsManager import CSettingsManager as CSM
 class CNetObj( NodeMixin ):
     __sName     = "Name"
     __sUID      = "UID"
-    __sTypeName = "TypeName"
+    # __sTypeName = "TypeName"
     __sTypeUID  = "TypeUID"
-    __modelHeaderData = [ __sName, __sUID, __sTypeName, __sTypeUID, ]
+    # __modelHeaderData = [ __sName, __sUID, __sTypeName, __sTypeUID, ]
+    __modelHeaderData = [ __sName, __sUID, __sTypeUID, ]
     __sParent   = "Parent"
+    __sobj      = "obj"
 
-    typeUID = 0 # hash of the class name - fill in instance init
+    typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
     def __init__( self, name="", parent=None, id=None ):
         super().__init__()
@@ -22,13 +24,12 @@ class CNetObj( NodeMixin ):
         self.name    = name
         self.parent  = parent
         self.isUpdated = False
-        self.__class__.typeUID = hash( self.__class__.__name__ )
 
         hd = self.__modelHeaderData
         self.__modelData = {
                             hd.index( self.__sName     ) : self.name,
                             hd.index( self.__sUID      ) : self.UID,
-                            hd.index( self.__sTypeName ) : self.__class__.__name__,
+                            # hd.index( self.__sTypeName ) : self.__class__.__name__,
                             hd.index( self.__sTypeUID  ) : self.typeUID,
                             }
 
@@ -56,23 +57,48 @@ class CNetObj( NodeMixin ):
 ###################################################################################
 
     @classmethod
-    def modelDataColCount( cls ): return len( cls.__modelHeaderData )
+    def modelDataColCount( cls )   : return len( cls.__modelHeaderData )
     @classmethod
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
-    def modelData( self, col ): return self.__modelData[ col ]
+    def modelData( self, col )     : return self.__modelData[ col ]
 
     def propsDict(self): raise NotImplementedError
 
 ###################################################################################
-    def sendToNet( self, netLink ):
+    @classmethod    
+    def redisKey_Name(cls, UID)   : return f"{cls.__sobj}:{UID}:{cls.__sName}"
+
+    @classmethod
+    def redisKey_TypeUID(cls, UID): return f"{cls.__sobj}:{UID}:{cls.__sTypeUID}"
+
+    @classmethod        
+    def redisKey_Parent(cls, UID) : return f"{cls.__sobj}:{UID}:{cls.__sParent}"
+###################################################################################
+    def sendToRedis( self, netLink ):
         if self.UID < 0: return
 
         hd = self.__modelHeaderData
 
-        netLink.set( f"obj:{self.UID}:{self.__sName}",    self.__modelData[ hd.index( self.__sName    ) ] )
-        netLink.set( f"obj:{self.UID}:{self.__sTypeUID}", self.__modelData[ hd.index( self.__sTypeUID ) ] )
+        netLink.set( self.redisKey_Name( self.UID ),    self.__modelData[ hd.index( self.__sName    ) ] )
+        netLink.set( self.redisKey_TypeUID( self.UID ), self.__modelData[ hd.index( self.__sTypeUID ) ] )
         parent = self.parent.UID if self.parent else None
-        netLink.set( f"obj:{self.UID}:{self.__sParent}", self.parent.UID )
+        netLink.set( self.redisKey_Parent( self.UID ),  self.parent.UID )
+
+    def delFromRedis( self, netLink ):
+        netLink.delete( self.redisKey_Name( self.UID ), self.redisKey_TypeUID( self.UID ), self.redisKey_Parent( self.UID ) )
+
+    @classmethod
+    def loadFromRedis( cls, netLink, UID ):
+        name     = netLink.get( cls.redisKey_Name( UID ) ).decode()
+        parentID = int( netLink.get( cls.redisKey_Parent( UID ) ).decode() )
+        typeUID  = netLink.get( cls.redisKey_TypeUID( UID ) ).decode()
+        objClass = CNetObj_Manager.netObj_Type( typeUID )
+
+        # print( parentID, typeUID, objClass, CNetObj_Manager.accessObj( parentID ) )
+
+        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
+
+        return netObj
 
     def afterLoad( self ):
         pass
@@ -83,8 +109,8 @@ class CNetObj( NodeMixin ):
 ###################################################################################
 
 class CGrafRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None, nxGraf=None):
-        super().__init__( name = name, parent = parent )
+    def __init__( self, name="", parent=None, nxGraf=None, id=None ):
+        super().__init__( name = name, parent = parent, id=id )
         self.nxGraf = nxGraf
 
     def propsDict(self): return self.nxGraf.graph
@@ -94,8 +120,8 @@ class CGrafRoot_NO( CNetObj ):
         pass
 
 class CGrafNode_NO( CNetObj ):
-    def __init__( self, name="", parent=None, nxNode=None):
-        super().__init__( name = name, parent = parent )
+    def __init__( self, name="", parent=None, nxNode=None, id=None ):
+        super().__init__( name = name, parent = parent, id=id )
         self.nxNode = nxNode
 
     def propsDict(self): return self.nxNode
@@ -117,8 +143,8 @@ class CGrafNode_NO( CNetObj ):
         pass
 
 class CGrafEdge_NO( CNetObj ):
-    def __init__( self, name="", parent=None, nxEdge=None):
-        super().__init__( name = name, parent = parent )
+    def __init__( self, name="", parent=None, nxEdge=None, id=None ):
+        super().__init__( name = name, parent = parent, id=id )
         self.nxEdge = nxEdge
 
     def propsDict(self): return self.nxEdge

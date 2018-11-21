@@ -54,7 +54,7 @@ def main():
     loadStorageGraph( CNetObj_Manager.rootObj )
     app.objMonitor.clearView()
 
-    CNetObj_Manager.sendAll()
+    # CNetObj_Manager.sendAll()
 
     app.exec_() # главный цикл сообщений Qt
 
