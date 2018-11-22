@@ -161,8 +161,6 @@ class CEdge_SGItem(QGraphicsItem):
             elif sensorSide == SGT.ESensorSide.SRight.name:
                 sides = [1]
 
-        # print( self.edgeName(), sensorSide, curvature, sides )
-
         pen = QPen()
         pen.setWidth( 20 )
         pen.setCapStyle( Qt.FlatCap )

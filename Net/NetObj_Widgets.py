@@ -80,10 +80,3 @@ class CDictProps_Widget( CNetObj_Widget ):
         key = item.data()
 
         props[ key ] = item.data( Qt.DisplayRole )
-
-def registerNetNodeWidgets( parent ):
-    reg = CNetObj_WidgetsManager.registerWidget
-    reg( CNetObj,      CNetObj_Widget, parent )
-    reg( CGrafRoot_NO, CDictProps_Widget, parent )
-    reg( CGrafNode_NO, CDictProps_Widget, parent )
-    reg( CGrafEdge_NO, CDictProps_Widget, parent )

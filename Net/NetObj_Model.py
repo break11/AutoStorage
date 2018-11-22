@@ -13,7 +13,6 @@ class CNetObj_Model( QAbstractItemModel ):
 
     def onObjCreated( self, netObj ):
         parentIDX = self.netObj_To_Index( netObj.parent )
-        print( parentIDX.row(), parentIDX.column(), parentIDX.internalId() )
         self.rowsInserted.emit( parentIDX, 1, 1 )
         
     

@@ -1,25 +1,19 @@
 import networkx as nx
+from anytree import AnyNode, NodeMixin, RenderTree
+import redis
+import os
 
 from PyQt5.QtWidgets import ( QApplication, QWidget )
 
 from Common.SettingsManager import CSettingsManager as CSM
-from Common.BaseApplication import CBaseApplication
+from Common.BaseApplication import *
 import Common.StrConsts as SC
 from Net.NetObj import *
 from Net.NetObj_Manager import *
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj_Widgets import *
 
-from anytree import AnyNode, NodeMixin, RenderTree
-import redis
-import os
-
-def registerNetObjTypes():
-    reg = CNetObj_Manager.registerType
-    reg( CNetObj )
-    reg( CGrafRoot_NO )
-    reg( CGrafNode_NO )
-    reg( CGrafEdge_NO )
+from Common.Graf_NetObjects import *
 
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
@@ -30,14 +24,21 @@ def loadStorageGraph( parentBranch ):
         return
 
     nxGraf  = nx.read_graphml( sFName )
+    # не используем атрибуты для значений по умолчанию для вершин и граней, поэтому сносим их из свойств графа
+    # как и следует из документации новые ноды не получают этот список атрибутов, это просто кеш
+    # при создании графа через загрузку они появляются, при создании чистого графа ( nx.Graph() ) нет
+    del nxGraf.graph["node_default"]
+    del nxGraf.graph["edge_default"]
+
     # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
 
-    Graf  = CGrafRoot_NO(name="Graf", parent=parentBranch, nxGraf=nxGraf)
+    Graf  = CGrafRoot_NO( name="Graf", parent=parentBranch, nxGraf=nxGraf )
     Nodes = CNetObj(name="Nodes", parent=Graf)
     Edges = CNetObj(name="Edges", parent=Graf)
 
     for nodeID in nxGraf.nodes():
-        node = CGrafNode_NO( name=nodeID, parent=Nodes, nxNode=nxGraf.nodes()[nodeID] )
+        node = CGrafNode_NO( name=nodeID, parent=Nodes )
+        # node = CGrafNode_NO( name=nodeID, parent=Nodes, nxNode=nxGraf.nodes()[nodeID] )
 
     for edgeID in nxGraf.edges():
         edge = CGrafEdge_NO( name = str(edgeID), parent=Edges, nxEdge=nxGraf.edges()[edgeID] )

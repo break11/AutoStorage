@@ -15,7 +15,6 @@ class CNetCmd:
         self.Obj_UID = Obj_UID
 
     def toString( self ):
-        # print( f"{self.Client_UID}:{self.CMD}:{self.Obj_UID}" )
         return f"{self.Client_UID}:{self.CMD}:{self.Obj_UID}"
 
     @staticmethod
@@ -23,7 +22,6 @@ class CNetCmd:
         l = sVal.split(":")
 
         Client_UID = int( l[0] )
-        # cmd        = ECmd[ str( l[1] ) ]
         cmd        = ECmd( int( l[1] ) )
         Obj_UID    = int( l[2] )
 

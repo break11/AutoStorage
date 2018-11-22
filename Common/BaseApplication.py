@@ -5,7 +5,22 @@ from PyQt5.QtCore import QTimer
 from .SettingsManager import CSettingsManager as CSM
 from Net.NetObj_Manager import CNetObj_Manager
 from Net.NetObj_Monitor import CNetObj_Monitor
-from Net.NetObj_Widgets import registerNetNodeWidgets
+from Net.NetObj_Widgets import *
+from Common.Graf_NetObjects import *
+
+def registerNetObjTypes():
+    reg = CNetObj_Manager.registerType
+    reg( CNetObj )
+    reg( CGrafRoot_NO )
+    reg( CGrafNode_NO )
+    reg( CGrafEdge_NO )
+
+def registerNetNodeWidgets( parent ):
+    reg = CNetObj_WidgetsManager.registerWidget
+    reg( CNetObj,      CNetObj_Widget, parent )
+    reg( CGrafRoot_NO, CDictProps_Widget, parent )
+    reg( CGrafNode_NO, CDictProps_Widget, parent )
+    reg( CGrafEdge_NO, CDictProps_Widget, parent )
 
 class CBaseApplication( QApplication ):
     def __init__(self, argv ):

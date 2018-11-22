@@ -3,7 +3,7 @@ import networkx as nx
 from PyQt5.QtWidgets import ( QApplication, QWidget )
 
 from Common.SettingsManager import CSettingsManager as CSM
-from Common.BaseApplication import CBaseApplication
+from Common.BaseApplication import *
 
 import Common.StrConsts as SC
 from Net.NetObj import *
@@ -14,13 +14,6 @@ from Net.NetObj_Widgets import *
 from anytree import AnyNode, NodeMixin, RenderTree
 import redis
 import os
-
-def registerNetObjTypes():
-    reg = CNetObj_Manager.registerType
-    reg( CNetObj )
-    reg( CGrafRoot_NO )
-    reg( CGrafNode_NO )
-    reg( CGrafEdge_NO )
 
 def main():    
     registerNetObjTypes()
