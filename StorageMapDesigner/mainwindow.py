@@ -52,12 +52,21 @@ class CSMD_MainWindow(QMainWindow):
             self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_state ].encode() ) ) )
 
         if sceneSettings:
-            self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid_size]
-            self.StorageMap_Scene.bDrawGrid = sceneSettings[SC.s_draw_grid]
-        
+            try: 
+                #пока оборачиваем в try-except, на случай если в коде добавились новые настройки, которых нет у пользователя
+                #новые настройки добавлять в конец блока, чтобы не сбились пользовательские, которые есть
+                self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid_size]
+                self.StorageMap_Scene.bDrawGrid = sceneSettings[SC.s_draw_grid]
+                self.SGraf_Manager.setDrawMainRail( sceneSettings[SC.s_draw_main_rail] )
+                self.SGraf_Manager.setDrawInfoRails( sceneSettings[SC.s_draw_info_rails] )
+            except:
+                pass
+
         #setup ui
         self.sbGridSize.setValue(self.StorageMap_Scene.gridSize)
         self.acGrid.setChecked(self.StorageMap_Scene.bDrawGrid)
+        self.acMainRail.setChecked(self.SGraf_Manager.bDrawMainRail)
+        self.acInfoRails.setChecked(self.SGraf_Manager.bDrawInfoRails)
 
         for button in self.findChildren(actionbutton.CActionButton):
             button.reconnectAction() #в момент создания кнопки она может ещё не дотягиваться до нужного QAction, делаем отдельным проходом
