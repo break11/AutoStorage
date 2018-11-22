@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QBrush )
-from PyQt5.QtCore import ( Qt, QRectF )
+from PyQt5.QtCore import ( Qt, QRectF, QPointF )
 
 from . import StorageGrafTypes as SGT
 
@@ -38,7 +38,17 @@ class CNode_SGItem(QGraphicsItem):
     
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
-        self.setPos( self.x, self.y )
+        super().setPos( self.x, self.y )
+
+    def setPos(self, x, y):
+        self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, x )
+        self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, y )
+        self.updatePos()
+        self.scene().itemChanged.emit( self )
+    
+    def move(self, deltaPos):
+        pos = self.pos() + deltaPos
+        self.setPos(pos.x(), pos.y())
 
     def paint(self, painter, option, widget):
         if self.bDrawBBox == True:
@@ -69,12 +79,12 @@ class CNode_SGItem(QGraphicsItem):
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
     def mouseMoveEvent( self, event ):
-        # self.setPos( self.mapToScene( event.pos() ) )
         pos = self.mapToScene (event.pos())
 
         x = pos.x()
         y = pos.y()
-        
+
+        #привязка к сетке        
         if self.scene().bDrawGrid and self.scene().bSnapToGrid:
             gridSize = self.scene().gridSize
             snap_x = round( pos.x()/gridSize ) * gridSize
@@ -84,7 +94,8 @@ class CNode_SGItem(QGraphicsItem):
             if abs(y - snap_y) < gridSize/5:
                 y = snap_y
 
-        self.setPos( x, y )
-        self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.pos().x() )
-        self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.pos().y() )
-        self.scene().itemChanged.emit( self )
+        #перемещаем все выделенные вершины, включая текущую
+        deltaPos = QPointF(x, y) - self.pos()
+        for gItem in self.scene().selectedItems():
+            if isinstance(gItem, CNode_SGItem):
+                gItem.move(deltaPos)
