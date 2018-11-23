@@ -6,11 +6,11 @@ import math
 
 from . import StorageGrafTypes as SGT
 from typing import List
+from .GuiUtils import GraphEdgeName
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
     
-
     def __readGrafAttrNode( self, sNodeID, sAttrName ): return self.nxGraf.node[ sNodeID ][ sAttrName ]
 
     @property
@@ -60,7 +60,7 @@ class CEdge_SGItem(QGraphicsItem):
         self.prepareGeometryChange()
 
     def edgeName(self):
-        return self.nodeID_1 +"-->"+ self.nodeID_2
+        return GraphEdgeName( self.nodeID_1, self.nodeID_2 )
 
     def nxEdge(self):
         return self.nxGraf[ self.nodeID_1 ][ self.nodeID_2 ]

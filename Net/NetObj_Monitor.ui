@@ -58,7 +58,7 @@ selection-color: black;
        <number>25</number>
       </property>
       <attribute name="headerMinimumSectionSize">
-       <number>150</number>
+       <number>160</number>
       </attribute>
      </widget>
      <widget class="QScrollArea" name="saNetObj">

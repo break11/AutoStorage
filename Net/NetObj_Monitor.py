@@ -52,13 +52,10 @@ class CNetObj_Monitor(QWidget):
         
         # self.tvNetObj.model().setRootNetObj( None )
 
-        print("Test delete tree element")
-
         row = self.tvNetObj.selectionModel().currentIndex().row()
         parent = self.tvNetObj.selectionModel().currentIndex().parent()
         
         self.tvNetObj.model().removeRow( row, parent )
-
 
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
@@ -84,6 +81,7 @@ class CNetObj_Monitor(QWidget):
             widget.hide()
 
     def treeView_select( self, currentIndex, prevIndex ):
+        print( "treeView_select" )
         self.initOrDone_NetObj_Widget( prevIndex, False )
         self.initOrDone_NetObj_Widget( currentIndex, True )
 

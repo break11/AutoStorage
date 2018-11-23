@@ -41,7 +41,9 @@ def loadStorageGraph( parentBranch ):
         # node = CGrafNode_NO( name=nodeID, parent=Nodes, nxNode=nxGraf.nodes()[nodeID] )
 
     for edgeID in nxGraf.edges():
-        edge = CGrafEdge_NO( name = str(edgeID), parent=Edges, nxEdge=nxGraf.edges()[edgeID] )
+        n1 = edgeID[0]
+        n2 = edgeID[1]
+        edge = CGrafEdge_NO( name = GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
 
     # print( RenderTree(root) )
 

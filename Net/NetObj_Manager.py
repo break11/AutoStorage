@@ -65,9 +65,12 @@ class CNetObj_Manager( object ):
 
     #####################################################
     __ObjCreatedFunctions : List [object] = []
+    __ObjDeletedFunctions : List [object] = []
 
     @classmethod
-    def add_ObjCreatedF( cls, f ): cls.__ObjCreatedFunctions.append( f )
+    def add_ObjCreatedFunc( cls, f ): cls.__ObjCreatedFunctions.append( f )
+    @classmethod
+    def add_ObjDeletedFunc( cls, f ): cls.__ObjDeletedFunctions.append( f )
     #####################################################
 
     @classmethod
@@ -91,12 +94,13 @@ class CNetObj_Manager( object ):
                 netObj = CNetObj.loadFromRedis( cls.redisConn, cmd.Obj_UID )
                 for f in cls.__ObjCreatedFunctions:
                     f( netObj )
-
-            # elif cmd.CMD == ECmd.obj_deleted:
-            #     netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
-            #     if netObj:
-            #         print( "delete Obj from net ", cmd.Obj_UID )
-            #         netObj.prepareDelete()
+            elif cmd.CMD == ECmd.obj_deleted:
+                netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
+                if netObj:
+                    for f in cls.__ObjDeletedFunctions:
+                        f( netObj )
+                    netObj.prepareDelete()
+                    del netObj
             cls.qNetCmds.task_done()
     #####################################################
 
@@ -115,7 +119,7 @@ class CNetObj_Manager( object ):
         if cls.isConnected() and netObj.UID > 0:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
-                netObj.sendToRedis( cls.redisConn )
+                netObj.saveToRedis( cls.redisConn )
                 CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_created, netObj.UID ) )
     
     @classmethod
@@ -187,6 +191,6 @@ class CNetObj_Manager( object ):
             raise redis.exceptions.ConnectionError("[Error]: Can't get send data to redis! No connection!")
 
         for k, netObj in cls.__objects.items():
-            netObj.sendToRedis( cls.redisConn )
+            netObj.saveToRedis( cls.redisConn )
 
 from .NetObj import CNetObj
