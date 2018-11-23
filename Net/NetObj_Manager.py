@@ -158,6 +158,12 @@ class CNetObj_Manager( object ):
             cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
         CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_connected, cls.clientID ) )
 
+        objects = cls.redisConn.smembers( s_ObjectsSet )
+        if ( objects ):
+            objects = sorted( objects )
+            for it in objects:
+                netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
         cls.netCmds_Reader.start()
