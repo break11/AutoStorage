@@ -56,54 +56,47 @@ class CNode_SGItem(QGraphicsItem):
         if self.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
-
+        
+        #определение типа вершины
+        try:
+            sNodeType = self.nxGraf.node[ self.nodeID ][ SGT.s_nodeType ]
+        except KeyError:
+            sNodeType = SGT.ENodeTypes.NoneType.name
+        
+        try:
+            nodeType = SGT.ENodeTypes[ sNodeType ]
+        except KeyError:
+            nodeType = SGT.ENodeTypes.UnknownType
+        
+        # раскраска вершины по ее типу
+        fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ nodeType ]
         painter.setPen( Qt.black )
-        
-        sNodeType = self.nxGraf.node[ self.nodeID ].get( SGT.s_nodeType )
-        
-        if self.isSelected():
-            fillColor = Qt.red
-        else:
-            # раскраска вершины по ее типу
-
-            if sNodeType is None:
-                fillColor = Qt.darkGray
-            else:
-                supportedNodeTypes = [item.name for item in SGT.ENodeTypes]
-                if sNodeType not in supportedNodeTypes:
-                    fillColor = Qt.darkRed
-                else:
-                    nt =  SGT.ENodeTypes[ sNodeType ]
-                    fillColor = SGT.nodeColors[ nt ]
-
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
+        #отрисовка мест хранения
+        if ( nodeType == SGT.ENodeTypes.StorageSingle ):
+            painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
 
-        try:
-            if ( SGT.ENodeTypes[sNodeType] == SGT.ENodeTypes.StorageSingle ):
-                painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
-                pen = QPen( Qt.black )
-                pen.setWidth( 4 )
-                painter.setPen( pen )
-                width  = SGT.railWidth[SGT.EWidthType.Narrow.name]/1.8
-                height = SGT.railWidth[SGT.EWidthType.Narrow.name]
-                x = -width/2
-                y = height/1.8
+            pen = QPen( Qt.black )
+            pen.setWidth( 4 )
+            painter.setPen( pen )
 
-                topRect = QRectF (x, -y-height, width, height)
-                bottomRect = QRectF ( x, y, width, height )
+            width  = SGT.railWidth[SGT.EWidthType.Narrow.name]/1.8
+            height = SGT.railWidth[SGT.EWidthType.Narrow.name]
+            x = -width/2
+            y = height/1.8
 
-                painter.drawRect( topRect )
-                painter.drawRect( bottomRect )
+            topRect = QRectF (x, -y-height, width, height)
+            bottomRect = QRectF ( x, y, width, height )
 
-                self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
-        except KeyError:
-            pass
+            painter.drawRect( topRect )
+            painter.drawRect( bottomRect )
+            self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
+     
+        painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
         
         self.prepareGeometryChange()
-
-        painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
     def mouseMoveEvent( self, event ):
         pos = self.mapToScene (event.pos())
