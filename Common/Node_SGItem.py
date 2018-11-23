@@ -6,7 +6,8 @@ from PyQt5.QtCore import ( Qt, QRectF, QPointF )
 from . import StorageGrafTypes as SGT
 
 class CNode_SGItem(QGraphicsItem):
-    __R = 50
+    __R = 25
+    __fBBoxD  =  20 # 20   # расширение BBox для удобства выделения
 
     def __readGrafAttr( self, sAttrName ): return self.nxGraf.node[ self.nodeID ][ sAttrName ]
     def __writeGrafAttr( self, sAttrName, value ): self.nxGraf.node[ self.nodeID ][ sAttrName ] = SGT.adjustAttrType(sAttrName, value)
@@ -29,12 +30,13 @@ class CNode_SGItem(QGraphicsItem):
         self.nodeID = nodeID
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
+        self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
 
     def nxNode(self):
         return self.nxGraf.node[ self.nodeID ]
 
     def boundingRect(self):
-        return QRectF( -self.__R/2, -self.__R/2, self.__R, self.__R )
+         return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
     
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
@@ -57,11 +59,12 @@ class CNode_SGItem(QGraphicsItem):
 
         painter.setPen( Qt.black )
         
+        sNodeType = self.nxGraf.node[ self.nodeID ].get( SGT.s_nodeType )
+        
         if self.isSelected():
             fillColor = Qt.red
         else:
             # раскраска вершины по ее типу
-            sNodeType = self.nxGraf.node[ self.nodeID ].get( SGT.s_nodeType )
 
             if sNodeType is None:
                 fillColor = Qt.darkGray
@@ -74,7 +77,31 @@ class CNode_SGItem(QGraphicsItem):
                     fillColor = SGT.nodeColors[ nt ]
 
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
-        painter.drawEllipse( self.boundingRect() )
+        painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
+
+
+        try:
+            if ( SGT.ENodeTypes[sNodeType] == SGT.ENodeTypes.StorageSingle ):
+                painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
+                pen = QPen( Qt.black )
+                pen.setWidth( 4 )
+                painter.setPen( pen )
+                width  = SGT.railWidth[SGT.EWidthType.Narrow.name]/1.8
+                height = SGT.railWidth[SGT.EWidthType.Narrow.name]
+                x = -width/2
+                y = height/1.8
+
+                topRect = QRectF (x, -y-height, width, height)
+                bottomRect = QRectF ( x, y, width, height )
+
+                painter.drawRect( topRect )
+                painter.drawRect( bottomRect )
+
+                self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
+        except KeyError:
+            pass
+        
+        self.prepareGeometryChange()
 
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
