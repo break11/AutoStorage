@@ -18,6 +18,10 @@ class CNetObj_Model( QAbstractItemModel ):
         
     def onObjDeleted( self, netObj ):
         objIDX = self.netObj_To_Index( netObj )
+
+        self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+        self.endRemoveRows()
+
         self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
     
     #####################################################

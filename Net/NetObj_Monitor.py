@@ -50,8 +50,6 @@ class CNetObj_Monitor(QWidget):
     def keyPressEvent( self, event ):
         if ( event.key() != Qt.Key_Delete ): return
         
-        # self.tvNetObj.model().setRootNetObj( None )
-
         row = self.tvNetObj.selectionModel().currentIndex().row()
         parent = self.tvNetObj.selectionModel().currentIndex().parent()
         
@@ -81,7 +79,6 @@ class CNetObj_Monitor(QWidget):
             widget.hide()
 
     def treeView_select( self, currentIndex, prevIndex ):
-        print( "treeView_select" )
         self.initOrDone_NetObj_Widget( prevIndex, False )
         self.initOrDone_NetObj_Widget( currentIndex, True )
 
