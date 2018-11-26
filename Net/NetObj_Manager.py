@@ -151,8 +151,10 @@ class CNetObj_Manager( object ):
     @classmethod
     def connect( cls, bIsServer ):
         try:
-            ip_address = CSM.rootOpt( s_Redis_opt )[ s_Redis_ip ]
-            ip_redis   = CSM.rootOpt( s_Redis_opt )[ s_Redis_port ]
+            redisOptDict = CSM.rootOpt( s_Redis_opt, default = {} )
+            ip_address   = CSM.dictOpt( redisOptDict, s_Redis_ip,   default="localhost" )
+            ip_redis     = CSM.dictOpt( redisOptDict, s_Redis_port, default="6379" )
+
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
