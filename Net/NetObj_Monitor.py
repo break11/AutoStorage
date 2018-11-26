@@ -26,6 +26,7 @@ for str_item in _strList:
 class CNetObj_Monitor(QWidget):
     @staticmethod
     def enaledInOptions():
+        CSM.rootOpt( s_obj_monitor )
         return CSM.rootOpt( s_obj_monitor )[ s_active ]
 
     def __init__(self):

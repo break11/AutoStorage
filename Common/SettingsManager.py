@@ -56,15 +56,15 @@ class CSettingsManager():
     @classmethod
     def rootOpt( cls, sKey, default=None ):
         val = cls.options.get( sKey )
-        if not val:
-            print( f"[Warning]: Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{DefVal}'" )
+        if val is None:
+            print( f"[Warning]: Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
             val = default
         return val
     
     @classmethod
     def dictOpt( cls, dict, sKey, default=None ):
         val = dict.get( sKey )
-        if not val:
-            print( f"[Warning]: Dict option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{DefVal}'" )
+        if val is None:
+            print( f"[Warning]: Dict option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
             val = default
         return val
