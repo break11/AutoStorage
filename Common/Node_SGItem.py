@@ -64,18 +64,18 @@ class CNode_SGItem(QGraphicsItem):
             sNodeType = SGT.ENodeTypes.NoneType.name
         
         try:
-            nodeType = SGT.ENodeTypes[ sNodeType ]
+            enNodeType = SGT.ENodeTypes[ sNodeType ]
         except KeyError:
-            nodeType = SGT.ENodeTypes.UnknownType
+            enNodeType = SGT.ENodeTypes.UnknownType
         
         # раскраска вершины по ее типу
-        fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ nodeType ]
+        fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ enNodeType ]
         painter.setPen( Qt.black )
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
         #отрисовка мест хранения
-        if ( nodeType == SGT.ENodeTypes.StorageSingle ):
+        if ( enNodeType == SGT.ENodeTypes.StorageSingle ):
             painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
 
             pen = QPen( Qt.black )

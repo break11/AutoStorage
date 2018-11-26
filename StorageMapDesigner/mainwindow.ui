@@ -91,6 +91,7 @@
     <addaction name="acAddEdge"/>
     <addaction name="acDelMultiEdge"/>
     <addaction name="acReverseEdges"/>
+    <addaction name="acSelectAll"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -593,6 +594,17 @@ selection-background-color: red;*/
    </property>
    <property name="toolTip">
     <string>Show/hide main rail</string>
+   </property>
+  </action>
+  <action name="acSelectAll">
+   <property name="text">
+    <string>Select all items</string>
+   </property>
+   <property name="toolTip">
+    <string>Select all items</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
   </action>
  </widget>

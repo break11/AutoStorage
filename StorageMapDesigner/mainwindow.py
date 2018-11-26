@@ -179,6 +179,11 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
 
     @pyqtSlot()
+    def on_acSelectAll_triggered(self):
+        for gItem in self.StorageMap_Scene.items():
+            gItem.setSelected(True)
+
+    @pyqtSlot()
     def on_sbGridSize_editingFinished(self):
         self.StorageMap_Scene.gridSize = self.sbGridSize.value()
 
