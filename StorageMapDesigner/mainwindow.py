@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import (pyqtSlot, QByteArray)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QAction)
+from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
 from PyQt5 import uic
 
 from Common.StorageGraf_GScene_Manager import *
@@ -80,6 +80,9 @@ class CSMD_MainWindow(QMainWindow):
                                         SC.s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
                                         SC.s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
                                     }
+        # if self.SGraf_Manager.bHasChanges:
+        #     mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Save | QMessageBox.Cancel)
+        #     res = mb.exec()
 
     def loadGraphML( self, sFName ):
         self.graphML_fname = sFName

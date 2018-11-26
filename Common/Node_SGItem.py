@@ -75,24 +75,24 @@ class CNode_SGItem(QGraphicsItem):
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
         #отрисовка мест хранения
-        if ( enNodeType == SGT.ENodeTypes.StorageSingle ):
-            painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
+        # if ( enNodeType == SGT.ENodeTypes.StorageSingle ):
+        #     painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
 
-            pen = QPen( Qt.black )
-            pen.setWidth( 4 )
-            painter.setPen( pen )
+        #     pen = QPen( Qt.black )
+        #     pen.setWidth( 4 )
+        #     painter.setPen( pen )
 
-            width  = SGT.railWidth[SGT.EWidthType.Narrow.name]/1.8
-            height = SGT.railWidth[SGT.EWidthType.Narrow.name]
-            x = -width/2
-            y = height/1.8
+        #     width  = SGT.railWidth[SGT.EWidthType.Narrow.name]/1.8
+        #     height = SGT.railWidth[SGT.EWidthType.Narrow.name]
+        #     x = -width/2
+        #     y = height/1.8
 
-            topRect = QRectF (x, -y-height, width, height)
-            bottomRect = QRectF ( x, y, width, height )
+        #     topRect = QRectF (x, -y-height, width, height)
+        #     bottomRect = QRectF ( x, y, width, height )
 
-            painter.drawRect( topRect )
-            painter.drawRect( bottomRect )
-            self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
+        #     painter.drawRect( topRect )
+        #     painter.drawRect( bottomRect )
+        #     self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
      
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
         
