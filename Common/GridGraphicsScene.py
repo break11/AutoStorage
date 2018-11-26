@@ -20,9 +20,9 @@ class CGridGraphicsScene(QGraphicsScene):
 
         super().drawForeground( painter, rect )
 
-        if self.bDrawGrid == False : return
+        if not self.bDrawGrid or not self.gridSize: return
         
-        # координатная сетка 
+        # координатная сетка
         left = rect.left() - rect.left() % self.gridSize
         top  = rect.top()  - rect.top()  % self.gridSize
  

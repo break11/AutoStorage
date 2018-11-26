@@ -29,7 +29,8 @@ class CEdge_SGItem(QGraphicsItem):
         self.__BBoxRect  = None     
         self.__baseLine  = None
         
-        self.bDrawBBox = False
+        self.bDrawBBox      = False
+        self.bDrawInfoRails = False
         self.nxGraf = nxGraf
         self.nodeID_1 = nodeID_1
         self.nodeID_2 = nodeID_2
@@ -116,6 +117,7 @@ class CEdge_SGItem(QGraphicsItem):
         self.__InfoRails = []
 
     def buildInfoRails( self ):
+        if not self.bDrawInfoRails: return
         if len(self.__InfoRails) > 0: return
 
         wt = self.nxEdge().get( SGT.s_widthType )

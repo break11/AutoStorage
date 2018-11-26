@@ -6,7 +6,10 @@ _strList = [
             "geometry",
             "state",
             "scene",
-            "grid",
+            "grid_size",
+            "draw_grid",
+            "draw_info_rails",
+            "draw_main_rail",
           ]
 
 # Экспортируем "короткие" алиасы имен атрибутов ( будет доступно по SGT.s_nodeType, SGT.s_x и т.д. )
