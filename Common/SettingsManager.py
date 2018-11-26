@@ -54,17 +54,17 @@ class CSettingsManager():
             json.dump(cls.options, write_file, indent=4)
 
     @classmethod
-    def rootOpt( cls, sKey, DefVal=None ):
+    def rootOpt( cls, sKey, default=None ):
         val = cls.options.get( sKey )
         if not val:
             print( f"[Warning]: Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{DefVal}'" )
-            val = DefVal
+            val = default
         return val
     
     @classmethod
-    def dictOpt( cls, dict, sKey, DefVal=None ):
+    def dictOpt( cls, dict, sKey, default=None ):
         val = dict.get( sKey )
         if not val:
             print( f"[Warning]: Dict option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{DefVal}'" )
-            val = DefVal
+            val = default
         return val

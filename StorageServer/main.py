@@ -18,7 +18,7 @@ from Common.Graf_NetObjects import *
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
 
-    sFName = CSM.rootOpt( SC.s_storage_graph_file, DefVal="GraphML/test.graphml" )
+    sFName = CSM.rootOpt( SC.s_storage_graph_file, default="GraphML/test.graphml" )
     if not os.path.exists( sFName ):
         print( f"[Warning]: GraphML file not found '{sFName}'!" )
         return

@@ -40,7 +40,7 @@ class CSMD_MainWindow(QMainWindow):
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraf_Manager )
         
-        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
+        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default="" ) ) 
 
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window )
