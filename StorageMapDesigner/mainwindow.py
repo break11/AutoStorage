@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import (pyqtSlot, QByteArray)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog )
+from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
 from PyQt5 import uic
 
 from Common.StorageGraf_GScene_Manager import *
@@ -12,6 +12,7 @@ import Common.StrConsts as SC
 
 import sys
 sys.path.append( "./QtCustomWidgets/widgets" ) #Путь к кастомным виджетам для загрузки через .ui
+import actionbutton #есть путь к виджетам(см выше) если ипортить через'from QtCustomWidgets.widgets import actionbutton' будут двойные имена
 
 from Common.FileUtils import *
 
@@ -51,16 +52,37 @@ class CSMD_MainWindow(QMainWindow):
             self.restoreState( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_state ].encode() ) ) )
 
         if sceneSettings:
-            self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid]        
-        #ui
+            try: 
+                #пока оборачиваем в try-except, на случай если в коде добавились новые настройки, которых нет у пользователя
+                #новые настройки добавлять в конец блока, чтобы не сбились пользовательские, которые есть
+                self.StorageMap_Scene.gridSize = sceneSettings[SC.s_grid_size]
+                self.StorageMap_Scene.bDrawGrid = sceneSettings[SC.s_draw_grid]
+                self.SGraf_Manager.setDrawMainRail( sceneSettings[SC.s_draw_main_rail] )
+                self.SGraf_Manager.setDrawInfoRails( sceneSettings[SC.s_draw_info_rails] )
+            except:
+                pass
+
+        #setup ui
         self.sbGridSize.setValue(self.StorageMap_Scene.gridSize)
+        self.acGrid.setChecked(self.StorageMap_Scene.bDrawGrid)
+        self.acMainRail.setChecked(self.SGraf_Manager.bDrawMainRail)
+        self.acInfoRails.setChecked(self.SGraf_Manager.bDrawInfoRails)
+
+        for button in self.findChildren(actionbutton.CActionButton):
+            button.reconnectAction() #в момент создания кнопки она может ещё не дотягиваться до нужного QAction, делаем отдельным проходом
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
         CSM.options[SC.s_scene] =   {
-                                        SC.s_grid : self.StorageMap_Scene.gridSize
+                                        SC.s_grid_size : self.StorageMap_Scene.gridSize,
+                                        SC.s_draw_grid : self.StorageMap_Scene.bDrawGrid,
+                                        SC.s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
+                                        SC.s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
                                     }
+        # if self.SGraf_Manager.bHasChanges:
+        #     mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Save | QMessageBox.Cancel)
+        #     res = mb.exec()
 
     def loadGraphML( self, sFName ):
         self.graphML_fname = sFName
@@ -125,6 +147,14 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawBBox(bChecked)
 
     @pyqtSlot(bool)
+    def on_acInfoRails_triggered(self, bChecked):
+        self.SGraf_Manager.setDrawInfoRails(bChecked)
+
+    @pyqtSlot(bool)
+    def on_acMainRail_triggered(self, bChecked):
+        self.SGraf_Manager.setDrawMainRail(bChecked)
+
+    @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):
         if self.SGraf_Manager.Mode == EGManagerMode.AddNode:
             self.SGraf_Manager.Mode = EGManagerMode.Edit
@@ -151,9 +181,14 @@ class CSMD_MainWindow(QMainWindow):
     def on_acAddEdge_triggered(self):
         self.SGraf_Manager.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
 
-    @pyqtSlot(int)
-    def on_sbGridSize_valueChanged(self, value):
-        self.StorageMap_Scene.gridSize = value
+    @pyqtSlot()
+    def on_acSelectAll_triggered(self):
+        for gItem in self.StorageMap_Scene.items():
+            gItem.setSelected(True)
+
+    @pyqtSlot()
+    def on_sbGridSize_editingFinished(self):
+        self.StorageMap_Scene.gridSize = self.sbGridSize.value()
 
     def doSaveLoad(self, path, func):
         if path == "": return

@@ -52,6 +52,8 @@ def adjustAttrType( sAttrName, val ):
 #######################################################
 
 class ENodeTypes( Enum ):
+    NoneType       = auto()
+    UnknownType    = auto()
     DummyNode      = auto()
     StorageSingle  = auto()
     Cross          = auto()
@@ -62,6 +64,9 @@ class ENodeTypes( Enum ):
     Terminal       = auto()
 
 nodeColors = {
+    ENodeTypes.NoneType       : Qt.darkGray,
+    ENodeTypes.UnknownType    : Qt.darkRed,
+    ENodeTypes.DummyNode      : Qt.darkGreen,
     ENodeTypes.DummyNode      : Qt.darkGreen,
     ENodeTypes.StorageSingle  : Qt.cyan,
     ENodeTypes.Cross          : Qt.darkMagenta,

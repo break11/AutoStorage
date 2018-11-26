@@ -3,5 +3,11 @@
     "main_window": {
         "geometry": "",
         "state": ""
+    },
+    "scene": {
+        "grid_size": 400,
+        "draw_grid": false,
+        "draw_main_rail": false,
+        "draw_info_rails": false
     }
 }

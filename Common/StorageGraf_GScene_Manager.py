@@ -29,13 +29,19 @@ class CStorageGraf_GScene_Manager():
         self.gScene_evI   = None
         self.gView        = None
         self.nxGraf       = None
-        self.bDrawBBox    = False
+        self.bDrawBBox      = False
+        self.bDrawInfoRails = False
+        self.bDrawMainRail  = False
         self.Mode         = EGManagerMode.Edit
+        self.bHasChanges    = False
 
         self.gScene = gScene
         self.gView  = gView
 
         self.__maxNodeID    = 0
+
+    def setHasChanges(self, b = True):
+        self.bHasChanges = b
 
     def clear( self ):
         self.nodeGItems = {}
@@ -68,9 +74,22 @@ class CStorageGraf_GScene_Manager():
             self.addEdge(*e)
         
         gvFitToPage( self.gView )
+        self.setHasChanges(False) #сбрасываем признак изменения сцены после загрузки
 
     def save( self, sFName ):
         nx.write_graphml(self.nxGraf, sFName)
+
+    def setDrawInfoRails( self, bVal ):
+        self.bDrawInfoRails = bVal
+        for e, v in self.edgeGItems.items():
+            v.bDrawInfoRails = self.bDrawInfoRails
+            v.rebuildInfoRails()
+
+    def setDrawMainRail( self, bVal ):
+        self.bDrawMainRail = bVal
+        for e, g in self.groupsByEdge.items():
+            g.bDrawMainRail = self.bDrawMainRail
+            g.rebuildMainRail()
 
     def setDrawBBox( self, bVal ):
         self.bDrawBBox = bVal
@@ -101,6 +120,8 @@ class CStorageGraf_GScene_Manager():
             # поэтому приходится пересоздавать группу, убирая элементы и занося их в нее вновь 
             groupItem.removeFromGroup( edgeGItem )
             groupItem.addToGroup( edgeGItem )
+        
+        self.setHasChanges()
 
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
@@ -117,6 +138,8 @@ class CStorageGraf_GScene_Manager():
             edgeGItem = gItem.childItems()[ stdMItem.column() - 1 ]
             edgeGItem.nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
             edgeGItem.rebuildInfoRails()
+
+        self.setHasChanges()
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
@@ -175,6 +198,8 @@ class CStorageGraf_GScene_Manager():
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
 
+        self.setHasChanges()
+
     def addEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return False
         self.nxGraf.add_edge (nodeID_1, nodeID_2)
@@ -189,6 +214,8 @@ class CStorageGraf_GScene_Manager():
         edgeGItem.buildInfoRails()
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
+
+        self.setHasChanges()
         return True
     
     def addEdgesForSelection(self, direct = True, reverse = True):
@@ -208,6 +235,7 @@ class CStorageGraf_GScene_Manager():
         edgeGroup = self.groupsByEdge.get( groupKey )
         if edgeGroup == None:
             edgeGroup = CRail_SGItem(groupKey)
+            edgeGroup.bDrawMainRail = self.bDrawMainRail
             edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
             self.groupsByEdge[ groupKey ] = edgeGroup
             self.gScene.addItem( edgeGroup )
@@ -221,6 +249,9 @@ class CStorageGraf_GScene_Manager():
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
 
+        self.setHasChanges()
+
+
     def deleteEdge(self, nodeID_1, nodeID_2):
         e = (nodeID_1, nodeID_2)
         self.nxGraf.remove_edge(*e)
@@ -231,6 +262,8 @@ class CStorageGraf_GScene_Manager():
         edgeGroup.removeFromGroup( edgeGItem )
         self.gScene.removeItem( edgeGItem )
         del self.edgeGItems[e]
+
+        self.setHasChanges()
 
     def reverseEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get( (nodeID_2, nodeID_1) ) is None:
