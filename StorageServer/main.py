@@ -18,7 +18,7 @@ from Common.Graf_NetObjects import *
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
 
-    sFName = CSM.opt( SC.s_storage_graph_file )
+    sFName = CSM.rootOpt( SC.s_storage_graph_file, DefVal="GraphML/test.graphml" )
     if not os.path.exists( sFName ):
         print( f"[Warning]: GraphML file not found '{sFName}'!" )
         return
@@ -46,6 +46,18 @@ def loadStorageGraph( parentBranch ):
         edge = CGrafEdge_NO( name = GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
 
     # print( RenderTree(root) )
+
+    # Graf  = CNetObj( name="Graf", parent=parentBranch )
+    # Nodes = CNetObj(name="Nodes", parent=Graf)
+    # Edges = CNetObj(name="Edges", parent=Graf)
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Edges )
+    # CNetObj( name="nodeID", parent=Edges )
+    # CNetObj( name="nodeID", parent=Edges )
+    # CNetObj( name="nodeID", parent=Edges )
 
 def main():    
     registerNetObjTypes()

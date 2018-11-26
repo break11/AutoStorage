@@ -26,7 +26,7 @@ for str_item in _strList:
 class CNetObj_Monitor(QWidget):
     @staticmethod
     def enaledInOptions():
-        return CSM.opt( s_obj_monitor )[ s_active ]
+        return CSM.rootOpt( s_obj_monitor )[ s_active ]
 
     def __init__(self):
         super().__init__()
@@ -40,7 +40,7 @@ class CNetObj_Monitor(QWidget):
         self.tvNetObj.setModel( self.netObjModel )
         self.tvNetObj.selectionModel().currentChanged.connect( self.treeView_select )
 
-        settings = CSM.opt( s_obj_monitor )
+        settings = CSM.rootOpt( s_obj_monitor )
         geometry = settings[ s_window ][ s_geometry ]
         if geometry:
             self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
@@ -58,7 +58,7 @@ class CNetObj_Monitor(QWidget):
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
         
-        settings = CSM.opt( s_obj_monitor )
+        settings = CSM.rootOpt( s_obj_monitor )
         settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
 
     def initOrDone_NetObj_Widget( self, index, bInit ):

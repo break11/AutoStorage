@@ -1,11 +1,16 @@
 import sys
 
+from Common.SettingsManager import CSettingsManager as CSM
 from typing import *
 import weakref
 import redis
 from Net.NetCmd import *
 from queue import Queue
 import threading
+
+s_Redis_opt  = "redis"
+s_Redis_ip   = "ip"
+s_Redis_port = "port"
 
 s_Redis_NetObj_Channel = "net-cmd"
 
@@ -144,12 +149,15 @@ class CNetObj_Manager( object ):
         cls.__objects[ cls.rootObj.UID ] = cls.rootObj
 
     @classmethod
-    def connect( cls, bFlushDB ):
+    def connect( cls, bIsServer ):
         try:
-            cls.redisConn = redis.StrictRedis(host='localhost', port=6379, db=0)
+            ip_address = CSM.rootOpt( s_Redis_opt )[ s_Redis_ip ]
+            ip_redis   = CSM.rootOpt( s_Redis_opt )[ s_Redis_port ]
+            cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.redisConn.info() # for genering exception if no connection
-            cls.serviceConn = redis.StrictRedis(host='localhost', port=6379, db=1)
-            if bFlushDB: cls.redisConn.flushdb()
+            cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
+            # сервер при коннекте сбрасывает содержимое БД
+            if bIsServer: cls.redisConn.flushdb()
         except redis.exceptions.ConnectionError as e:
             print( f"[Error]: Can not connect to REDIS: {e}" )
             return False
@@ -158,11 +166,13 @@ class CNetObj_Manager( object ):
             cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
         CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_connected, cls.clientID ) )
 
-        objects = cls.redisConn.smembers( s_ObjectsSet )
-        if ( objects ):
-            objects = sorted( objects )
-            for it in objects:
-                netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+        # клиенты при старте подхватывают содержимое с сервера
+        if not bIsServer:
+            objects = cls.redisConn.smembers( s_ObjectsSet )
+            if ( objects ):
+                objects = sorted( objects )
+                for it in objects:
+                    netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
@@ -171,13 +181,14 @@ class CNetObj_Manager( object ):
         return True
 
     @classmethod
-    def disconnect( cls, bFlushDB ):
+    def disconnect( cls, bIsServer ):
         if not cls.redisConn: return
         
         cls.netCmds_Reader.stop()
 
         CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_disconnected, cls.clientID ) )
-        if bFlushDB: cls.redisConn.flushdb()
+        # при дисконнекте сервер сбрасывает содержимое БД
+        if bIsServer: cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None
         print( cls.__name__, cls.disconnect.__name__ )

@@ -40,11 +40,11 @@ class CSMD_MainWindow(QMainWindow):
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraf_Manager )
         
-        self.loadGraphML( CSM.opt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
+        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file ) or "" ) # None не пропускаем в loadGraphML
 
         #load settings
-        winSettings   = CSM.opt( SC.s_main_window )
-        sceneSettings = CSM.opt( SC.s_scene )
+        winSettings   = CSM.rootOpt( SC.s_main_window )
+        sceneSettings = CSM.rootOpt( SC.s_scene )
 
         if winSettings:
             self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( winSettings[ SC.s_geometry ].encode() ) ) )

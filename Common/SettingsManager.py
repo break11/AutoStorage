@@ -37,7 +37,7 @@ class CSettingsManager():
 
         except json.decoder.JSONDecodeError as error:
             cls.__bFileDamaged = True
-            print( f"[Error]: Settings file damaged {settingsFName()} : {error}!" )                    
+            print( f"[Error]: Settings file damaged '{settingsFName()}' : {error}!" )                    
 
         except Exception as error:
             print( error )
@@ -54,5 +54,17 @@ class CSettingsManager():
             json.dump(cls.options, write_file, indent=4)
 
     @classmethod
-    def opt( cls, sKey ):
-        return cls.options.get( sKey )
+    def rootOpt( cls, sKey, DefVal=None ):
+        val = cls.options.get( sKey )
+        if not val:
+            print( f"[Warning]: Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{DefVal}'" )
+            val = DefVal
+        return val
+    
+    @classmethod
+    def dictOpt( cls, dict, sKey, DefVal=None ):
+        val = dict.get( sKey )
+        if not val:
+            print( f"[Warning]: Dict option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{DefVal}'" )
+            val = DefVal
+        return val
