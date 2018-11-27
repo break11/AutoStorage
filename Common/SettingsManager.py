@@ -24,10 +24,8 @@ class CSettingsManager():
         raise NotImplementedError( "No need to have an instance of CSettingsManager." )
 
     @classmethod
-    def loadSettings( cls ):
-        with open( defSettingsFName(), "r" ) as read_file:
-            cls.options = json.load( read_file )
-
+    def loadSettings( cls, default={} ):
+        cls.options = default
         try:
             with open( settingsFName(), "r" ) as read_file:
                 cls.options = json.load( read_file )
@@ -37,10 +35,30 @@ class CSettingsManager():
 
         except json.decoder.JSONDecodeError as error:
             cls.__bFileDamaged = True
-            print( f"[Error]: Settings file damaged {settingsFName()} : {error}!" )                    
+            print( f"[Error]: Settings file damaged '{settingsFName()}' : {error}!" )                    
 
         except Exception as error:
             print( error )
+
+
+    # @classmethod
+    # def loadSettings( cls ):
+    #     with open( defSettingsFName(), "r" ) as read_file:
+    #         cls.options = json.load( read_file )
+
+    #     try:
+    #         with open( settingsFName(), "r" ) as read_file:
+    #             cls.options = json.load( read_file )
+
+    #     except FileNotFoundError as error:
+    #         print( error )
+
+    #     except json.decoder.JSONDecodeError as error:
+    #         cls.__bFileDamaged = True
+    #         print( f"[Error]: Settings file damaged '{settingsFName()}' : {error}!" )                    
+
+    #     except Exception as error:
+    #         print( error )
 
     @classmethod
     def saveSettings( cls ):
@@ -54,5 +72,18 @@ class CSettingsManager():
             json.dump(cls.options, write_file, indent=4)
 
     @classmethod
-    def opt( cls, sKey ):
-        return cls.options.get( sKey )
+    def rootOpt( cls, sKey, default={} ):
+        val = cls.options.get( sKey )
+        if val is None:
+            print( f"[Warning]: Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
+            val = default
+            cls.options[ sKey ] = val # несуществующую корневую настройку создаем в файле настроек
+        return val
+    
+    @classmethod
+    def dictOpt( cls, dict, sKey, default=None ):
+        val = dict.get( sKey )
+        if val is None:
+            print( f"[Warning]: Dict option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
+            val = default
+        return val

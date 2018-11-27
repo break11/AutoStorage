@@ -13,20 +13,24 @@ from Common.SettingsManager import CSettingsManager as CSM
 
 from __main__ import __file__ as baseFName
 
-_strList = [
-            "obj_monitor",
-            "active",
-            "window",
-            "geometry",
-            ]
+s_obj_monitor = "obj_monitor"
+s_active      = "active"
+s_window      = "window"
+s_geometry    = "geometry"
 
-for str_item in _strList:
-    locals()[ "s_" + str_item ] = str_item
+b_active_default = True
+
+objMonWinDefSettings = { s_geometry: "" }
+objMonDefSettings = {
+                    s_active: b_active_default,
+                    s_window: objMonWinDefSettings
+                    }
 
 class CNetObj_Monitor(QWidget):
     @staticmethod
-    def enaledInOptions():
-        return CSM.opt( s_obj_monitor )[ s_active ]
+    def enabledInOptions():
+        settings = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
+        return CSM.dictOpt( settings, s_active, default=b_active_default )
 
     def __init__(self):
         super().__init__()
@@ -39,31 +43,27 @@ class CNetObj_Monitor(QWidget):
         self.netObjModel = CNetObj_Model( self )
         self.tvNetObj.setModel( self.netObjModel )
         self.tvNetObj.selectionModel().currentChanged.connect( self.treeView_select )
+        
+        settings    = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
+        winSettings = CSM.dictOpt( settings,    s_window,   default=objMonWinDefSettings )
+        geometry    = CSM.dictOpt( winSettings, s_geometry, default="" )
 
-        settings = CSM.opt( s_obj_monitor )
-        geometry = settings[ s_window ][ s_geometry ]
-        if geometry:
-            self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
+        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 
         self.setWindowTitle( self.windowTitle() + " " + baseFName.rsplit(os.sep, 1)[1] )
 
     def keyPressEvent( self, event ):
         if ( event.key() != Qt.Key_Delete ): return
         
-        # self.tvNetObj.model().setRootNetObj( None )
-
-        print("Test delete tree element")
-
         row = self.tvNetObj.selectionModel().currentIndex().row()
         parent = self.tvNetObj.selectionModel().currentIndex().parent()
         
         self.tvNetObj.model().removeRow( row, parent )
 
-
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
         
-        settings = CSM.opt( s_obj_monitor )
+        settings = CSM.rootOpt( s_obj_monitor )
         settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
 
     def initOrDone_NetObj_Widget( self, index, bInit ):
@@ -89,7 +89,10 @@ class CNetObj_Monitor(QWidget):
 
     def setRootNetObj( self, root ):
         self.netObjModel.setRootNetObj( root )
+        self.clearView()
 
+
+    def clearView( self ):
         self.tvNetObj.expandAll()
 
         for col in range( 0, self.tvNetObj.header().count() ):

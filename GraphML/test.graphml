@@ -7,6 +7,9 @@
   <key attr.name="y" attr.type="long" for="node" id="d1" />
   <key attr.name="x" attr.type="long" for="node" id="d0" />
   <graph edgedefault="directed">
+      <data key="d0">0</data>
+      <data key="d1">0</data>
+      <data key="d2">Cross</data>
     <node id="nLU">
       <data key="d0">-500</data>
       <data key="d1">-500</data>

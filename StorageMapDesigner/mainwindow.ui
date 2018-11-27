@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -369,6 +369,24 @@ selection-background-color: red;*/
        <property name="Action" stdset="0">
         <string>acBBox</string>
        </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QToolBar" name="toolMain">
+       <property name="windowTitle">
+        <string>Tool Bar</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <addaction name="acFitToPage"/>
+       <addaction name="acAddNode"/>
+       <addaction name="acZoomIn"/>
+       <addaction name="acZoomOut"/>
+       <addaction name="acGrid"/>
+       <addaction name="acSnapToGrid"/>
+       <addaction name="acBBox"/>
+       <addaction name="acDelMultiEdge"/>
       </widget>
      </item>
     </layout>

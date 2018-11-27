@@ -57,6 +57,9 @@ selection-color: black;
       <property name="indentation">
        <number>25</number>
       </property>
+      <attribute name="headerMinimumSectionSize">
+       <number>160</number>
+      </attribute>
      </widget>
      <widget class="QScrollArea" name="saNetObj">
       <property name="minimumSize">

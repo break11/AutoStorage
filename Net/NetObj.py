@@ -3,18 +3,23 @@
 import sys
 
 from anytree import NodeMixin
+from anytree import Resolver
 
 from Common.SettingsManager import CSettingsManager as CSM
 
 class CNetObj( NodeMixin ):
-    __sName     = "Name"
-    __sUID      = "UID"
-    __sTypeName = "TypeName"
-    __sTypeUID  = "TypeUID"
-    __modelHeaderData = [ __sName, __sUID, __sTypeName, __sTypeUID, ]
-    __sParent   = "Parent"
+    __s_Name     = "Name"
+    __s_UID      = "UID"
+    __s_TypeUID  = "TypeUID"
+    __modelHeaderData = [ __s_Name, __s_UID, __s_TypeUID, ]
+    __s_Parent   = "Parent"
+    __s_obj      = "obj"
+    __s_props    = "props"
 
-    typeUID = 0 # hash of the class name - fill in instance init
+    __pathResolver = Resolver( __s_Name )
+    def resolvePath( self, sPath ): return self.__pathResolver.get(self, sPath)
+
+    typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
     def __init__( self, name="", parent=None, id=None ):
         super().__init__()
@@ -22,14 +27,12 @@ class CNetObj( NodeMixin ):
         self.name    = name
         self.parent  = parent
         self.isUpdated = False
-        self.__class__.typeUID = hash( self.__class__.__name__ )
 
         hd = self.__modelHeaderData
         self.__modelData = {
-                            hd.index( self.__sName     ) : self.name,
-                            hd.index( self.__sUID      ) : self.UID,
-                            hd.index( self.__sTypeName ) : self.__class__.__name__,
-                            hd.index( self.__sTypeUID  ) : self.typeUID,
+                            hd.index( self.__s_Name     ) : self.name,
+                            hd.index( self.__s_UID      ) : self.UID,
+                            hd.index( self.__s_TypeUID  ) : self.typeUID,
                             }
 
         CNetObj_Manager.registerObj( self )
@@ -37,6 +40,8 @@ class CNetObj( NodeMixin ):
     def __del__(self):
         # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
+
+    def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
 
 ###################################################################################
 
@@ -54,71 +59,70 @@ class CNetObj( NodeMixin ):
 ###################################################################################
 
     @classmethod
-    def modelDataColCount( cls ): return len( cls.__modelHeaderData )
+    def modelDataColCount( cls )   : return len( cls.__modelHeaderData )
     @classmethod
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
-    def modelData( self, col ): return self.__modelData[ col ]
+    def modelData( self, col )     : return self.__modelData[ col ]
 
-    def propsDict(self): raise NotImplementedError
+    def propsDict(self): return {}
 
 ###################################################################################
-    def sendToNet( self, netLink ):
+    @classmethod    
+    def redisBase_Name_C(cls, UID) : return f"{cls.__s_obj}:{UID}" 
+    def redisBase_Name(self) : return self.redisBase_Name_C( self.UID ) 
+
+    @classmethod    
+    def redisKey_Name_C(cls, UID) : return f"{cls.__s_obj}:{UID}:{cls.__s_Name}"
+    def redisKey_Name(self)       : return self.redisKey_Name_C( self.UID )
+
+    @classmethod
+    def redisKey_TypeUID_C(cls, UID) : return f"{cls.__s_obj}:{UID}:{cls.__s_TypeUID}"
+    def redisKey_TypeUID(self)       : return self.redisKey_TypeUID_C( self.UID )
+
+    @classmethod        
+    def redisKey_Parent_C(cls, UID) : return f"{cls.__s_obj}:{UID}:{cls.__s_Parent}"
+    def redisKey_Parent(self)       : return self.redisKey_Parent_C( self.UID )
+
+    @classmethod        
+    def redisKey_Props_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_props }"
+    def redisKey_Props(self)       : return self.redisKey_Props_C( self.UID )
+###################################################################################
+    def saveToRedis( self, netLink ):
+        if self.UID < 0: return
+
         hd = self.__modelHeaderData
 
-        netLink.set( f"obj:{self.UID}:{self.__sName}",    self.__modelData[ hd.index( self.__sName    ) ] )
-        netLink.set( f"obj:{self.UID}:{self.__sTypeUID}", self.__modelData[ hd.index( self.__sTypeUID ) ] )
+        # сохранение стандартного набора полей
+        netLink.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
+        netLink.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
         parent = self.parent.UID if self.parent else None
-        netLink.set( f"obj:{self.UID}:{self.__sParent}", parent )
+        netLink.set( self.redisKey_Parent(),  self.parent.UID )
 
-    def afterLoad( self ):
-        pass
+        # сохранение справочника свойств
+        if len( self.propsDict() ):
+            netLink.hmset( self.redisKey_Props(), self.propsDict() )
 
-    def afterUpdate( self ):
-        pass
+        # вызов дополнительных действий по сохранению наследника
+        self.onSaveToRedis( netLink )
 
-    def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
+    def delFromRedis( self, netLink ):
+        for key in netLink.keys( self.redisBase_Name() + ":*" ):
+            netLink.delete( key )
 
-###################################################################################
+    @classmethod
+    def loadFromRedis( cls, netLink, UID ):
+        name     = netLink.get( cls.redisKey_Name_C( UID ) ).decode()
+        parentID = int( netLink.get( cls.redisKey_Parent_C( UID ) ).decode() )
+        typeUID  = netLink.get( cls.redisKey_TypeUID_C( UID ) ).decode()
+        objClass = CNetObj_Manager.netObj_Type( typeUID )
 
-class CGrafRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None, nxGraf=None):
-        super().__init__( name = name, parent = parent )
-        self.nxGraf = nxGraf
+        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
+        netObj.onLoadFromRedis( netLink, netObj )
 
-    def propsDict(self): return self.nxGraf.graph
+        return netObj
 
-    def afterLoad( self ):
-        # create nxGraf from childNodes
-        pass
-
-class CGrafNode_NO( CNetObj ):
-    def __init__( self, name="", parent=None, nxNode=None):
-        super().__init__( name = name, parent = parent )
-        self.nxNode = nxNode
-
-    def propsDict(self): return self.nxNode
-
-    # def nxGraf(self):
-    #     return self.grafNode().nxGraf
-
-    def grafNode(self):
-        # r = Resolver('name')
-        # return r.get(self, '../../')
-        pass
-
-    def afterLoad( self ):
-        # graf = queryNode(self, '../../', CGrafRoot_NO)
-
-        # for attr
-        #     graf.nxGraf().nodes[ name ][ attr ] = val
-        # # create nxGraf from childNodes
-        pass
-
-class CGrafEdge_NO( CNetObj ):
-    def __init__( self, name="", parent=None, nxEdge=None):
-        super().__init__( name = name, parent = parent )
-        self.nxEdge = nxEdge
-
-    def propsDict(self): return self.nxEdge
+    # методы для переопределения дополнительного поведения в наследниках
+    def onSaveToRedis( self, netLink ): pass
+    def onLoadFromRedis( self, netLink, netObj ): pass
 
 from .NetObj_Manager import CNetObj_Manager

@@ -1,98 +1,78 @@
 import networkx as nx
+from anytree import AnyNode, NodeMixin, RenderTree
+import redis
+import os
 
 from PyQt5.QtWidgets import ( QApplication, QWidget )
 
 from Common.SettingsManager import CSettingsManager as CSM
+from Common.BaseApplication import *
 import Common.StrConsts as SC
 from Net.NetObj import *
 from Net.NetObj_Manager import *
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj_Widgets import *
 
-from anytree import AnyNode, NodeMixin, RenderTree
-import redis
-import os
-
-import threading
-
-class CNetCMDReader( threading.Thread ):
-    def __init__(self, netLink, bAppWorking):
-        super().__init__()
-        self.r = netLink
-        self.receiver = netLink.pubsub()
-        self.receiver.subscribe('net-cmd')
-        self.bAppWorking = bAppWorking
-    
-    def run(self):
-        while self.bAppWorking.value:
-            # print("Hello from the thread!", self.bAppWorking.value)
-            msg = self.receiver.get_message(False, 0.5)
-            if msg: print( msg )
-
-def registerNetObjTypes():
-    reg = CNetObj_Manager.registerType
-    reg( CNetObj )
-    reg( CGrafRoot_NO )
-    reg( CGrafNode_NO )
-    reg( CGrafEdge_NO )
+from Common.Graf_NetObjects import *
+from .def_settings import *
 
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
 
-    sFName = CSM.opt( SC.s_storage_graph_file )
+    sFName = CSM.rootOpt( SC.s_storage_graph_file, default=s_storage_graph_file__default )
     if not os.path.exists( sFName ):
         print( f"[Warning]: GraphML file not found '{sFName}'!" )
         return
 
     nxGraf  = nx.read_graphml( sFName )
+    # не используем атрибуты для значений по умолчанию для вершин и граней, поэтому сносим их из свойств графа
+    # как и следует из документации новые ноды не получают этот список атрибутов, это просто кеш
+    # при создании графа через загрузку они появляются, при создании чистого графа ( nx.Graph() ) нет
+    del nxGraf.graph["node_default"]
+    del nxGraf.graph["edge_default"]
+
     # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
 
-    Graf  = CGrafRoot_NO(name="Graf", parent=parentBranch, nxGraf=nxGraf)
+    Graf  = CGrafRoot_NO( name="Graf", parent=parentBranch, nxGraf=nxGraf )
     Nodes = CNetObj(name="Nodes", parent=Graf)
     Edges = CNetObj(name="Edges", parent=Graf)
 
     for nodeID in nxGraf.nodes():
-        node = CGrafNode_NO( name=nodeID, parent=Nodes, nxNode=nxGraf.nodes()[nodeID] )
+        node = CGrafNode_NO( name=nodeID, parent=Nodes )
+        # node = CGrafNode_NO( name=nodeID, parent=Nodes, nxNode=nxGraf.nodes()[nodeID] )
 
     for edgeID in nxGraf.edges():
-        edge = CGrafEdge_NO( name = str(edgeID), parent=Edges, nxEdge=nxGraf.edges()[edgeID] )
+        n1 = edgeID[0]
+        n2 = edgeID[1]
+        edge = CGrafEdge_NO( name = GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
 
     # print( RenderTree(root) )
 
-def main():
-    CSM.loadSettings()
-    
-    class bAppWorking: pass
-    bAppWorking.value = True
+    # Graf  = CNetObj( name="Graf", parent=parentBranch )
+    # Nodes = CNetObj(name="Nodes", parent=Graf)
+    # Edges = CNetObj(name="Edges", parent=Graf)
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Nodes )
+    # CNetObj( name="nodeID", parent=Edges )
+    # CNetObj( name="nodeID", parent=Edges )
+    # CNetObj( name="nodeID", parent=Edges )
+    # CNetObj( name="nodeID", parent=Edges )
 
+def main():    
     registerNetObjTypes()
 
-    CNetObj_Manager.clientID = -1 # признак того, что сервер
-    if not CNetObj_Manager.connect(): return
-    CNetObj_Manager.init()
-
+    app = CBaseApplication(sys.argv)
+    app.bIsServer = True    
+    if not app.init( default_settings = serverDefSet() ): return -1
+    
     loadStorageGraph( CNetObj_Manager.rootObj )
-        
-    CNetObj_Manager.sendAll()
+    app.objMonitor.clearView()
 
-    app = QApplication(sys.argv)
+    # CNetObj_Manager.sendAll()
 
-    if CNetObj_Monitor.enaledInOptions():
-        objMonitor = CNetObj_Monitor()
-        objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
-        registerNetNodeWidgets( objMonitor.saNetObj_WidgetContents )
-        objMonitor.show()
+    app.exec_() # главный цикл сообщений Qt
 
-    netReader = CNetCMDReader( CNetObj_Manager.redisConn, bAppWorking )
-    netReader.setDaemon(True)
-    netReader.start()
-
-    app.exec_()
-
-    CSM.saveSettings()
-
-    bAppWorking.value = False
-
-    # удаление объектов до димсконнекта, чтобы в сеть попали команды удаления объектов ( для других клиентов )
-    CNetObj_Manager.rootObj.clearChildren() 
-    CNetObj_Manager.disconnect()
+    app.done()
+    return 0
