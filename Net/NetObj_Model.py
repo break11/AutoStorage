@@ -16,13 +16,21 @@ class CNetObj_Model( QAbstractItemModel ):
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
         
-    def onObjDeleted( self, netObj ):
+    def beginRemove( self, netObj ):
         objIDX = self.netObj_To_Index( netObj )
-
         self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+    def endRemove( self ):
         self.endRemoveRows()
+        # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
 
-        self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+    def onObjDeleted( self, netObj ):
+        print( "CNetObj_Model::onObjDeleted", netObj )
+        # objIDX = self.netObj_To_Index( netObj )
+
+        # self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.endRemoveRows()
+
+        # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
     
     #####################################################
 

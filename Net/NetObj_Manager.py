@@ -71,8 +71,8 @@ class CNetObj_Manager( object ):
     clientID  = None
 
     __netObj_Types = {} # type: ignore
-
-    __objects : weakref.WeakValueDictionary = weakref.WeakValueDictionary() # for type annotation from mypy linter warning done
+    __objects      = weakref.WeakValueDictionary() # type: ignore
+    objModel = None # модель представление для дерева требует специйической обработки
 
     #####################################################
     __ObjCreatedFunctions = [] # type: ignore
@@ -108,12 +108,21 @@ class CNetObj_Manager( object ):
             elif cmd.CMD == ECmd.obj_deleted:
                 netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
                 if netObj:
-                    for f in cls.__ObjDeletedFunctions:
-                        f( netObj )
+                    if cls.objModel: cls.objModel.beginRemove( netObj )
+
+                    # for f in cls.__ObjDeletedFunctions:
+                    #     f( netObj )
+                    # cls.callOnDeleteListeners( netObj )
                     netObj.prepareDelete()
                     del netObj
+
+                    if cls.objModel: cls.objModel.endRemove()
             cls.qNetCmds.task_done()
     #####################################################
+    @classmethod
+    def callOnDeleteListeners( cls, netObj ):
+        for f in cls.__ObjDeletedFunctions:
+            f( netObj )
 
     @classmethod
     def genNetObj_UID( cls ):

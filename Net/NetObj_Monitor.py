@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import ( QWidget )
 from PyQt5.QtCore import (Qt, QByteArray, QModelIndex, QItemSelectionModel)
 
 from .NetObj_Model import CNetObj_Model
+from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import ( CNetObj_WidgetsManager )
 
 from Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
@@ -51,6 +52,8 @@ class CNetObj_Monitor(QWidget):
         self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 
         self.setWindowTitle( self.windowTitle() + " " + baseFName.rsplit(os.sep, 1)[1] )
+
+        CNetObj_Manager.objModel = self.netObjModel
 
     def keyPressEvent( self, event ):
         if ( event.key() != Qt.Key_Delete ): return
