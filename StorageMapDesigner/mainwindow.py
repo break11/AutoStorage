@@ -73,9 +73,15 @@ class CSMD_MainWindow(QMainWindow):
         #                                 SC.s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
         #                             }
 
-        # if self.SGraf_Manager.bHasChanges:
-        #     mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Save | QMessageBox.Cancel)
-        #     res = mb.exec()
+        if self.SGraf_Manager.bHasChanges:
+            mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Cancel | QMessageBox.Save)
+            mb.addButton("Close without saving", QMessageBox.RejectRole )
+            res = mb.exec()
+        
+            if res == QMessageBox.Save:
+                self.on_acSaveGraphML_triggered(True)
+            elif res == QMessageBox.Cancel:
+                event.ignore()
 
     def loadGraphML( self, sFName ):
         self.graphML_fname = sFName
@@ -88,6 +94,7 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
         CSM.options[ SC.s_last_opened_file ] = sFName
+        self.SGraf_Manager.setHasChanges(False)
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
@@ -195,6 +202,13 @@ class CSMD_MainWindow(QMainWindow):
         self.doSaveLoad(path, self.loadGraphML)
 
     @pyqtSlot(bool)
-    def on_acSaveGraphML_triggered(self, bChecked):
+    def on_acSaveGraphMLAs_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
         self.doSaveLoad(path, self.saveGraphML)
+
+    @pyqtSlot(bool)
+    def on_acSaveGraphML_triggered(self, bChecked):
+        if self.graphML_fname == "":
+            on_acSaveGraphMLAs_triggered(True)
+        else:
+            self.doSaveLoad(self.graphML_fname, self.saveGraphML)

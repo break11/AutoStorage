@@ -32,7 +32,7 @@ class CStorageGraf_GScene_Manager():
         self.bDrawBBox      = False
         self.bDrawInfoRails = False
         self.bDrawMainRail  = False
-        self.Mode         = EGManagerMode.Edit
+        self.Mode           = EGManagerMode.Edit
         self.bHasChanges    = False
 
         self.gScene = gScene

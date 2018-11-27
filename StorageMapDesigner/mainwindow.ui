@@ -69,6 +69,7 @@
     </property>
     <addaction name="acLoadGraphML"/>
     <addaction name="acSaveGraphML"/>
+    <addaction name="acSaveGraphMLAs"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -382,12 +383,15 @@ selection-background-color: red;*/
     <string>Load GraphML</string>
    </property>
   </action>
-  <action name="acSaveGraphML">
+  <action name="acSaveGraphMLAs">
    <property name="text">
-    <string>Save Graph ML</string>
+    <string>Save GraphML as...</string>
    </property>
    <property name="toolTip">
-    <string>Save Graph ML</string>
+    <string>Save GraphML as..</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="acAddNode">
@@ -527,6 +531,17 @@ selection-background-color: red;*/
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="acSaveGraphML">
+   <property name="text">
+    <string>Save GraphML</string>
+   </property>
+   <property name="toolTip">
+    <string>Save GraphML</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>
