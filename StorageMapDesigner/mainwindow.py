@@ -11,8 +11,6 @@ from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
 import sys
-from QtCustomWidgets.widgets.actionbutton import CActionButton
-
 from Common.FileUtils import *
 
 # Storage Map Designer Main Window
@@ -64,9 +62,6 @@ class CSMD_MainWindow(QMainWindow):
         self.acGrid.setChecked     ( self.StorageMap_Scene.bDrawGrid  )
         self.acMainRail.setChecked ( self.SGraf_Manager.bDrawMainRail )
         self.acInfoRails.setChecked( self.SGraf_Manager.bDrawInfoRails)
-
-        for button in self.findChildren(CActionButton):
-            button.reconnectAction() #в момент создания кнопки она может ещё не дотягиваться до нужного QAction, делаем отдельным проходом
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),

@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -212,72 +212,75 @@ selection-background-color: red;*/
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0" colspan="2">
-      <widget class="QLabel" name="lbGridSize">
-       <property name="text">
-        <string>Grid size:</string>
-       </property>
-      </widget>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
+         <item>
+          <widget class="QLabel" name="lbGridSize">
+           <property name="text">
+            <string>Grid size:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="sbGridSize">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximum">
+            <number>1000</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QToolBar" name="toolMain">
+         <property name="windowTitle">
+          <string>Tool Bar</string>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <addaction name="acGrid"/>
+         <addaction name="acSnapToGrid"/>
+         <addaction name="acBBox"/>
+        </widget>
+       </item>
+      </layout>
      </item>
-     <item row="0" column="2">
-      <spacer name="horizontalSpacer">
+     <item>
+      <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="3">
-      <widget class="QSpinBox" name="sbGridSize">
-       <property name="maximum">
-        <number>1000</number>
-       </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="CActionButton" name="abGrid">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="Action" stdset="0">
-        <string>acGrid</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3">
+     <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -289,105 +292,6 @@ selection-background-color: red;*/
         </size>
        </property>
       </spacer>
-     </item>
-     <item row="2" column="0" colspan="4">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="CActionButton" name="abSnapToGrid">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="Action" stdset="0">
-        <string>acSnapToGrid</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="CActionButton" name="abBBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>32</width>
-         <height>32</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="Action" stdset="0">
-        <string>acBBox</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QToolBar" name="toolMain">
-       <property name="windowTitle">
-        <string>Tool Bar</string>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <addaction name="acFitToPage"/>
-       <addaction name="acAddNode"/>
-       <addaction name="acZoomIn"/>
-       <addaction name="acZoomOut"/>
-       <addaction name="acGrid"/>
-       <addaction name="acSnapToGrid"/>
-       <addaction name="acBBox"/>
-       <addaction name="acDelMultiEdge"/>
-      </widget>
      </item>
     </layout>
    </widget>
@@ -626,13 +530,6 @@ selection-background-color: red;*/
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>CActionButton</class>
-   <extends>QPushButton</extends>
-   <header>QtCustomWidgets.widgets.actionbutton</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="images.qrc"/>
  </resources>
