@@ -84,7 +84,7 @@ class CActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
     # Returns the module containing the custom widget class. It may include
     # a module path.
     def includeFile(self):
-        return "actionbutton"
+        return "QtCustomWidgets.widgets.actionbutton"
 
 
 # Define the image used for the icon.

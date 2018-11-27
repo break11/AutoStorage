@@ -11,8 +11,7 @@ from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
 import sys
-sys.path.append( "./QtCustomWidgets/widgets" ) #Путь к кастомным виджетам для загрузки через .ui
-import actionbutton #есть путь к виджетам(см выше) если ипортить через'from QtCustomWidgets.widgets import actionbutton' будут двойные имена
+from QtCustomWidgets.widgets.actionbutton import CActionButton
 
 from Common.FileUtils import *
 
@@ -68,7 +67,7 @@ class CSMD_MainWindow(QMainWindow):
         self.acMainRail.setChecked(self.SGraf_Manager.bDrawMainRail)
         self.acInfoRails.setChecked(self.SGraf_Manager.bDrawInfoRails)
 
-        for button in self.findChildren(actionbutton.CActionButton):
+        for button in self.findChildren(CActionButton):
             button.reconnectAction() #в момент создания кнопки она может ещё не дотягиваться до нужного QAction, делаем отдельным проходом
 
     def closeEvent( self, event ):

@@ -612,7 +612,7 @@ selection-background-color: red;*/
   <customwidget>
    <class>CActionButton</class>
    <extends>QPushButton</extends>
-   <header>actionbutton</header>
+   <header>QtCustomWidgets.widgets.actionbutton</header>
   </customwidget>
  </customwidgets>
  <resources>
