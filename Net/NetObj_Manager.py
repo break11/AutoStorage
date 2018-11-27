@@ -1,7 +1,6 @@
 import sys
 
 from Common.SettingsManager import CSettingsManager as CSM
-from typing import *
 import weakref
 import redis
 from Net.NetCmd import *
@@ -71,13 +70,13 @@ class CNetObj_Manager( object ):
     serviceConn = None
     clientID  = None
 
-    __netObj_Types : Dict[ int, object ] = {}
+    __netObj_Types = {} # type: ignore
 
     __objects : weakref.WeakValueDictionary = weakref.WeakValueDictionary() # for type annotation from mypy linter warning done
 
     #####################################################
-    __ObjCreatedFunctions : List [object] = []
-    __ObjDeletedFunctions : List [object] = []
+    __ObjCreatedFunctions = [] # type: ignore
+    __ObjDeletedFunctions = [] # type: ignore
 
     @classmethod
     def add_ObjCreatedFunc( cls, f ): cls.__ObjCreatedFunctions.append( f )

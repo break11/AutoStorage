@@ -13,6 +13,28 @@ import Common.StrConsts as SC
 import sys
 from Common.FileUtils import *
 
+###########################################
+_strList = [
+            "scene",
+            "grid_size",
+            "draw_grid",
+            "draw_info_rails",
+            "draw_main_rail",
+          ]
+
+# Экспортируем "короткие" алиасы строковых констант
+for str_item in _strList:
+    locals()[ "s_" + str_item ] = str_item
+###########################################
+sceneDefSettings = {
+                    s_grid_size       : 400,   # type: ignore
+                    s_draw_grid       : False, # type: ignore
+                    s_draw_info_rails : False, # type: ignore
+                    s_draw_main_rail  : False, # type: ignore
+                   }
+###########################################
+
+
 # Storage Map Designer Main Window
 class CSMD_MainWindow(QMainWindow):
     __file_filters = "GraphML (*.graphml);;All Files (*)"
@@ -21,7 +43,7 @@ class CSMD_MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self)
+        uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
 
         self.graphML_fname = ""
         self.objProps = QStandardItemModel( self )
@@ -38,12 +60,12 @@ class CSMD_MainWindow(QMainWindow):
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraf_Manager )
         
-        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default="" ) ) 
+        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) ) 
 
         #load settings
-        winSettings   = CSM.rootOpt( SC.s_main_window )
+        winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
 
-        sceneSettings = CSM.rootOpt( SC.s_scene )
+        sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
 
         # if winSettings:
         geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
@@ -52,10 +74,10 @@ class CSMD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, SC.s_grid_size,       default=self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, SC.s_draw_grid,       default=self.StorageMap_Scene.bDrawGrid )
-        self.SGraf_Manager.setDrawMainRail ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,  default=self.SGraf_Manager.bDrawMainRail ) )
-        self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails, default=self.SGraf_Manager.bDrawInfoRails ) )
+        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, s_grid_size,       default=self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, s_draw_grid,       default=self.StorageMap_Scene.bDrawGrid )
+        self.SGraf_Manager.setDrawMainRail ( CSM.dictOpt( sceneSettings, s_draw_main_rail,  default=self.SGraf_Manager.bDrawMainRail ) )
+        self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, s_draw_info_rails, default=self.SGraf_Manager.bDrawInfoRails ) )
 
         #setup ui
         self.sbGridSize.setValue   ( self.StorageMap_Scene.gridSize   )
@@ -66,12 +88,12 @@ class CSMD_MainWindow(QMainWindow):
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
-        # CSM.options[SC.s_scene] =   {
-        #                                 SC.s_grid_size : self.StorageMap_Scene.gridSize,
-        #                                 SC.s_draw_grid : self.StorageMap_Scene.bDrawGrid,
-        #                                 SC.s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
-        #                                 SC.s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
-        #                             }
+        CSM.options[s_scene] =   {
+                                        s_grid_size : self.StorageMap_Scene.gridSize,
+                                        s_draw_grid : self.StorageMap_Scene.bDrawGrid,
+                                        s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
+                                        s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
+                                    }
 
         if self.SGraf_Manager.bHasChanges:
             mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Cancel | QMessageBox.Save)

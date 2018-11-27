@@ -3,7 +3,6 @@ import os
 import sys
 import json
 
-from typing import Dict
 from .FileUtils import *
 
 def settingsDir():
@@ -17,7 +16,7 @@ def defSettingsFName():
 
 
 class CSettingsManager():
-    options : Dict[str, str] = {} # MyPy Hack
+    options = {}            # type: ignore
     __bFileDamaged = False
 
     def __new__( self ):

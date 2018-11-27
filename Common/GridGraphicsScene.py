@@ -5,10 +5,10 @@ from PyQt5.QtGui import ( QPen )
 
 class CGridGraphicsScene(QGraphicsScene):
     itemChanged = pyqtSignal( QGraphicsItem )
-    gridSize = 400
     
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
+        self.gridSize = 400
         self.bDrawGrid = False
         self.bSnapToGrid = False
         self.orderedSelection = [] #элементы в порядке выделения (стандартая функция selectedItems() возвращает в неопределенном порядке)

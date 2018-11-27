@@ -19,7 +19,7 @@ from .def_settings import *
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
 
-    sFName = CSM.rootOpt( SC.s_storage_graph_file, default=s_storage_graph_file__default )
+    sFName = CSM.rootOpt( s_storage_graph_file, default=s_storage_graph_file__default )
     if not os.path.exists( sFName ):
         print( f"[Warning]: GraphML file not found '{sFName}'!" )
         return
@@ -65,12 +65,10 @@ def main():
 
     app = CBaseApplication(sys.argv)
     app.bIsServer = True    
-    if not app.init( default_settings = serverDefSet() ): return -1
+    if not app.init( default_settings = serverDefSet ): return -1
     
     loadStorageGraph( CNetObj_Manager.rootObj )
     app.objMonitor.clearView()
-
-    # CNetObj_Manager.sendAll()
 
     app.exec_() # главный цикл сообщений Qt
 
