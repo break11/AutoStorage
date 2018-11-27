@@ -1,6 +1,4 @@
 
-from typing import Dict
-
 from PyQt5.QtWidgets import ( QWidget, QVBoxLayout, QTableView, QAbstractItemView )
 from PyQt5.QtGui import ( QStandardItemModel )
 
@@ -10,7 +8,7 @@ from Common.GuiUtils import *
 from Common import StorageGrafTypes as SGT
 
 class CNetObj_WidgetsManager:
-    __netObj_Widgets : Dict[ int, object ] = {}
+    __netObj_Widgets = {} # type: ignore
 
     @classmethod
     def registerWidget(cls, netObj, netObj_Widget_Class, parent):

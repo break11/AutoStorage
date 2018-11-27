@@ -2,6 +2,13 @@
 from PyQt5.QtWidgets import ( QGraphicsView )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtCore import (Qt, QRectF)
+import Common.StrConsts as SC
+
+windowDefSettings = {
+                        SC.s_geometry: "", # type: ignore
+                        SC.s_state: ""     # type: ignore
+                    }
+
 
 def GraphEdgeName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 

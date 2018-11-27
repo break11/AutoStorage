@@ -5,7 +5,6 @@ from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
 from . import StorageGrafTypes as SGT
-from typing import List
 from .GuiUtils import GraphEdgeName
 
 class CEdge_SGItem(QGraphicsItem):

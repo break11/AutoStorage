@@ -5,13 +5,14 @@ _strList = [
             "main_window",
             "geometry",
             "state",
-            "scene",
             "grid_size",
             "draw_grid",
             "draw_info_rails",
             "draw_main_rail",
           ]
 
-# Экспортируем "короткие" алиасы имен атрибутов ( будет доступно по SGT.s_nodeType, SGT.s_x и т.д. )
+s_storage_graph_file__default = "GraphML/test.graphml"
+
+# Экспортируем "короткие" алиасы строковых констант
 for str_item in _strList:
     locals()[ "s_" + str_item ] = str_item

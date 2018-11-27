@@ -14,12 +14,13 @@ from Net.NetObj_Widgets import *
 from anytree import AnyNode, NodeMixin, RenderTree
 import redis
 import os
+from .def_settings import *
 
 def main():    
     registerNetObjTypes()
 
     app = CBaseApplication(sys.argv)
-    if not app.init(): return -1
+    if not app.init( default_settings = testClientDefSet ): return -1
 
     app.exec_() # главный цикл сообщений Qt
  
