@@ -14,11 +14,12 @@ from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj_Widgets import *
 
 from Common.Graf_NetObjects import *
+from .def_settings import *
 
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
 
-    sFName = CSM.rootOpt( SC.s_storage_graph_file, default="GraphML/test.graphml" )
+    sFName = CSM.rootOpt( SC.s_storage_graph_file, default=s_storage_graph_file__default )
     if not os.path.exists( sFName ):
         print( f"[Warning]: GraphML file not found '{sFName}'!" )
         return
@@ -64,7 +65,7 @@ def main():
 
     app = CBaseApplication(sys.argv)
     app.bIsServer = True    
-    if not app.init(): return -1
+    if not app.init( default_settings = serverDefSet() ): return -1
     
     loadStorageGraph( CNetObj_Manager.rootObj )
     app.objMonitor.clearView()

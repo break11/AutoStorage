@@ -44,8 +44,9 @@ class CSMD_MainWindow(QMainWindow):
         self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default="" ) ) 
 
         #load settings
-        winSettings   = CSM.rootOpt( SC.s_main_window, default={} )
-        sceneSettings = CSM.rootOpt( SC.s_scene, default={} )
+        winSettings   = CSM.rootOpt( SC.s_main_window )
+
+        sceneSettings = CSM.rootOpt( SC.s_scene )
 
         # if winSettings:
         geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
@@ -60,10 +61,10 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails, default=self.SGraf_Manager.bDrawInfoRails ) )
 
         #setup ui
-        self.sbGridSize.setValue(self.StorageMap_Scene.gridSize)
-        self.acGrid.setChecked(self.StorageMap_Scene.bDrawGrid)
-        self.acMainRail.setChecked(self.SGraf_Manager.bDrawMainRail)
-        self.acInfoRails.setChecked(self.SGraf_Manager.bDrawInfoRails)
+        self.sbGridSize.setValue   ( self.StorageMap_Scene.gridSize   )
+        self.acGrid.setChecked     ( self.StorageMap_Scene.bDrawGrid  )
+        self.acMainRail.setChecked ( self.SGraf_Manager.bDrawMainRail )
+        self.acInfoRails.setChecked( self.SGraf_Manager.bDrawInfoRails)
 
         for button in self.findChildren(actionbutton.CActionButton):
             button.reconnectAction() #в момент создания кнопки она может ещё не дотягиваться до нужного QAction, делаем отдельным проходом
@@ -71,12 +72,13 @@ class CSMD_MainWindow(QMainWindow):
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
-        CSM.options[SC.s_scene] =   {
-                                        SC.s_grid_size : self.StorageMap_Scene.gridSize,
-                                        SC.s_draw_grid : self.StorageMap_Scene.bDrawGrid,
-                                        SC.s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
-                                        SC.s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
-                                    }
+        # CSM.options[SC.s_scene] =   {
+        #                                 SC.s_grid_size : self.StorageMap_Scene.gridSize,
+        #                                 SC.s_draw_grid : self.StorageMap_Scene.bDrawGrid,
+        #                                 SC.s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
+        #                                 SC.s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
+        #                             }
+
         # if self.SGraf_Manager.bHasChanges:
         #     mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Save | QMessageBox.Cancel)
         #     res = mb.exec()

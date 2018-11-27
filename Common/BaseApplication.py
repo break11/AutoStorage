@@ -34,8 +34,8 @@ class CBaseApplication( QApplication ):
         self.timer.timeout.connect( f )
         self.timer.start()
 
-    def init(self):
-        CSM.loadSettings()
+    def init(self, default_settings={}):
+        CSM.loadSettings( default=default_settings )
 
         # clientID = -1 признак того, что это сервер
         if self.bIsServer: CNetObj_Manager.clientID = -1
@@ -43,7 +43,7 @@ class CBaseApplication( QApplication ):
 
         self.setTickFunction( CNetObj_Manager.onTick )
 
-        if CNetObj_Monitor.enaledInOptions():
+        if CNetObj_Monitor.enabledInOptions():
             self.objMonitor = CNetObj_Monitor()
             self.objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
             registerNetNodeWidgets( self.objMonitor.saNetObj_WidgetContents )

@@ -11,6 +11,13 @@ import threading
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
 s_Redis_port = "port"
+s_Redis_ip__default   = "localhost"
+s_Redis_port__default = "6379"
+
+redisDefSettings = {
+                    s_Redis_ip: s_Redis_ip__default,
+                    s_Redis_port: s_Redis_port__default
+                   }
 
 s_Redis_NetObj_Channel = "net-cmd"
 
@@ -151,9 +158,9 @@ class CNetObj_Manager( object ):
     @classmethod
     def connect( cls, bIsServer ):
         try:
-            redisOptDict = CSM.rootOpt( s_Redis_opt, default = {} )
-            ip_address   = CSM.dictOpt( redisOptDict, s_Redis_ip,   default="localhost" )
-            ip_redis     = CSM.dictOpt( redisOptDict, s_Redis_port, default="6379" )
+            redisOptDict = CSM.rootOpt( s_Redis_opt, default = redisDefSettings )
+            ip_address   = CSM.dictOpt( redisOptDict, s_Redis_ip,   default=s_Redis_ip__default )
+            ip_redis     = CSM.dictOpt( redisOptDict, s_Redis_port, default=s_Redis_port__default )
 
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.redisConn.info() # for genering exception if no connection

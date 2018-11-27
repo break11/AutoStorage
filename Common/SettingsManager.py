@@ -24,10 +24,8 @@ class CSettingsManager():
         raise NotImplementedError( "No need to have an instance of CSettingsManager." )
 
     @classmethod
-    def loadSettings( cls ):
-        with open( defSettingsFName(), "r" ) as read_file:
-            cls.options = json.load( read_file )
-
+    def loadSettings( cls, default={} ):
+        cls.options = default
         try:
             with open( settingsFName(), "r" ) as read_file:
                 cls.options = json.load( read_file )
@@ -42,6 +40,26 @@ class CSettingsManager():
         except Exception as error:
             print( error )
 
+
+    # @classmethod
+    # def loadSettings( cls ):
+    #     with open( defSettingsFName(), "r" ) as read_file:
+    #         cls.options = json.load( read_file )
+
+    #     try:
+    #         with open( settingsFName(), "r" ) as read_file:
+    #             cls.options = json.load( read_file )
+
+    #     except FileNotFoundError as error:
+    #         print( error )
+
+    #     except json.decoder.JSONDecodeError as error:
+    #         cls.__bFileDamaged = True
+    #         print( f"[Error]: Settings file damaged '{settingsFName()}' : {error}!" )                    
+
+    #     except Exception as error:
+    #         print( error )
+
     @classmethod
     def saveSettings( cls ):
         # не перезаписываем файл настроек, если он был поврежден, т.к. пользователь возможно хочет исправить ошибку
@@ -54,11 +72,12 @@ class CSettingsManager():
             json.dump(cls.options, write_file, indent=4)
 
     @classmethod
-    def rootOpt( cls, sKey, default=None ):
+    def rootOpt( cls, sKey, default={} ):
         val = cls.options.get( sKey )
         if val is None:
             print( f"[Warning]: Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
             val = default
+            cls.options[ sKey ] = val # несуществующую корневую настройку создаем в файле настроек
         return val
     
     @classmethod
