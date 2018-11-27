@@ -19,7 +19,7 @@ from .def_settings import *
 # загрузка графа и создание его объектов для сетевой синхронизации
 def loadStorageGraph( parentBranch ):
 
-    sFName = CSM.rootOpt( s_storage_graph_file, default=s_storage_graph_file__default )
+    sFName = CSM.rootOpt( SC.s_storage_graph_file, default=SC.s_storage_graph_file__default )
     if not os.path.exists( sFName ):
         print( f"[Warning]: GraphML file not found '{sFName}'!" )
         return
