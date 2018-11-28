@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Rail_SGItem import CRail_SGItem
+from .SStorage_SGItem import CSStorage_SGItem
 from .GItem_EventFilter import *
 from .GuiUtils import *
 
@@ -67,6 +68,16 @@ class CStorageGraf_GScene_Manager():
             nodeGItem.installSceneEventFilter( self.gScene_evI )
             nodeGItem.bDrawBBox = self.bDrawBBox
             self.nodeGItems[ n ] = nodeGItem
+
+            #создаём места хранения
+            # if nodeGItem.nodeType == SGT.ENodeTypes.StorageSingle:
+            #     sstorageGItem = CSStorage_SGItem( nodeGItem.x, nodeGItem.y - CSStorage_SGItem.default_height*1.1 )
+            #     self.gScene.addItem( sstorageGItem )
+            #     sstorageGItem.updatePos()
+
+            #     sstorageGItem = CSStorage_SGItem( nodeGItem.x, nodeGItem.y + CSStorage_SGItem.default_height*1.1 )
+            #     self.gScene.addItem( sstorageGItem )
+            #     sstorageGItem.updatePos()
 
         self.updateMaxNodeID()
 
@@ -131,6 +142,7 @@ class CStorageGraf_GScene_Manager():
         if isinstance( gItem, CNode_SGItem ):
             gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
             gItem.updatePos()
+            gItem.updateType()
             self.updateNodeIncEdges( gItem )
 
         if isinstance( gItem, CRail_SGItem ):
@@ -169,6 +181,15 @@ class CStorageGraf_GScene_Manager():
                     val = eGItem.nxEdge().get( key )
                     rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ) ) )
                 objProps.appendRow( rowItems )
+
+        # if isinstance( gItem, CSStorage_SGItem ):
+        #     objProps.setColumnCount( 2 )
+        #     objProps.setHorizontalHeaderLabels( [ "Storage ID", "ID" ] )
+
+        #     rowItems = [ Std_Model_Item(SGT.s_x), Std_Model_Item(gItem.x) ]
+        #     objProps.appendRow( rowItems )
+        #     rowItems = [ Std_Model_Item(SGT.s_y), Std_Model_Item(gItem.y) ]
+        #     objProps.appendRow( rowItems )
 
     def updateMaxNodeID(self):
         maxNodeID = 0
