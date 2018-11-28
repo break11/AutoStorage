@@ -2,11 +2,11 @@
 from enum import *
 
 class ECmd( IntEnum ):
-    client_connected    = 1,
-    client_disconnected = 2,
-    obj_created         = 3,
-    obj_deleted         = 4,
-    obj_updated         = 5,
+    client_connected    = auto()
+    client_disconnected = auto()
+    obj_created         = auto()
+    obj_deleted         = auto()
+    obj_updated         = auto()
 
 class CNetCmd:
     def __init__(self, Client_UID, CMD, Obj_UID ):
@@ -21,6 +21,7 @@ class CNetCmd:
     def fromString( sVal ):
         l = sVal.split(":")
 
+        
         Client_UID = int( l[0] )
         cmd        = ECmd( int( l[1] ) )
         Obj_UID    = int( l[2] )

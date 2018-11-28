@@ -46,7 +46,7 @@ class CNetObj( NodeMixin ):
 ###################################################################################
 
     def prepareDelete(self):
-        CNetObj_Manager.callOnDeleteListeners( self )
+        CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PrepareDelete, self )
         for child in self.children:
             child.prepareDelete()
             child.parent = None

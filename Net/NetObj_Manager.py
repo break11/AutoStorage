@@ -6,6 +6,7 @@ import redis
 from Net.NetCmd import *
 from queue import Queue
 import threading
+from enum import *
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -33,6 +34,25 @@ s_ObjectsSet = "objects_set"
 ########################################################
 
 class CNetObj_Manager( object ):
+
+    class ECallbackType( IntEnum ):
+        NetCreate     = auto()
+        NetDelete     = auto()
+        PrepareDelete = auto()
+
+    callbacskDict = {} # type: ignore # Dict of List by ECallbackType
+    for ct in ECallbackType:
+        callbacskDict[ct] = [] 
+
+    @classmethod
+    def addCallback( cls, сallbackType, callback ):
+        cls.callbacskDict[ сallbackType ].append( callback )
+
+    @classmethod
+    def doCallbacks( cls, сallbackType, netObj ):
+        for callback in cls.callbacskDict[ сallbackType ]:
+            callback( netObj )
+
     ########################################################
     class CNetCMDReader( threading.Thread ):
         def __init__(self):
@@ -75,14 +95,6 @@ class CNetObj_Manager( object ):
     objModel = None # модель представление для дерева требует специйической обработки
 
     #####################################################
-    __ObjCreatedFunctions = [] # type: ignore
-    __ObjDeletedFunctions = [] # type: ignore
-
-    @classmethod
-    def add_ObjCreatedFunc( cls, f ): cls.__ObjCreatedFunctions.append( f )
-    @classmethod
-    def add_ObjDeletedFunc( cls, f ): cls.__ObjDeletedFunctions.append( f )
-    #####################################################
 
     @classmethod
     def registerType(cls, netObjClass):
@@ -103,26 +115,20 @@ class CNetObj_Manager( object ):
             cmd = cls.qNetCmds.get()
             if cmd.CMD == ECmd.obj_created:
                 netObj = CNetObj.loadFromRedis( cls.redisConn, cmd.Obj_UID )
-                for f in cls.__ObjCreatedFunctions:
-                    f( netObj )
+                cls.doCallbacks( cls.ECallbackType.NetCreate, netObj )
+                
             elif cmd.CMD == ECmd.obj_deleted:
                 netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
                 if netObj:
                     if cls.objModel: cls.objModel.beginRemove( netObj )
 
-                    # for f in cls.__ObjDeletedFunctions:
-                    #     f( netObj )
-                    # cls.callOnDeleteListeners( netObj )
+                    cls.doCallbacks( cls.ECallbackType.NetDelete, netObj )
                     netObj.prepareDelete()
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
             cls.qNetCmds.task_done()
     #####################################################
-    @classmethod
-    def callOnDeleteListeners( cls, netObj ):
-        for f in cls.__ObjDeletedFunctions:
-            f( netObj )
 
     @classmethod
     def genNetObj_UID( cls ):
