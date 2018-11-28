@@ -9,21 +9,23 @@ class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.__rootNetObj = None
+        self.bNetLog = False
+
         CNetObj_Manager.addCallback( CNetObj_Manager.ECallbackType.NetCreate,     self.onNetCreated )
         CNetObj_Manager.addCallback( CNetObj_Manager.ECallbackType.PrepareDelete, self.onObjPrepareDeleted )
 
     def onNetCreated( self, netObj ):
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
+        if self.bNetLog: print( "CNetObj_Model.onNetCreated", netObj )
 
     def onObjPrepareDeleted( self, netObj ):
-        print( "CNetObj_Model::onObjDeleted", netObj )
-        # objIDX = self.netObj_To_Index( netObj )
+        if self.bNetLog: print( "CNetObj_Model.onObjDeleted", netObj )
         
     #####################################################
     # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove
     # т.к. Qt модель устроена таким образом, что всегда является перманентной по отношению к данным
-    
+
     def beginRemove( self, netObj ):
         objIDX = self.netObj_To_Index( netObj )
         self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )

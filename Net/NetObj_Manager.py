@@ -40,17 +40,18 @@ class CNetObj_Manager( object ):
         NetDelete     = auto()
         PrepareDelete = auto()
 
-    callbacskDict = {} # type: ignore # Dict of List by ECallbackType
+    callbacksDict = {} # type: ignore # Dict of List by ECallbackType
     for ct in ECallbackType:
-        callbacskDict[ct] = [] 
+        callbacksDict[ct] = [] 
 
     @classmethod
     def addCallback( cls, сallbackType, callback ):
-        cls.callbacskDict[ сallbackType ].append( callback )
+        assert callable( callback ), "CNetObj_Manager.addCallback need take a function!"
+        cls.callbacksDict[ сallbackType ].append( callback )
 
     @classmethod
     def doCallbacks( cls, сallbackType, netObj ):
-        for callback in cls.callbacskDict[ сallbackType ]:
+        for callback in cls.callbacksDict[ сallbackType ]:
             callback( netObj )
 
     ########################################################
@@ -116,7 +117,7 @@ class CNetObj_Manager( object ):
             if cmd.CMD == ECmd.obj_created:
                 netObj = CNetObj.loadFromRedis( cls.redisConn, cmd.Obj_UID )
                 cls.doCallbacks( cls.ECallbackType.NetCreate, netObj )
-                
+
             elif cmd.CMD == ECmd.obj_deleted:
                 netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
                 if netObj:

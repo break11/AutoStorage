@@ -18,12 +18,15 @@ s_obj_monitor = "obj_monitor"
 s_active      = "active"
 s_window      = "window"
 s_geometry    = "geometry"
+s_netlog      = "netlog"
 
 b_active_default = True
+b_netlog_default = False
 
 objMonWinDefSettings = { s_geometry: "" }
 objMonDefSettings = {
                     s_active: b_active_default,
+                    s_netlog: b_netlog_default,
                     s_window: objMonWinDefSettings
                     }
 
@@ -48,6 +51,8 @@ class CNetObj_Monitor(QWidget):
         settings    = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
         winSettings = CSM.dictOpt( settings,    s_window,   default=objMonWinDefSettings )
         geometry    = CSM.dictOpt( winSettings, s_geometry, default="" )
+
+        self.netObjModel.bNetLog = CSM.dictOpt( settings, s_netlog, default=b_netlog_default )
 
         self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 

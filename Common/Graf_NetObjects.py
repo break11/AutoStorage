@@ -53,6 +53,10 @@ class CGrafEdge_NO( CNetObj ):
         self.nxNodeID_2 = nxNodeID_2
         super().__init__( name=name, parent=parent, id=id )
 
+    # def __del__( self ):
+    #     super().__del__()
+    #     print("123")
+
     def propsDict(self): return self.nxEdge()
 
     def onLoadFromRedis( self, netLink, netObj ):
