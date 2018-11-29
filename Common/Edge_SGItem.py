@@ -45,7 +45,7 @@ class CEdge_SGItem(QGraphicsItem):
         # исходная линия может быть полезной далее, например для получения длины
         self.__baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
 
-        # угол поворота грани при рисовании (она рисуется вертикально в своей локальной системе координат, потом поворачивается)
+        # угол поворота грани при рисовании (она рисуется горизонтально в своей локальной системе координат, потом поворачивается)
         self.__rAngle = math.acos( self.__baseLine.dx() / ( self.__baseLine.length() or 1) )
         if self.__baseLine.dy() >= 0: self.__rAngle = (math.pi * 2.0) - self.__rAngle
 
@@ -58,6 +58,8 @@ class CEdge_SGItem(QGraphicsItem):
         self.__BBoxRect = QRectF( t.map( p1 ), t.map( p2 ) ).normalized()
         
         self.prepareGeometryChange()
+
+        # print ( (self.nodeID_1, self.nodeID_2), "\t", self.rotateAngle() )
 
     def edgeName(self):
         return GraphEdgeName( self.nodeID_1, self.nodeID_2 )
@@ -74,9 +76,9 @@ class CEdge_SGItem(QGraphicsItem):
         y = self.nxGraf.node[ self.nodeID_1 ][ SGT.s_y ]
         self.setPos( x, y )
 
-    # угол поворта в градусах, с учетом того, что изначально грань рисуется по оси Y, для функции painter.rotate()
+    # угол поворта в градусах, с учетом того, что изначально грань рисуется по оси X, для функции painter.rotate()
     def rotateAngle(self):
-        return -1 * math.degrees( self.__rAngle ) + 90
+        return math.degrees(self.__rAngle)
 
     def paint(self, painter, option, widget):
         pen = QPen()
@@ -98,12 +100,11 @@ class CEdge_SGItem(QGraphicsItem):
         pen.setWidth( 5 )
         painter.setPen(pen)
 
-        painter.rotate( self.rotateAngle() )
-
+        painter.rotate( -self.rotateAngle() )
         of = 10
-        painter.drawLine( -1 + of, -self.__baseLine.length() + 30, -10 + of, -self.__baseLine.length() + 50 ) #     \
-        painter.drawLine( of, 0, of, -self.__baseLine.length() )                                  # -----
-        painter.drawLine( 1 + of,  -self.__baseLine.length() + 30,  10 + of, -self.__baseLine.length() + 50 ) #     /
+        painter.drawLine( self.__baseLine.length() - 30, -1 + of, self.__baseLine.length() - 50, -10 + of ) #     \
+        painter.drawLine( 0, of, self.__baseLine.length(), of )                                             # -----
+        painter.drawLine( self.__baseLine.length() - 30, 1 + of, self.__baseLine.length() - 50, 10 + of )   #     /
 
     def rebuildInfoRails( self ):
         self.clearInfoRails()
@@ -140,7 +141,7 @@ class CEdge_SGItem(QGraphicsItem):
         def addInfoRailLine( lineGItem ):
             lineGItem.setPen( pen )
             lineGItem.setTransform( self.sceneTransform() )
-            lineGItem.setRotation( self.rotateAngle() )
+            lineGItem.setRotation( -self.rotateAngle() )
             lineGItem.setZValue( 5 )
             self.__InfoRails.append( lineGItem )
 
@@ -167,18 +168,18 @@ class CEdge_SGItem(QGraphicsItem):
         pen.setCapStyle( Qt.FlatCap )
 
         for sK in sides:
-            x = w * sK
+            y = w * sK
 
             if sensorSide != SGT.ESensorSide.SPassive.name:
                 pen.setColor( Qt.blue )
-                l = self.scene().addLine( x, -eHFrom * kW, x, -self.__baseLine.length() + eHTo * kW )
+                l = self.scene().addLine( eHFrom * kW, y, self.__baseLine.length() - eHTo * kW, y )
                 addInfoRailLine( l )
 
             pen.setColor( color )
             if eHFrom:
-                l = self.scene().addLine( x, 0, x, -eHFrom * kW )
+                l = self.scene().addLine( 0, y, eHFrom * kW, y )
                 addInfoRailLine( l )
 
             if eHTo:
-                l = self.scene().addLine( x, -self.__baseLine.length() + eHTo * kW, x, -self.__baseLine.length() )
+                l = self.scene().addLine( self.__baseLine.length() - eHTo * kW, y, self.__baseLine.length(), y )
                 addInfoRailLine( l )

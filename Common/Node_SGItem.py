@@ -1,13 +1,14 @@
 
 from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QBrush )
-from PyQt5.QtCore import ( Qt, QRectF, QPointF )
+from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
 from . import StorageGrafTypes as SGT
 
 class CNode_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  =  20 # 20   # расширение BBox для удобства выделения
+    __storage_offset = SGT.railWidth[SGT.EWidthType.Narrow.name]
 
     def __readGrafAttr( self, sAttrName ): return self.nxGraf.node[ self.nodeID ][ sAttrName ]
     def __writeGrafAttr( self, sAttrName, value ): self.nxGraf.node[ self.nodeID ][ sAttrName ] = SGT.adjustAttrType(sAttrName, value)
@@ -31,9 +32,23 @@ class CNode_SGItem(QGraphicsItem):
         self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
+        self.avgAngle = 0
+        self.__singleStorages = []
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
 
         self.updateType()
+
+    def bindSingleStorage(self, singleStorage):
+        if len (self.__singleStorages) == 0:
+            self.__singleStorages.append (singleStorage)
+            singleStorage.setTransformOriginPoint( QPointF (0, self.__storage_offset) )
+            singleStorage.setRotation(self.avgAngle)
+            singleStorage.setPos( self.x, self.y - self.__storage_offset )
+        elif len (self.__singleStorages) == 1:
+            self.__singleStorages.append (singleStorage)
+            singleStorage.setTransformOriginPoint( QPointF (0, -self.__storage_offset) )
+            singleStorage.setRotation(self.avgAngle)
+            singleStorage.setPos( self.x, self.y + self.__storage_offset )
 
     def nxNode(self):
         return self.nxGraf.node[ self.nodeID ]
@@ -44,6 +59,13 @@ class CNode_SGItem(QGraphicsItem):
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
         super().setPos( self.x, self.y )
+        try:
+            self.__singleStorages[0].setPos( self.x, self.y - self.__storage_offset )
+            self.__singleStorages[0].setRotation(-self.avgAngle)
+            self.__singleStorages[1].setPos( self.x, self.y + self.__storage_offset )
+            self.__singleStorages[1].setRotation(-self.avgAngle)
+        except IndexError:
+            pass
 
     def setPos(self, x, y):
         self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, x )
@@ -100,6 +122,16 @@ class CNode_SGItem(QGraphicsItem):
         #     self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
      
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
+
+        #средняя линия
+        if self.nodeType == SGT.ENodeTypes.StorageSingle:
+            pen = QPen( Qt.black )
+            pen.setWidth( 4 )
+            painter.setPen( pen )
+            l = QLineF (-250,0, 250, 0)
+            painter.rotate(-self.avgAngle)
+            painter.drawLine(l)
+
         self.prepareGeometryChange()
 
     def mouseMoveEvent( self, event ):

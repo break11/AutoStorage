@@ -23,9 +23,9 @@ class EGManagerMode( Enum ):
 
 class CStorageGraf_GScene_Manager():
     def __init__(self, gScene, gView):
-        self.nodeGItems   = {}
-        self.edgeGItems   = {}
-        self.groupsByEdge = {}
+        self.nodeGItems     = {}
+        self.edgeGItems     = {}
+        self.groupsByEdge   = {}
         self.gScene       = None
         self.gScene_evI   = None
         self.gView        = None
@@ -69,15 +69,15 @@ class CStorageGraf_GScene_Manager():
             nodeGItem.bDrawBBox = self.bDrawBBox
             self.nodeGItems[ n ] = nodeGItem
 
-            #создаём места хранения
-            # if nodeGItem.nodeType == SGT.ENodeTypes.StorageSingle:
-            #     sstorageGItem = CSStorage_SGItem( nodeGItem.x, nodeGItem.y - CSStorage_SGItem.default_height*1.1 )
-            #     self.gScene.addItem( sstorageGItem )
-            #     sstorageGItem.updatePos()
+            # создаём места хранения
+            if nodeGItem.nodeType == SGT.ENodeTypes.StorageSingle:
+                sstorageGItem = CSStorage_SGItem(ID="L")
+                self.gScene.addItem( sstorageGItem )
+                nodeGItem.bindSingleStorage (sstorageGItem)
 
-            #     sstorageGItem = CSStorage_SGItem( nodeGItem.x, nodeGItem.y + CSStorage_SGItem.default_height*1.1 )
-            #     self.gScene.addItem( sstorageGItem )
-            #     sstorageGItem.updatePos()
+                sstorageGItem = CSStorage_SGItem(ID="R")
+                self.gScene.addItem( sstorageGItem )
+                nodeGItem.bindSingleStorage (sstorageGItem)
 
         self.updateMaxNodeID()
 
@@ -181,15 +181,6 @@ class CStorageGraf_GScene_Manager():
                     val = eGItem.nxEdge().get( key )
                     rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ) ) )
                 objProps.appendRow( rowItems )
-
-        # if isinstance( gItem, CSStorage_SGItem ):
-        #     objProps.setColumnCount( 2 )
-        #     objProps.setHorizontalHeaderLabels( [ "Storage ID", "ID" ] )
-
-        #     rowItems = [ Std_Model_Item(SGT.s_x), Std_Model_Item(gItem.x) ]
-        #     objProps.appendRow( rowItems )
-        #     rowItems = [ Std_Model_Item(SGT.s_y), Std_Model_Item(gItem.y) ]
-        #     objProps.appendRow( rowItems )
 
     def updateMaxNodeID(self):
         maxNodeID = 0

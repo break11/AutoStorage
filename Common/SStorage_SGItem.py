@@ -9,23 +9,19 @@ class CSStorage_SGItem(QGraphicsItem):
     default_width = 360
     __fBBoxD  =  20 # 20   # расширение BBox для удобства выделения
 
-    def __init__(self, x, y):
+    def __init__(self, x = 0, y= 0, ID = "ID"):
         super().__init__()
         self.height = self.default_height
         self.width = self.default_width
         self.x = x
         self.y = y
         self.__BBoxRect = QRectF( -self.width/2, -self.height/2, self.width, self.height )
-        self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 25 )
+        self.ID = ID
 
     def boundingRect(self):
         return self.__BBoxRect
         #  return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
-    
-    # обновление позиции на сцене при перемещении ноды
-    def updatePos(self):
-        self.setPos(self.x, self.y)
 
     def setPos(self, x, y):
         super().setPos(x, y)
@@ -37,10 +33,7 @@ class CSStorage_SGItem(QGraphicsItem):
     def paint(self, painter, option, widget):
         #отрисовка мест хранения
 
-        if self.isSelected():
-            fill_color = QColor ( Qt.red )
-        else:
-            fill_color = QColor ( Qt.darkGray )
+        fill_color = QColor ( Qt.darkGray )
         brush = QBrush( fill_color, Qt.SolidPattern )
         painter.setBrush( brush )
 
@@ -52,7 +45,7 @@ class CSStorage_SGItem(QGraphicsItem):
         font = QFont()
         font.setPointSize(40)
         painter.setFont( font )
-        painter.drawText( self.boundingRect().adjusted(20, 20, -20, -20), Qt.AlignTop | Qt.AlignLeft, "ID" )
+        painter.drawText( self.boundingRect().adjusted(20, 20, -20, -20), Qt.AlignTop | Qt.AlignLeft, self.ID )
         self.prepareGeometryChange()
 
     def mouseMoveEvent( self, event ):
