@@ -6,7 +6,10 @@ class ECmd( IntEnum ):
     client_disconnected = auto()
     obj_created         = auto()
     obj_deleted         = auto()
-    obj_updated         = auto()
+    # obj_updated         = auto()
+    obj_prop_created    = auto()
+    obj_prop_deleted    = auto()
+    obj_prop_updated    = auto()
 
 class CNetCmd:
     def __init__(self, Client_UID, CMD, Obj_UID ):
@@ -21,7 +24,6 @@ class CNetCmd:
     def fromString( sVal ):
         l = sVal.split(":")
 
-        
         Client_UID = int( l[0] )
         cmd        = ECmd( int( l[1] ) )
         Obj_UID    = int( l[2] )
