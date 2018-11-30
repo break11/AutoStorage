@@ -5,7 +5,7 @@ import math
 from enum import Enum, auto
 
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (pyqtSlot, QObject, QLineF)
+from PyQt5.QtCore import (pyqtSlot, QObject, QLineF, QPointF)
 from PyQt5.QtWidgets import ( QGraphicsItem )
 
 from .Node_SGItem import CNode_SGItem
@@ -113,44 +113,36 @@ class CStorageGraf_GScene_Manager():
 
     #рассчет средней линии для нод типа SingleStorage
     def calcNodeAvgLine(self, nodeGItem):
+        if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle: return
         incEdges = list( self.nxGraf.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraf.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
         for key in incEdges:
             dictEdges[frozenset( key )] = self.edgeGItems[ key ] #оставляем только некратные грани
         
-        listEdges = list(dictEdges.values())
-
+        listEdges = dictEdges.values()
+        pairEdges = [ (e1, e2) for e1 in listEdges for e2 in listEdges ]
         dictDeltaAngles={} #составляем дикт, где ключ - острый угол между гранями, значение - кортеж из двух граней
-        if len(listEdges) == 1:
-            avgAngle = listEdges[0].rotateAngle()%180
-            nodeGItem.avgAngle = avgAngle if (avgAngle < 135) else avgAngle + 180
-            return
-        else:    
-            for e1 in listEdges:
-                for e2 in listEdges:
-                    delta_angle = int( abs(e1.rotateAngle() - e2.rotateAngle()) )
-                    delta_angle = delta_angle if delta_angle <= 180 else (360-delta_angle)
-                    dictDeltaAngles[ delta_angle ] = (e1, e2)
+
+        for e1, e2 in pairEdges:
+            delta_angle = int( abs(e1.rotateAngle() - e2.rotateAngle()) )
+            delta_angle = delta_angle if delta_angle <= 180 else (360-delta_angle)
+            dictDeltaAngles[ delta_angle ] = (e1, e2)
         
         if len(dictDeltaAngles) == 0: return
 
-        edgesForAvgLine = dictDeltaAngles[ max(dictDeltaAngles.keys()) ]
+        max_angle = max(dictDeltaAngles.keys())
 
-        e1 = edgesForAvgLine[0]
-        e2 = edgesForAvgLine[1]
+        if len (dictDeltaAngles) == 1:
+            e1 = dictDeltaAngles[ max_angle ][0]
+            p1 = e1.node1_pos()
+            p2 = e1.node2_pos()
+        else:
+            e1 = dictDeltaAngles[ max_angle ][0]
+            e2 = dictDeltaAngles[ max_angle ][1]
+            p1 = e1.node1_pos() if e1.nodeID_1 != nodeGItem.nodeID else e1.node2_pos()
+            p2 = e2.node1_pos() if e2.nodeID_1 != nodeGItem.nodeID else e2.node2_pos()
 
-        x1 = e1.x1 if e1.nodeID_1 != nodeGItem.nodeID else e1.x2
-        y1 = e1.y1 if e1.nodeID_1 != nodeGItem.nodeID else e1.y2
-
-        x2 = e2.x1 if e2.nodeID_1 != nodeGItem.nodeID else e2.x2
-        y2 = e2.y1 if e2.nodeID_1 != nodeGItem.nodeID else e2.y2
-            
-        avgLine = QLineF( x1, y1, x2, y2 )
-
-        # рассчет угла поворота линии
-        rAngle = math.acos( avgLine.dx() / ( avgLine.length() or 1) )
-        if avgLine.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
-
+        rAngle = getLineAngle( QLineF(p1, p2) )
         avgAngle = math.degrees(rAngle)%180
         nodeGItem.avgAngle = avgAngle if (avgAngle < 135) else avgAngle + 180
 
@@ -160,7 +152,6 @@ class CStorageGraf_GScene_Manager():
         for key in incEdges:
             edgeGItem = self.edgeGItems[ key ]
             edgeGItem.buildEdge()
-
 
             # Граням выходящим из узла обновляем позицию, входящим - нет
             if nodeGItem.nodeID == key[0]:
@@ -178,7 +169,12 @@ class CStorageGraf_GScene_Manager():
             groupItem.addToGroup( edgeGItem )
         
         self.setHasChanges()
-        self.calcNodeAvgLine(nodeGItem)
+
+        nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in list ( self.nxGraf.neighbors(nodeGItem.nodeID) ) ]
+        nodeGItemsNeighbors.append (nodeGItem)
+
+        for n in nodeGItemsNeighbors:
+            self.calcNodeAvgLine(n)
 
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
@@ -303,6 +299,7 @@ class CStorageGraf_GScene_Manager():
 
     def deleteNode(self, nodeID):
         self.nxGraf.remove_node( nodeID )
+        self.nodeGItems[ nodeID ].preDelete()
         self.nodeGItems[ nodeID ].prepareGeometryChange()
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]

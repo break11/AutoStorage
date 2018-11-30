@@ -5,7 +5,7 @@ from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
 from . import StorageGrafTypes as SGT
-from .GuiUtils import GraphEdgeName
+from .GuiUtils import GraphEdgeName, getLineAngle
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
@@ -20,6 +20,12 @@ class CEdge_SGItem(QGraphicsItem):
     def x2(self): return self.__readGrafAttrNode( self.nodeID_2, SGT.s_x )
     @property
     def y2(self): return self.__readGrafAttrNode( self.nodeID_2, SGT.s_y )
+
+    def node1_pos(self):
+        return QPointF(self.x1, self.y1)
+
+    def node2_pos(self):
+        return QPointF(self.x2, self.y2)
 
     def __init__(self, nxGraf, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
@@ -46,20 +52,17 @@ class CEdge_SGItem(QGraphicsItem):
         self.__baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
 
         # угол поворота грани при рисовании (она рисуется горизонтально в своей локальной системе координат, потом поворачивается)
-        self.__rAngle = math.acos( self.__baseLine.dx() / ( self.__baseLine.length() or 1) )
-        if self.__baseLine.dy() >= 0: self.__rAngle = (math.pi * 2.0) - self.__rAngle
+        self.__rAngle = getLineAngle ( self.__baseLine )
 
         # расчет BBox-а поворачиваем точки BBox-а (topLeft, bottomRight) на тот же угол
         t = QTransform()
-        t.rotate(  -1 * math.degrees( self.__rAngle ) + 90 )
+        t.rotate( -self.rotateAngle() + 90 )
 
         p1 = QPointF( 0, 0 )
         p2 = QPointF( 0, -self.__baseLine.length() )
-        self.__BBoxRect = QRectF( t.map( p1 ), t.map( p2 ) ).normalized()
+        self.__BBoxRect = QRectF( t.map(p1), t.map(p2) ).normalized()
         
         self.prepareGeometryChange()
-
-        # print ( (self.nodeID_1, self.nodeID_2), "\t", self.rotateAngle() )
 
     def edgeName(self):
         return GraphEdgeName( self.nodeID_1, self.nodeID_2 )
@@ -76,7 +79,7 @@ class CEdge_SGItem(QGraphicsItem):
         y = self.nxGraf.node[ self.nodeID_1 ][ SGT.s_y ]
         self.setPos( x, y )
 
-    # угол поворта в градусах, с учетом того, что изначально грань рисуется по оси X, для функции painter.rotate()
+    # угол поворта в градусах
     def rotateAngle(self):
         return math.degrees(self.__rAngle)
 

@@ -1,8 +1,9 @@
 
 from PyQt5.QtWidgets import ( QGraphicsView )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (Qt, QRectF)
+from PyQt5.QtCore import (Qt, QRectF, QLineF)
 import Common.StrConsts as SC
+import math
 
 windowDefSettings = {
                         SC.s_geometry: "", # type: ignore
@@ -35,3 +36,8 @@ def gvFitToPage( gView ):
 
     gView.fitInView( gView.scene().sceneRect(), Qt.KeepAspectRatio )
 
+    # рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
+def getLineAngle( line ):
+    rAngle = math.acos( line.dx() / ( line.length() or 1) )
+    if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
+    return rAngle

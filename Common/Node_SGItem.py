@@ -38,6 +38,11 @@ class CNode_SGItem(QGraphicsItem):
 
         self.updateType()
 
+    def preDelete(self):
+        for singleStorage in self.__singleStorages:
+            self.scene().removeItem(singleStorage)
+        self.__singleStorages = None
+
     def bindSingleStorage(self, singleStorage):
         if len (self.__singleStorages) == 0:
             self.__singleStorages.append (singleStorage)
@@ -59,13 +64,6 @@ class CNode_SGItem(QGraphicsItem):
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
         super().setPos( self.x, self.y )
-        try:
-            self.__singleStorages[0].setPos( self.x, self.y - self.__storage_offset )
-            self.__singleStorages[0].setRotation(-self.avgAngle)
-            self.__singleStorages[1].setPos( self.x, self.y + self.__storage_offset )
-            self.__singleStorages[1].setRotation(-self.avgAngle)
-        except IndexError:
-            pass
 
     def setPos(self, x, y):
         self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, x )
@@ -101,29 +99,15 @@ class CNode_SGItem(QGraphicsItem):
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
-        #отрисовка мест хранения
-        # if ( self.nodeType == SGT.ENodeTypes.StorageSingle ):
-        #     painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
-
-        #     pen = QPen( Qt.black )
-        #     pen.setWidth( 4 )
-        #     painter.setPen( pen )
-
-        #     width  = SGT.railWidth[SGT.EWidthType.Narrow.name]/1.8
-        #     height = SGT.railWidth[SGT.EWidthType.Narrow.name]
-        #     x = -width/2
-        #     y = height/1.8
-
-        #     topRect = QRectF (x, -y-height, width, height)
-        #     bottomRect = QRectF ( x, y, width, height )
-
-        #     painter.drawRect( topRect )
-        #     painter.drawRect( bottomRect )
-        #     self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
+        try:
+            self.__singleStorages[0].setPos( self.x, self.y - self.__storage_offset )
+            self.__singleStorages[0].setRotation(-self.avgAngle)
+            self.__singleStorages[1].setPos( self.x, self.y + self.__storage_offset )
+            self.__singleStorages[1].setRotation(-self.avgAngle)
+        except IndexError:
+            pass
      
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
-
-
 
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
             #прямая пропорциональности
