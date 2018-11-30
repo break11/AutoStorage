@@ -6,6 +6,8 @@ from anytree import NodeMixin
 from anytree import Resolver
 
 from Common.SettingsManager import CSettingsManager as CSM
+from .NetCmd import CNetCmd
+from .Net_Events import ENet_Event as EV
 
 class CNetObj( NodeMixin ):
     __s_Name     = "Name"
@@ -36,6 +38,7 @@ class CNetObj( NodeMixin ):
                             }
 
         CNetObj_Manager.registerObj( self )
+        CNetObj_Manager.doCallbacks( EV.ObjCreated, netObj=self )
 
     def __del__(self):
         # print("CNetObj destructor", self)
@@ -44,9 +47,26 @@ class CNetObj( NodeMixin ):
     def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
 
 ###################################################################################
+    def __getitem__( self, key ):
+        return self.propsDict()[ key ]
+
+    def __setitem__( self, key, value ):
+        bPropExist = not self.propsDict().get( key ) is None
+        self.propsDict()[ key ] = value
+        if bPropExist:
+            CNetObj_Manager.sendNetCMD( CNetCmd( CNetObj_Manager.clientID, CNetCmd.ECmd.ObjPropUpdated, Obj_UID = self.UID, Prop_Name=key ) )
+            CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PropUpdate, self, key )
+        else:
+            CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PropCreate, self, key )
+
+    def __delitem__( self, key ):
+        CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PropDelete, self, key )
+        del self.propsDict()[ key ]
+
+###################################################################################
 
     def prepareDelete(self):
-        CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PrepareDelete, self )
+        CNetObj_Manager.doCallbacks( EV.ObjPrepareDelete, netObj=self )
         for child in self.children:
             child.prepareDelete()
             child.parent = None

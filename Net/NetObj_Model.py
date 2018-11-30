@@ -9,18 +9,12 @@ class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.__rootNetObj = None
-        self.bNetLog = False
 
-        CNetObj_Manager.addCallback( CNetObj_Manager.ECallbackType.NetCreate,     self.onNetCreated )
-        CNetObj_Manager.addCallback( CNetObj_Manager.ECallbackType.PrepareDelete, self.onObjPrepareDeleted )
+        CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
 
-    def onNetCreated( self, netObj ):
+    def onObjCreated( self, netObj ):
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
-        if self.bNetLog: print( "CNetObj_Model ECallbackType.NetCreate", netObj )
-
-    def onObjPrepareDeleted( self, netObj ):
-        if self.bNetLog: print( "CNetObj_Model ECallbackType.PrepareDelete", netObj )
         
     #####################################################
     # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove

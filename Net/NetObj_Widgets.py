@@ -77,4 +77,5 @@ class CDictProps_Widget( CNetObj_Widget ):
         props = self.netObj.propsDict()
         key = item.data()
 
-        props[ key ] = item.data( Qt.DisplayRole )
+        self.netObj[ key ] = item.data( Qt.DisplayRole )
+        # props[ key ] = item.data( Qt.DisplayRole )
