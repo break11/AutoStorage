@@ -1,10 +1,11 @@
 
 import os
 import networkx as nx
+import math
 from enum import Enum, auto
 
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (pyqtSlot, QObject)
+from PyQt5.QtCore import (pyqtSlot, QObject, QLineF)
 from PyQt5.QtWidgets import ( QGraphicsItem )
 
 from .Node_SGItem import CNode_SGItem
@@ -110,12 +111,56 @@ class CStorageGraf_GScene_Manager():
         for e, v in self.edgeGItems.items():
             v.bDrawBBox = bVal
 
+    #рассчет средней линии для нод типа SingleStorage
+    def calcNodeAvgLine(self, nodeGItem):
+        incEdges = list( self.nxGraf.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraf.in_edges( nodeGItem.nodeID ) )
+        dictEdges = {}
+        for key in incEdges:
+            dictEdges[frozenset( key )] = self.edgeGItems[ key ] #оставляем только некратные грани
+        
+        listEdges = list(dictEdges.values())
+
+        dictDeltaAngles={} #составляем дикт, где ключ - острый угол между гранями, значение - кортеж из двух граней
+        if len(listEdges) == 1:
+            avgAngle = listEdges[0].rotateAngle()%180
+            nodeGItem.avgAngle = avgAngle if (avgAngle < 135) else avgAngle + 180
+            return
+        else:    
+            for e1 in listEdges:
+                for e2 in listEdges:
+                    delta_angle = int( abs(e1.rotateAngle() - e2.rotateAngle()) )
+                    delta_angle = delta_angle if delta_angle <= 180 else (360-delta_angle)
+                    dictDeltaAngles[ delta_angle ] = (e1, e2)
+        
+        if len(dictDeltaAngles) == 0: return
+
+        edgesForAvgLine = dictDeltaAngles[ max(dictDeltaAngles.keys()) ]
+
+        e1 = edgesForAvgLine[0]
+        e2 = edgesForAvgLine[1]
+
+        x1 = e1.x1 if e1.nodeID_1 != nodeGItem.nodeID else e1.x2
+        y1 = e1.y1 if e1.nodeID_1 != nodeGItem.nodeID else e1.y2
+
+        x2 = e2.x1 if e2.nodeID_1 != nodeGItem.nodeID else e2.x2
+        y2 = e2.y1 if e2.nodeID_1 != nodeGItem.nodeID else e2.y2
+            
+        avgLine = QLineF( x1, y1, x2, y2 )
+
+        # рассчет угла поворота линии
+        rAngle = math.acos( avgLine.dx() / ( avgLine.length() or 1) )
+        if avgLine.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
+
+        avgAngle = math.degrees(rAngle)%180
+        nodeGItem.avgAngle = avgAngle if (avgAngle < 135) else avgAngle + 180
+
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
         incEdges = list( self.nxGraf.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraf.in_edges( nodeGItem.nodeID ) )
         for key in incEdges:
             edgeGItem = self.edgeGItems[ key ]
             edgeGItem.buildEdge()
+
 
             # Граням выходящим из узла обновляем позицию, входящим - нет
             if nodeGItem.nodeID == key[0]:
@@ -133,6 +178,7 @@ class CStorageGraf_GScene_Manager():
             groupItem.addToGroup( edgeGItem )
         
         self.setHasChanges()
+        self.calcNodeAvgLine(nodeGItem)
 
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):

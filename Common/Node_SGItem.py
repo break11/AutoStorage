@@ -123,10 +123,19 @@ class CNode_SGItem(QGraphicsItem):
      
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
-        #средняя линия
+
+
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
-            pen = QPen( Qt.black )
+            #прямая пропорциональности
+            pen = QPen( Qt.magenta )
             pen.setWidth( 4 )
+            painter.setPen( pen )
+            l = QLineF (-500,500,500,-500)
+            painter.drawLine(l)
+
+            #средняя линия
+            pen = QPen( Qt.black )
+            pen.setWidth( 8 )
             painter.setPen( pen )
             l = QLineF (-250,0, 250, 0)
             painter.rotate(-self.avgAngle)
