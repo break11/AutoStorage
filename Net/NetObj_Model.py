@@ -17,10 +17,10 @@ class CNetObj_Model( QAbstractItemModel ):
     def onNetCreated( self, netObj ):
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
-        if self.bNetLog: print( "CNetObj_Model.onNetCreated", netObj )
+        if self.bNetLog: print( "CNetObj_Model ECallbackType.NetCreate", netObj )
 
     def onObjPrepareDeleted( self, netObj ):
-        if self.bNetLog: print( "CNetObj_Model.onObjDeleted", netObj )
+        if self.bNetLog: print( "CNetObj_Model ECallbackType.PrepareDelete", netObj )
         
     #####################################################
     # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove

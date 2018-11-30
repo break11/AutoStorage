@@ -147,7 +147,7 @@ class CNetObj_Manager( object ):
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_created, netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_created, Obj_UID = netObj.UID ) )
     
     @classmethod
     def unregisterObj( cls, netObj ):
@@ -156,7 +156,7 @@ class CNetObj_Manager( object ):
             if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
                 netObj.delFromRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_deleted, netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_deleted, Obj_UID = netObj.UID ) )
 
     @classmethod
     def accessObj( cls, UID ):
@@ -188,7 +188,7 @@ class CNetObj_Manager( object ):
 
         if cls.clientID is None:
             cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
-        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_connected, cls.clientID ) )
+        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_connected ) )
 
         # клиенты при старте подхватывают содержимое с сервера
         if not bIsServer:
@@ -210,7 +210,7 @@ class CNetObj_Manager( object ):
         
         cls.netCmds_Reader.stop()
 
-        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_disconnected, cls.clientID ) )
+        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_disconnected ) )
         # при дисконнекте сервер сбрасывает содержимое БД
         if bIsServer: cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
