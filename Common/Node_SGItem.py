@@ -28,15 +28,18 @@ class CNode_SGItem(QGraphicsItem):
         self.bDrawBBox = False
         self.nxGraf  = nxGraf
         self.nodeID = nodeID
+        self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
+
+        self.updateType()
 
     def nxNode(self):
         return self.nxGraf.node[ self.nodeID ]
 
     def boundingRect(self):
-         return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+        return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
     
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
@@ -52,30 +55,32 @@ class CNode_SGItem(QGraphicsItem):
         pos = self.pos() + deltaPos
         self.setPos(pos.x(), pos.y())
 
-    def paint(self, painter, option, widget):
-        if self.bDrawBBox == True:
-            painter.setPen(Qt.blue)
-            painter.drawRect( self.boundingRect() )
-        
-        #определение типа вершины
+    def updateType(self):
         try:
             sNodeType = self.nxGraf.node[ self.nodeID ][ SGT.s_nodeType ]
         except KeyError:
             sNodeType = SGT.ENodeTypes.NoneType.name
         
         try:
-            enNodeType = SGT.ENodeTypes[ sNodeType ]
+            self.nodeType = SGT.ENodeTypes[ sNodeType ]
         except KeyError:
-            enNodeType = SGT.ENodeTypes.UnknownType
+            self.nodeType = SGT.ENodeTypes.UnknownType
+
+    def paint(self, painter, option, widget):
+        if self.bDrawBBox == True:
+            painter.setPen(Qt.blue)
+            painter.drawRect( self.boundingRect() )
+        
+        #определение типа вершины
         
         # раскраска вершины по ее типу
-        fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ enNodeType ]
+        fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ self.nodeType ]
         painter.setPen( Qt.black )
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
         #отрисовка мест хранения
-        # if ( enNodeType == SGT.ENodeTypes.StorageSingle ):
+        # if ( self.nodeType == SGT.ENodeTypes.StorageSingle ):
         #     painter.setBrush( QBrush( Qt.darkGray, Qt.SolidPattern ) )
 
         #     pen = QPen( Qt.black )
@@ -95,7 +100,6 @@ class CNode_SGItem(QGraphicsItem):
         #     self.__BBoxRect = QRectF ( topRect.topLeft(), bottomRect.bottomRight() )
      
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
-        
         self.prepareGeometryChange()
 
     def mouseMoveEvent( self, event ):
