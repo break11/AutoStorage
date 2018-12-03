@@ -58,7 +58,7 @@ class CNetObj( NodeMixin ):
             CNetObj_Manager.sendNetCMD( CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, Prop_Name=key ) )
             CNetObj_Manager.doCallbacks( EV.ObjPropUpdated, netObj=self, PropName=key )
         else:
-            CNetObj_Manager.doCallbacks( CNetObj_Manager.EV.ObjPropCreate, netObj=self, PropName=key )
+            CNetObj_Manager.doCallbacks( EV.ObjPropCreate, netObj=self, PropName=key )
 
     def __delitem__( self, key ):
         CNetObj_Manager.doCallbacks( EV.ObjPropDelete, netObj=self, PropName=key )

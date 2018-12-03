@@ -94,7 +94,6 @@ class CDictProps_Widget( CNetObj_Widget ):
 
             stdItem_PropValue = self.__model.item( row, 1 )
             val = netObj.propsDict()[ PropName ]
-            print( stdItem_PropValue.model(), val, PropName, SGT.adjustAttrType( PropName, val ) )
             self.bBlockOnChangeEvent = True
-            stdItem_PropValue.setData( Qt.EditRole, SGT.adjustAttrType( PropName, val ) )
+            stdItem_PropValue.setData( val, role=Qt.EditRole )
             self.bBlockOnChangeEvent = False

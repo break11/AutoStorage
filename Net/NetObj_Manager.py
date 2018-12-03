@@ -143,7 +143,7 @@ class CNetObj_Manager( object ):
             elif cmd.CMD == EV.ObjPropUpdated:
                 netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
                 if netObj:
-                    netObj.propsDict()[ cmd.sProp_Name ] = cls.redisConn.hget( netObj.redisKey_Props(), cmd.sProp_Name )
+                    netObj.propsDict()[ cmd.sProp_Name ] = cls.redisConn.hget( netObj.redisKey_Props(), cmd.sProp_Name ).decode()
                     CNetObj_Manager.doCallbacks( EV.ObjPropUpdated, netObj=netObj, PropName = cmd.sProp_Name )
 
             cls.qNetCmds.task_done()
