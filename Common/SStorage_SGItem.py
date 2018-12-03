@@ -5,8 +5,8 @@ from PyQt5.QtCore import ( Qt, QRectF, QPointF )
 from . import StorageGrafTypes as SGT
 
 class CSStorage_SGItem(QGraphicsItem):
-    default_height = 640
-    default_width = 360
+    default_height = 360
+    default_width = 640
     __fBBoxD  =  20 # 20   # расширение BBox для удобства выделения
 
     def __init__(self, x = 0, y= 0, ID = "ID"):
@@ -31,7 +31,6 @@ class CSStorage_SGItem(QGraphicsItem):
         self.setPos(pos.x(), pos.y())
 
     def paint(self, painter, option, widget):
-        #отрисовка мест хранения
 
         fill_color = QColor ( Qt.darkGray )
         brush = QBrush( fill_color, Qt.SolidPattern )

@@ -32,7 +32,7 @@ class CNode_SGItem(QGraphicsItem):
         self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
-        self.avgAngle = 0
+        self.storageLineAngle = 0
         self.__singleStorages = []
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
 
@@ -44,16 +44,7 @@ class CNode_SGItem(QGraphicsItem):
         self.__singleStorages = None
 
     def bindSingleStorage(self, singleStorage):
-        if len (self.__singleStorages) == 0:
-            self.__singleStorages.append (singleStorage)
-            singleStorage.setTransformOriginPoint( QPointF (0, self.__storage_offset) )
-            singleStorage.setRotation(self.avgAngle)
-            singleStorage.setPos( self.x, self.y - self.__storage_offset )
-        elif len (self.__singleStorages) == 1:
-            self.__singleStorages.append (singleStorage)
-            singleStorage.setTransformOriginPoint( QPointF (0, -self.__storage_offset) )
-            singleStorage.setRotation(self.avgAngle)
-            singleStorage.setPos( self.x, self.y + self.__storage_offset )
+        self.__singleStorages.append (singleStorage)
 
     def nxNode(self):
         return self.nxGraf.node[ self.nodeID ]
@@ -99,16 +90,24 @@ class CNode_SGItem(QGraphicsItem):
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
+        #если поворот более 45 градусов, доворачиваем на 180, чтобы левая коробка была в левом секторе
+        storagesAngle = self.storageLineAngle % 180
+        storagesAngle = storagesAngle if (storagesAngle < 45) else storagesAngle + 180
+
         try:
-            self.__singleStorages[0].setPos( self.x, self.y - self.__storage_offset )
-            self.__singleStorages[0].setRotation(-self.avgAngle)
-            self.__singleStorages[1].setPos( self.x, self.y + self.__storage_offset )
-            self.__singleStorages[1].setRotation(-self.avgAngle)
+            self.__singleStorages[0].setPos( self.x - self.__storage_offset, self.y)
+            self.__singleStorages[0].setTransformOriginPoint( QPointF (self.__storage_offset, 0) )
+            self.__singleStorages[0].setRotation(-storagesAngle)
+
+            self.__singleStorages[1].setPos( self.x + self.__storage_offset, self.y)
+            self.__singleStorages[1].setTransformOriginPoint( QPointF (-self.__storage_offset, 0) )
+            self.__singleStorages[1].setRotation(-storagesAngle)
         except IndexError:
             pass
      
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
+        #отладочные линии
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
             #прямая пропорциональности
             pen = QPen( Qt.magenta )
@@ -117,12 +116,12 @@ class CNode_SGItem(QGraphicsItem):
             l = QLineF (-500,500,500,-500)
             painter.drawLine(l)
 
-            #средняя линия
+            #расчетная средняя линия
             pen = QPen( Qt.black )
             pen.setWidth( 8 )
             painter.setPen( pen )
             l = QLineF (-250,0, 250, 0)
-            painter.rotate(-self.avgAngle)
+            painter.rotate(-self.storageLineAngle)
             painter.drawLine(l)
 
         self.prepareGeometryChange()

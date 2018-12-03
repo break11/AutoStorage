@@ -84,6 +84,10 @@ class CStorageGraf_GScene_Manager():
 
         for e in self.nxGraf.edges():
             self.addEdge(*e)
+
+        #после создания граней перерасчитываем линии расположения мест хранения для нод типа StorageSingle
+        for nodeID, nodeGItem in self.nodeGItems.items():
+            self.calcNodeStorageLine( nodeGItem )
         
         gvFitToPage( self.gView )
         self.setHasChanges(False) #сбрасываем признак изменения сцены после загрузки
@@ -111,8 +115,8 @@ class CStorageGraf_GScene_Manager():
         for e, v in self.edgeGItems.items():
             v.bDrawBBox = bVal
 
-    #рассчет средней линии для нод типа SingleStorage
-    def calcNodeAvgLine(self, nodeGItem):
+    #рассчет средней линии для нод типа StorageSingle
+    def calcNodeStorageLine(self, nodeGItem):
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle: return
         incEdges = list( self.nxGraf.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraf.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
@@ -120,10 +124,10 @@ class CStorageGraf_GScene_Manager():
             dictEdges[frozenset( key )] = self.edgeGItems[ key ] #оставляем только некратные грани
         
         listEdges = dictEdges.values()
-        pairEdges = [ (e1, e2) for e1 in listEdges for e2 in listEdges ]
+        AllPairEdges = [ (e1, e2) for e1 in listEdges for e2 in listEdges ]
         dictDeltaAngles={} #составляем дикт, где ключ - острый угол между гранями, значение - кортеж из двух граней
 
-        for e1, e2 in pairEdges:
+        for e1, e2 in AllPairEdges:
             delta_angle = int( abs(e1.rotateAngle() - e2.rotateAngle()) )
             delta_angle = delta_angle if delta_angle <= 180 else (360-delta_angle)
             dictDeltaAngles[ delta_angle ] = (e1, e2)
@@ -132,19 +136,18 @@ class CStorageGraf_GScene_Manager():
 
         max_angle = max(dictDeltaAngles.keys())
 
+        #вычисляем средний угол между гранями, если грань исходит не из nodeGItem, поворачиваем на 180
         if len (dictDeltaAngles) == 1:
             e1 = dictDeltaAngles[ max_angle ][0]
-            p1 = e1.node1_pos()
-            p2 = e1.node2_pos()
+            r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
+            r2 = 0
         else:
             e1 = dictDeltaAngles[ max_angle ][0]
             e2 = dictDeltaAngles[ max_angle ][1]
-            p1 = e1.node1_pos() if e1.nodeID_1 != nodeGItem.nodeID else e1.node2_pos()
-            p2 = e2.node1_pos() if e2.nodeID_1 != nodeGItem.nodeID else e2.node2_pos()
+            r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
+            r2 = e2.rotateAngle() if (e2.nodeID_1 == nodeGItem.nodeID) else (e2.rotateAngle() + 180) % 360
 
-        rAngle = getLineAngle( QLineF(p1, p2) )
-        avgAngle = math.degrees(rAngle)%180
-        nodeGItem.avgAngle = avgAngle if (avgAngle < 135) else avgAngle + 180
+        nodeGItem.storageLineAngle = min(r1, r2) + abs(r1-r2)/2
 
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
@@ -170,11 +173,12 @@ class CStorageGraf_GScene_Manager():
         
         self.setHasChanges()
 
-        nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in list ( self.nxGraf.neighbors(nodeGItem.nodeID) ) ]
+        NeighborsIDs = list ( self.nxGraf.successors(nodeGItem.nodeID) ) + list ( self.nxGraf.predecessors(nodeGItem.nodeID) )
+        nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
         nodeGItemsNeighbors.append (nodeGItem)
 
         for n in nodeGItemsNeighbors:
-            self.calcNodeAvgLine(n)
+            self.calcNodeStorageLine(n)
 
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
