@@ -12,10 +12,10 @@ class CNetObj_Model( QAbstractItemModel ):
 
         CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
 
-    def onObjCreated( self, netObj ):
+    def onObjCreated( self, netObj=None, **kwargs ):
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
-        
+                
     #####################################################
     # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove
     # т.к. Qt модель устроена таким образом, что всегда является перманентной по отношению к данным

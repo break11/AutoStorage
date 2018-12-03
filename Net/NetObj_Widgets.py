@@ -45,6 +45,7 @@ class CDictProps_Widget( CNetObj_Widget ):
 
         self.__model = QStandardItemModel( self )
         self.__model.itemChanged.connect( self.propEditedByUser )
+        self.bBlockOnChangeEvent = False
 
         self.tvProps = QTableView( self )
         l = QVBoxLayout( self )
@@ -57,6 +58,8 @@ class CDictProps_Widget( CNetObj_Widget ):
         self.tvProps.setSelectionBehavior( QAbstractItemView.SelectRows )
 
         self.setStyleSheet( "QTableView::item:focus { border : 2px solid blue; }" )
+
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.OnPropUpdate )
 
     def init( self, netObj ):
         self.netObj = netObj
@@ -74,8 +77,24 @@ class CDictProps_Widget( CNetObj_Widget ):
         self.netObj = None
 
     def propEditedByUser( self, item ):
+        if self.bBlockOnChangeEvent: return
+
         props = self.netObj.propsDict()
         key = item.data()
+        self.netObj[ key ] = item.data( Qt.EditRole )
 
-        self.netObj[ key ] = item.data( Qt.DisplayRole )
-        # props[ key ] = item.data( Qt.DisplayRole )
+    def OnPropUpdate( self, netObj=None, PropName=None, **kwargs ):
+        if self.netObj != netObj: return
+
+        l = self.__model.findItems( PropName, Qt.MatchFixedString | Qt.MatchCaseSensitive, 0 )
+
+        if len( l ):
+            stdItem_PropName = l[0]
+            row = stdItem_PropName.row()
+
+            stdItem_PropValue = self.__model.item( row, 1 )
+            val = netObj.propsDict()[ PropName ]
+            print( stdItem_PropValue.model(), val, PropName, SGT.adjustAttrType( PropName, val ) )
+            self.bBlockOnChangeEvent = True
+            stdItem_PropValue.setData( Qt.EditRole, SGT.adjustAttrType( PropName, val ) )
+            self.bBlockOnChangeEvent = False

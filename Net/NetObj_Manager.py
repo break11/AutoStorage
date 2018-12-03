@@ -45,20 +45,20 @@ class CNetObj_Manager( object ):
         callbacksDict[ e ] = [] 
 
     @classmethod
-    def addCallback( cls, сallbackType, callback ):
+    def addCallback( cls, eventType, callback ):
         assert callable( callback ), "CNetObj_Manager.addCallback need take a function!"
-        cls.callbacksDict[ сallbackType ].append( callback )
+        cls.callbacksDict[ eventType ].append( callback )
 
     @classmethod
-    def doCallbacks( cls, сallbackType, *args, **kwargs ):
-        for callback in cls.callbacksDict[ сallbackType ]:
-            # print( kwargs )
-            kwargs[ "сallbackType" ] = сallbackType
-            callback( *args, **kwargs )
+    def doCallbacks( cls, eventType, **kwargs ):
+        for callback in cls.callbacksDict[ eventType ]:
+            kwargs[ "eventType" ] = eventType
+            callback( **kwargs )
 
-    # @staticmethod
-    def eventLogCallBack( *args, **kwargs ):
-        print( args, kwargs )
+    @classmethod
+    def eventLogCallBack( cls, eventType=None, netObj=None, clientID=None, PropName=None ):
+        if clientID == None: clientID = CNetObj_Manager.clientID # в параметр значением по умолчанию передать не получается...
+        print( f"eventType = {eventType.name} clientID = {clientID} netObj = {netObj} PropName = {PropName}" )
 
     ########################################################
     class CNetCMDReader( threading.Thread ):
@@ -139,6 +139,13 @@ class CNetObj_Manager( object ):
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
+
+            elif cmd.CMD == EV.ObjPropUpdated:
+                netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
+                if netObj:
+                    netObj.propsDict()[ cmd.sProp_Name ] = cls.redisConn.hget( netObj.redisKey_Props(), cmd.sProp_Name )
+                    CNetObj_Manager.doCallbacks( EV.ObjPropUpdated, netObj=netObj, PropName = cmd.sProp_Name )
+
             cls.qNetCmds.task_done()
     #####################################################
 
@@ -200,6 +207,7 @@ class CNetObj_Manager( object ):
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
             # сервер при коннекте сбрасывает содержимое БД
             if bIsServer: cls.redisConn.flushdb()
+                
         except redis.exceptions.ConnectionError as e:
             print( f"[Error]: Can not connect to REDIS: {e}" )
             return False

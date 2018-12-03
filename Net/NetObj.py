@@ -44,7 +44,7 @@ class CNetObj( NodeMixin ):
         # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
-    def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
+    def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
 
 ###################################################################################
     def __getitem__( self, key ):
@@ -54,13 +54,14 @@ class CNetObj( NodeMixin ):
         bPropExist = not self.propsDict().get( key ) is None
         self.propsDict()[ key ] = value
         if bPropExist:
-            CNetObj_Manager.sendNetCMD( CNetCmd( CNetObj_Manager.clientID, CNetCmd.ECmd.ObjPropUpdated, Obj_UID = self.UID, Prop_Name=key ) )
-            CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PropUpdate, self, key )
+            CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, value )
+            CNetObj_Manager.sendNetCMD( CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, Prop_Name=key ) )
+            CNetObj_Manager.doCallbacks( EV.ObjPropUpdated, netObj=self, PropName=key )
         else:
-            CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PropCreate, self, key )
+            CNetObj_Manager.doCallbacks( CNetObj_Manager.EV.ObjPropCreate, netObj=self, PropName=key )
 
     def __delitem__( self, key ):
-        CNetObj_Manager.doCallbacks( CNetObj_Manager.ECallbackType.PropDelete, self, key )
+        CNetObj_Manager.doCallbacks( EV.ObjPropDelete, netObj=self, PropName=key )
         del self.propsDict()[ key ]
 
 ###################################################################################
