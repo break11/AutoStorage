@@ -45,18 +45,29 @@ class CStorageGraf_GScene_Manager():
     def setHasChanges(self, b = True):
         self.bHasChanges = b
 
-    def clear( self ):
+    def clear(self):
         self.nodeGItems = {}
         self.edgeGItems = {}
         self.groupsByEdge = {}
         self.gScene.clear()
+        if self.nxGraf is not None:
+            self.nxGraf.clear()
 
-    def load( self, sFName ):
+    def new(self):
+        self.clear()
+        if self.nxGraf is None:
+            self.nxGraf = nx.DiGraph()
+        self.gScene_evI = CGItem_EventFilter()
+        self.gScene.addItem( self.gScene_evI )
+        self.setHasChanges()
+
+    def load(self, sFName):
         self.clear()
 
         if not os.path.exists( sFName ):
             print( f"[Warning]: GraphML file not found '{sFName}'!" )
-            return
+            self.new()
+            return False
         
         self.nxGraf  = nx.read_graphml( sFName )
         self.gScene_evI = CGItem_EventFilter()
@@ -91,6 +102,7 @@ class CStorageGraf_GScene_Manager():
         
         gvFitToPage( self.gView )
         self.setHasChanges(False) #сбрасываем признак изменения сцены после загрузки
+        return True
 
     def save( self, sFName ):
         nx.write_graphml(self.nxGraf, sFName)

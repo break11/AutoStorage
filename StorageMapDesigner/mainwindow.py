@@ -45,7 +45,7 @@ class CSMD_MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
 
-        self.graphML_fname = ""
+        self.graphML_fname = SC.s_storage_graph_file__default
         self.objProps = QStandardItemModel( self )
         self.tvObjectProps.setModel( self.objProps )
 
@@ -80,6 +80,8 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, s_draw_info_rails, default=self.SGraf_Manager.bDrawInfoRails ) )
 
         #setup ui
+        self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
+
         self.sbGridSize.setValue   ( self.StorageMap_Scene.gridSize   )
         self.acGrid.setChecked     ( self.StorageMap_Scene.bDrawGrid  )
         self.acMainRail.setChecked ( self.SGraf_Manager.bDrawMainRail )
@@ -106,10 +108,10 @@ class CSMD_MainWindow(QMainWindow):
                 event.ignore()
 
     def loadGraphML( self, sFName ):
-        self.graphML_fname = sFName
-        self.SGraf_Manager.load( sFName )
-        self.setWindowTitle( self.__sWindowTitle + sFName )
-        CSM.options[ SC.s_last_opened_file ] = sFName
+        if self.SGraf_Manager.load( sFName ):
+            self.graphML_fname = sFName
+            self.setWindowTitle( self.__sWindowTitle + sFName )
+            CSM.options[ SC.s_last_opened_file ] = sFName
 
     def saveGraphML( self, sFName ):
         self.graphML_fname = sFName
@@ -219,6 +221,12 @@ class CSMD_MainWindow(QMainWindow):
         func( path )
 
     @pyqtSlot(bool)
+    def on_acNewGraphML_triggered(self, bChecked):
+        self.graphML_fname = SC.s_storage_graph_file__default
+        self.SGraf_Manager.new()
+        self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
+
+    @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
         self.doSaveLoad(path, self.loadGraphML)
@@ -230,7 +238,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
-        if self.graphML_fname == "":
-            on_acSaveGraphMLAs_triggered(True)
+        if self.graphML_fname == SC.s_storage_graph_file__default:
+            self.on_acSaveGraphMLAs_triggered(True)
         else:
             self.doSaveLoad(self.graphML_fname, self.saveGraphML)

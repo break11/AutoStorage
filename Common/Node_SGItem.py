@@ -82,8 +82,6 @@ class CNode_SGItem(QGraphicsItem):
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
         
-        #определение типа вершины
-        
         # раскраска вершины по ее типу
         fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ self.nodeType ]
         painter.setPen( Qt.black )
@@ -108,21 +106,21 @@ class CNode_SGItem(QGraphicsItem):
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
         #отладочные линии
-        if self.nodeType == SGT.ENodeTypes.StorageSingle:
-            #прямая пропорциональности
-            pen = QPen( Qt.magenta )
-            pen.setWidth( 4 )
-            painter.setPen( pen )
-            l = QLineF (-500,500,500,-500)
-            painter.drawLine(l)
+        # if self.nodeType == SGT.ENodeTypes.StorageSingle:
+        #     #прямая пропорциональности
+        #     pen = QPen( Qt.magenta )
+        #     pen.setWidth( 4 )
+        #     painter.setPen( pen )
+        #     l = QLineF (-500,500,500,-500)
+        #     painter.drawLine(l)
 
-            #расчетная средняя линия
-            pen = QPen( Qt.black )
-            pen.setWidth( 8 )
-            painter.setPen( pen )
-            l = QLineF (-250,0, 250, 0)
-            painter.rotate(-self.storageLineAngle)
-            painter.drawLine(l)
+        #     #расчетная средняя линия
+        #     pen = QPen( Qt.black )
+        #     pen.setWidth( 8 )
+        #     painter.setPen( pen )
+        #     l = QLineF (-250,0, 250, 0)
+        #     painter.rotate(-self.storageLineAngle)
+        #     painter.drawLine(l)
 
         self.prepareGeometryChange()
 
@@ -132,7 +130,7 @@ class CNode_SGItem(QGraphicsItem):
         x = pos.x()
         y = pos.y()
 
-        #привязка к сетке        
+        #привязка к сетке
         if self.scene().bDrawGrid and self.scene().bSnapToGrid:
             gridSize = self.scene().gridSize
             snap_x = round( pos.x()/gridSize ) * gridSize

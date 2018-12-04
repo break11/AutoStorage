@@ -67,6 +67,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="acNewGraphML"/>
     <addaction name="acLoadGraphML"/>
     <addaction name="acSaveGraphML"/>
     <addaction name="acSaveGraphMLAs"/>
@@ -542,6 +543,17 @@ selection-background-color: red;*/
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="acNewGraphML">
+   <property name="text">
+    <string>New GraphML</string>
+   </property>
+   <property name="toolTip">
+    <string>New GraphML</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>
