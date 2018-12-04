@@ -12,7 +12,8 @@ class CNetObj_Model( QAbstractItemModel ):
 
         CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
 
-    def onObjCreated( self, netObj=None, **kwargs ):
+    def onObjCreated( self, netCmd ):
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
                 

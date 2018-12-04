@@ -5,7 +5,8 @@ from PyQt5.QtCore import QTimer
 from .SettingsManager import CSettingsManager as CSM
 from Net.NetObj_Manager import CNetObj_Manager
 from Net.NetObj_Monitor import CNetObj_Monitor
-from Net.NetObj_Widgets import *
+# from Net.NetObj_Widgets import *
+from Net.DictProps_Widget import *
 from Common.Graf_NetObjects import *
 
 def registerNetObjTypes():

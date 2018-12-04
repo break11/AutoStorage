@@ -50,15 +50,13 @@ class CNetObj_Manager( object ):
         cls.callbacksDict[ eventType ].append( callback )
 
     @classmethod
-    def doCallbacks( cls, eventType, **kwargs ):
-        for callback in cls.callbacksDict[ eventType ]:
-            kwargs[ "eventType" ] = eventType
-            callback( **kwargs )
+    def doCallbacks( cls, netCmd ):
+        for callback in cls.callbacksDict[ netCmd.CMD ]:
+            callback( netCmd )
 
     @classmethod
-    def eventLogCallBack( cls, eventType=None, netObj=None, clientID=None, PropName=None ):
-        if clientID == None: clientID = CNetObj_Manager.clientID # в параметр значением по умолчанию передать не получается...
-        print( f"eventType = {eventType.name} clientID = {clientID} netObj = {netObj} PropName = {PropName}" )
+    def eventLogCallBack( cls, netCmd ):
+        print( f"[EventLog]:{netCmd}" )
 
     ########################################################
     class CNetCMDReader( threading.Thread ):
@@ -83,7 +81,7 @@ class CNetObj_Manager( object ):
 
                     # принимаем сообщения от всех клиентов кроме себя самого
                     # print( cmd.Client_UID, CNetObj_Manager.clientID, cmd.Client_UID != CNetObj_Manager.clientID )
-                    if cmd.Client_UID != CNetObj_Manager.clientID:
+                    if cmd.Client_ID != CNetObj_Manager.clientID:
                         CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
 
                 if self.__bStop: self.__bIsRunning = False
@@ -123,7 +121,7 @@ class CNetObj_Manager( object ):
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while not cls.qNetCmds.empty():
             cmd = cls.qNetCmds.get()
-            if cls.bNetCmd_Log: print( cmd )
+            if cls.bNetCmd_Log: print( f"[NetLog  ]:{cmd}" )
 
             if cmd.CMD == EV.ObjCreated:
                 netObj = CNetObj.loadFromRedis( cls.redisConn, cmd.Obj_UID )
@@ -140,11 +138,16 @@ class CNetObj_Manager( object ):
 
                     if cls.objModel: cls.objModel.endRemove()
 
-            elif cmd.CMD == EV.ObjPropUpdated:
+            elif cmd.CMD == EV.ObjPropUpdated or cmd.CMD == EV.ObjPropCreated:
                 netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
                 if netObj:
-                    netObj.propsDict()[ cmd.sProp_Name ] = cls.redisConn.hget( netObj.redisKey_Props(), cmd.sProp_Name ).decode()
-                    CNetObj_Manager.doCallbacks( EV.ObjPropUpdated, netObj=netObj, PropName = cmd.sProp_Name )
+                    netObj.propsDict()[ cmd.sPropName ] = cls.redisConn.hget( netObj.redisKey_Props(), cmd.sPropName ).decode()
+                    CNetObj_Manager.doCallbacks( cmd )
+
+            elif cmd.CMD == EV.ObjPropDeleted:
+                netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
+                del netObj.propsDict()[ cmd.sPropName ]
+                CNetObj_Manager.doCallbacks( cmd )
 
             cls.qNetCmds.task_done()
     #####################################################
@@ -161,11 +164,13 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
+        cmd = CNetCmd( cls.clientID, EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, EV.ObjCreated, Obj_UID = netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
     
     @classmethod
     def unregisterObj( cls, netObj ):
@@ -214,8 +219,9 @@ class CNetObj_Manager( object ):
 
         if cls.clientID is None:
             cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
-        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, EV.ClientConnected ) )
-        CNetObj_Manager.doCallbacks( EV.ClientConnected, clientID=cls.clientID )
+        cmd = CNetCmd( cls.clientID, EV.ClientConnected )
+        CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
 
         # клиенты при старте подхватывают содержимое с сервера
         if not bIsServer:
@@ -237,8 +243,9 @@ class CNetObj_Manager( object ):
         
         cls.netCmds_Reader.stop()
 
-        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, EV.ClientDisconnected ) )
-        CNetObj_Manager.doCallbacks( EV.ClientDisconnected, clientID=cls.clientID )
+        cmd = CNetCmd( cls.clientID, EV.ClientDisconnected )
+        CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
 
         # при дисконнекте сервер сбрасывает содержимое БД
         if bIsServer: cls.redisConn.flushdb()

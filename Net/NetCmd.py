@@ -2,19 +2,19 @@
 from .Net_Events import ENet_Event as EV
 
 class CNetCmd:
-    def __init__(self, Client_UID, CMD, Obj_UID=None, Prop_Name=None, ExtCmdData=None ):
-        self.Client_UID = Client_UID
+    def __init__(self, Client_ID, CMD, Obj_UID=None, PropName=None, ExtCmdData=None ):
+        self.Client_ID = Client_ID
         self.CMD = CMD
         self.Obj_UID = Obj_UID
-        self.sProp_Name = Prop_Name
+        self.sPropName = PropName
         self.ExtCmdData = ExtCmdData
 
     def toString( self, bDebug = False ):
         cmd = self.CMD.name if bDebug else self.CMD
-        if self.CMD <= EV.ClientDisconnected: return f"{self.Client_UID}:{cmd}"
-        if self.CMD <= EV.ObjDeleted:         return f"{self.Client_UID}:{cmd}:{self.Obj_UID}"
-        if self.CMD <= EV.ObjPropUpdated:    return f"{self.Client_UID}:{cmd}:{self.Obj_UID}:{self.sProp_Name}"
-        if self.CMD >  EV.ObjPropUpdated:     return f"{self.Client_UID}:{cmd}:{self.Obj_UID}:{self.ExtCmdData}"
+        if self.CMD <= EV.ClientDisconnected: return f"{self.Client_ID}:{cmd}"
+        if self.CMD <= EV.ObjDeleted:         return f"{self.Client_ID}:{cmd}:{self.Obj_UID}"
+        if self.CMD <= EV.ObjPropUpdated:     return f"{self.Client_ID}:{cmd}:{self.Obj_UID}:{self.sPropName}"
+        if self.CMD >  EV.ObjPropUpdated:     return f"{self.Client_ID}:{cmd}:{self.Obj_UID}:{self.ExtCmdData}"
 
     @staticmethod
     def fromString( sVal ):

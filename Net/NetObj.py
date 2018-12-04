@@ -38,7 +38,6 @@ class CNetObj( NodeMixin ):
                             }
 
         CNetObj_Manager.registerObj( self )
-        CNetObj_Manager.doCallbacks( EV.ObjCreated, netObj=self )
 
     def __del__(self):
         # print("CNetObj destructor", self)
@@ -53,21 +52,27 @@ class CNetObj( NodeMixin ):
     def __setitem__( self, key, value ):
         bPropExist = not self.propsDict().get( key ) is None
         self.propsDict()[ key ] = value
-        if bPropExist:
-            CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, value )
-            CNetObj_Manager.sendNetCMD( CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, Prop_Name=key ) )
-            CNetObj_Manager.doCallbacks( EV.ObjPropUpdated, netObj=self, PropName=key )
-        else:
-            CNetObj_Manager.doCallbacks( EV.ObjPropCreate, netObj=self, PropName=key )
+
+        CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, value )
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        if not bPropExist:
+            cmd.CMD = EV.ObjPropCreate
+        CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
 
     def __delitem__( self, key ):
-        CNetObj_Manager.doCallbacks( EV.ObjPropDelete, netObj=self, PropName=key )
+        print( key, "************" )
+        CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
         del self.propsDict()[ key ]
 
 ###################################################################################
 
     def prepareDelete(self):
-        CNetObj_Manager.doCallbacks( EV.ObjPrepareDelete, netObj=self )
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
+        CNetObj_Manager.doCallbacks( cmd )
         for child in self.children:
             child.prepareDelete()
             child.parent = None
