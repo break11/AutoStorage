@@ -40,7 +40,7 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        # print("CNetObj destructor", self)
+        print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
     def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'

@@ -7,6 +7,7 @@ import redis
 from Net.NetCmd import CNetCmd
 from queue import Queue
 import threading
+import weakref
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -47,12 +48,17 @@ class CNetObj_Manager( object ):
     @classmethod
     def addCallback( cls, eventType, callback ):
         assert callable( callback ), "CNetObj_Manager.addCallback need take a function!"
-        cls.callbacksDict[ eventType ].append( callback )
+        cls.callbacksDict[ eventType ].append( weakref.WeakMethod( callback ) )
 
     @classmethod
     def doCallbacks( cls, netCmd ):
-        for callback in cls.callbacksDict[ netCmd.CMD ]:
-            callback( netCmd )
+        # Empty list from None WeakMethods
+        cl = cls.callbacksDict[ netCmd.CMD ]
+        cl = [ x for x in cl if x() is not None ]
+        cls.callbacksDict[ netCmd.CMD ] = cl
+
+        for callback in cl:
+            callback()( netCmd )
 
     @classmethod
     def eventLogCallBack( cls, netCmd ):
