@@ -2,6 +2,7 @@
 import os
 from .images_rc import *
 from PyQt5 import uic
+from PyQt5.Qt import QInputDialog
 
 from .NetObj_Widgets import *
 
@@ -21,6 +22,7 @@ class CDictProps_Widget( CNetObj_Widget ):
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.OnPropUpdate )
         CNetObj_Manager.addCallback( EV.ObjPropDeleted, self.onObjPropDeleted )
+        CNetObj_Manager.addCallback( EV.ObjPropCreated, self.onObjPropCreated )
 
     def init( self, netObj ):
         self.netObj = netObj
@@ -30,7 +32,7 @@ class CDictProps_Widget( CNetObj_Widget ):
         m.setHorizontalHeaderLabels( [ "name", "value" ] )
 
         for key, val in sorted( netObj.propsDict().items() ):
-            rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ), False, key ) ]
+            rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val, False, key ) ]
             m.appendRow( rowItems )
 
     def done( self ):
@@ -50,15 +52,16 @@ class CDictProps_Widget( CNetObj_Widget ):
 
         l = self.__model.findItems( netCmd.sPropName, Qt.MatchFixedString | Qt.MatchCaseSensitive, 0 )
 
-        if len( l ):
-            stdItem_PropName = l[0]
-            row = stdItem_PropName.row()
+        if not len( l ): return
 
-            stdItem_PropValue = self.__model.item( row, 1 )
-            val = netObj.propsDict()[ netCmd.sPropName ]
-            self.bBlockOnChangeEvent = True
-            stdItem_PropValue.setData( val, role=Qt.EditRole )
-            self.bBlockOnChangeEvent = False
+        stdItem_PropName = l[0]
+        row = stdItem_PropName.row()
+
+        stdItem_PropValue = self.__model.item( row, 1 )
+        val = netObj.propsDict()[ netCmd.sPropName ]
+        self.bBlockOnChangeEvent = True
+        stdItem_PropValue.setData( val, role=Qt.EditRole )
+        self.bBlockOnChangeEvent = False
 
     def on_btnDel_released ( self ):
         idx = self.tvProps.selectionModel().currentIndex()
@@ -67,20 +70,33 @@ class CDictProps_Widget( CNetObj_Widget ):
         row = idx.row()
         idx = self.__model.index( row, 0 )
         propName = self.__model.data( idx )
-        # self.bBlockOnChangeEvent = True
         del self.netObj[ propName ]
-        # self.bBlockOnChangeEvent = False
 
     def onObjPropDeleted( self, netCmd ):
-        if self.bBlockOnChangeEvent: return
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        if self.netObj != netObj: return
 
-        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
         l = self.__model.findItems( netCmd.sPropName, Qt.MatchFixedString | Qt.MatchCaseSensitive, 0 )
 
-        if len( l ):
-            stdItem_PropName = l[0]
-            row = stdItem_PropName.row()
+        if not len( l ): return
+
+        stdItem_PropName = l[0]
+        row = stdItem_PropName.row()
 
         self.__model.removeRows( row, 1 )
 
-        print( netCmd )
+    def on_btnAdd_released ( self ):
+        text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')
+        if ok: self.netObj[ text ] = text
+
+    def onObjPropCreated( self, netCmd ):
+        row = self.__model.rowCount()
+
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        if self.netObj != netObj: return
+
+        key = netCmd.sPropName
+        val = netObj[ key ]
+
+        rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val, False, key ) ]
+        self.__model.appendRow( rowItems )

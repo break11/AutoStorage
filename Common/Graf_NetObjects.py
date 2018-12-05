@@ -22,8 +22,8 @@ class CGrafRoot_NO( CNetObj ):
 
     def onLoadFromRedis( self, netLink, netObj ):
         super().onLoadFromRedis( netLink, netObj )
-        self.nxGraf = nx.DiGraph()
-        self.nxGraf.graph = adjustGrafProps( netLink.hgetall( self.redisKey_Props() ) )
+        props = adjustGrafProps( netLink.hgetall( self.redisKey_Props() ) )
+        self.nxGraf = nx.DiGraph( **props )
 
 ###################################################################################
 
