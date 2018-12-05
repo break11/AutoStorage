@@ -84,6 +84,10 @@ class CEdge_SGItem(QGraphicsItem):
         return math.degrees(self.__rAngle)
 
     def paint(self, painter, option, widget):
+
+        # if self.isSelected():
+        #     print ( self.nxGraf.edges[ self.nodeID_1, self.nodeID_2 ] )
+
         pen = QPen()
         
         # Draw BBox

@@ -4,6 +4,7 @@ from PyQt5.QtGui import ( QPen, QBrush )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
 from . import StorageGrafTypes as SGT
+from .SStorage_SGItem import CSStorage_SGItem
 
 class CNode_SGItem(QGraphicsItem):
     __R = 25
@@ -38,13 +39,13 @@ class CNode_SGItem(QGraphicsItem):
 
         self.updateType()
 
-    def preDelete(self):
+    def removeStorages(self):
+        print ("remove START ", len( self.__singleStorages), self)
         for singleStorage in self.__singleStorages:
+            print ("remove", singleStorage)
             self.scene().removeItem(singleStorage)
-        self.__singleStorages = None
-
-    def bindSingleStorage(self, singleStorage):
-        self.__singleStorages.append (singleStorage)
+        self.__singleStorages = []
+        print("remove END ", len( self.__singleStorages) ,self)
 
     def nxNode(self):
         return self.nxGraf.node[ self.nodeID ]
@@ -77,7 +78,20 @@ class CNode_SGItem(QGraphicsItem):
         except KeyError:
             self.nodeType = SGT.ENodeTypes.UnknownType
 
+    def addStorages(self):
+        sstorageGItem = CSStorage_SGItem(ID="L")
+        self.scene().addItem( sstorageGItem )
+        self.__singleStorages.append (sstorageGItem)
+
+        sstorageGItem = CSStorage_SGItem(ID="R")
+        self.scene().addItem( sstorageGItem )
+        self.__singleStorages.append (sstorageGItem)
+
     def paint(self, painter, option, widget):
+        self.prepareGeometryChange()
+        # if self.isSelected():
+        #     print (self.nxGraf.node[ self.nodeID ])
+        if self.nodeType == SGT.ENodeTypes.StorageSingle: print ("\n\nStorageSingle: enter paint ", self)
         if self.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
@@ -88,11 +102,25 @@ class CNode_SGItem(QGraphicsItem):
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
+        painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
+        
+        #добавление и удаление мест хранения
+        if self.nodeType != SGT.ENodeTypes.StorageSingle:
+            self.removeStorages()
+            if self.nodeType == SGT.ENodeTypes.StorageSingle: print("remove ====")
+            return
+    
+        if len( self.__singleStorages ) == 0:
+            self.addStorages()
+            print("add ====", len(self.__singleStorages))
+
         #если поворот более 45 градусов, доворачиваем на 180, чтобы левая коробка была в левом секторе
         storagesAngle = self.storageLineAngle % 180
         storagesAngle = storagesAngle if (storagesAngle < 45) else storagesAngle + 180
 
+        print("++++++++++++++++++++++++++")
         try:
+            if self.nodeType == SGT.ENodeTypes.StorageSingle: print ("try start =======")
             self.__singleStorages[0].setPos( self.x - self.__storage_offset, self.y)
             self.__singleStorages[0].setTransformOriginPoint( QPointF (self.__storage_offset, 0) )
             self.__singleStorages[0].setRotation(-storagesAngle)
@@ -100,10 +128,10 @@ class CNode_SGItem(QGraphicsItem):
             self.__singleStorages[1].setPos( self.x + self.__storage_offset, self.y)
             self.__singleStorages[1].setTransformOriginPoint( QPointF (-self.__storage_offset, 0) )
             self.__singleStorages[1].setRotation(-storagesAngle)
+            if self.nodeType == SGT.ENodeTypes.StorageSingle: print ("try end =======")
         except IndexError:
             pass
      
-        painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
         #отладочные линии
         # if self.nodeType == SGT.ENodeTypes.StorageSingle:
@@ -122,7 +150,8 @@ class CNode_SGItem(QGraphicsItem):
         #     painter.rotate(-self.storageLineAngle)
         #     painter.drawLine(l)
 
-        self.prepareGeometryChange()
+        # self.prepareGeometryChange()
+        if self.nodeType == SGT.ENodeTypes.StorageSingle: print ("StorageSingle: end paint ", self)
 
     def mouseMoveEvent( self, event ):
         pos = self.mapToScene (event.pos())
