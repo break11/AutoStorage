@@ -67,7 +67,6 @@ nodeColors = {
     ENodeTypes.NoneType       : Qt.darkGray,
     ENodeTypes.UnknownType    : Qt.darkRed,
     ENodeTypes.DummyNode      : Qt.darkGreen,
-    ENodeTypes.DummyNode      : Qt.darkGreen,
     ENodeTypes.StorageSingle  : Qt.cyan,
     ENodeTypes.Cross          : Qt.darkMagenta,
     ENodeTypes.PickStation    : Qt.blue,
