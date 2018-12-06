@@ -148,7 +148,9 @@ class CStorageGraf_GScene_Manager():
             delta_angle = delta_angle if delta_angle <= 180 else (360-delta_angle)
             dictDeltaAngles[ delta_angle ] = (e1, e2)
         
-        if len(dictDeltaAngles) == 0: return
+        if len(dictDeltaAngles) == 0:
+            nodeGItem.storageLineAngle = 0
+            return
 
         max_angle = max(dictDeltaAngles.keys())
 
@@ -193,8 +195,8 @@ class CStorageGraf_GScene_Manager():
         nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
         nodeGItemsNeighbors.append (nodeGItem)
 
-        for n in nodeGItemsNeighbors:
-            self.calcNodeStorageLine(n)
+        for nodeGItem in nodeGItemsNeighbors:
+            self.calcNodeStorageLine(nodeGItem)
 
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
@@ -306,6 +308,9 @@ class CStorageGraf_GScene_Manager():
             for i in range(nodePairCount):
                 self.addEdge(  nodeGItems[i+1].nodeID, nodeGItems[i].nodeID, **self.default_Edge )
     
+        for nodeGItem in nodeGItems:
+            self.calcNodeStorageLine(nodeGItem)
+    
     def addEdgeToGrop(self, edgeGItem):
         groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
         edgeGroup = self.groupsByEdge.get( groupKey )
@@ -374,6 +379,14 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
         self.__gView.installEventFilter(self)
         self.__gView.viewport().installEventFilter(self)
 
+    def deleteEdgeGroup(self, *groupKeys):
+        for groupKey in groupKeys:
+            self.__SGraf_Manager.deleteEdgeGroup(groupKey)
+
+            for nodeID in groupKey:
+                print(nodeID)
+                self.__SGraf_Manager.calcNodeStorageLine( self.__SGraf_Manager.nodeGItems[nodeID] )
+
     def eventFilter(self, object, event):
 
         #добавление нод
@@ -393,13 +406,13 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
                 if isinstance( item, CNode_SGItem ):
                     incEdges = list( self.__SGraf_Manager.nxGraf.out_edges( item.nodeID ) ) +  list( self.__SGraf_Manager.nxGraf.in_edges( item.nodeID ) )
                     groupsKeys = set( [ frozenset(s) for s in incEdges ] )
-                    for k in groupsKeys:
-                        self.__SGraf_Manager.deleteEdgeGroup(k)
+                    for groupsKey in groupsKeys:
+                        self.deleteEdgeGroup(groupsKey)
                     self.__SGraf_Manager.deleteNode( item.nodeID )            
             
             for item in self.__gScene.selectedItems():
                 if isinstance( item, CRail_SGItem ):
-                    self.__SGraf_Manager.deleteEdgeGroup( item.groupKey )
+                    self.deleteEdgeGroup( item.groupKey )
             
             event.accept()
             return True

@@ -18,8 +18,6 @@ class CSStorage_SGItem(QGraphicsItem):
         self.__BBoxRect = QRectF( -self.width/2, -self.height/2, self.width, self.height )
         self.setZValue( 25 )
         self.ID = ID
-    def __del__(self):
-        print("CSStorage_SGItem deleted: ", self)
 
     def boundingRect(self):
         return self.__BBoxRect
