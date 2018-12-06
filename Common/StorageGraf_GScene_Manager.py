@@ -205,6 +205,7 @@ class CStorageGraf_GScene_Manager():
             gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
             gItem.updatePos()
             gItem.updateType()
+            gItem.updateStorages()
             self.updateNodeIncEdges( gItem )
 
         if isinstance( gItem, CRail_SGItem ):
@@ -267,6 +268,7 @@ class CStorageGraf_GScene_Manager():
         self.nodeGItems[ nodeID ] = nodeGItem
 
         nodeGItem.updatePos()
+        nodeGItem.updateStorages()
         nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.bDrawBBox = self.bDrawBBox
 
@@ -319,7 +321,6 @@ class CStorageGraf_GScene_Manager():
 
     def deleteNode(self, nodeID):
         self.nxGraf.remove_node( nodeID )
-        print("?????????????????")
         self.nodeGItems[ nodeID ].removeStorages()
         self.nodeGItems[ nodeID ].prepareGeometryChange()
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )

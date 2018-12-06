@@ -33,6 +33,7 @@ class CSStorage_SGItem(QGraphicsItem):
         self.setPos(pos.x(), pos.y())
 
     def paint(self, painter, option, widget):
+        self.prepareGeometryChange()
 
         fill_color = QColor ( Qt.darkGray )
         brush = QBrush( fill_color, Qt.SolidPattern )
