@@ -70,13 +70,19 @@ class CNetObj( NodeMixin ):
 ###################################################################################
 
     def prepareDelete(self):
+        cls = CNetObj_Manager
+        if cls.objModel: cls.objModel.beginRemove( self )
+
         cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.doCallbacks( cmd )
         for child in self.children:
             child.prepareDelete()
             child.parent = None
             child.children = []
+            
         self.parent = None
+
+        if cls.objModel: cls.objModel.endRemove()
 
     def clearChildren(self):
         for child in self.children:

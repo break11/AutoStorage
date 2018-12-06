@@ -43,6 +43,7 @@ class CBaseApplication( QApplication ):
 
         self.setTickFunction( CNetObj_Manager.onTick )
 
+        self.objMonitor = None
         if CNetObj_Monitor.enabledInOptions():
             self.objMonitor = CNetObj_Monitor()
             self.objMonitor.setRootNetObj( CNetObj_Manager.rootObj )

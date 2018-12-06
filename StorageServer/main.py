@@ -56,7 +56,7 @@ def main():
     if not app.init( default_settings = serverDefSet ): return -1
     
     loadStorageGraph( CNetObj_Manager.rootObj )
-    app.objMonitor.clearView()
+    if app.objMonitor: app.objMonitor.clearView()
 
     app.exec_() # главный цикл сообщений Qt
 

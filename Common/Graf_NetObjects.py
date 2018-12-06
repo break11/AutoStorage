@@ -56,18 +56,20 @@ class CGrafEdge_NO( CNetObj ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.OnPrepareDelete )
     
     def OnPrepareDelete(self, netCmd):
-        pass
-        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        # assert netObj, f"CGrafEdge_NO.OnPrepareDelete netObj with UID={netCmd.Obj_UID} can not accepted!"
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        assert netObj, f"CGrafEdge_NO.OnPrepareDelete netObj with UID={netCmd.Obj_UID} can not accepted!"
 
-        # if isinstance( netObj, CGrafNode_NO ):
-        #     print( "Deleting Node", netObj )
-        #     self.prepareDelete()
+        if isinstance( netObj, CGrafNode_NO ):
+            print( netObj.name, self.__nxEdgeName() )
+            if netObj.name in self.__nxEdgeName():
+                self.prepareDelete()
+                import sys
+                print( sys.getrefcount(self) )
 
-        # if not self.UID == netCmd.Obj_UID: return
+        if not self.UID == netCmd.Obj_UID: return
 
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
-        # self.nxGraf().remove_edge( *self.__nxEdgeName() )
+        self.nxGraf().remove_edge( *self.__nxEdgeName() )
 
     # def __del__( self ):
     #     super().__del__()
@@ -78,8 +80,8 @@ class CGrafEdge_NO( CNetObj ):
     def onLoadFromRedis( self, netLink, netObj ):
         super().onLoadFromRedis( netLink, netObj )
         props = adjustGrafProps( netLink.hgetall( self.redisKey_Props() ) )
-        self.nxNodeID_1 = netLink.get( self.redisKey_NodeID_1() )
-        self.nxNodeID_2 = netLink.get( self.redisKey_NodeID_2() )
+        self.nxNodeID_1 = netLink.get( self.redisKey_NodeID_1() ).decode()
+        self.nxNodeID_2 = netLink.get( self.redisKey_NodeID_2() ).decode()
         self.nxGraf().add_edge( self.nxNodeID_1, self.nxNodeID_2, **props )
 
     def onSaveToRedis( self, netLink ):

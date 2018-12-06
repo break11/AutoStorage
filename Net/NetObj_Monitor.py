@@ -58,8 +58,12 @@ class CNetObj_Monitor(QWidget):
     def keyPressEvent( self, event ):
         if ( event.key() != Qt.Key_Delete ): return
         
-        row = self.tvNetObj.selectionModel().currentIndex().row()
-        parent = self.tvNetObj.selectionModel().currentIndex().parent()
+        ci = self.tvNetObj.selectionModel().currentIndex()
+
+        if not ci.isValid(): return
+
+        row = ci.row()
+        parent = ci.parent()
         
         self.tvNetObj.model().removeRow( row, parent )
 
