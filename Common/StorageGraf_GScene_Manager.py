@@ -156,7 +156,7 @@ class CStorageGraf_GScene_Manager():
         if len (dictDeltaAngles) == 1:
             e1 = dictDeltaAngles[ max_angle ][0]
             r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
-            r2 = 0
+            r2 = r1 + 180
         else:
             e1 = dictDeltaAngles[ max_angle ][0]
             e2 = dictDeltaAngles[ max_angle ][1]
