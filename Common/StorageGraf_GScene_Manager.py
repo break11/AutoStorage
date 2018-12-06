@@ -300,11 +300,11 @@ class CStorageGraf_GScene_Manager():
         
         if direct: #создание граней в прямом направлении
             for i in range(nodePairCount):
-                self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
+                self.addEdge( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID, **self.default_Edge  )
 
         if reverse: #создание граней в обратном направлении
             for i in range(nodePairCount):
-                self.addEdge(  nodeGItems[i+1].nodeID, nodeGItems[i].nodeID )
+                self.addEdge(  nodeGItems[i+1].nodeID, nodeGItems[i].nodeID, **self.default_Edge )
     
     def addEdgeToGrop(self, edgeGItem):
         groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
