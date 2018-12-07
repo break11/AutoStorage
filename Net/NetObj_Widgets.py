@@ -22,22 +22,28 @@ class CNetObj_WidgetsManager:
             cls.__netObj_Widgets_UNIQ[ netObj_Widget_Class ] = w
 
         cls.__netObj_Widgets[ netObj.typeUID ] = w
-            # print( cls.__netObj_Widgets, id(cls), netObj.typeUID )
+
         parent.layout().addWidget( w )
         w.hide()
 
     @classmethod
     def getWidget( cls, netObj ):
-        # print( cls.__netObj_Widgets, id(cls) )
         widget = cls.__netObj_Widgets.get( netObj.typeUID )
         return widget
 
 class CNetObj_Widget( QWidget ):
+    def __init__( self, parent = None ):
+        super().__init__( parent = parent )
+        self.netObj = None
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
+
+    def ObjPrepareDelete( self, netCmd ):
+        if ( not self.netObj ) or ( self.netObj.UID != netCmd.Obj_UID ): return
+        self.done()
+
     def init( self, netObj ):
         assert isinstance( netObj, CNetObj )
-        # print( "init" )
-        pass
+        self.netObj = netObj
 
     def done( self ):
-        # print( "done" )
-        pass
+        self.netObj = None

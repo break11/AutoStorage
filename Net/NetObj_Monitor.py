@@ -43,7 +43,9 @@ class CNetObj_Monitor(QWidget):
 
         self.netObjModel = CNetObj_Model( self )
         self.tvNetObj.setModel( self.netObjModel )
-        self.tvNetObj.selectionModel().currentChanged.connect( self.treeView_select )
+        # сигнал currentChanged - не испускается Qt моделью если в клиенте есть выделенный в глубине элемент, а в другом клиенте удалить рут,
+        # то этот сигнал не испускается, что не позволит корректно очищать виджеты
+        self.tvNetObj.selectionModel().selectionChanged.connect( self.treeView_SelectionChanged )
         
         settings    = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
         winSettings = CSM.dictOpt( settings,    s_window,   default=objMonWinDefSettings )
@@ -55,23 +57,9 @@ class CNetObj_Monitor(QWidget):
 
         CNetObj_Manager.objModel = self.netObjModel
 
-    def keyPressEvent( self, event ):
-        if ( event.key() != Qt.Key_Delete ): return
-        
-        ci = self.tvNetObj.selectionModel().currentIndex()
-
-        if not ci.isValid(): return
-
-        row = ci.row()
-        parent = ci.parent()
-        
-        self.tvNetObj.model().removeRow( row, parent )
-
-    def closeEvent( self, event ):
-        self.tvNetObj.selectionModel().clear()
-        
-        settings = CSM.rootOpt( s_obj_monitor )
-        settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
+    def treeView_SelectionChanged( self, selected, deselected ):
+        if len( deselected ): self.initOrDone_NetObj_Widget( deselected.indexes()[0], False )
+        if len( selected )  : self.initOrDone_NetObj_Widget( selected.indexes()[0],   True )
 
     def initOrDone_NetObj_Widget( self, index, bInit ):
         if not index.isValid(): return
@@ -90,9 +78,23 @@ class CNetObj_Monitor(QWidget):
             widget.done()
             widget.hide()
 
-    def treeView_select( self, currentIndex, prevIndex ):
-        self.initOrDone_NetObj_Widget( prevIndex, False )
-        self.initOrDone_NetObj_Widget( currentIndex, True )
+    def keyPressEvent( self, event ):
+        if ( event.key() != Qt.Key_Delete ): return
+        
+        ci = self.tvNetObj.selectionModel().currentIndex()
+
+        if not ci.isValid(): return
+
+        row = ci.row()
+        parent = ci.parent()
+        
+        self.tvNetObj.model().removeRow( row, parent )
+
+    def closeEvent( self, event ):
+        self.tvNetObj.selectionModel().clear()
+        
+        settings = CSM.rootOpt( s_obj_monitor )
+        settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
 
     def setRootNetObj( self, root ):
         self.netObjModel.setRootNetObj( root )

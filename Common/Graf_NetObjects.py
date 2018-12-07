@@ -20,9 +20,9 @@ class CGrafRoot_NO( CNetObj ):
 
     def propsDict(self): return self.nxGraf.graph
 
-    def onLoadFromRedis( self, netLink, netObj ):
-        super().onLoadFromRedis( netLink, netObj )
-        props = adjustGrafProps( netLink.hgetall( self.redisKey_Props() ) )
+    def onLoadFromRedis( self, redisConn, netObj ):
+        super().onLoadFromRedis( redisConn, netObj )
+        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
         self.nxGraf = nx.DiGraph( **props )
 
 ###################################################################################
@@ -30,9 +30,9 @@ class CGrafRoot_NO( CNetObj ):
 class CGrafNode_NO( CNetObj ):
     def propsDict(self): return self.nxNode()
 
-    def onLoadFromRedis( self, netLink, netObj ):
-        super().onLoadFromRedis( netLink, netObj )
-        props = adjustGrafProps( netLink.hgetall( self.redisKey_Props() ) )
+    def onLoadFromRedis( self, redisConn, netObj ):
+        super().onLoadFromRedis( redisConn, netObj )
+        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
         self.nxGraf().add_node( self.name, **props )
 
     def nxGraf(self): return self.grafNode().nxGraf
@@ -60,11 +60,10 @@ class CGrafEdge_NO( CNetObj ):
         assert netObj, f"CGrafEdge_NO.OnPrepareDelete netObj with UID={netCmd.Obj_UID} can not accepted!"
 
         if isinstance( netObj, CGrafNode_NO ):
-            print( netObj.name, self.__nxEdgeName() )
             if netObj.name in self.__nxEdgeName():
-                self.prepareDelete()
-                import sys
-                print( sys.getrefcount(self) )
+                
+                cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
+                CNetObj_Manager.sendNetCMD( cmd )
 
         if not self.UID == netCmd.Obj_UID: return
 
@@ -77,17 +76,17 @@ class CGrafEdge_NO( CNetObj ):
 
     def propsDict(self): return self.nxEdge()
 
-    def onLoadFromRedis( self, netLink, netObj ):
-        super().onLoadFromRedis( netLink, netObj )
-        props = adjustGrafProps( netLink.hgetall( self.redisKey_Props() ) )
-        self.nxNodeID_1 = netLink.get( self.redisKey_NodeID_1() ).decode()
-        self.nxNodeID_2 = netLink.get( self.redisKey_NodeID_2() ).decode()
+    def onLoadFromRedis( self, redisConn, netObj ):
+        super().onLoadFromRedis( redisConn, netObj )
+        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
+        self.nxNodeID_1 = redisConn.get( self.redisKey_NodeID_1() ).decode()
+        self.nxNodeID_2 = redisConn.get( self.redisKey_NodeID_2() ).decode()
         self.nxGraf().add_edge( self.nxNodeID_1, self.nxNodeID_2, **props )
 
-    def onSaveToRedis( self, netLink ):
-        super().onSaveToRedis( netLink )
-        netLink.set( self.redisKey_NodeID_1(), self.nxNodeID_1 )
-        netLink.set( self.redisKey_NodeID_2(), self.nxNodeID_2 )
+    def onSaveToRedis( self, redisConn ):
+        super().onSaveToRedis( redisConn )
+        redisConn.set( self.redisKey_NodeID_1(), self.nxNodeID_1 )
+        redisConn.set( self.redisKey_NodeID_2(), self.nxNodeID_2 )
 
     def __nxEdgeName(self): return ( self.nxNodeID_1, self.nxNodeID_2 )
     def nxGraf(self): return self.grafNode().nxGraf

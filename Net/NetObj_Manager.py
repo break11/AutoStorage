@@ -53,9 +53,9 @@ class CNetObj_Manager( object ):
     @classmethod
     def doCallbacks( cls, netCmd ):
         # Empty list from None WeakMethods
-        cl = cls.callbacksDict[ netCmd.CMD ]
+        cl = cls.callbacksDict[ netCmd.Event ]
         cl = [ x for x in cl if x() is not None ]
-        cls.callbacksDict[ netCmd.CMD ] = cl
+        cls.callbacksDict[ netCmd.Event ] = cl
 
         for callback in cl:
             callback()( netCmd )
@@ -85,10 +85,8 @@ class CNetObj_Manager( object ):
                     msgData = msg[ s_Redis_data ].decode()
                     cmd = CNetCmd.fromString( msgData )
 
-                    # принимаем сообщения от всех клиентов кроме себя самого
-                    # print( cmd.Client_UID, CNetObj_Manager.clientID, cmd.Client_UID != CNetObj_Manager.clientID )
-                    if cmd.Client_ID != CNetObj_Manager.clientID:
-                        CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
+                    # принимаем сообщения от всех клиентов - в том числе от себя самого
+                    CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
 
                 if self.__bStop: self.__bIsRunning = False
 
@@ -126,34 +124,43 @@ class CNetObj_Manager( object ):
     def onTick( cls ):
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while not cls.qNetCmds.empty():
-            cmd = cls.qNetCmds.get()
-            if cls.bNetCmd_Log: print( f"[NetLog  ]:{cmd}" )
+            netCmd = cls.qNetCmds.get()
+            if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
-            if cmd.CMD == EV.ObjCreated:
-                netObj = CNetObj.loadFromRedis( cls.redisConn, cmd.Obj_UID )
-                # cls.doCallbacks( cls.ECallbackType.NetCreate, netObj )
+            if netCmd.Event == EV.ObjCreated:
+                netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
 
-            elif cmd.CMD == EV.ObjDeleted:
-                netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
+            elif netCmd.Event == EV.ObjPrepareDelete:
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
                 if netObj:
+                    # приходится давать сигнал на обновление модели здесь, чтобы завернуть внутрь них все эвенты и удаление объектов
+                    # иначе получим ошибку InvalidIndex, т.к. объект еще не будет удален к моменту вызова endRemoveRows() - он вызовет rowCount()
+                    # и построит индекс, который уже числится в модели Qt как удаленный
                     if cls.objModel: cls.objModel.beginRemove( netObj )
 
-                    # cls.doCallbacks( cls.ECallbackType.NetDelete, netObj )
                     netObj.prepareDelete()
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
 
-            elif cmd.CMD == EV.ObjPropUpdated or cmd.CMD == EV.ObjPropCreated:
-                netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
-                if netObj:
-                    netObj.propsDict()[ cmd.sPropName ] = cls.redisConn.hget( netObj.redisKey_Props(), cmd.sPropName ).decode()
-                    CNetObj_Manager.doCallbacks( cmd )
+            elif netCmd.Event == EV.ObjDeleted:
+                cls.doCallbacks( netCmd )
 
-            elif cmd.CMD == EV.ObjPropDeleted:
-                netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
-                del netObj.propsDict()[ cmd.sPropName ]
-                CNetObj_Manager.doCallbacks( cmd )
+            elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+                assert netObj, f"CNetObj_Manager.onTick netObj with UID={netCmd.Obj_UID} can not accepted!"
+
+                # CNetObj_Manager.redisConn.hset( netObj.redisKey_Props(), netCmd.sPropName, value )
+                netObj.propsDict()[ netCmd.sPropName ] = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName ).decode()
+                cls.doCallbacks( netCmd )
+    
+            elif netCmd.Event == EV.ObjPropDeleted:
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+                assert netObj, f"CNetObj_Manager.onTick netObj with UID={netCmd.Obj_UID} can not accepted!"
+
+                # cls.redisConn.hdel( netObj.redisKey_Props(), netCmd.sPropName )
+                cls.doCallbacks( netCmd )
+                del netObj.propsDict()[ netCmd.sPropName ]
 
             cls.qNetCmds.task_done()
     #####################################################

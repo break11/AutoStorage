@@ -12,8 +12,6 @@ class CDictProps_Widget( CNetObj_Widget ):
         super().__init__(parent = parent)
         uic.loadUi( os.path.dirname( __file__ ) + '/DictProps_Widget.ui', self )
 
-        self.netObj = None
-
         self.__model = QStandardItemModel( self )
         self.__model.itemChanged.connect( self.propEditedByUser )
         self.bBlockOnChangeEvent = False
@@ -25,7 +23,7 @@ class CDictProps_Widget( CNetObj_Widget ):
         CNetObj_Manager.addCallback( EV.ObjPropCreated, self.onObjPropCreated )
 
     def init( self, netObj ):
-        self.netObj = netObj
+        super().init( netObj )
 
         m = self.__model
         m.setColumnCount( 2 )
@@ -36,8 +34,11 @@ class CDictProps_Widget( CNetObj_Widget ):
             m.appendRow( rowItems )
 
     def done( self ):
+        super().done()
+
         self.__model.clear()
-        self.netObj = None
+
+###################################################################################
 
     def propEditedByUser( self, item ):
         if self.bBlockOnChangeEvent: return
@@ -63,6 +64,8 @@ class CDictProps_Widget( CNetObj_Widget ):
         stdItem_PropValue.setData( val, role=Qt.EditRole )
         self.bBlockOnChangeEvent = False
 
+###################################################################################
+
     def on_btnDel_released ( self ):
         idx = self.tvProps.selectionModel().currentIndex()
         if not idx.isValid(): return
@@ -84,6 +87,8 @@ class CDictProps_Widget( CNetObj_Widget ):
         row = stdItem_PropName.row()
 
         self.__model.removeRows( row, 1 )
+
+###################################################################################
 
     def on_btnAdd_released ( self ):
         text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')

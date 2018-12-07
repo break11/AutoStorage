@@ -27,6 +27,7 @@ class CNetObj_Model( QAbstractItemModel ):
     def endRemove( self ):
         self.endRemoveRows()
         # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.layoutChanged.emit()
     
     #####################################################
 
@@ -107,12 +108,15 @@ class CNetObj_Model( QAbstractItemModel ):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def removeRows ( self, row, count, parent ):
-        netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
-        
-        self.beginRemoveRows( parent, row, row )
-        netObj.prepareDelete()
-        self.endRemoveRows()
+        # Здесь не происходит реального удаления данных, поэтому нет необходимости вызывать следующие методы-оповещения модели:
+        # self.beginRemoveRows( parent, row, row )
+        # self.endRemoveRows()
+        # self.dataChanged.emit( parent, parent )
+        # они будут вызваны при обработке команды в тике CNetObj_Manager-а
 
-        self.dataChanged.emit( parent, parent )
+        netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
+
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = netObj.UID )
+        CNetObj_Manager.sendNetCMD( cmd )
 
         return True
