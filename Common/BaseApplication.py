@@ -5,7 +5,7 @@ from PyQt5.QtCore import QTimer
 from .SettingsManager import CSettingsManager as CSM
 from Net.NetObj_Manager import CNetObj_Manager
 from Net.NetObj_Monitor import CNetObj_Monitor
-from Net.NetObj_Widgets import *
+from Net.DictProps_Widget import *
 from Common.Graf_NetObjects import *
 
 def registerNetObjTypes():
@@ -43,6 +43,7 @@ class CBaseApplication( QApplication ):
 
         self.setTickFunction( CNetObj_Manager.onTick )
 
+        self.objMonitor = None
         if CNetObj_Monitor.enabledInOptions():
             self.objMonitor = CNetObj_Monitor()
             self.objMonitor.setRootNetObj( CNetObj_Manager.rootObj )

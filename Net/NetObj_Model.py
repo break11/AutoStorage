@@ -9,20 +9,25 @@ class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.__rootNetObj = None
-        CNetObj_Manager.add_ObjCreatedFunc( self.onObjCreated )
-        CNetObj_Manager.add_ObjDeletedFunc( self.onObjDeleted )
 
-    def onObjCreated( self, netObj ):
+        CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
+
+    def onObjCreated( self, netCmd ):
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
-        
-    def onObjDeleted( self, netObj ):
+                
+    #####################################################
+    # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove
+    # т.к. Qt модель устроена таким образом, что всегда является перманентной по отношению к данным
+
+    def beginRemove( self, netObj ):
         objIDX = self.netObj_To_Index( netObj )
-
         self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+    def endRemove( self ):
         self.endRemoveRows()
-
-        self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.layoutChanged.emit()
     
     #####################################################
 
@@ -103,12 +108,15 @@ class CNetObj_Model( QAbstractItemModel ):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def removeRows ( self, row, count, parent ):
-        netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
-        
-        self.beginRemoveRows( parent, row, row )
-        netObj.prepareDelete()
-        self.endRemoveRows()
+        # Здесь не происходит реального удаления данных, поэтому нет необходимости вызывать следующие методы-оповещения модели:
+        # self.beginRemoveRows( parent, row, row )
+        # self.endRemoveRows()
+        # self.dataChanged.emit( parent, parent )
+        # они будут вызваны при обработке команды в тике CNetObj_Manager-а
 
-        self.dataChanged.emit( parent, parent )
+        netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
+
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = netObj.UID )
+        CNetObj_Manager.sendNetCMD( cmd )
 
         return True

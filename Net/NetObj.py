@@ -6,6 +6,8 @@ from anytree import NodeMixin
 from anytree import Resolver
 
 from Common.SettingsManager import CSettingsManager as CSM
+from .NetCmd import CNetCmd
+from .Net_Events import ENet_Event as EV
 
 class CNetObj( NodeMixin ):
     __s_Name     = "Name"
@@ -20,6 +22,8 @@ class CNetObj( NodeMixin ):
     def resolvePath( self, sPath ): return self.__pathResolver.get(self, sPath)
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
+
+###################################################################################
 
     def __init__( self, name="", parent=None, id=None ):
         super().__init__()
@@ -38,23 +42,53 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        # print("CNetObj destructor", self)
+        print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
-    def __repr__(self): return f'{str(self.UID)} {self.name} {str( self.typeUID )}'
+    def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
 
 ###################################################################################
 
     def prepareDelete(self):
+        cls = CNetObj_Manager
+
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
+        CNetObj_Manager.doCallbacks( cmd )
+
         for child in self.children:
             child.prepareDelete()
             child.parent = None
             child.children = []
+        
         self.parent = None
 
     def clearChildren(self):
         for child in self.children:
             child.prepareDelete()
+
+###################################################################################
+    # Интерфейс для работы с кастомными пропертями реализован через []
+
+    def __getitem__( self, key ):
+        return self.propsDict()[ key ]
+
+    def __setitem__( self, key, value ):
+        bPropExist = not self.propsDict().get( key ) is None
+        # self.propsDict()[ key ] = value
+
+        CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, value )
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        if not bPropExist:
+            cmd.Event = EV.ObjPropCreated
+        CNetObj_Manager.sendNetCMD( cmd )
+        # CNetObj_Manager.doCallbacks( cmd )
+
+    def __delitem__( self, key ):
+        CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
+        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        CNetObj_Manager.sendNetCMD( cmd )
+        # CNetObj_Manager.doCallbacks( cmd )
+        # del self.propsDict()[ key ]
 
 ###################################################################################
 
@@ -87,42 +121,47 @@ class CNetObj( NodeMixin ):
     def redisKey_Props_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_props }"
     def redisKey_Props(self)       : return self.redisKey_Props_C( self.UID )
 ###################################################################################
-    def saveToRedis( self, netLink ):
+    def saveToRedis( self, redisConn ):
         if self.UID < 0: return
 
         hd = self.__modelHeaderData
 
         # сохранение стандартного набора полей
-        netLink.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
-        netLink.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
+        redisConn.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
+        redisConn.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
         parent = self.parent.UID if self.parent else None
-        netLink.set( self.redisKey_Parent(),  self.parent.UID )
+        redisConn.set( self.redisKey_Parent(),  self.parent.UID )
 
         # сохранение справочника свойств
         if len( self.propsDict() ):
-            netLink.hmset( self.redisKey_Props(), self.propsDict() )
+            redisConn.hmset( self.redisKey_Props(), self.propsDict() )
 
         # вызов дополнительных действий по сохранению наследника
-        self.onSaveToRedis( netLink )
+        self.onSaveToRedis( redisConn )
 
-    def delFromRedis( self, netLink ):
-        for key in netLink.keys( self.redisBase_Name() + ":*" ):
-            netLink.delete( key )
+    def delFromRedis( self, redisConn ):
+        for key in redisConn.keys( self.redisBase_Name() + ":*" ):
+            redisConn.delete( key )
 
     @classmethod
-    def loadFromRedis( cls, netLink, UID ):
-        name     = netLink.get( cls.redisKey_Name_C( UID ) ).decode()
-        parentID = int( netLink.get( cls.redisKey_Parent_C( UID ) ).decode() )
-        typeUID  = netLink.get( cls.redisKey_TypeUID_C( UID ) ).decode()
+    def loadFromRedis( cls, redisConn, UID ):
+        # функционал query - если объект уже есть - возвращаем его - это полезно на клиенте который этот объект только что создал
+        # соответственно повторной отправки команды в сеть о создании объекта и вызова событий не происходит, что так же правильно
+        netObj = CNetObj_Manager.accessObj( UID )
+        if netObj: return netObj
+
+        name     = redisConn.get( cls.redisKey_Name_C( UID ) ).decode()
+        parentID = int( redisConn.get( cls.redisKey_Parent_C( UID ) ).decode() )
+        typeUID  = redisConn.get( cls.redisKey_TypeUID_C( UID ) ).decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
-        netObj.onLoadFromRedis( netLink, netObj )
+        netObj.onLoadFromRedis( redisConn, netObj )
 
         return netObj
 
     # методы для переопределения дополнительного поведения в наследниках
-    def onSaveToRedis( self, netLink ): pass
-    def onLoadFromRedis( self, netLink, netObj ): pass
+    def onSaveToRedis( self, redisConn ): pass
+    def onLoadFromRedis( self, redisConn, netObj ): pass
 
 from .NetObj_Manager import CNetObj_Manager

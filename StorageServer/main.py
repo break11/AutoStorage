@@ -48,18 +48,6 @@ def loadStorageGraph( parentBranch ):
 
     # print( RenderTree(root) )
 
-    # Graf  = CNetObj( name="Graf", parent=parentBranch )
-    # Nodes = CNetObj(name="Nodes", parent=Graf)
-    # Edges = CNetObj(name="Edges", parent=Graf)
-    # CNetObj( name="nodeID", parent=Nodes )
-    # CNetObj( name="nodeID", parent=Nodes )
-    # CNetObj( name="nodeID", parent=Nodes )
-    # CNetObj( name="nodeID", parent=Nodes )
-    # CNetObj( name="nodeID", parent=Edges )
-    # CNetObj( name="nodeID", parent=Edges )
-    # CNetObj( name="nodeID", parent=Edges )
-    # CNetObj( name="nodeID", parent=Edges )
-
 def main():    
     registerNetObjTypes()
 
@@ -68,7 +56,7 @@ def main():
     if not app.init( default_settings = serverDefSet ): return -1
     
     loadStorageGraph( CNetObj_Manager.rootObj )
-    app.objMonitor.clearView()
+    if app.objMonitor: app.objMonitor.clearView()
 
     app.exec_() # главный цикл сообщений Qt
 

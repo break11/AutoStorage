@@ -1,11 +1,13 @@
 import sys
 
 from Common.SettingsManager import CSettingsManager as CSM
+from .Net_Events import ENet_Event as EV
 import weakref
 import redis
-from Net.NetCmd import *
+from Net.NetCmd import CNetCmd
 from queue import Queue
 import threading
+import weakref
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -13,9 +15,15 @@ s_Redis_port = "port"
 s_Redis_ip__default   = "localhost"
 s_Redis_port__default = "6379"
 
+s_net_cmd_log   = "net_cmd_log"
+s_obj_event_log = "obj_event_log"
+
+
 redisDefSettings = {
                     s_Redis_ip: s_Redis_ip__default,
-                    s_Redis_port: s_Redis_port__default
+                    s_Redis_port: s_Redis_port__default,
+                    s_net_cmd_log: False,
+                    s_obj_event_log: False
                    }
 
 s_Redis_NetObj_Channel = "net-cmd"
@@ -33,6 +41,29 @@ s_ObjectsSet = "objects_set"
 ########################################################
 
 class CNetObj_Manager( object ):
+    callbacksDict = {} # type: ignore # Dict of List by ECallbackType
+    for e in EV:
+        callbacksDict[ e ] = [] 
+
+    @classmethod
+    def addCallback( cls, eventType, callback ):
+        assert callable( callback ), "CNetObj_Manager.addCallback need take a function!"
+        cls.callbacksDict[ eventType ].append( weakref.WeakMethod( callback ) )
+
+    @classmethod
+    def doCallbacks( cls, netCmd ):
+        # Empty list from None WeakMethods
+        cl = cls.callbacksDict[ netCmd.Event ]
+        cl = [ x for x in cl if x() is not None ]
+        cls.callbacksDict[ netCmd.Event ] = cl
+
+        for callback in cl:
+            callback()( netCmd )
+
+    @classmethod
+    def eventLogCallBack( cls, netCmd ):
+        print( f"[EventLog]:{netCmd}" )
+
     ########################################################
     class CNetCMDReader( threading.Thread ):
         def __init__(self):
@@ -54,10 +85,8 @@ class CNetObj_Manager( object ):
                     msgData = msg[ s_Redis_data ].decode()
                     cmd = CNetCmd.fromString( msgData )
 
-                    # принимаем сообщения от всех клиентов кроме себя самого
-                    # print( cmd.Client_UID, CNetObj_Manager.clientID, cmd.Client_UID != CNetObj_Manager.clientID )
-                    if cmd.Client_UID != CNetObj_Manager.clientID:
-                        CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
+                    # принимаем сообщения от всех клиентов - в том числе от себя самого
+                    CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
 
                 if self.__bStop: self.__bIsRunning = False
 
@@ -71,17 +100,12 @@ class CNetObj_Manager( object ):
     clientID  = None
 
     __netObj_Types = {} # type: ignore
+    __objects      = weakref.WeakValueDictionary() # type: ignore
+    objModel = None # модель представление для дерева требует специйической обработки
 
-    __objects : weakref.WeakValueDictionary = weakref.WeakValueDictionary() # for type annotation from mypy linter warning done
+    bNetCmd_Log = False
+    bEvent_Log = False
 
-    #####################################################
-    __ObjCreatedFunctions = [] # type: ignore
-    __ObjDeletedFunctions = [] # type: ignore
-
-    @classmethod
-    def add_ObjCreatedFunc( cls, f ): cls.__ObjCreatedFunctions.append( f )
-    @classmethod
-    def add_ObjDeletedFunc( cls, f ): cls.__ObjDeletedFunctions.append( f )
     #####################################################
 
     @classmethod
@@ -100,18 +124,44 @@ class CNetObj_Manager( object ):
     def onTick( cls ):
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while not cls.qNetCmds.empty():
-            cmd = cls.qNetCmds.get()
-            if cmd.CMD == ECmd.obj_created:
-                netObj = CNetObj.loadFromRedis( cls.redisConn, cmd.Obj_UID )
-                for f in cls.__ObjCreatedFunctions:
-                    f( netObj )
-            elif cmd.CMD == ECmd.obj_deleted:
-                netObj = CNetObj_Manager.accessObj( cmd.Obj_UID )
+            netCmd = cls.qNetCmds.get()
+            if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
+
+            if netCmd.Event == EV.ObjCreated:
+                netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
+
+            elif netCmd.Event == EV.ObjPrepareDelete:
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
                 if netObj:
-                    for f in cls.__ObjDeletedFunctions:
-                        f( netObj )
+                    # приходится давать сигнал на обновление модели здесь, чтобы завернуть внутрь них все эвенты и удаление объектов
+                    # иначе получим ошибку InvalidIndex, т.к. объект еще не будет удален к моменту вызова endRemoveRows() - он вызовет rowCount()
+                    # и построит индекс, который уже числится в модели Qt как удаленный
+                    if cls.objModel: cls.objModel.beginRemove( netObj )
+
                     netObj.prepareDelete()
                     del netObj
+
+                    if cls.objModel: cls.objModel.endRemove()
+
+            elif netCmd.Event == EV.ObjDeleted:
+                cls.doCallbacks( netCmd )
+
+            elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+                assert netObj, f"CNetObj_Manager.onTick netObj with UID={netCmd.Obj_UID} can not accepted!"
+
+                # CNetObj_Manager.redisConn.hset( netObj.redisKey_Props(), netCmd.sPropName, value )
+                netObj.propsDict()[ netCmd.sPropName ] = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName ).decode()
+                cls.doCallbacks( netCmd )
+    
+            elif netCmd.Event == EV.ObjPropDeleted:
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+                assert netObj, f"CNetObj_Manager.onTick netObj with UID={netCmd.Obj_UID} can not accepted!"
+
+                # cls.redisConn.hdel( netObj.redisKey_Props(), netCmd.sPropName )
+                cls.doCallbacks( netCmd )
+                del netObj.propsDict()[ netCmd.sPropName ]
+
             cls.qNetCmds.task_done()
     #####################################################
 
@@ -127,11 +177,13 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
+        cmd = CNetCmd( cls.clientID, EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_created, netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
     
     @classmethod
     def unregisterObj( cls, netObj ):
@@ -140,7 +192,7 @@ class CNetObj_Manager( object ):
             if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
                 netObj.delFromRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.obj_deleted, netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, EV.ObjDeleted, Obj_UID = netObj.UID ) )
 
     @classmethod
     def accessObj( cls, UID ):
@@ -161,18 +213,28 @@ class CNetObj_Manager( object ):
             ip_address   = CSM.dictOpt( redisOptDict, s_Redis_ip,   default=s_Redis_ip__default )
             ip_redis     = CSM.dictOpt( redisOptDict, s_Redis_port, default=s_Redis_port__default )
 
+            cls.bNetCmd_Log = CSM.dictOpt( redisOptDict, s_net_cmd_log,  default=False )
+            cls.bEvent_Log  = CSM.dictOpt( redisOptDict, s_obj_event_log, default=False )
+
+            if cls.bEvent_Log:
+                for e in EV:
+                    cls.addCallback( e, cls.eventLogCallBack )
+
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
             # сервер при коннекте сбрасывает содержимое БД
             if bIsServer: cls.redisConn.flushdb()
+                
         except redis.exceptions.ConnectionError as e:
             print( f"[Error]: Can not connect to REDIS: {e}" )
             return False
 
         if cls.clientID is None:
             cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
-        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_connected, cls.clientID ) )
+        cmd = CNetCmd( cls.clientID, EV.ClientConnected )
+        CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
 
         # клиенты при старте подхватывают содержимое с сервера
         if not bIsServer:
@@ -194,7 +256,10 @@ class CNetObj_Manager( object ):
         
         cls.netCmds_Reader.stop()
 
-        CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, ECmd.client_disconnected, cls.clientID ) )
+        cmd = CNetCmd( cls.clientID, EV.ClientDisconnected )
+        CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
+
         # при дисконнекте сервер сбрасывает содержимое БД
         if bIsServer: cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
