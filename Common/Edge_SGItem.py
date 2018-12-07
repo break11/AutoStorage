@@ -21,12 +21,6 @@ class CEdge_SGItem(QGraphicsItem):
     @property
     def y2(self): return self.__readGrafAttrNode( self.nodeID_2, SGT.s_y )
 
-    def node1_pos(self):
-        return QPointF(self.x1, self.y1)
-
-    def node2_pos(self):
-        return QPointF(self.x2, self.y2)
-
     def __init__(self, nxGraf, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
         self.__InfoRails = []

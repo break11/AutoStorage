@@ -4,7 +4,7 @@ from PyQt5.QtGui import ( QPen, QBrush )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
 from . import StorageGrafTypes as SGT
-from .SStorage_SGItem import CSStorage_SGItem
+from .StoragePlace_SGItem import CStoragePlace_SGItem
 
 class CNode_SGItem(QGraphicsItem):
     __R = 25
@@ -84,13 +84,13 @@ class CNode_SGItem(QGraphicsItem):
             self.removeStorages()
 
     def addStorages(self):
-        sstorageGItem = CSStorage_SGItem(ID="L")
-        self.scene().addItem( sstorageGItem )
-        self.__singleStorages.append (sstorageGItem)
+        spGItem = CStoragePlace_SGItem(ID="L")
+        self.scene().addItem( spGItem )
+        self.__singleStorages.append (spGItem)
 
-        sstorageGItem = CSStorage_SGItem(ID="R")
-        self.scene().addItem( sstorageGItem )
-        self.__singleStorages.append (sstorageGItem)
+        spGItem = CStoragePlace_SGItem(ID="R")
+        self.scene().addItem( spGItem )
+        self.__singleStorages.append (spGItem)
 
     def paint(self, painter, option, widget):
         self.prepareGeometryChange()

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Rail_SGItem import CRail_SGItem
-from .SStorage_SGItem import CSStorage_SGItem
+from .StoragePlace_SGItem import CStoragePlace_SGItem
 from .GItem_EventFilter import *
 from .GuiUtils import *
 
@@ -32,7 +32,7 @@ class CStorageGraf_GScene_Manager():
                         SGT.s_sensorSide:       SGT.ESensorSide.SBoth.name,
                         SGT.s_widthType:        SGT.EWidthType.Narrow.name,
                         SGT.s_curvature:        SGT.ECurvature.Straight.name
-                      }
+                    }
 
     default_Node = {  
                         SGT.s_x: 0,
@@ -384,7 +384,6 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
             self.__SGraf_Manager.deleteEdgeGroup(groupKey)
 
             for nodeID in groupKey:
-                print(nodeID)
                 self.__SGraf_Manager.calcNodeStorageLine( self.__SGraf_Manager.nodeGItems[nodeID] )
 
     def eventFilter(self, object, event):

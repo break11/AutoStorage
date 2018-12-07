@@ -4,7 +4,7 @@ from PyQt5.QtCore import ( Qt, QRectF, QPointF )
 
 from . import StorageGrafTypes as SGT
 
-class CSStorage_SGItem(QGraphicsItem):
+class CStoragePlace_SGItem(QGraphicsItem):
     default_height = 360
     default_width = 640
     __fBBoxD  =  20 # 20   # расширение BBox для удобства выделения
@@ -69,5 +69,5 @@ class CSStorage_SGItem(QGraphicsItem):
         #перемещаем все выделенные места хранения, включая текущий
         # deltaPos = QPointF(x, y) - self.pos()
         # for gItem in self.scene().selectedItems():
-        #     if isinstance(gItem, CSStorage_SGItem):
+        #     if isinstance(gItem, CStoragePlace_SGItem):
         #         gItem.move(deltaPos)
