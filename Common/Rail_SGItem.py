@@ -12,30 +12,24 @@ class CRail_SGItem(QGraphicsItemGroup):
         self.setZValue( 10 )
         self.bDrawMainRail  = False
         self.__lineGItem = None
-        self.__lineEdgeName = None
 
     def removeFromGroup( self, item ):
         super().removeFromGroup( item )
-
-        if self.__lineEdgeName == item.edgeName():
-            self.__lineEdgeName = None
+        if len( self.childItems() ) == 0: #для удаления главного рельса, если удаляется группа
             self.clearMainRail()
 
     def addToGroup( self, item ):
         super().addToGroup( item )
-        
-        if self.__lineGItem is None:
-            self.__lineEdgeName = item.edgeName()
-            self.buildMainRail()
+        self.buildMainRail(item)
 
-    def buildMainRail(self):
+    def buildMainRail(self, edgeGItem):
+        self.clearMainRail()
         if not self.bDrawMainRail: return
-        edgeGItem = self.childItems()[0]
-        wt = edgeGItem.nxEdge().get( SGT.s_widthType )
+        width = edgeGItem.nxEdge().get( SGT.s_widthType )
         self.__lineGItem = self.scene().addLine( edgeGItem.x1, edgeGItem.y1, edgeGItem.x2, edgeGItem.y2 )
 
         pen = QPen()
-        pen.setWidth( SGT.railWidth[ wt ] )
+        pen.setWidth( SGT.railWidth[ width ] )
         pen.setColor( QColor( 150, 150, 150 ) )
         pen.setCapStyle( Qt.RoundCap )
 
@@ -48,5 +42,4 @@ class CRail_SGItem(QGraphicsItemGroup):
         self.__lineGItem = None # удаление QLineGraohicsItem произойдет автоматически
 
     def rebuildMainRail(self):
-        self.clearMainRail()
-        self.buildMainRail()
+        if len ( self.childItems() ): self.buildMainRail( self.childItems()[0] )

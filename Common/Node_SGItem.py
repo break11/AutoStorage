@@ -8,7 +8,7 @@ from .StoragePlace_SGItem import CStoragePlace_SGItem
 
 class CNode_SGItem(QGraphicsItem):
     __R = 25
-    __fBBoxD  =  20 # 20   # расширение BBox для удобства выделения
+    __fBBoxD  =  2 # 20   # расширение BBox для удобства выделения
     __storage_offset = SGT.railWidth[SGT.EWidthType.Narrow.name]
 
     def __readGrafAttr( self, sAttrName ): return self.nxGraf.node[ self.nodeID ][ sAttrName ]

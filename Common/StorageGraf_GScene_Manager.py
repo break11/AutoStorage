@@ -284,6 +284,7 @@ class CStorageGraf_GScene_Manager():
 
         edgeGItem = CEdge_SGItem ( self.nxGraf, nodeID_1, nodeID_2 )
         edgeGItem.bDrawBBox = self.bDrawBBox
+        edgeGItem.bDrawInfoRails = self.bDrawInfoRails
         self.edgeGItems[ (nodeID_1, nodeID_2) ] = edgeGItem
         edgeGItem.updatePos()
         self.addEdgeToGrop( edgeGItem )
@@ -346,8 +347,9 @@ class CStorageGraf_GScene_Manager():
 
     def reverseEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get( (nodeID_2, nodeID_1) ) is None:
+            attrs = self.edgeGItems.get( (nodeID_1, nodeID_2) ).nxEdge()
             self.deleteEdge( nodeID_1, nodeID_2 )
-            self.addEdge ( nodeID_2, nodeID_1 )
+            self.addEdge ( nodeID_2, nodeID_1, **attrs )
     
     def deleteEdgeGroup(self, groupKey):
         edgeGroup = self.groupsByEdge[groupKey]
