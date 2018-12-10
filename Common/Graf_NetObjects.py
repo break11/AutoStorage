@@ -3,6 +3,7 @@ import networkx as nx
 from Net.NetObj import *
 from .StorageGrafTypes import *
 from .GuiUtils import GraphEdgeName
+from .StrTypeConverter import *
 
 def adjustGrafProps( d ):
     d1 = {}
@@ -22,7 +23,7 @@ class CGrafRoot_NO( CNetObj ):
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
+        props = CStrTypeConverter.DictFromBytes( redisConn.hgetall( self.redisKey_Props() ) )
         self.nxGraf = nx.DiGraph( **props )
 
 ###################################################################################
@@ -32,7 +33,7 @@ class CGrafNode_NO( CNetObj ):
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
+        props = CStrTypeConverter.DictFromBytes( redisConn.hgetall( self.redisKey_Props() ) )
         self.nxGraf().add_node( self.name, **props )
 
     def nxGraf(self): return self.grafNode().nxGraf
@@ -56,8 +57,7 @@ class CGrafEdge_NO( CNetObj ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.OnPrepareDelete )
     
     def OnPrepareDelete(self, netCmd):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        assert netObj, f"CGrafEdge_NO.OnPrepareDelete netObj with UID={netCmd.Obj_UID} can not accepted!"
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
 
         if isinstance( netObj, CGrafNode_NO ):
             if netObj.name in self.__nxEdgeName():
@@ -70,15 +70,11 @@ class CGrafEdge_NO( CNetObj ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
         self.nxGraf().remove_edge( *self.__nxEdgeName() )
 
-    # def __del__( self ):
-    #     super().__del__()
-    #     print("123")
-
     def propsDict(self): return self.nxEdge()
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
+        props = CStrTypeConverter.DictFromBytes( redisConn.hgetall( self.redisKey_Props() ) )
         self.nxNodeID_1 = redisConn.get( self.redisKey_NodeID_1() ).decode()
         self.nxNodeID_2 = redisConn.get( self.redisKey_NodeID_2() ).decode()
         self.nxGraf().add_edge( self.nxNodeID_1, self.nxNodeID_2, **props )

@@ -6,6 +6,7 @@ from anytree import NodeMixin
 from anytree import Resolver
 
 from Common.SettingsManager import CSettingsManager as CSM
+from Common.StrTypeConverter import *
 from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
 
@@ -49,22 +50,29 @@ class CNetObj( NodeMixin ):
 
 ###################################################################################
 
-    def prepareDelete(self):
-        cls = CNetObj_Manager
+    def prepareDelete(self, bOnlySendNetCmd = True):
 
         cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
+
+        # при заданном bOnlySendNetCmd = True - только отправляем команду, которую поймает парсер сетевых команд и выполнит
+        # prepareDelete с параметром bOnlySendNetCmd = False, так же со значением False prepareDelete может быть вызван при завершении программы,
+        # чтобы в сеть не отправлялись команды, если это не нужно
+        if bOnlySendNetCmd:
+            CNetObj_Manager.sendNetCMD( cmd )
+            return
+
         CNetObj_Manager.doCallbacks( cmd )
 
         for child in self.children:
-            child.prepareDelete()
+            child.prepareDelete( bOnlySendNetCmd )
             child.parent = None
             child.children = []
         
         self.parent = None
 
-    def clearChildren(self):
+    def clearChildren(self, bOnlySendNetCmd = False):
         for child in self.children:
-            child.prepareDelete()
+            child.prepareDelete( bOnlySendNetCmd )
 
 ###################################################################################
     # Интерфейс для работы с кастомными пропертями реализован через []
@@ -74,21 +82,17 @@ class CNetObj( NodeMixin ):
 
     def __setitem__( self, key, value ):
         bPropExist = not self.propsDict().get( key ) is None
-        # self.propsDict()[ key ] = value
 
-        CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, value )
+        CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
         cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
         CNetObj_Manager.sendNetCMD( cmd )
-        # CNetObj_Manager.doCallbacks( cmd )
 
     def __delitem__( self, key ):
         CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
         cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
         CNetObj_Manager.sendNetCMD( cmd )
-        # CNetObj_Manager.doCallbacks( cmd )
-        # del self.propsDict()[ key ]
 
 ###################################################################################
 
@@ -134,14 +138,10 @@ class CNetObj( NodeMixin ):
 
         # сохранение справочника свойств
         if len( self.propsDict() ):
-            redisConn.hmset( self.redisKey_Props(), self.propsDict() )
+            redisConn.hmset( self.redisKey_Props(), CStrTypeConverter.DictToStr( self.propsDict() ) )
 
         # вызов дополнительных действий по сохранению наследника
         self.onSaveToRedis( redisConn )
-
-    def delFromRedis( self, redisConn ):
-        for key in redisConn.keys( self.redisBase_Name() + ":*" ):
-            redisConn.delete( key )
 
     @classmethod
     def loadFromRedis( cls, redisConn, UID ):
@@ -156,9 +156,14 @@ class CNetObj( NodeMixin ):
         objClass = CNetObj_Manager.netObj_Type( typeUID )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
-        netObj.onLoadFromRedis( redisConn, netObj )
 
+        netObj.onLoadFromRedis( redisConn, netObj )
+        
         return netObj
+
+    def delFromRedis( self, redisConn ):
+        for key in redisConn.keys( self.redisBase_Name() + ":*" ):
+            redisConn.delete( key )
 
     # методы для переопределения дополнительного поведения в наследниках
     def onSaveToRedis( self, redisConn ): pass

@@ -1,6 +1,7 @@
 import sys
 
 from Common.SettingsManager import CSettingsManager as CSM
+from Common.StrTypeConverter import *
 from .Net_Events import ENet_Event as EV
 import weakref
 import redis
@@ -138,7 +139,7 @@ class CNetObj_Manager( object ):
                     # и построит индекс, который уже числится в модели Qt как удаленный
                     if cls.objModel: cls.objModel.beginRemove( netObj )
 
-                    netObj.prepareDelete()
+                    netObj.prepareDelete( bOnlySendNetCmd = False )
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
@@ -147,16 +148,16 @@ class CNetObj_Manager( object ):
                 cls.doCallbacks( netCmd )
 
             elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-                assert netObj, f"CNetObj_Manager.onTick netObj with UID={netCmd.Obj_UID} can not accepted!"
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
 
-                # CNetObj_Manager.redisConn.hset( netObj.redisKey_Props(), netCmd.sPropName, value )
-                netObj.propsDict()[ netCmd.sPropName ] = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName ).decode()
+                val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
+                val = val.decode()
+                val = CStrTypeConverter.ValFromStr( val )
+                netObj.propsDict()[ netCmd.sPropName ] = val
                 cls.doCallbacks( netCmd )
     
             elif netCmd.Event == EV.ObjPropDeleted:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-                assert netObj, f"CNetObj_Manager.onTick netObj with UID={netCmd.Obj_UID} can not accepted!"
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
 
                 # cls.redisConn.hdel( netObj.redisKey_Props(), netCmd.sPropName )
                 cls.doCallbacks( netCmd )
@@ -195,8 +196,11 @@ class CNetObj_Manager( object ):
                 CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, EV.ObjDeleted, Obj_UID = netObj.UID ) )
 
     @classmethod
-    def accessObj( cls, UID ):
-        return cls.__objects.get( UID )
+    def accessObj( cls, UID, genAssert=False ):
+        netObj = cls.__objects.get( UID )
+        if genAssert:
+            assert netObj, f"[Assert] CNetObj_Manager.accessObj : netObj with UID={UID} can not accepted!"
+        return netObj
 
     #####################################################
 
@@ -273,14 +277,15 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def sendNetCMD( cls, cmd ):
+        if not cls.isConnected(): return
         cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
 
-    @classmethod
-    def sendAll( cls ):
-        if not cls.isConnected():
-            raise redis.exceptions.ConnectionError("[Error]: Can't get send data to redis! No connection!")
+    # @classmethod
+    # def sendAll( cls ):
+    #     if not cls.isConnected():
+    #         raise redis.exceptions.ConnectionError("[Error]: Can't get send data to redis! No connection!")
 
-        for k, netObj in cls.__objects.items():
-            netObj.saveToRedis( cls.redisConn )
+        # for k, netObj in cls.__objects.items():
+        #     netObj.saveToRedis( cls.redisConn )
 
 from .NetObj import CNetObj
