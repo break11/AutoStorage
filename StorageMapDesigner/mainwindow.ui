@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -102,7 +102,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolMain">
    <property name="windowTitle">
-    <string>Tool Bar</string>
+    <string>Scene tools</string>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -124,7 +124,7 @@
   </widget>
   <widget class="QToolBar" name="toolEdit">
    <property name="windowTitle">
-    <string>Tool Bar</string>
+    <string>Graph tools</string>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -209,6 +209,9 @@ selection-background-color: red;*/
     <font>
      <pointsize>11</pointsize>
     </font>
+   </property>
+   <property name="windowTitle">
+    <string>Scene preferences</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -382,6 +385,9 @@ selection-background-color: red;*/
    </property>
    <property name="toolTip">
     <string>Load GraphML</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="acSaveGraphMLAs">
