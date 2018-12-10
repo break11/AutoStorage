@@ -180,12 +180,15 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):
-        if self.SGraf_Manager.Mode == EGManagerMode.AddNode:
-            self.SGraf_Manager.Mode = EGManagerMode.Edit
-            self.StorageMap_View.setCursor( Qt.ArrowCursor )
+        if bChecked:
+            self.SGraf_Manager.Mode |= EGManagerMode.AddNode
         else:
-            self.SGraf_Manager.Mode = EGManagerMode.AddNode
+            self.SGraf_Manager.Mode &= ~EGManagerMode.AddNode
+
+        if self.SGraf_Manager.Mode == (EGManagerMode.Edit | EGManagerMode.AddNode):
             self.StorageMap_View.setCursor( Qt.CrossCursor )
+        else:
+            self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
     @pyqtSlot(bool)
     def on_acDelMultiEdge_triggered (self, bChecked):

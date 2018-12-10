@@ -2,7 +2,7 @@
 import os
 import networkx as nx
 import math
-from enum import Enum, auto
+from enum import Enum, Flag, auto
 from copy import deepcopy
 
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
@@ -18,7 +18,7 @@ from .GuiUtils import *
 
 from . import StorageGrafTypes as SGT
 
-class EGManagerMode( Enum ):
+class EGManagerMode( Flag ):
     View    = auto()
     Edit    = auto()
     AddNode = auto()
@@ -392,7 +392,7 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
 
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
-            if event.button() == Qt.LeftButton and self.__SGraf_Manager.Mode == EGManagerMode.AddNode:
+            if event.button() == Qt.LeftButton and self.__SGraf_Manager.Mode == (EGManagerMode.AddNode | EGManagerMode.Edit) :
                 attr = deepcopy (self.__SGraf_Manager.default_Node)
                 attr[ SGT.s_x ] = self.__gView.mapToScene(event.pos()).x()
                 attr[ SGT.s_y ] = self.__gView.mapToScene(event.pos()).y()
