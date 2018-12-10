@@ -1,6 +1,7 @@
 
 import os
 import networkx as nx
+import weakref
 import math
 from enum import Enum, Flag, auto
 from copy import deepcopy
@@ -61,8 +62,22 @@ class CStorageGraf_GScene_Manager():
 
         self.__maxNodeID    = 0
 
+        self.callbacksSet = set()
+
+    def addCallback(self, callback ):
+        assert callable( callback ), f"CStorageGraf_GScene_Manager.addCallback need take a function!"
+        self.callbacksSet.add( weakref.WeakMethod( callback ) )
+
+    def doCallbacks(self):
+        # Empty set from None WeakMethods
+        self.callbacksSet = set ( [ weak_ref for weak_ref in self.callbacksSet if weak_ref() is not None ] )
+
+        for callback in self.callbacksSet:
+           callback()()
+
     def setHasChanges(self, b = True):
         self.bHasChanges = b
+        self.doCallbacks()
 
     def clear(self):
         self.nodeGItems = {}

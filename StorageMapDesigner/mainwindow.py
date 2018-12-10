@@ -44,6 +44,7 @@ class CSMD_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
+        self.setWindowTitle( self.__sWindowTitle )
 
         self.graphML_fname = SC.s_storage_graph_file__default
         self.objProps = QStandardItemModel( self )
@@ -60,7 +61,8 @@ class CSMD_MainWindow(QMainWindow):
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraf_Manager )
         
-        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) ) 
+        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
+        self.SGraf_Manager.addCallback( self.GraphHasBeenChanged )
 
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
@@ -80,8 +82,6 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, s_draw_info_rails, default=self.SGraf_Manager.bDrawInfoRails ) )
 
         #setup ui
-        self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
-
         self.sbGridSize.setValue   ( self.StorageMap_Scene.gridSize   )
         self.acGrid.setChecked     ( self.StorageMap_Scene.bDrawGrid  )
         self.acMainRail.setChecked ( self.SGraf_Manager.bDrawMainRail )
@@ -145,6 +145,10 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.updateNodeIncEdges( nodeGItem )
         self.objProps.clear()
         self.SGraf_Manager.fillPropsForGItem( nodeGItem, self.objProps )
+
+    def GraphHasBeenChanged(self):
+        sign = "" if not self.SGraf_Manager.bHasChanges else "*"
+        self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
