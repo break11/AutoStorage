@@ -4,6 +4,7 @@ import sys
 
 from anytree import NodeMixin
 from anytree import Resolver
+from anytree import resolver
 
 from Common.SettingsManager import CSettingsManager as CSM
 from Common.StrTypeConverter import *
@@ -11,16 +12,23 @@ from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
 
 class CNetObj( NodeMixin ):
-    __s_Name     = "Name"
+    __s_Name     = "name"
     __s_UID      = "UID"
-    __s_TypeUID  = "TypeUID"
+    __s_TypeUID  = "typeUID"
     __modelHeaderData = [ __s_Name, __s_UID, __s_TypeUID, ]
-    __s_Parent   = "Parent"
+    __s_Parent   = "parent"
     __s_obj      = "obj"
     __s_props    = "props"
 
+    props = {} # type: ignore
+
     __pathResolver = Resolver( __s_Name )
-    def resolvePath( self, sPath ): return self.__pathResolver.get(self, sPath)
+    def resolvePath( self, sPath ):
+        try:
+            return self.__pathResolver.get(self, sPath)
+        except resolver.ChildResolverError as e:
+            return None
+        
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
@@ -102,7 +110,7 @@ class CNetObj( NodeMixin ):
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
     def modelData( self, col )     : return self.__modelData[ col ]
 
-    def propsDict(self): return {}
+    def propsDict(self): return self.props
 
 ###################################################################################
     @classmethod    
@@ -156,6 +164,8 @@ class CNetObj( NodeMixin ):
         objClass = CNetObj_Manager.netObj_Type( typeUID )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
+
+        netObj.props = CStrTypeConverter.DictFromBytes( redisConn.hgetall( netObj.redisKey_Props() ) )
 
         netObj.onLoadFromRedis( redisConn, netObj )
         
