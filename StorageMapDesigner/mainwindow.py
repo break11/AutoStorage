@@ -190,6 +190,8 @@ class CSMD_MainWindow(QMainWindow):
         else:
             self.toolEdit.setEnabled(True)
             self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.Edit) & ~EGManagerMode.View
+        
+        self.SGraf_Manager.updateMoveableFlags()
 
     @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):

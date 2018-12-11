@@ -64,6 +64,14 @@ class CStorageGraf_GScene_Manager():
 
         self.callbacksSet = set()
 
+    def updateMoveableFlags(self):
+        if self.Mode & EGManagerMode.View:
+            for nodeID, nodeGItem in self.nodeGItems.items():
+                nodeGItem.setFlags( nodeGItem.flags() & ~QGraphicsItem.ItemIsMovable )
+        else:
+            for nodeID, nodeGItem in self.nodeGItems.items():
+                nodeGItem.setFlags( nodeGItem.flags() | QGraphicsItem.ItemIsMovable )
+
     def addCallback(self, callback ):
         assert callable( callback ), f"CStorageGraf_GScene_Manager.addCallback need take a function!"
         self.callbacksSet.add( weakref.WeakMethod( callback ) )
