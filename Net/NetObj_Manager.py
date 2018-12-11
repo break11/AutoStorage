@@ -58,6 +58,12 @@ class CNetObj_Manager( object ):
         cl = [ x for x in cl if x() is not None ]
         cls.callbacksDict[ netCmd.Event ] = cl
 
+        # local object callbacks
+        if netCmd.Obj_UID:
+            netObj = cls.accessObj( netCmd.Obj_UID )
+            if netObj: netObj.doSelfCallBack( netCmd )
+
+        # global callbacks
         for callback in cl:
             callback()( netCmd )
 
@@ -280,12 +286,5 @@ class CNetObj_Manager( object ):
         if not cls.isConnected(): return
         cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
 
-    # @classmethod
-    # def sendAll( cls ):
-    #     if not cls.isConnected():
-    #         raise redis.exceptions.ConnectionError("[Error]: Can't get send data to redis! No connection!")
-
-        # for k, netObj in cls.__objects.items():
-        #     netObj.saveToRedis( cls.redisConn )
 
 from .NetObj import CNetObj

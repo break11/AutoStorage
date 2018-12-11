@@ -20,13 +20,7 @@ class CGrafRoot_NO( CNetObj ):
 ###################################################################################
 
 class CGrafNode_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None ):
-        super().__init__( name=name, parent=parent, id=id )
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.OnPrepareDelete )
-
-    def OnPrepareDelete(self, netCmd):
-        if not self.UID == netCmd.Obj_UID: return
-
+    def ObjPrepareDelete( self, netCmd ):
         incEdges = list( self.nxGraf().out_edges( self.name ) ) +  list( self.nxGraf().in_edges( self.name ) )
 
         for edgeID in incEdges:
@@ -63,13 +57,7 @@ class CGrafEdge_NO( CNetObj ):
         self.nxNodeID_2 = nxNodeID_2
         super().__init__( name=name, parent=parent, id=id )
 
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.OnPrepareDelete )
-    
-    def OnPrepareDelete(self, netCmd):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
-
-        if not self.UID == netCmd.Obj_UID: return
-
+    def ObjPrepareDelete( self, netCmd ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
         # такой грани уже может не быть в графе, если изначально удалялась нода, она сама внутри графа удалит инцидентную грань
         if self.__has_nxEdge():
