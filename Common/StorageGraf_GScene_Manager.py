@@ -62,8 +62,6 @@ class CStorageGraf_GScene_Manager():
 
         self.__maxNodeID    = 0
 
-        self.callbacksSet = set()
-
     def updateMoveableFlags(self):
         if self.Mode & EGManagerMode.View:
             for nodeID, nodeGItem in self.nodeGItems.items():
@@ -71,21 +69,6 @@ class CStorageGraf_GScene_Manager():
         else:
             for nodeID, nodeGItem in self.nodeGItems.items():
                 nodeGItem.setFlags( nodeGItem.flags() | QGraphicsItem.ItemIsMovable )
-
-    def addCallback(self, callback ):
-        assert callable( callback ), f"CStorageGraf_GScene_Manager.addCallback need take a function!"
-        self.callbacksSet.add( weakref.WeakMethod( callback ) )
-
-    def doCallbacks(self):
-        # Empty set from None WeakMethods
-        self.callbacksSet = set ( [ weak_ref for weak_ref in self.callbacksSet if weak_ref() is not None ] )
-
-        for callback in self.callbacksSet:
-           callback()()
-
-    def setHasChanges(self, b = True):
-        self.bHasChanges = b
-        self.doCallbacks()
 
     def clear(self):
         self.nodeGItems = {}
@@ -101,7 +84,7 @@ class CStorageGraf_GScene_Manager():
             self.nxGraf = nx.DiGraph()
         self.gScene_evI = CGItem_EventFilter()
         self.gScene.addItem( self.gScene_evI )
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def load(self, sFName):
         self.clear()
@@ -128,7 +111,7 @@ class CStorageGraf_GScene_Manager():
             self.calcNodeStorageLine( nodeGItem )
         
         gvFitToPage( self.gView )
-        self.setHasChanges(False) #сбрасываем признак изменения сцены после загрузки
+        self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
         return True
 
     def save( self, sFName ):
@@ -212,7 +195,7 @@ class CStorageGraf_GScene_Manager():
             groupItem.removeFromGroup( edgeGItem )
             groupItem.addToGroup( edgeGItem )
         
-        self.setHasChanges()
+        self.bHasChanges = True
 
         NeighborsIDs = list ( self.nxGraf.successors(nodeGItem.nodeID) ) + list ( self.nxGraf.predecessors(nodeGItem.nodeID) )
         nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
@@ -239,7 +222,7 @@ class CStorageGraf_GScene_Manager():
             edgeGItem.nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
             edgeGItem.rebuildInfoRails()
 
-        self.setHasChanges()
+        self.bHasChanges = True
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
@@ -298,7 +281,7 @@ class CStorageGraf_GScene_Manager():
         nodeGItem.bDrawBBox = self.bDrawBBox
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def addEdge(self, nodeID_1, nodeID_2, **attr):
         if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return False
@@ -317,7 +300,7 @@ class CStorageGraf_GScene_Manager():
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
 
-        self.setHasChanges()
+        self.bHasChanges = True
         return True
     
     def addEdgesForSelection(self, direct = True, reverse = True):
@@ -354,7 +337,7 @@ class CStorageGraf_GScene_Manager():
         self.nodeGItems[ nodeID ].prepareGeometryChange()
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def deleteEdge(self, nodeID_1, nodeID_2):
         e = (nodeID_1, nodeID_2)
@@ -366,7 +349,7 @@ class CStorageGraf_GScene_Manager():
         edgeGroup.removeFromGroup( edgeGItem )
         self.gScene.removeItem( edgeGItem )
         del self.edgeGItems[e]
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def reverseEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get( (nodeID_2, nodeID_1) ) is None:

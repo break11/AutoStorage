@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import (pyqtSlot, QByteArray)
+from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
 from PyQt5 import uic
@@ -46,6 +46,11 @@ class CSMD_MainWindow(QMainWindow):
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
         self.setWindowTitle( self.__sWindowTitle )
 
+        self.timer = QTimer()
+        self.timer.setInterval(500)
+        self.timer.timeout.connect( self.tick )
+        self.timer.start()
+
         self.graphML_fname = SC.s_storage_graph_file__default
         self.objProps = QStandardItemModel( self )
         self.tvObjectProps.setModel( self.objProps )
@@ -62,14 +67,13 @@ class CSMD_MainWindow(QMainWindow):
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraf_Manager )
         
         self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
-        self.SGraf_Manager.addCallback( self.GraphHasBeenChanged )
 
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
 
         sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
 
-        # if winSettings:
+        #if winSettings:
         geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
         self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry ) ) )
 
@@ -86,6 +90,11 @@ class CSMD_MainWindow(QMainWindow):
         self.acGrid.setChecked     ( self.StorageMap_Scene.bDrawGrid  )
         self.acMainRail.setChecked ( self.SGraf_Manager.bDrawMainRail )
         self.acInfoRails.setChecked( self.SGraf_Manager.bDrawInfoRails)
+
+    def tick(self):
+        #добавляем '*' в заголовок окна если есть изменения
+        sign = "" if not self.SGraf_Manager.bHasChanges else "*"
+        self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
@@ -118,7 +127,7 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
         CSM.options[ SC.s_last_opened_file ] = sFName
-        self.SGraf_Manager.setHasChanges(False)
+        self.SGraf_Manager.bHasChanges = False
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
@@ -145,10 +154,6 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.updateNodeIncEdges( nodeGItem )
         self.objProps.clear()
         self.SGraf_Manager.fillPropsForGItem( nodeGItem, self.objProps )
-
-    def GraphHasBeenChanged(self):
-        sign = "" if not self.SGraf_Manager.bHasChanges else "*"
-        self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
