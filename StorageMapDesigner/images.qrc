@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/">
+    <file>images/lock_editing_on.png</file>
+    <file>images/lock_editing_off.png</file>
     <file>images/info_rails.png</file>
     <file>images/main_rail.png</file>
     <file>images/snap_to_grid.png</file>

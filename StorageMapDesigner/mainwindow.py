@@ -183,6 +183,15 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
+    def on_acLockEditing_triggered(self, bChecked):
+        if bChecked:
+            self.toolEdit.setEnabled(False)
+            self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.View) & ~EGManagerMode.Edit
+        else:
+            self.toolEdit.setEnabled(True)
+            self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.Edit) & ~EGManagerMode.View
+
+    @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):
         if bChecked:
             self.SGraf_Manager.Mode |= EGManagerMode.AddNode

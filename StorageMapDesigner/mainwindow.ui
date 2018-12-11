@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -121,6 +121,7 @@
    <addaction name="acBBox"/>
    <addaction name="acInfoRails"/>
    <addaction name="acMainRail"/>
+   <addaction name="acLockEditing"/>
   </widget>
   <widget class="QToolBar" name="toolEdit">
    <property name="windowTitle">
@@ -143,6 +144,9 @@
    <addaction name="acReverseEdges"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>Object Props</string>
    </property>
@@ -560,6 +564,22 @@ selection-background-color: red;*/
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="acLockEditing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/lock_editing_off.png</normaloff>
+     <normalon>:/images/lock_editing_on.png</normalon>:/images/lock_editing_off.png</iconset>
+   </property>
+   <property name="text">
+    <string>Lock editing</string>
+   </property>
+   <property name="toolTip">
+    <string>Add node mode</string>
    </property>
   </action>
  </widget>

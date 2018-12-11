@@ -404,6 +404,8 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
                 self.__SGraf_Manager.calcNodeStorageLine( self.__SGraf_Manager.nodeGItems[nodeID] )
 
     def eventFilter(self, object, event):
+        if self.__SGraf_Manager.Mode & EGManagerMode.View:
+            return False
 
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
