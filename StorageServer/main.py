@@ -16,45 +16,21 @@ from Net.NetObj_Widgets import *
 from Common.Graf_NetObjects import *
 from .def_settings import *
 
-# загрузка графа и создание его объектов для сетевой синхронизации
-def loadStorageGraph( parentBranch ):
-
-    sFName = CSM.rootOpt( SC.s_storage_graph_file, default=SC.s_storage_graph_file__default )
-    if not os.path.exists( sFName ):
-        print( f"[Warning]: GraphML file not found '{sFName}'!" )
-        return
-
-    nxGraf  = nx.read_graphml( sFName )
-    # не используем атрибуты для значений по умолчанию для вершин и граней, поэтому сносим их из свойств графа
-    # как и следует из документации новые ноды не получают этот список атрибутов, это просто кеш
-    # при создании графа через загрузку они появляются, при создании чистого графа ( nx.Graph() ) нет
-    del nxGraf.graph["node_default"]
-    del nxGraf.graph["edge_default"]
-
-    # nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
-
-    Graf  = CGrafRoot_NO( name="Graf", parent=parentBranch, nxGraf=nxGraf )
-    Nodes = CNetObj(name="Nodes", parent=Graf)
-    Edges = CNetObj(name="Edges", parent=Graf)
-
-    for nodeID in nxGraf.nodes():
-        node = CGrafNode_NO( name=nodeID, parent=Nodes )
-
-    for edgeID in nxGraf.edges():
-        n1 = edgeID[0]
-        n2 = edgeID[1]
-        edge = CGrafEdge_NO( name = GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
-
-    # print( RenderTree(parentBranch) )
+from .mainwindow import CSSD_MainWindow
 
 def main():    
     registerNetObjTypes()
-
+    
     app = CBaseApplication(sys.argv)
     app.bIsServer = True    
+
     if not app.init( default_settings = serverDefSet ): return -1
     
-    loadStorageGraph( CNetObj_Manager.rootObj )
+    window = CSSD_MainWindow()
+    window.show()
+
+    app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
+
     if app.objMonitor: app.objMonitor.clearView()
 
     app.exec_() # главный цикл сообщений Qt

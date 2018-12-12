@@ -1,12 +1,14 @@
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import ( QApplication, QDockWidget, QWidget )
 from PyQt5.QtCore import QTimer
 
 from .SettingsManager import CSettingsManager as CSM
 from Net.NetObj_Manager import CNetObj_Manager
 from Net.NetObj_Monitor import CNetObj_Monitor
-from Net.DictProps_Widget import *
+from Net.DictProps_Widget import CDictProps_Widget
+from Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
 from Common.Graf_NetObjects import *
+
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -34,7 +36,7 @@ class CBaseApplication( QApplication ):
         self.timer.timeout.connect( f )
         self.timer.start()
 
-    def init(self, default_settings={}):
+    def init(self, default_settings={}, parent=None ):
         CSM.loadSettings( default=default_settings )
 
         # clientID = -1 признак того, что это сервер
@@ -44,13 +46,24 @@ class CBaseApplication( QApplication ):
         self.setTickFunction( CNetObj_Manager.onTick )
 
         self.objMonitor = None
-        if CNetObj_Monitor.enabledInOptions():
-            self.objMonitor = CNetObj_Monitor()
+
+        return True
+
+    def init_NetObj_Monitor(self, parent=None ):
+        if CNetObj_Monitor.enabledInOptions() or parent:
+            self.objMonitor = CNetObj_Monitor( parent=parent )
+                    
+            # т.к. Qt уничтожает пустой layoput() (без виджетов в нем) при загрузке ui-шника, то
+            # делаем вставку окна монитора в layoput() в зависимости от класса виджета
+            if parent:
+                if isinstance( parent, QDockWidget ):
+                    parent.setWidget( self.objMonitor )
+                elif isinstance( parent, QWidget ) and parent.layout():
+                    parent.layout().addWidget( self.objMonitor )
+
             self.objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
             registerNetNodeWidgets( self.objMonitor.saNetObj_WidgetContents )
             self.objMonitor.show()
-
-        return True
 
     def done(self):
         if self.bIsServer:

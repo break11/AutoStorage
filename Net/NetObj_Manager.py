@@ -5,7 +5,6 @@ from Common.StrTypeConverter import *
 from .Net_Events import ENet_Event as EV
 import weakref
 import redis
-from Net.NetCmd import CNetCmd
 from queue import Queue
 import threading
 import weakref
@@ -184,7 +183,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
-        cmd = CNetCmd( cls.clientID, EV.ObjCreated, Obj_UID = netObj.UID )
+        cmd = CNetCmd( Event = EV.ObjCreated, Client_ID = cls.clientID, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
@@ -199,7 +198,7 @@ class CNetObj_Manager( object ):
             if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
                 netObj.delFromRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, EV.ObjDeleted, Obj_UID = netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
 
     @classmethod
     def accessObj( cls, UID, genAssert=False ):
@@ -242,7 +241,7 @@ class CNetObj_Manager( object ):
 
         if cls.clientID is None:
             cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
-        cmd = CNetCmd( cls.clientID, EV.ClientConnected )
+        cmd = CNetCmd( Event=EV.ClientConnected, Client_ID=cls.clientID )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
@@ -266,7 +265,7 @@ class CNetObj_Manager( object ):
         
         cls.netCmds_Reader.stop()
 
-        cmd = CNetCmd( cls.clientID, EV.ClientDisconnected )
+        cmd = CNetCmd( Client_ID=cls.clientID, Event=EV.ClientDisconnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
@@ -288,3 +287,4 @@ class CNetObj_Manager( object ):
 
 
 from .NetObj import CNetObj
+from .NetCmd import CNetCmd

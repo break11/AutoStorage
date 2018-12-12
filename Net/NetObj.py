@@ -51,7 +51,7 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        print("CNetObj destructor", self)
+        # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
     def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
@@ -60,7 +60,7 @@ class CNetObj( NodeMixin ):
 
     def prepareDelete(self, bOnlySendNetCmd = True):
 
-        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
+        cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
 
         # при заданном bOnlySendNetCmd = True - только отправляем команду, которую поймает парсер сетевых команд и выполнит
         # prepareDelete с параметром bOnlySendNetCmd = False, так же со значением False prepareDelete может быть вызван при завершении программы,
@@ -92,14 +92,14 @@ class CNetObj( NodeMixin ):
         bPropExist = not self.propsDict().get( key ) is None
 
         CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
-        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Client_ID=CNetObj_Manager.clientID, Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
         CNetObj_Manager.sendNetCMD( cmd )
 
     def __delitem__( self, key ):
         CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
-        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Client_ID=CNetObj_Manager.clientID, Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
         CNetObj_Manager.sendNetCMD( cmd )
 
 ###################################################################################

@@ -28,7 +28,7 @@ class CGrafNode_NO( CNetObj ):
             n2 = edgeID[1]
             edgeObj = self.resolvePath('../../Edges/' + GraphEdgeName( n1, n2 ) )
             if ( edgeObj ):
-                CNetObj_Manager.sendNetCMD( CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = edgeObj.UID ) )
+                CNetObj_Manager.sendNetCMD( CNetCmd( Client_ID=CNetObj_Manager.clientID, Event=EV.ObjPrepareDelete, Obj_UID = edgeObj.UID ) )
 
         # при удалении NetObj объекта ноды удаляем соответствующую ноду из графа
         self.nxGraf().remove_node( self.name )

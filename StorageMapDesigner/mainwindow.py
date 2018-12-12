@@ -126,12 +126,14 @@ class CSMD_MainWindow(QMainWindow):
                 event.ignore()
 
     def loadGraphML( self, sFName ):
+        sFName = correctFNameToProjectDir( sFName )
         if self.SGraf_Manager.load( sFName ):
             self.graphML_fname = sFName
             self.setWindowTitle( self.__sWindowTitle + sFName )
             CSM.options[ SC.s_last_opened_file ] = sFName
 
     def saveGraphML( self, sFName ):
+        sFName = correctFNameToProjectDir( sFName )
         self.graphML_fname = sFName
         self.SGraf_Manager.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
@@ -239,12 +241,6 @@ class CSMD_MainWindow(QMainWindow):
     def on_sbGridSize_editingFinished(self):
         self.StorageMap_Scene.gridSize = self.sbGridSize.value()
 
-    def doSaveLoad(self, path, func):
-        if path == "": return
-        if path.startswith( projectDir() ):
-            path = path.replace( projectDir(), "" )
-        func( path )
-
     @pyqtSlot(bool)
     def on_acNewGraphML_triggered(self, bChecked):
         self.graphML_fname = SC.s_storage_graph_file__default
@@ -254,16 +250,16 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        self.doSaveLoad(path, self.loadGraphML)
+        self.loadGraphML( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphMLAs_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        self.doSaveLoad(path, self.saveGraphML)
+        self.saveGraphML( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
         if self.graphML_fname == SC.s_storage_graph_file__default:
             self.on_acSaveGraphMLAs_triggered(True)
         else:
-            self.doSaveLoad(self.graphML_fname, self.saveGraphML)
+            self.saveGraphML( self.graphML_fname )

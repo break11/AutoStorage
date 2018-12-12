@@ -1,10 +1,14 @@
 
 from .Net_Events import ENet_Event as EV
 
+from .NetObj_Manager import CNetObj_Manager
+
 class CNetCmd:
-    def __init__(self, Client_ID, CMD, Obj_UID=None, PropName=None, ExtCmdData=None ):
+    def __init__(self, Client_ID=None, Event=None, Obj_UID=None, PropName=None, ExtCmdData=None ):
         self.Client_ID = Client_ID
-        self.Event = CMD
+        if self.Client_ID is None: self.Client_ID = CNetObj_Manager.clientID
+        assert Event in EV, f"Unsupported Event type {Event}"
+        self.Event = Event
         self.Obj_UID = Obj_UID
         self.sPropName = PropName
         self.ExtCmdData = ExtCmdData
@@ -21,21 +25,21 @@ class CNetCmd:
         l = sVal.split(":")
 
         Client_UID = int( l[0] )
-        cmd        = EV( int( l[1] ) )
+        ev         = EV( int( l[1] ) )
 
-        if cmd <= EV.ClientDisconnected:
-            return CNetCmd( Client_UID, cmd )
+        if ev <= EV.ClientDisconnected:
+            return CNetCmd( Client_ID=Client_UID, Event=ev )
 
-        Obj_UID    = int( l[2] )
-        if cmd <= EV.ObjDeleted:
-            return CNetCmd( Client_UID, cmd, Obj_UID )
+        objUID    = int( l[2] )
+        if ev <= EV.ObjDeleted:
+            return CNetCmd( Client_ID=Client_UID, Event=ev, Obj_UID=objUID )
 
-        if cmd <= EV.ObjPropUpdated:
-            PropName = l[3]
-            return CNetCmd( Client_UID, cmd, Obj_UID, PropName )
+        if ev <= EV.ObjPropUpdated:
+            propName = l[3]
+            return CNetCmd( Client_ID=Client_UID, Event=ev, Obj_UID=objUID, PropName=propName )
 
-        if cmd > EV.ObjPropUpdated:
-            ExtCmdData = l[3]
-            return CNetCmd( Client_UID, cmd, Obj_UID, ExtCmdData )
+        if ev > EV.ObjPropUpdated:
+            extCmdData = l[3]
+            return CNetCmd( Client_ID=Client_UID, Event=ev, Obj_UID=objUID, ExtCmdData=extCmdData )
 
     def __repr__(self): return self.toString( bDebug = True )

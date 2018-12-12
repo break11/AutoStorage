@@ -33,8 +33,8 @@ class CNetObj_Monitor(QWidget):
         settings = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
         return CSM.dictOpt( settings, s_active, default=b_active_default )
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + '/NetObj_Monitor.ui', self )
 
         ev = CTreeView_Arrows_EventFilter( self.tvNetObj )
@@ -51,7 +51,9 @@ class CNetObj_Monitor(QWidget):
         winSettings = CSM.dictOpt( settings,    s_window,   default=objMonWinDefSettings )
         geometry    = CSM.dictOpt( winSettings, s_geometry, default="" )
 
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
+        # в случае если парент передан, то окно монитора разместится внутри него и нет смысла восстанавливать его геометрию
+        if not parent:
+            self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 
         self.setWindowTitle( self.windowTitle() + " " + baseFName.rsplit(os.sep, 1)[1] )
 
@@ -93,6 +95,9 @@ class CNetObj_Monitor(QWidget):
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
         
+        # в случае если парент передан, то окно монитора разместится внутри него и нет смысла сохранять его геометрию
+        if self.parent: return
+
         settings = CSM.rootOpt( s_obj_monitor )
         settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
 

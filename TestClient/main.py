@@ -21,6 +21,7 @@ def main():
 
     app = CBaseApplication(sys.argv)
     if not app.init( default_settings = testClientDefSet ): return -1
+    app.init_NetObj_Monitor()
 
     app.exec_() # главный цикл сообщений Qt
  
