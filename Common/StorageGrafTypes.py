@@ -97,3 +97,12 @@ class ESensorSide( Enum ):
     SRight   = auto()
     SBoth    = auto()
     SPassive = auto()
+
+def adjustGrafPropsDict( d ):
+    d1 = {}
+    for k,v in d.items():
+        k1 = k.decode() 
+        v1 = v.decode()
+        d1[ k1 ] = adjustAttrType( k1, v1 )
+    return d1
+

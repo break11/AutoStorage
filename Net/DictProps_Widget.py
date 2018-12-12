@@ -4,7 +4,7 @@ from .images_rc import *
 from PyQt5 import uic
 from PyQt5.Qt import QInputDialog
 
-from .NetObj_Widgets import *
+from .NetObj_Widgets import *        
 
 class CDictProps_Widget( CNetObj_Widget ):
 
@@ -44,11 +44,11 @@ class CDictProps_Widget( CNetObj_Widget ):
         if self.bBlockOnChangeEvent: return
 
         props = self.netObj.propsDict()
-        key = item.data()
-        self.netObj[ key ] = item.data( Qt.EditRole )
+        key = item.data( role = Qt.UserRole + 1 )
+        self.netObj[ key ] = item.data( role = Qt.EditRole )
 
     def OnPropUpdate( self, netCmd ):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if self.netObj != netObj: return
 
         l = self.__model.findItems( netCmd.sPropName, Qt.MatchFixedString | Qt.MatchCaseSensitive, 0 )
@@ -76,7 +76,7 @@ class CDictProps_Widget( CNetObj_Widget ):
         del self.netObj[ propName ]
 
     def onObjPropDeleted( self, netCmd ):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if self.netObj != netObj: return
 
         l = self.__model.findItems( netCmd.sPropName, Qt.MatchFixedString | Qt.MatchCaseSensitive, 0 )
@@ -97,7 +97,7 @@ class CDictProps_Widget( CNetObj_Widget ):
     def onObjPropCreated( self, netCmd ):
         row = self.__model.rowCount()
 
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if self.netObj != netObj: return
 
         key = netCmd.sPropName

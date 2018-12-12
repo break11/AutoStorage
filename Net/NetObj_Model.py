@@ -13,7 +13,7 @@ class CNetObj_Model( QAbstractItemModel ):
         CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
 
     def onObjCreated( self, netCmd ):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
                 
@@ -116,7 +116,6 @@ class CNetObj_Model( QAbstractItemModel ):
 
         netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
 
-        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = netObj.UID )
-        CNetObj_Manager.sendNetCMD( cmd )
+        netObj.prepareDelete( bOnlySendNetCmd = True )
 
         return True

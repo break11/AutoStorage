@@ -55,11 +55,12 @@ class CBaseApplication( QApplication ):
     def done(self):
         if self.bIsServer:
             # удаление объектов до димсконнекта, чтобы в сеть попали команды удаления объектов ( для других клиентов )
-            CNetObj_Manager.rootObj.clearChildren() 
+            CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = True ) 
+            CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = False ) 
             CNetObj_Manager.disconnect( self.bIsServer )
         else:
             # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
             CNetObj_Manager.disconnect( self.bIsServer )
-            CNetObj_Manager.rootObj.clearChildren() 
+            CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = False )
 
         CSM.saveSettings()

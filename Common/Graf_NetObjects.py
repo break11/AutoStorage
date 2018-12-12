@@ -1,17 +1,8 @@
 
 import networkx as nx
 from Net.NetObj import *
-from .StorageGrafTypes import *
 from .GuiUtils import GraphEdgeName
-
-def adjustGrafProps( d ):
-    d1 = {}
-    for k,v in d.items():
-        k1 = k.decode() 
-        v1 = v.decode()
-        d1[ k1 ] = adjustAttrType( k1, v1 )
-    return d1
-
+from .StrTypeConverter import *
 
 class CGrafRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, nxGraf=None ):
@@ -22,18 +13,37 @@ class CGrafRoot_NO( CNetObj ):
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
-        self.nxGraf = nx.DiGraph( **props )
+        # при загрузке из сети self.props уже загрузится в коде предка
+        self.nxGraf = nx.DiGraph( **self.props )
+
 
 ###################################################################################
 
 class CGrafNode_NO( CNetObj ):
+    def __init__( self, name="", parent=None, id=None ):
+        super().__init__( name=name, parent=parent, id=id )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.OnPrepareDelete )
+
+    def OnPrepareDelete(self, netCmd):
+        if not self.UID == netCmd.Obj_UID: return
+
+        incEdges = list( self.nxGraf().out_edges( self.name ) ) +  list( self.nxGraf().in_edges( self.name ) )
+
+        for edgeID in incEdges:
+            n1 = edgeID[0]
+            n2 = edgeID[1]
+            edgeObj = self.resolvePath('../../Edges/' + GraphEdgeName( n1, n2 ) )
+            if ( edgeObj ):
+                CNetObj_Manager.sendNetCMD( CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = edgeObj.UID ) )
+
+        # при удалении NetObj объекта ноды удаляем соответствующую ноду из графа
+        self.nxGraf().remove_node( self.name )
+
     def propsDict(self): return self.nxNode()
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
-        self.nxGraf().add_node( self.name, **props )
+        self.nxGraf().add_node( self.name, **self.props )
 
     def nxGraf(self): return self.grafNode().nxGraf
     def nxNode(self): return self.nxGraf().nodes()[ self.name ]
@@ -56,39 +66,30 @@ class CGrafEdge_NO( CNetObj ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.OnPrepareDelete )
     
     def OnPrepareDelete(self, netCmd):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        assert netObj, f"CGrafEdge_NO.OnPrepareDelete netObj with UID={netCmd.Obj_UID} can not accepted!"
-
-        if isinstance( netObj, CGrafNode_NO ):
-            if netObj.name in self.__nxEdgeName():
-                
-                cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
-                CNetObj_Manager.sendNetCMD( cmd )
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
 
         if not self.UID == netCmd.Obj_UID: return
 
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
-        self.nxGraf().remove_edge( *self.__nxEdgeName() )
-
-    # def __del__( self ):
-    #     super().__del__()
-    #     print("123")
+        # такой грани уже может не быть в графе, если изначально удалялась нода, она сама внутри графа удалит инцидентную грань
+        if self.__has_nxEdge():
+            self.nxGraf().remove_edge( *self.__nxEdgeName() )
 
     def propsDict(self): return self.nxEdge()
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        props = adjustGrafProps( redisConn.hgetall( self.redisKey_Props() ) )
         self.nxNodeID_1 = redisConn.get( self.redisKey_NodeID_1() ).decode()
         self.nxNodeID_2 = redisConn.get( self.redisKey_NodeID_2() ).decode()
-        self.nxGraf().add_edge( self.nxNodeID_1, self.nxNodeID_2, **props )
+        self.nxGraf().add_edge( self.nxNodeID_1, self.nxNodeID_2, **self.props )
 
     def onSaveToRedis( self, redisConn ):
         super().onSaveToRedis( redisConn )
         redisConn.set( self.redisKey_NodeID_1(), self.nxNodeID_1 )
         redisConn.set( self.redisKey_NodeID_2(), self.nxNodeID_2 )
 
+    def __has_nxEdge(self): return self.nxGraf().has_edge( self.nxNodeID_1, self.nxNodeID_2 )
     def __nxEdgeName(self): return ( self.nxNodeID_1, self.nxNodeID_2 )
     def nxGraf(self): return self.grafNode().nxGraf
-    def nxEdge(self): return self.nxGraf().edges()[ self.__nxEdgeName() ]
+    def nxEdge(self): return self.nxGraf().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
     def grafNode(self): return self.resolvePath('../../')
