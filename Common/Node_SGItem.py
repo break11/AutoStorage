@@ -55,8 +55,8 @@ class CNode_SGItem(QGraphicsItem):
         super().setPos( self.x, self.y )
 
     def setPos(self, x, y):
-        self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, x )
-        self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, y )
+        self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, round(x) )
+        self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, round(y) )
         self.updatePos()
         self.scene().itemChanged.emit( self )
     
