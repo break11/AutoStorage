@@ -63,12 +63,12 @@ class CStorageGraf_GScene_Manager():
         self.__maxNodeID    = 0
 
     def updateMoveableFlags(self):
-        if self.Mode & EGManagerMode.View:
-            for nodeID, nodeGItem in self.nodeGItems.items():
-                nodeGItem.setFlags( nodeGItem.flags() & ~QGraphicsItem.ItemIsMovable )
-        else:
+        if self.Mode & EGManagerMode.Edit:
             for nodeID, nodeGItem in self.nodeGItems.items():
                 nodeGItem.setFlags( nodeGItem.flags() | QGraphicsItem.ItemIsMovable )
+        else:
+            for nodeID, nodeGItem in self.nodeGItems.items():
+                nodeGItem.setFlags( nodeGItem.flags() & ~QGraphicsItem.ItemIsMovable )
 
     def clear(self):
         self.nodeGItems = {}

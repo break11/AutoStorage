@@ -47,7 +47,7 @@ class CSMD_MainWindow(QMainWindow):
         self.setWindowTitle( self.__sWindowTitle )
 
         self.timer = QTimer()
-        self.timer.setInterval(500)
+        self.timer.setInterval(100)
         self.timer.timeout.connect( self.tick )
         self.timer.start()
 
@@ -95,6 +95,15 @@ class CSMD_MainWindow(QMainWindow):
         #добавляем '*' в заголовок окна если есть изменения
         sign = "" if not self.SGraf_Manager.bHasChanges else "*"
         self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
+
+        #в зависимости от режима активируем/деактивируем панель
+        self.toolEdit.setEnabled( self.SGraf_Manager.Mode & EGManagerMode.Edit == EGManagerMode.Edit )
+
+        #форма курсора
+        if self.SGraf_Manager.Mode == (EGManagerMode.Edit | EGManagerMode.AddNode):
+            self.StorageMap_View.setCursor( Qt.CrossCursor )
+        else:
+            self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
@@ -190,10 +199,8 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acLockEditing_triggered(self, bChecked):
         if bChecked:
-            self.toolEdit.setEnabled(False)
             self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.View) & ~EGManagerMode.Edit
         else:
-            self.toolEdit.setEnabled(True)
             self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.Edit) & ~EGManagerMode.View
         
         self.SGraf_Manager.updateMoveableFlags()
@@ -204,11 +211,6 @@ class CSMD_MainWindow(QMainWindow):
             self.SGraf_Manager.Mode |= EGManagerMode.AddNode
         else:
             self.SGraf_Manager.Mode &= ~EGManagerMode.AddNode
-
-        if self.SGraf_Manager.Mode == (EGManagerMode.Edit | EGManagerMode.AddNode):
-            self.StorageMap_View.setCursor( Qt.CrossCursor )
-        else:
-            self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
     @pyqtSlot(bool)
     def on_acDelMultiEdge_triggered (self, bChecked):
