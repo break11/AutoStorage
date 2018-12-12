@@ -31,7 +31,7 @@ class CNode_SGItem(QGraphicsItem):
         self.nxGraf  = nxGraf
         self.nodeID = nodeID
         self.nodeType = SGT.ENodeTypes.NoneType
-        self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
+        self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable )
         self.setZValue( 20 )
         self.storageLineAngle = 0
         self.__singleStorages = []
@@ -146,6 +146,7 @@ class CNode_SGItem(QGraphicsItem):
         self.prepareGeometryChange()
 
     def mouseMoveEvent( self, event ):
+        if not bool(self.flags() & QGraphicsItem.ItemIsMovable): return
         pos = self.mapToScene (event.pos())
 
         x = pos.x()

@@ -1,8 +1,9 @@
 
 import os
 import networkx as nx
+import weakref
 import math
-from enum import Enum, auto
+from enum import Enum, Flag, auto
 from copy import deepcopy
 
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
@@ -18,7 +19,7 @@ from .GuiUtils import *
 
 from . import StorageGrafTypes as SGT
 
-class EGManagerMode( Enum ):
+class EGManagerMode( Flag ):
     View    = auto()
     Edit    = auto()
     AddNode = auto()
@@ -61,8 +62,13 @@ class CStorageGraf_GScene_Manager():
 
         self.__maxNodeID    = 0
 
-    def setHasChanges(self, b = True):
-        self.bHasChanges = b
+    def updateMoveableFlags(self):
+        if self.Mode & EGManagerMode.Edit:
+            for nodeID, nodeGItem in self.nodeGItems.items():
+                nodeGItem.setFlags( nodeGItem.flags() | QGraphicsItem.ItemIsMovable )
+        else:
+            for nodeID, nodeGItem in self.nodeGItems.items():
+                nodeGItem.setFlags( nodeGItem.flags() & ~QGraphicsItem.ItemIsMovable )
 
     def clear(self):
         self.nodeGItems = {}
@@ -78,7 +84,7 @@ class CStorageGraf_GScene_Manager():
             self.nxGraf = nx.DiGraph()
         self.gScene_evI = CGItem_EventFilter()
         self.gScene.addItem( self.gScene_evI )
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def load(self, sFName):
         self.clear()
@@ -105,7 +111,7 @@ class CStorageGraf_GScene_Manager():
             self.calcNodeStorageLine( nodeGItem )
         
         gvFitToPage( self.gView )
-        self.setHasChanges(False) #сбрасываем признак изменения сцены после загрузки
+        self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
         return True
 
     def save( self, sFName ):
@@ -189,7 +195,7 @@ class CStorageGraf_GScene_Manager():
             groupItem.removeFromGroup( edgeGItem )
             groupItem.addToGroup( edgeGItem )
         
-        self.setHasChanges()
+        self.bHasChanges = True
 
         NeighborsIDs = list ( self.nxGraf.successors(nodeGItem.nodeID) ) + list ( self.nxGraf.predecessors(nodeGItem.nodeID) )
         nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
@@ -216,7 +222,7 @@ class CStorageGraf_GScene_Manager():
             edgeGItem.nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
             edgeGItem.rebuildInfoRails()
 
-        self.setHasChanges()
+        self.bHasChanges = True
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
@@ -275,7 +281,7 @@ class CStorageGraf_GScene_Manager():
         nodeGItem.bDrawBBox = self.bDrawBBox
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def addEdge(self, nodeID_1, nodeID_2, **attr):
         if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return False
@@ -294,7 +300,7 @@ class CStorageGraf_GScene_Manager():
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
 
-        self.setHasChanges()
+        self.bHasChanges = True
         return True
     
     def addEdgesForSelection(self, direct = True, reverse = True):
@@ -331,7 +337,7 @@ class CStorageGraf_GScene_Manager():
         self.nodeGItems[ nodeID ].prepareGeometryChange()
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def deleteEdge(self, nodeID_1, nodeID_2):
         e = (nodeID_1, nodeID_2)
@@ -343,7 +349,7 @@ class CStorageGraf_GScene_Manager():
         edgeGroup.removeFromGroup( edgeGItem )
         self.gScene.removeItem( edgeGItem )
         del self.edgeGItems[e]
-        self.setHasChanges()
+        self.bHasChanges = True
 
     def reverseEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get( (nodeID_2, nodeID_1) ) is None:
@@ -389,10 +395,12 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
                 self.__SGraf_Manager.calcNodeStorageLine( self.__SGraf_Manager.nodeGItems[nodeID] )
 
     def eventFilter(self, object, event):
+        if self.__SGraf_Manager.Mode & EGManagerMode.View:
+            return False
 
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
-            if event.button() == Qt.LeftButton and self.__SGraf_Manager.Mode == EGManagerMode.AddNode:
+            if event.button() == Qt.LeftButton and self.__SGraf_Manager.Mode == (EGManagerMode.AddNode | EGManagerMode.Edit) :
                 attr = deepcopy (self.__SGraf_Manager.default_Node)
                 attr[ SGT.s_x ] = self.__gView.mapToScene(event.pos()).x()
                 attr[ SGT.s_y ] = self.__gView.mapToScene(event.pos()).y()

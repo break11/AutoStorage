@@ -102,7 +102,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolMain">
    <property name="windowTitle">
-    <string>Tool Bar</string>
+    <string>Scene tools</string>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -121,10 +121,11 @@
    <addaction name="acBBox"/>
    <addaction name="acInfoRails"/>
    <addaction name="acMainRail"/>
+   <addaction name="acLockEditing"/>
   </widget>
   <widget class="QToolBar" name="toolEdit">
    <property name="windowTitle">
-    <string>Tool Bar</string>
+    <string>Graph tools</string>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -143,6 +144,9 @@
    <addaction name="acReverseEdges"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>Object Props</string>
    </property>
@@ -209,6 +213,9 @@ selection-background-color: red;*/
     <font>
      <pointsize>11</pointsize>
     </font>
+   </property>
+   <property name="windowTitle">
+    <string>Scene preferences</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -383,6 +390,9 @@ selection-background-color: red;*/
    <property name="toolTip">
     <string>Load GraphML</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="acSaveGraphMLAs">
    <property name="text">
@@ -554,6 +564,22 @@ selection-background-color: red;*/
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="acLockEditing">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/lock_editing_off.png</normaloff>
+     <normalon>:/images/lock_editing_on.png</normalon>:/images/lock_editing_off.png</iconset>
+   </property>
+   <property name="text">
+    <string>Lock editing</string>
+   </property>
+   <property name="toolTip">
+    <string>Add node mode</string>
    </property>
   </action>
  </widget>

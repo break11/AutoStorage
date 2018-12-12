@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import (pyqtSlot, QByteArray)
+from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
 from PyQt5 import uic
@@ -44,6 +44,12 @@ class CSMD_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
+        self.setWindowTitle( self.__sWindowTitle )
+
+        self.timer = QTimer()
+        self.timer.setInterval(100)
+        self.timer.timeout.connect( self.tick )
+        self.timer.start()
 
         self.graphML_fname = SC.s_storage_graph_file__default
         self.objProps = QStandardItemModel( self )
@@ -60,14 +66,14 @@ class CSMD_MainWindow(QMainWindow):
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraf_Manager )
         
-        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) ) 
+        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
 
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
 
         sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
 
-        # if winSettings:
+        #if winSettings:
         geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
         self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry ) ) )
 
@@ -80,12 +86,24 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, s_draw_info_rails, default=self.SGraf_Manager.bDrawInfoRails ) )
 
         #setup ui
-        self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
-
         self.sbGridSize.setValue   ( self.StorageMap_Scene.gridSize   )
         self.acGrid.setChecked     ( self.StorageMap_Scene.bDrawGrid  )
         self.acMainRail.setChecked ( self.SGraf_Manager.bDrawMainRail )
         self.acInfoRails.setChecked( self.SGraf_Manager.bDrawInfoRails)
+
+    def tick(self):
+        #добавляем '*' в заголовок окна если есть изменения
+        sign = "" if not self.SGraf_Manager.bHasChanges else "*"
+        self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
+
+        #в зависимости от режима активируем/деактивируем панель
+        self.toolEdit.setEnabled( self.SGraf_Manager.Mode & EGManagerMode.Edit == EGManagerMode.Edit )
+
+        #форма курсора
+        if self.SGraf_Manager.Mode == (EGManagerMode.Edit | EGManagerMode.AddNode):
+            self.StorageMap_View.setCursor( Qt.CrossCursor )
+        else:
+            self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
@@ -118,7 +136,7 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
         CSM.options[ SC.s_last_opened_file ] = sFName
-        self.SGraf_Manager.setHasChanges(False)
+        self.SGraf_Manager.bHasChanges = False
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
@@ -179,13 +197,20 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
-    def on_acAddNode_triggered(self, bChecked):
-        if self.SGraf_Manager.Mode == EGManagerMode.AddNode:
-            self.SGraf_Manager.Mode = EGManagerMode.Edit
-            self.StorageMap_View.setCursor( Qt.ArrowCursor )
+    def on_acLockEditing_triggered(self, bChecked):
+        if bChecked:
+            self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.View) & ~EGManagerMode.Edit
         else:
-            self.SGraf_Manager.Mode = EGManagerMode.AddNode
-            self.StorageMap_View.setCursor( Qt.CrossCursor )
+            self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.Edit) & ~EGManagerMode.View
+        
+        self.SGraf_Manager.updateMoveableFlags()
+
+    @pyqtSlot(bool)
+    def on_acAddNode_triggered(self, bChecked):
+        if bChecked:
+            self.SGraf_Manager.Mode |= EGManagerMode.AddNode
+        else:
+            self.SGraf_Manager.Mode &= ~EGManagerMode.AddNode
 
     @pyqtSlot(bool)
     def on_acDelMultiEdge_triggered (self, bChecked):
