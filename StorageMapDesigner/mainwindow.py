@@ -100,7 +100,12 @@ class CSMD_MainWindow(QMainWindow):
         self.toolEdit.setEnabled( self.SGraf_Manager.Mode & EGManagerMode.Edit == EGManagerMode.Edit )
 
         #форма курсора
-        if self.SGraf_Manager.Mode == (EGManagerMode.Edit | EGManagerMode.AddNode):
+        self.updateCursor()
+
+    def updateCursor(self):
+        if self.GV_EventFilter.actionCursor != Qt.ArrowCursor:
+            self.StorageMap_View.setCursor( self.GV_EventFilter.actionCursor )
+        elif self.SGraf_Manager.Mode == (EGManagerMode.Edit | EGManagerMode.AddNode):
             self.StorageMap_View.setCursor( Qt.CrossCursor )
         else:
             self.StorageMap_View.setCursor( Qt.ArrowCursor )

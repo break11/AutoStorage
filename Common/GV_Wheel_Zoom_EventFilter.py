@@ -22,7 +22,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
         self.__tmFitOnFirstShow.setSingleShot( True )
         self.__tmFitOnFirstShow.timeout.connect( self.fitToPage )
         self.__tmFitOnFirstShow.start()
-        self.__gvLastCursor = Qt.ArrowCursor
+        self.actionCursor = Qt.ArrowCursor
 
     def eventFilter(self, object, event):
         ############### Right Click Mouse Move ###############
@@ -31,15 +31,14 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
                 self.__rightMousePressed = True
                 self.__moveStartX = event.x()
                 self.__moveStartY = event.y()
-                self.__gvLastCursor = self.__gView.cursor()
-                self.__gView.setCursor( Qt.ClosedHandCursor )
+                self.actionCursor = Qt.ClosedHandCursor
                 event.accept()
                 return True
 
         if event.type() == QEvent.MouseButtonRelease:
             if event.button() == Qt.RightButton:
                 self.__rightMousePressed = False
-                self.__gView.setCursor( self.__gvLastCursor )
+                self.actionCursor = Qt.ArrowCursor
                 event.accept()
                 return True
 
