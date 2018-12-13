@@ -2,7 +2,7 @@
 from enum import *
 from PyQt5.QtCore import (Qt)
 
-class EGrafAttrs( Enum ):
+class EGraphAttrs( Enum ):
     widthType        = auto()
     edgeSize         = auto()
     highRailSizeFrom = auto()
@@ -20,33 +20,33 @@ class EGrafAttrs( Enum ):
     # name            = auto() # не используем из-за конфликта со встроенными атрибутами класса, нужен только в пропертях графа
 
 # Экспортируем "короткие" алиасы имен атрибутов ( будет доступно по SGT.s_nodeType, SGT.s_x и т.д. )
-for attr in EGrafAttrs:
+for attr in EGraphAttrs:
     locals()[ "s_" + attr.name ] = attr.name
 
-graphAttrTypes = { EGrafAttrs.widthType        : str,
-                   EGrafAttrs.edgeSize         : int,
-                   EGrafAttrs.highRailSizeFrom : int,
-                   EGrafAttrs.highRailSizeTo   : int,
-                   EGrafAttrs.curvature        : str,
-                   EGrafAttrs.edgeType         : str,
-                   EGrafAttrs.sensorSide       : str,
-                   EGrafAttrs.chargeSide       : str,
-                   EGrafAttrs.containsAgent    : int,
-                   EGrafAttrs.floor_num        : int,
-                   EGrafAttrs.x                : int,
-                   EGrafAttrs.y                : int,
-                   EGrafAttrs.nodeType         : str,
-                   EGrafAttrs.storageType      : str,
-                #    EGrafAttrs.name             : str,
+graphAttrTypes = { EGraphAttrs.widthType        : str,
+                   EGraphAttrs.edgeSize         : int,
+                   EGraphAttrs.highRailSizeFrom : int,
+                   EGraphAttrs.highRailSizeTo   : int,
+                   EGraphAttrs.curvature        : str,
+                   EGraphAttrs.edgeType         : str,
+                   EGraphAttrs.sensorSide       : str,
+                   EGraphAttrs.chargeSide       : str,
+                   EGraphAttrs.containsAgent    : int,
+                   EGraphAttrs.floor_num        : int,
+                   EGraphAttrs.x                : int,
+                   EGraphAttrs.y                : int,
+                   EGraphAttrs.nodeType         : str,
+                   EGraphAttrs.storageType      : str,
+                #    EGraphAttrs.name             : str,
 }
 
 def adjustAttrType( sAttrName, val ):
     if val is None: return None
 
     # для атрибутов, которых нет в списке возвращаем без преобразования типа
-    if not EGrafAttrs.__members__.get( sAttrName ): return val
+    if not EGraphAttrs.__members__.get( sAttrName ): return val
     
-    val = (graphAttrTypes[ EGrafAttrs[sAttrName] ] )( val )
+    val = (graphAttrTypes[ EGraphAttrs[sAttrName] ] )( val )
     return val
 
 #######################################################
@@ -98,7 +98,7 @@ class ESensorSide( Enum ):
     SBoth    = auto()
     SPassive = auto()
 
-def adjustGrafPropsDict( d ):
+def adjustGraphPropsDict( d ):
     d1 = {}
     for k,v in d.items():
         k1 = k.decode() 

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QBrush )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
-from . import StorageGrafTypes as SGT
+from . import StorageGraphTypes as SGT
 from .StoragePlace_SGItem import CStoragePlace_SGItem
 
 class CNode_SGItem(QGraphicsItem):
@@ -11,24 +11,24 @@ class CNode_SGItem(QGraphicsItem):
     __fBBoxD  =  2 # 20   # расширение BBox для удобства выделения
     __storage_offset = SGT.railWidth[SGT.EWidthType.Narrow.name]
 
-    def __readGrafAttr( self, sAttrName ): return self.nxGraf.node[ self.nodeID ][ sAttrName ]
-    def __writeGrafAttr( self, sAttrName, value ): self.nxGraf.node[ self.nodeID ][ sAttrName ] = SGT.adjustAttrType(sAttrName, value)
+    def __readGraphAttr( self, sAttrName ): return self.nxGraph.node[ self.nodeID ][ sAttrName ]
+    def __writeGraphAttr( self, sAttrName, value ): self.nxGraph.node[ self.nodeID ][ sAttrName ] = SGT.adjustAttrType(sAttrName, value)
 
     @property
-    def x(self): return self.__readGrafAttr( SGT.s_x )
+    def x(self): return self.__readGraphAttr( SGT.s_x )
     @x.setter
-    def x(self, value): self.__writeGrafAttr( SGT.s_x, value )
+    def x(self, value): self.__writeGraphAttr( SGT.s_x, value )
 
     @property
-    def y(self): return self.__readGrafAttr( SGT.s_y )
+    def y(self): return self.__readGraphAttr( SGT.s_y )
     @y.setter
-    def y(self, value): self.__writeGrafAttr( SGT.s_y, value )
+    def y(self, value): self.__writeGraphAttr( SGT.s_y, value )
 
-    def __init__(self, nxGraf, nodeID):
+    def __init__(self, nxGraph, nodeID):
         super().__init__()
 
         self.bDrawBBox = False
-        self.nxGraf  = nxGraf
+        self.nxGraph  = nxGraph
         self.nodeID = nodeID
         self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable )
@@ -45,7 +45,7 @@ class CNode_SGItem(QGraphicsItem):
         self.__singleStorages = []
 
     def nxNode(self):
-        return self.nxGraf.node[ self.nodeID ]
+        return self.nxGraph.node[ self.nodeID ]
 
     def boundingRect(self):
         return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
@@ -66,7 +66,7 @@ class CNode_SGItem(QGraphicsItem):
 
     def updateType(self):
         try:
-            sNodeType = self.nxGraf.node[ self.nodeID ][ SGT.s_nodeType ]
+            sNodeType = self.nxGraph.node[ self.nodeID ][ SGT.s_nodeType ]
         except KeyError:
             sNodeType = SGT.ENodeTypes.NoneType.name
         
@@ -95,7 +95,7 @@ class CNode_SGItem(QGraphicsItem):
     def paint(self, painter, option, widget):
         self.prepareGeometryChange()
         # if self.isSelected():
-        #     print (self.nxGraf.node[ self.nodeID ])
+        #     print (self.nxGraph.node[ self.nodeID ])
         if self.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )

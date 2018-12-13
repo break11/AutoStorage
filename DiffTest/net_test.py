@@ -39,7 +39,7 @@ def genUID():
 
 class ENetObjTypes( Enum ):
     std    = auto()
-    Graf   = auto()
+    Graph  = auto()
     GNode  = auto()
     GEdge  = auto()
 
@@ -59,23 +59,23 @@ class CNetObj( NodeMixin ):
 
     def __repr__(self): return f'{str(self.UID)} {self.name} { (lambda: "" if self.type_ == ENetObjTypes.std else "[" + self.type_.name + "]")() }'
 
-class CGraf_NO( CNetObj ):
+class CGraph_NO( CNetObj ):
     def __init__( self, name="", parent=None):
-        super().__init__( name = name, parent = parent, type_= ENetObjTypes.Graf )
-        self.nxGraf = None
+        super().__init__( name = name, parent = parent, type_= ENetObjTypes.Graph )
+        self.nxGraph = None
 
     def afterLoad( self ):
-        # create nxGraf from childNodes
+        # create nxGraph from childNodes
         pass
 
 class CNode_NO( CNetObj ):
     def __init__( self, name="", parent=None):
         super().__init__( name = name, parent = parent, type_= ENetObjTypes.GNode )
 
-    def nxGraf(self):
-        return self.grafNode().nxGraf
+    def nxGraph(self):
+        return self.graphNode().nxGraph
 
-    def grafNode(self):
+    def graphNode(self):
         r = Resolver('name')
         return r.get(self, '../../')
 
@@ -85,22 +85,22 @@ class CEdge_NO( CNetObj ):
 
 importer = DictImporter()
 
-nxGraf  = nx.read_graphml( "GraphML/test.graphml" )
-# nxGraf  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
+nxGraph  = nx.read_graphml( "GraphML/test.graphml" )
+# nxGraph  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
 
 root2 = AnyNode(id="0", name="root2")
 
 root  = CNetObj(name="root")
-Graf  = CGraf_NO(name="Graf", parent=root)
-Nodes = CNetObj(name="Nodes", parent=Graf)
-Edges = CNetObj(name="Edges", parent=Graf)
+Graph  = CGraph_NO(name="Graph", parent=root)
+Nodes = CNetObj(name="Nodes", parent=Graph)
+Edges = CNetObj(name="Edges", parent=Graph)
 
-for nodeID in nxGraf.nodes():
+for nodeID in nxGraph.nodes():
     node = CNode_NO(name=nodeID, parent=Nodes)
-    for k,v in nxGraf.nodes().items():
+    for k,v in nxGraph.nodes().items():
         prop = CNetObj( name=k,  )
 
-for edgeID in nxGraf.edges():
+for edgeID in nxGraph.edges():
      edge = CEdge_NO(name=edgeID, parent=Edges)
 
 print( RenderTree(root) )

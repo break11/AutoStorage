@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QBrush, QFont, QColor )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF )
 
-from . import StorageGrafTypes as SGT
+from . import StorageGraphTypes as SGT
 
 class CStoragePlace_SGItem(QGraphicsItem):
     default_height = 360

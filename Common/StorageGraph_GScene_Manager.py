@@ -18,7 +18,7 @@ from .GItem_EventFilter import *
 from .GuiUtils import *
 
 from . import StrConsts as SC
-from . import StorageGrafTypes as SGT
+from . import StorageGraphTypes as SGT
 
 class EGManagerMode (Flag):
     View      = auto()
@@ -29,7 +29,7 @@ class EGManagerEditMode (Flag):
     Default = auto()
     AddNode = auto()
 
-class CStorageGraf_GScene_Manager():
+class CStorageGraph_GScene_Manager():
     default_Edge = {
                         SGT.s_edgeType:         'Normal',
                         SGT.s_edgeSize:         500,
@@ -55,7 +55,7 @@ class CStorageGraf_GScene_Manager():
         self.gScene       = None
         self.gScene_evI   = None
         self.gView        = None
-        self.nxGraf       = None
+        self.nxGraph       = None
         self.bDrawBBox      = False
         self.bDrawInfoRails = False
         self.bDrawMainRail  = False
@@ -88,13 +88,13 @@ class CStorageGraf_GScene_Manager():
         self.edgeGItems = {}
         self.groupsByEdge = {}
         self.gScene.clear()
-        if self.nxGraf is not None:
-            self.nxGraf.clear()
+        if self.nxGraph is not None:
+            self.nxGraph.clear()
 
     def new(self):
         self.clear()
-        if self.nxGraf is None:
-            self.nxGraf = nx.DiGraph()
+        if self.nxGraph is None:
+            self.nxGraph = nx.DiGraph()
         self.gScene_evI = CGItem_EventFilter()
         self.gScene.addItem( self.gScene_evI )
         self.bHasChanges = True
@@ -107,16 +107,16 @@ class CStorageGraf_GScene_Manager():
             self.new()
             return False
         
-        self.nxGraf  = nx.read_graphml( sFName )
+        self.nxGraph  = nx.read_graphml( sFName )
         self.gScene_evI = CGItem_EventFilter()
         self.gScene.addItem( self.gScene_evI )
 
-        for n in self.nxGraf.nodes():
+        for n in self.nxGraph.nodes():
             self.addNode(n)
 
         self.updateMaxNodeID()
 
-        for e in self.nxGraf.edges():
+        for e in self.nxGraph.edges():
             self.addEdge(*e)
 
         #после создания граней перерасчитываем линии расположения мест хранения для нод типа StorageSingle
@@ -128,7 +128,7 @@ class CStorageGraf_GScene_Manager():
         return True
 
     def save( self, sFName ):
-        nx.write_graphml(self.nxGraf, sFName)
+        nx.write_graphml(self.nxGraph, sFName)
 
     def setDrawInfoRails( self, bVal ):
         self.bDrawInfoRails = bVal
@@ -153,7 +153,7 @@ class CStorageGraf_GScene_Manager():
     #рассчет средней линии для нод типа StorageSingle
     def calcNodeStorageLine(self, nodeGItem):
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle: return
-        incEdges = list( self.nxGraf.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraf.in_edges( nodeGItem.nodeID ) )
+        incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
         for key in incEdges:
             dictEdges[frozenset( key )] = self.edgeGItems[ key ] #оставляем только некратные грани
@@ -188,7 +188,7 @@ class CStorageGraf_GScene_Manager():
 
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
-        incEdges = list( self.nxGraf.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraf.in_edges( nodeGItem.nodeID ) )
+        incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
         for key in incEdges:
             edgeGItem = self.edgeGItems[ key ]
             edgeGItem.buildEdge()
@@ -210,7 +210,7 @@ class CStorageGraf_GScene_Manager():
         
         self.bHasChanges = True
 
-        NeighborsIDs = list ( self.nxGraf.successors(nodeGItem.nodeID) ) + list ( self.nxGraf.predecessors(nodeGItem.nodeID) )
+        NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
         nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
         nodeGItemsNeighbors.append (nodeGItem)
 
@@ -281,10 +281,10 @@ class CStorageGraf_GScene_Manager():
         
     def addNode( self, nodeID, **attr ):
         if self.nodeGItems.get (nodeID): return
-        if not self.nxGraf.has_node(nodeID):
-            self.nxGraf.add_node ( nodeID, **attr )
+        if not self.nxGraph.has_node(nodeID):
+            self.nxGraph.add_node ( nodeID, **attr )
 
-        nodeGItem = CNode_SGItem ( self.nxGraf, nodeID )
+        nodeGItem = CNode_SGItem ( self.nxGraph, nodeID )
         self.gScene.addItem( nodeGItem )
         self.nodeGItems[ nodeID ] = nodeGItem
 
@@ -298,10 +298,10 @@ class CStorageGraf_GScene_Manager():
 
     def addEdge(self, nodeID_1, nodeID_2, **attr):
         if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return False
-        if not self.nxGraf.has_edge(nodeID_1, nodeID_2):
-            self.nxGraf.add_edge (nodeID_1, nodeID_2, **attr)
+        if not self.nxGraph.has_edge(nodeID_1, nodeID_2):
+            self.nxGraph.add_edge (nodeID_1, nodeID_2, **attr)
 
-        edgeGItem = CEdge_SGItem ( self.nxGraf, nodeID_1, nodeID_2 )
+        edgeGItem = CEdge_SGItem ( self.nxGraph, nodeID_1, nodeID_2 )
         edgeGItem.bDrawBBox = self.bDrawBBox
         edgeGItem.bDrawInfoRails = self.bDrawInfoRails
         self.edgeGItems[ (nodeID_1, nodeID_2) ] = edgeGItem
@@ -345,7 +345,7 @@ class CStorageGraf_GScene_Manager():
         edgeGroup.addToGroup( edgeGItem )
 
     def deleteNode(self, nodeID):
-        self.nxGraf.remove_node( nodeID )
+        self.nxGraph.remove_node( nodeID )
         self.nodeGItems[ nodeID ].removeStorages()
         self.nodeGItems[ nodeID ].prepareGeometryChange()
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
@@ -354,7 +354,7 @@ class CStorageGraf_GScene_Manager():
 
     def deleteEdge(self, nodeID_1, nodeID_2):
         e = (nodeID_1, nodeID_2)
-        self.nxGraf.remove_edge(*e)
+        self.nxGraph.remove_edge(*e)
         edgeGItem = self.edgeGItems[e]
         edgeGItem.prepareGeometryChange()
         edgeGItem.clearInfoRails()
@@ -391,33 +391,33 @@ class CStorageGraf_GScene_Manager():
 
 class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
 
-    def __init__(self, SGraf_Manager):
-        super().__init__(SGraf_Manager.gView)
-        self.__SGraf_Manager = SGraf_Manager
-        self.__gView  = SGraf_Manager.gView
-        self.__gScene = SGraf_Manager.gScene
+    def __init__(self, SGraph_Manager):
+        super().__init__(SGraph_Manager.gView)
+        self.__SGraph_Manager = SGraph_Manager
+        self.__gView  = SGraph_Manager.gView
+        self.__gScene = SGraph_Manager.gScene
 
         self.__gView.installEventFilter(self)
         self.__gView.viewport().installEventFilter(self)
 
     def deleteEdgeGroup(self, *groupKeys):
         for groupKey in groupKeys:
-            self.__SGraf_Manager.deleteEdgeGroup(groupKey)
+            self.__SGraph_Manager.deleteEdgeGroup(groupKey)
 
             for nodeID in groupKey:
-                self.__SGraf_Manager.calcNodeStorageLine( self.__SGraf_Manager.nodeGItems[nodeID] )
+                self.__SGraph_Manager.calcNodeStorageLine( self.__SGraph_Manager.nodeGItems[nodeID] )
 
     def eventFilter(self, object, event):
-        if not (self.__SGraf_Manager.Mode & EGManagerMode.EditScene):
+        if not (self.__SGraph_Manager.Mode & EGManagerMode.EditScene):
             return False
 
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
-            if event.button() == Qt.LeftButton and (self.__SGraf_Manager.EditMode & EGManagerEditMode.AddNode) :
-                attr = deepcopy (self.__SGraf_Manager.default_Node)
+            if event.button() == Qt.LeftButton and (self.__SGraph_Manager.EditMode & EGManagerEditMode.AddNode) :
+                attr = deepcopy (self.__SGraph_Manager.default_Node)
                 attr[ SGT.s_x ] = self.__gView.mapToScene(event.pos()).x()
                 attr[ SGT.s_y ] = self.__gView.mapToScene(event.pos()).y()
-                self.__SGraf_Manager.addNode( self.__SGraf_Manager.genStrNodeID(), **attr )
+                self.__SGraph_Manager.addNode( self.__SGraph_Manager.genStrNodeID(), **attr )
                 event.accept()
                 return True
 
@@ -426,11 +426,11 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
 
             for item in self.__gScene.selectedItems():
                 if isinstance( item, CNode_SGItem ):
-                    incEdges = list( self.__SGraf_Manager.nxGraf.out_edges( item.nodeID ) ) +  list( self.__SGraf_Manager.nxGraf.in_edges( item.nodeID ) )
+                    incEdges = list( self.__SGraph_Manager.nxGraph.out_edges( item.nodeID ) ) +  list( self.__SGraph_Manager.nxGraph.in_edges( item.nodeID ) )
                     groupsKeys = set( [ frozenset(s) for s in incEdges ] )
                     for groupsKey in groupsKeys:
                         self.deleteEdgeGroup(groupsKey)
-                    self.__SGraf_Manager.deleteNode( item.nodeID )            
+                    self.__SGraph_Manager.deleteNode( item.nodeID )            
             
             for item in self.__gScene.selectedItems():
                 if isinstance( item, CRail_SGItem ):

@@ -4,24 +4,24 @@ from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform )
 from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
-from . import StorageGrafTypes as SGT
+from . import StorageGraphTypes as SGT
 from .GuiUtils import GraphEdgeName, getLineAngle
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
     
-    def __readGrafAttrNode( self, sNodeID, sAttrName ): return self.nxGraf.node[ sNodeID ][ sAttrName ]
+    def __readGraphAttrNode( self, sNodeID, sAttrName ): return self.nxGraph.node[ sNodeID ][ sAttrName ]
 
     @property
-    def x1(self): return self.__readGrafAttrNode( self.nodeID_1, SGT.s_x )
+    def x1(self): return self.__readGraphAttrNode( self.nodeID_1, SGT.s_x )
     @property
-    def y1(self): return self.__readGrafAttrNode( self.nodeID_1, SGT.s_y )
+    def y1(self): return self.__readGraphAttrNode( self.nodeID_1, SGT.s_y )
     @property
-    def x2(self): return self.__readGrafAttrNode( self.nodeID_2, SGT.s_x )
+    def x2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_x )
     @property
-    def y2(self): return self.__readGrafAttrNode( self.nodeID_2, SGT.s_y )
+    def y2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_y )
 
-    def __init__(self, nxGraf, nodeID_1, nodeID_2):
+    def __init__(self, nxGraph, nodeID_1, nodeID_2):
         super(CEdge_SGItem, self ).__init__()
         self.__InfoRails = []
         self.__rAngle    = None
@@ -30,7 +30,7 @@ class CEdge_SGItem(QGraphicsItem):
         
         self.bDrawBBox      = False
         self.bDrawInfoRails = False
-        self.nxGraf = nxGraf
+        self.nxGraph = nxGraph
         self.nodeID_1 = nodeID_1
         self.nodeID_2 = nodeID_2
 
@@ -62,15 +62,15 @@ class CEdge_SGItem(QGraphicsItem):
         return GraphEdgeName( self.nodeID_1, self.nodeID_2 )
 
     def nxEdge(self):
-        return self.nxGraf[ self.nodeID_1 ][ self.nodeID_2 ]
+        return self.nxGraph[ self.nodeID_1 ][ self.nodeID_2 ]
 
     def boundingRect(self):
         return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
 
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
-        x = self.nxGraf.node[ self.nodeID_1 ][ SGT.s_x ]
-        y = self.nxGraf.node[ self.nodeID_1 ][ SGT.s_y ]
+        x = self.nxGraph.node[ self.nodeID_1 ][ SGT.s_x ]
+        y = self.nxGraph.node[ self.nodeID_1 ][ SGT.s_y ]
         self.setPos( x, y )
 
     # угол поворта в градусах
@@ -80,7 +80,7 @@ class CEdge_SGItem(QGraphicsItem):
     def paint(self, painter, option, widget):
 
         # if self.isSelected():
-        #     print ( self.nxGraf.edges[ self.nodeID_1, self.nodeID_2 ] )
+        #     print ( self.nxGraph.edges[ self.nodeID_1, self.nodeID_2 ] )
 
         pen = QPen()
         

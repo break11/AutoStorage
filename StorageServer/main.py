@@ -13,7 +13,7 @@ from Net.NetObj_Manager import *
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj_Widgets import *
 
-from Common.Graf_NetObjects import *
+from Common.Graph_NetObjects import *
 from .def_settings import *
 
 from .mainwindow import CSSD_MainWindow

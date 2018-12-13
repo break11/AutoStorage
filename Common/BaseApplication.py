@@ -7,22 +7,22 @@ from Net.NetObj_Manager import CNetObj_Manager
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.DictProps_Widget import CDictProps_Widget
 from Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
-from Common.Graf_NetObjects import *
+from Common.Graph_NetObjects import *
 
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
     reg( CNetObj )
-    reg( CGrafRoot_NO )
-    reg( CGrafNode_NO )
-    reg( CGrafEdge_NO )
+    reg( CGraphRoot_NO )
+    reg( CGraphNode_NO )
+    reg( CGraphEdge_NO )
 
 def registerNetNodeWidgets( parent ):
     reg = CNetObj_WidgetsManager.registerWidget
     reg( CNetObj,      CNetObj_Widget, parent )
-    reg( CGrafRoot_NO, CDictProps_Widget, parent )
-    reg( CGrafNode_NO, CDictProps_Widget, parent )
-    reg( CGrafEdge_NO, CDictProps_Widget, parent )
+    reg( CGraphRoot_NO, CDictProps_Widget, parent )
+    reg( CGraphNode_NO, CDictProps_Widget, parent )
+    reg( CGraphEdge_NO, CDictProps_Widget, parent )
 
 class CBaseApplication( QApplication ):
     def __init__(self, argv ):

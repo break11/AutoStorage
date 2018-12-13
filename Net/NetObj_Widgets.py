@@ -5,7 +5,7 @@ from PyQt5.QtGui import ( QStandardItemModel )
 from .NetObj import *
 
 from Common.GuiUtils import *
-from Common import StorageGrafTypes as SGT
+from Common import StorageGraphTypes as SGT
 
 class CNetObj_WidgetsManager:
     __netObj_Widgets_UNIQ = {} # type: ignore
