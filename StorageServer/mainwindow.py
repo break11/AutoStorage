@@ -130,7 +130,7 @@ class CSSD_MainWindow(QMainWindow):
     def loadGraphML( self ):
         grafObj = CNetObj_Manager.rootObj.resolvePath("Graf")
         if grafObj:
-            CNetObj_Manager.sendNetCMD( CNetCmd( Client_ID=CNetObj_Manager.clientID, Event=EV.ObjPrepareDelete, Obj_UID = grafObj.UID ) )
+            CNetObj_Manager.sendNetCMD( CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = grafObj.UID ) )
 
         sFName=self.leGraphML.text()
         sFName = correctFNameToProjectDir( sFName )

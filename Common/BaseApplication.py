@@ -39,8 +39,8 @@ class CBaseApplication( QApplication ):
     def init(self, default_settings={}, parent=None ):
         CSM.loadSettings( default=default_settings )
 
-        # clientID = -1 признак того, что это сервер
-        if self.bIsServer: CNetObj_Manager.clientID = -1
+        # ClientID = -1 признак того, что это сервер
+        if self.bIsServer: CNetObj_Manager.ClientID = -1
         if not CNetObj_Manager.connect( self.bIsServer ): return False
 
         self.setTickFunction( CNetObj_Manager.onTick )

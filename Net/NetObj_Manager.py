@@ -89,10 +89,9 @@ class CNetObj_Manager( object ):
                 msg = self.receiver.get_message(False, 0.5)
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
-                    cmd = CNetCmd.fromString( msgData )
-
                     # принимаем сообщения от всех клиентов - в том числе от себя самого
-                    CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
+                    cmd = CNetCmd.fromString( msgData )
+                    CNetObj_Manager.qNetCmds.put( cmd )
 
                 if self.__bStop: self.__bIsRunning = False
 
@@ -103,7 +102,7 @@ class CNetObj_Manager( object ):
 
     redisConn = None
     serviceConn = None
-    clientID  = None
+    ClientID  = None
 
     __netObj_Types = {} # type: ignore
     __objects      = weakref.WeakValueDictionary() # type: ignore
@@ -183,7 +182,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
-        cmd = CNetCmd( Event = EV.ObjCreated, Client_ID = cls.clientID, Obj_UID = netObj.UID )
+        cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
@@ -198,7 +197,7 @@ class CNetObj_Manager( object ):
             if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
                 netObj.delFromRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
 
     @classmethod
     def accessObj( cls, UID, genAssert=False ):
@@ -239,9 +238,9 @@ class CNetObj_Manager( object ):
             print( f"[Error]: Can not connect to REDIS: {e}" )
             return False
 
-        if cls.clientID is None:
-            cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
-        cmd = CNetCmd( Event=EV.ClientConnected, Client_ID=cls.clientID )
+        if cls.ClientID is None:
+            cls.ClientID = cls.serviceConn.incr( s_Client_UID, 1 )
+        cmd = CNetCmd( ClientID=cls.ClientID, Event=EV.ClientConnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
@@ -265,7 +264,7 @@ class CNetObj_Manager( object ):
         
         cls.netCmds_Reader.stop()
 
-        cmd = CNetCmd( Client_ID=cls.clientID, Event=EV.ClientDisconnected )
+        cmd = CNetCmd( ClientID=cls.ClientID, Event=EV.ClientDisconnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 

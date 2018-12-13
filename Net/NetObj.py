@@ -92,14 +92,14 @@ class CNetObj( NodeMixin ):
         bPropExist = not self.propsDict().get( key ) is None
 
         CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
-        cmd = CNetCmd( Client_ID=CNetObj_Manager.clientID, Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
         CNetObj_Manager.sendNetCMD( cmd )
 
     def __delitem__( self, key ):
         CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
-        cmd = CNetCmd( Client_ID=CNetObj_Manager.clientID, Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
         CNetObj_Manager.sendNetCMD( cmd )
 
 ###################################################################################
