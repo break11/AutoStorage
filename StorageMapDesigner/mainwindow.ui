@@ -579,7 +579,7 @@ selection-background-color: red;*/
     <string>Lock editing</string>
    </property>
    <property name="toolTip">
-    <string>Add node mode</string>
+    <string>Lock scene editing</string>
    </property>
   </action>
  </widget>

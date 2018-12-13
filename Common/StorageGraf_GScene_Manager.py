@@ -19,9 +19,13 @@ from .GuiUtils import *
 
 from . import StorageGrafTypes as SGT
 
-class EGManagerMode( Flag ):
-    View    = auto()
-    Edit    = auto()
+class EGManagerMode (Flag):
+    View      = auto()
+    EditScene = auto()
+    EditProps = auto()
+
+class EGManagerEditMode (Flag):
+    Default = auto()
     AddNode = auto()
 
 class CStorageGraf_GScene_Manager():
@@ -54,7 +58,8 @@ class CStorageGraf_GScene_Manager():
         self.bDrawBBox      = False
         self.bDrawInfoRails = False
         self.bDrawMainRail  = False
-        self.Mode           = EGManagerMode.Edit
+        self.Mode           = EGManagerMode.View | EGManagerMode.EditScene | EGManagerMode.EditProps
+        self.EditMode       = EGManagerEditMode.Default
         self.bHasChanges    = False
 
         self.gScene = gScene
@@ -62,8 +67,17 @@ class CStorageGraf_GScene_Manager():
 
         self.__maxNodeID    = 0
 
+    def setEditSceneMode(self, bEnabled):
+        if bEnabled:
+            self.Mode = self.Mode | EGManagerMode.EditScene
+        else:
+            self.Mode = self.Mode & ~EGManagerMode.EditScene
+            self.EditMode = EGManagerEditMode.Default
+        
+        self.updateMoveableFlags()
+
     def updateMoveableFlags(self):
-        if self.Mode & EGManagerMode.Edit:
+        if self.Mode & EGManagerMode.EditScene:
             for nodeID, nodeGItem in self.nodeGItems.items():
                 nodeGItem.setFlags( nodeGItem.flags() | QGraphicsItem.ItemIsMovable )
         else:
@@ -395,12 +409,12 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
                 self.__SGraf_Manager.calcNodeStorageLine( self.__SGraf_Manager.nodeGItems[nodeID] )
 
     def eventFilter(self, object, event):
-        if self.__SGraf_Manager.Mode & EGManagerMode.View:
+        if not (self.__SGraf_Manager.Mode & EGManagerMode.EditScene):
             return False
 
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
-            if event.button() == Qt.LeftButton and self.__SGraf_Manager.Mode == (EGManagerMode.AddNode | EGManagerMode.Edit) :
+            if event.button() == Qt.LeftButton and (self.__SGraf_Manager.EditMode & EGManagerEditMode.AddNode) :
                 attr = deepcopy (self.__SGraf_Manager.default_Node)
                 attr[ SGT.s_x ] = self.__gView.mapToScene(event.pos()).x()
                 attr[ SGT.s_y ] = self.__gView.mapToScene(event.pos()).y()

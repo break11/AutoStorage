@@ -97,15 +97,17 @@ class CSMD_MainWindow(QMainWindow):
         self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
 
         #в зависимости от режима активируем/деактивируем панель
-        self.toolEdit.setEnabled( self.SGraf_Manager.Mode & EGManagerMode.Edit == EGManagerMode.Edit )
+        self.toolEdit.setEnabled( bool (self.SGraf_Manager.Mode & EGManagerMode.EditScene) )
 
         #форма курсора
         self.updateCursor()
 
+        # self.acAddNode.setChecked( bool(self.SGraf_Manager.EditMode & EGManagerEditMode.AddNode) )
+
     def updateCursor(self):
         if self.GV_EventFilter.actionCursor != Qt.ArrowCursor:
             self.StorageMap_View.setCursor( self.GV_EventFilter.actionCursor )
-        elif self.SGraf_Manager.Mode == (EGManagerMode.Edit | EGManagerMode.AddNode):
+        elif bool(self.SGraf_Manager.EditMode & EGManagerEditMode.AddNode):
             self.StorageMap_View.setCursor( Qt.CrossCursor )
         else:
             self.StorageMap_View.setCursor( Qt.ArrowCursor )
@@ -203,19 +205,14 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acLockEditing_triggered(self, bChecked):
-        if bChecked:
-            self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.View) & ~EGManagerMode.Edit
-        else:
-            self.SGraf_Manager.Mode = (self.SGraf_Manager.Mode | EGManagerMode.Edit) & ~EGManagerMode.View
-        
-        self.SGraf_Manager.updateMoveableFlags()
+        self.SGraf_Manager.setEditSceneMode(not bChecked)
 
     @pyqtSlot(bool)
     def on_acAddNode_triggered(self, bChecked):
         if bChecked:
-            self.SGraf_Manager.Mode |= EGManagerMode.AddNode
+            self.SGraf_Manager.EditMode |= EGManagerEditMode.AddNode
         else:
-            self.SGraf_Manager.Mode &= ~EGManagerMode.AddNode
+            self.SGraf_Manager.EditMode &= ~EGManagerEditMode.AddNode
 
     @pyqtSlot(bool)
     def on_acDelMultiEdge_triggered (self, bChecked):
