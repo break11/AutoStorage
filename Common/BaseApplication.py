@@ -55,6 +55,8 @@ class CBaseApplication( QApplication ):
             if parent:
                 if isinstance( parent, QDockWidget ):
                     parent.setWidget( self.objMonitor )
+                    # сохраняем в доке окна монитора инфу о ID клиента, при штатной вставке окна в док - заголовок окна теряется
+                    parent.setWindowTitle( self.objMonitor.windowTitle() )
                 elif isinstance( parent, QWidget ) and parent.layout():
                     parent.layout().addWidget( self.objMonitor )
 

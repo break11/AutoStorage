@@ -4,6 +4,7 @@ import sys
 import json
 
 from .FileUtils import *
+from . import StrConsts as SC
 
 def settingsDir():
     return projectDir() + "Settings/"
@@ -34,7 +35,7 @@ class CSettingsManager():
 
         except json.decoder.JSONDecodeError as error:
             cls.__bFileDamaged = True
-            print( f"[Error]: Settings file damaged '{settingsFName()}' : {error}!" )                    
+            print( f"{SC.sError} Settings file damaged '{settingsFName()}' : {error}!" )                    
 
         except Exception as error:
             print( error )
@@ -54,7 +55,7 @@ class CSettingsManager():
     def rootOpt( cls, sKey, default={} ):
         val = cls.options.get( sKey )
         if val is None:
-            print( f"[Warning]: Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
+            print( f"{SC.sWarning} Root option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
             val = default
             cls.options[ sKey ] = val # несуществующую корневую настройку создаем в файле настроек
         return val
@@ -63,6 +64,6 @@ class CSettingsManager():
     def dictOpt( cls, dict, sKey, default=None ):
         val = dict.get( sKey )
         if val is None:
-            print( f"[Warning]: Dict option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
+            print( f"{SC.sWarning} Dict option = '{sKey}' not found in Settings file = '{settingsFName()}'! Default value used = '{default}'" )
             val = default
         return val

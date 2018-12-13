@@ -1,7 +1,8 @@
 import sys
 
 from Common.SettingsManager import CSettingsManager as CSM
-from Common.StrTypeConverter import *
+from Common.StrTypeConverter import CStrTypeConverter
+from Common import StrConsts as SC
 from .Net_Events import ENet_Event as EV
 import weakref
 import redis
@@ -173,7 +174,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def genNetObj_UID( cls ):
         if not cls.isConnected():
-            raise redis.exceptions.ConnectionError("[Error]: Can't get generator value from redis! No connection!")
+            raise redis.exceptions.ConnectionError("{SC.sError} Can't get generator value from redis! No connection!")
 
         cls.__genNetObj_UID = cls.serviceConn.incr( s_NetObj_UID, 1 )
 
@@ -233,7 +234,7 @@ class CNetObj_Manager( object ):
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
                 
         except redis.exceptions.ConnectionError as e:
-            print( f"[Error]: Can not connect to REDIS: {e}" )
+            print( f"{SC.sError} Can not connect to REDIS: {e}" )
             return False
 
         if cls.ClientID is None:
@@ -267,7 +268,7 @@ class CNetObj_Manager( object ):
 
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None
-        print( cls.__name__, cls.disconnect.__name__ )
+        # print( cls.__name__, cls.disconnect.__name__ )
         
     @classmethod
     def isConnected( cls ): return not cls.redisConn is None

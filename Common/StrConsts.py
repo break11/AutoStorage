@@ -1,4 +1,7 @@
 
+sWarning = "[Warning]:"
+sError   = "[Error]:"
+
 _strList = [
             "last_opened_file",
             "storage_graph_file",

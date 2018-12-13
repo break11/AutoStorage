@@ -128,19 +128,20 @@ class CSSD_MainWindow(QMainWindow):
         #         event.ignore()
 
     def loadGraphML( self, bReload=False ):
+        # self.btnReloadGraphML.setEnabled( False )
         grafObj = CNetObj_Manager.rootObj.resolvePath("Graf")
         if grafObj:
-            if bReload: CNetObj_Manager.sendNetCMD( CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = grafObj.UID ) )
+            if bReload:
+                grafObj.prepareDelete( bOnlySendNetCmd = True )
+                grafObj.prepareDelete( bOnlySendNetCmd = False )
             else: return
 
         sFName=self.leGraphML.text()
         sFName = correctFNameToProjectDir( sFName )
 
         # загрузка графа и создание его объектов для сетевой синхронизации
-        CSM.options[ SC.s_storage_graph_file ] = sFName
-
         if not os.path.exists( sFName ):
-            print( f"[Warning]: GraphML file not found '{sFName}'!" )
+            print( f"{SC.sWarning} GraphML file not found '{sFName}'!" )
             return
 
         nxGraf  = nx.read_graphml( sFName )
@@ -312,5 +313,8 @@ class CSSD_MainWindow(QMainWindow):
 
     def on_btnSelectGraphML_released( self ):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path: self.loadGraphML( path )
+        if path:
+            path = correctFNameToProjectDir( path )
+            self.leGraphML.setText( path )
+            CSM.options[ SC.s_storage_graph_file ] = path
 

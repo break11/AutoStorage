@@ -55,7 +55,7 @@ class CNetObj_Monitor(QWidget):
         if not parent:
             self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 
-        self.setWindowTitle( self.windowTitle() + " " + baseFName.rsplit(os.sep, 1)[1] )
+        self.setWindowTitle( f"{self.windowTitle()}   app = {baseFName.rsplit(os.sep, 1)[1]}   ClientID = {CNetObj_Manager.ClientID}" )
 
         CNetObj_Manager.objModel = self.netObjModel
 

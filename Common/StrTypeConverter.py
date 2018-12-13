@@ -1,9 +1,11 @@
 
+from . import StrConsts as SC
 
 class CStrTypeConverter:
     __TypeLetters = {
                     int: "i",
-                    str: "s"
+                    str: "s",
+                    float: "f",
                     }
     __LettersType = {}
     for k,v in __TypeLetters.items():
@@ -15,7 +17,7 @@ class CStrTypeConverter:
         val = s[1::]
         t = cls.__LettersType.get( typeSign )
         if not t:
-            print( f"[Warning]: Unsupport type = {typeSign} for converting from String!" )
+            print( f"{SC.sWarning} Unsupport type = {typeSign} for converting from String!" )
             return
 
         return (t)(val)
@@ -25,7 +27,7 @@ class CStrTypeConverter:
         t = type( val )
         typeSign = cls.__TypeLetters.get( t )
         if not typeSign:
-            print( f"[Warning]: Unsupport type = {t} for converting to String!" )
+            print( f"{SC.sWarning} Unsupport type = {t} for converting to String!" )
             return
 
         return typeSign + str( val )
