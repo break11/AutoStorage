@@ -17,6 +17,7 @@ from .StoragePlace_SGItem import CStoragePlace_SGItem
 from .GItem_EventFilter import *
 from .GuiUtils import *
 
+from . import StrConsts as SC
 from . import StorageGrafTypes as SGT
 
 class EGManagerMode (Flag):
@@ -102,7 +103,7 @@ class CStorageGraf_GScene_Manager():
         self.clear()
 
         if not os.path.exists( sFName ):
-            print( f"[Warning]: GraphML file not found '{sFName}'!" )
+            print( f"{SC.sWarning} GraphML file not found '{sFName}'!" )
             self.new()
             return False
         

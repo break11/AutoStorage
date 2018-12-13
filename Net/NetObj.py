@@ -10,6 +10,7 @@ from Common.SettingsManager import CSettingsManager as CSM
 from Common.StrTypeConverter import *
 from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
+import Common.StrConsts as SC
 
 class CNetObj( NodeMixin ):
     __s_Name     = "name"
@@ -51,7 +52,7 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.registerObj( self )
 
     def __del__(self):
-        print("CNetObj destructor", self)
+        # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
 
     def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
@@ -60,7 +61,7 @@ class CNetObj( NodeMixin ):
 
     def prepareDelete(self, bOnlySendNetCmd = True):
 
-        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPrepareDelete, Obj_UID = self.UID )
+        cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
 
         # при заданном bOnlySendNetCmd = True - только отправляем команду, которую поймает парсер сетевых команд и выполнит
         # prepareDelete с параметром bOnlySendNetCmd = False, так же со значением False prepareDelete может быть вызван при завершении программы,
@@ -92,14 +93,14 @@ class CNetObj( NodeMixin ):
         bPropExist = not self.propsDict().get( key ) is None
 
         CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
-        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
         CNetObj_Manager.sendNetCMD( cmd )
 
     def __delitem__( self, key ):
         CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
-        cmd = CNetCmd( CNetObj_Manager.clientID, EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
         CNetObj_Manager.sendNetCMD( cmd )
 
 ###################################################################################
@@ -158,7 +159,15 @@ class CNetObj( NodeMixin ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj: return netObj
 
-        name     = redisConn.get( cls.redisKey_Name_C( UID ) ).decode()
+        # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
+        # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
+        # анализируем наличие данных по этому объекту в редисе
+        nameField = redisConn.get( cls.redisKey_Name_C( UID ) )
+        if not nameField:
+            print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
+            return
+
+        name     = nameField.decode()
         parentID = int( redisConn.get( cls.redisKey_Parent_C( UID ) ).decode() )
         typeUID  = redisConn.get( cls.redisKey_TypeUID_C( UID ) ).decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
@@ -178,5 +187,11 @@ class CNetObj( NodeMixin ):
     # методы для переопределения дополнительного поведения в наследниках
     def onSaveToRedis( self, redisConn ): pass
     def onLoadFromRedis( self, redisConn, netObj ): pass
+
+    # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
+    # если соответствующий метод есть в объекте он будет вызван до глобальных, только для конкретного объекта
+    def doSelfCallBack( self, netCmd ):
+        c = getattr( self, netCmd.Event.name, None )
+        if c: c( netCmd )
 
 from .NetObj_Manager import CNetObj_Manager

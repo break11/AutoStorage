@@ -1,11 +1,11 @@
 import sys
 
 from Common.SettingsManager import CSettingsManager as CSM
-from Common.StrTypeConverter import *
+from Common.StrTypeConverter import CStrTypeConverter
+from Common import StrConsts as SC
 from .Net_Events import ENet_Event as EV
 import weakref
 import redis
-from Net.NetCmd import CNetCmd
 from queue import Queue
 import threading
 import weakref
@@ -58,6 +58,12 @@ class CNetObj_Manager( object ):
         cl = [ x for x in cl if x() is not None ]
         cls.callbacksDict[ netCmd.Event ] = cl
 
+        # local object callbacks
+        if netCmd.Obj_UID:
+            netObj = cls.accessObj( netCmd.Obj_UID )
+            if netObj: netObj.doSelfCallBack( netCmd )
+
+        # global callbacks
         for callback in cl:
             callback()( netCmd )
 
@@ -84,10 +90,9 @@ class CNetObj_Manager( object ):
                 msg = self.receiver.get_message(False, 0.5)
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
-                    cmd = CNetCmd.fromString( msgData )
-
                     # принимаем сообщения от всех клиентов - в том числе от себя самого
-                    CNetObj_Manager.qNetCmds.put( CNetCmd.fromString( msgData ) )
+                    cmd = CNetCmd.fromString( msgData )
+                    CNetObj_Manager.qNetCmds.put( cmd )
 
                 if self.__bStop: self.__bIsRunning = False
 
@@ -98,7 +103,7 @@ class CNetObj_Manager( object ):
 
     redisConn = None
     serviceConn = None
-    clientID  = None
+    ClientID  = None
 
     __netObj_Types = {} # type: ignore
     __objects      = weakref.WeakValueDictionary() # type: ignore
@@ -169,7 +174,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def genNetObj_UID( cls ):
         if not cls.isConnected():
-            raise redis.exceptions.ConnectionError("[Error]: Can't get generator value from redis! No connection!")
+            raise redis.exceptions.ConnectionError("{SC.sError} Can't get generator value from redis! No connection!")
 
         cls.__genNetObj_UID = cls.serviceConn.incr( s_NetObj_UID, 1 )
 
@@ -178,7 +183,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerObj( cls, netObj ):
         cls.__objects[ netObj.UID ] = netObj
-        cmd = CNetCmd( cls.clientID, EV.ObjCreated, Obj_UID = netObj.UID )
+        cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
@@ -193,7 +198,7 @@ class CNetObj_Manager( object ):
             if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
                 netObj.delFromRedis( cls.redisConn )
-                CNetObj_Manager.sendNetCMD( CNetCmd( cls.clientID, EV.ObjDeleted, Obj_UID = netObj.UID ) )
+                CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
 
     @classmethod
     def accessObj( cls, UID, genAssert=False ):
@@ -211,7 +216,7 @@ class CNetObj_Manager( object ):
         cls.__objects[ cls.rootObj.UID ] = cls.rootObj
 
     @classmethod
-    def connect( cls, bIsServer ):
+    def connect( cls ):
         try:
             redisOptDict = CSM.rootOpt( s_Redis_opt, default = redisDefSettings )
             ip_address   = CSM.dictOpt( redisOptDict, s_Redis_ip,   default=s_Redis_ip__default )
@@ -227,26 +232,23 @@ class CNetObj_Manager( object ):
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
-            # сервер при коннекте сбрасывает содержимое БД
-            if bIsServer: cls.redisConn.flushdb()
                 
         except redis.exceptions.ConnectionError as e:
-            print( f"[Error]: Can not connect to REDIS: {e}" )
+            print( f"{SC.sError} Can not connect to REDIS: {e}" )
             return False
 
-        if cls.clientID is None:
-            cls.clientID = cls.serviceConn.incr( s_Client_UID, 1 )
-        cmd = CNetCmd( cls.clientID, EV.ClientConnected )
+        if cls.ClientID is None:
+            cls.ClientID = cls.serviceConn.incr( s_Client_UID, 1 )
+        cmd = CNetCmd( ClientID=cls.ClientID, Event=EV.ClientConnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
-        # клиенты при старте подхватывают содержимое с сервера
-        if not bIsServer:
-            objects = cls.redisConn.smembers( s_ObjectsSet )
-            if ( objects ):
-                objects = sorted( objects )
-                for it in objects:
-                    netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+        # все клиенты при старте подхватывают содержимое с сервера
+        objects = cls.redisConn.smembers( s_ObjectsSet )
+        if ( objects ):
+            objects = sorted( objects )
+            for it in objects:
+                netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
@@ -255,20 +257,18 @@ class CNetObj_Manager( object ):
         return True
 
     @classmethod
-    def disconnect( cls, bIsServer ):
+    def disconnect( cls ):
         if not cls.redisConn: return
         
         cls.netCmds_Reader.stop()
 
-        cmd = CNetCmd( cls.clientID, EV.ClientDisconnected )
+        cmd = CNetCmd( ClientID=cls.ClientID, Event=EV.ClientDisconnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
-        # при дисконнекте сервер сбрасывает содержимое БД
-        if bIsServer: cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None
-        print( cls.__name__, cls.disconnect.__name__ )
+        # print( cls.__name__, cls.disconnect.__name__ )
         
     @classmethod
     def isConnected( cls ): return not cls.redisConn is None
@@ -280,12 +280,6 @@ class CNetObj_Manager( object ):
         if not cls.isConnected(): return
         cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
 
-    # @classmethod
-    # def sendAll( cls ):
-    #     if not cls.isConnected():
-    #         raise redis.exceptions.ConnectionError("[Error]: Can't get send data to redis! No connection!")
-
-        # for k, netObj in cls.__objects.items():
-        #     netObj.saveToRedis( cls.redisConn )
 
 from .NetObj import CNetObj
+from .NetCmd import CNetCmd
