@@ -20,6 +20,7 @@ _strList = [
             "draw_grid",
             "draw_info_rails",
             "draw_main_rail",
+            "snap_to_grid"
           ]
 
 # Экспортируем "короткие" алиасы строковых констант
@@ -31,6 +32,7 @@ sceneDefSettings = {
                     s_draw_grid       : False, # type: ignore
                     s_draw_info_rails : False, # type: ignore
                     s_draw_main_rail  : False, # type: ignore
+                    s_snap_to_grid    : False, # type: ignore
                    }
 ###########################################
 
@@ -70,7 +72,6 @@ class CSMD_MainWindow(QMainWindow):
 
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
-
         sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
 
         #if winSettings:
@@ -80,16 +81,18 @@ class CSMD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, s_grid_size,       default=self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, s_draw_grid,       default=self.StorageMap_Scene.bDrawGrid )
-        self.SGraf_Manager.setDrawMainRail ( CSM.dictOpt( sceneSettings, s_draw_main_rail,  default=self.SGraf_Manager.bDrawMainRail ) )
-        self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, s_draw_info_rails, default=self.SGraf_Manager.bDrawInfoRails ) )
+        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, s_grid_size,       default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, s_draw_grid,       default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, s_snap_to_grid,    default = self.StorageMap_Scene.bSnapToGrid)
+        self.SGraf_Manager.setDrawMainRail ( CSM.dictOpt( sceneSettings, s_draw_main_rail,  default = self.SGraf_Manager.bDrawMainRail ) )
+        self.SGraf_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, s_draw_info_rails, default = self.SGraf_Manager.bDrawInfoRails ) )
 
         #setup ui
-        self.sbGridSize.setValue   ( self.StorageMap_Scene.gridSize   )
-        self.acGrid.setChecked     ( self.StorageMap_Scene.bDrawGrid  )
-        self.acMainRail.setChecked ( self.SGraf_Manager.bDrawMainRail )
-        self.acInfoRails.setChecked( self.SGraf_Manager.bDrawInfoRails)
+        self.sbGridSize.setValue     ( self.StorageMap_Scene.gridSize    )
+        self.acGrid.setChecked       ( self.StorageMap_Scene.bDrawGrid   )
+        self.acMainRail.setChecked   ( self.SGraf_Manager.bDrawMainRail  )
+        self.acInfoRails.setChecked  ( self.SGraf_Manager.bDrawInfoRails )
+        self.acSnapToGrid.setChecked ( self.StorageMap_Scene.bSnapToGrid )
 
     def tick(self):
         #добавляем '*' в заголовок окна если есть изменения
@@ -118,8 +121,9 @@ class CSMD_MainWindow(QMainWindow):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
         CSM.options[s_scene] =   {
-                                        s_grid_size : self.StorageMap_Scene.gridSize,
-                                        s_draw_grid : self.StorageMap_Scene.bDrawGrid,
+                                        s_grid_size       : self.StorageMap_Scene.gridSize,
+                                        s_draw_grid       : self.StorageMap_Scene.bDrawGrid,
+                                        s_snap_to_grid    : self.StorageMap_Scene.bSnapToGrid,
                                         s_draw_info_rails : self.SGraf_Manager.bDrawInfoRails,
                                         s_draw_main_rail  : self.SGraf_Manager.bDrawMainRail,
                                     }
