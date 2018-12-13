@@ -22,7 +22,6 @@ def main():
     registerNetObjTypes()
     
     app = CBaseApplication(sys.argv)
-    app.bIsServer = True    
 
     if not app.init( default_settings = serverDefSet ): return -1
     

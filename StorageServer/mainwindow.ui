@@ -37,7 +37,7 @@
      <string>PushButton</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -67,6 +67,13 @@
       <widget class="QPushButton" name="btnLoadGraphML">
        <property name="text">
         <string>Load GraphML</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnReloadGraphML">
+       <property name="text">
+        <string>Reload GraphML</string>
        </property>
       </widget>
      </item>

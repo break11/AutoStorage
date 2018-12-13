@@ -28,7 +28,6 @@ class CBaseApplication( QApplication ):
     def __init__(self, argv ):
         super().__init__( argv )
         self.timer = QTimer()
-        self.bIsServer = False
         CNetObj_Manager.initRoot()
 
     def setTickFunction( self, f ):
@@ -39,9 +38,7 @@ class CBaseApplication( QApplication ):
     def init(self, default_settings={}, parent=None ):
         CSM.loadSettings( default=default_settings )
 
-        # ClientID = -1 признак того, что это сервер
-        if self.bIsServer: CNetObj_Manager.ClientID = -1
-        if not CNetObj_Manager.connect( self.bIsServer ): return False
+        if not CNetObj_Manager.connect(): return False
 
         self.setTickFunction( CNetObj_Manager.onTick )
 
@@ -66,14 +63,8 @@ class CBaseApplication( QApplication ):
             self.objMonitor.show()
 
     def done(self):
-        if self.bIsServer:
-            # удаление объектов до димсконнекта, чтобы в сеть попали команды удаления объектов ( для других клиентов )
-            CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = True ) 
-            CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = False ) 
-            CNetObj_Manager.disconnect( self.bIsServer )
-        else:
-            # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
-            CNetObj_Manager.disconnect( self.bIsServer )
-            CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = False )
+        # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
+        CNetObj_Manager.disconnect()
+        CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = False )
 
         CSM.saveSettings()

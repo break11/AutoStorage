@@ -37,7 +37,6 @@ sceneDefSettings = {
 
 # Storage Map Designer Main Window
 class CSMD_MainWindow(QMainWindow):
-    __file_filters = "GraphML (*.graphml);;All Files (*)"
     __sWindowTitle = "Storage Map Designer : "
     global CSM
 
@@ -249,13 +248,13 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
-        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        self.loadGraphML( path )
+        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
+        if path: self.loadGraphML( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphMLAs_triggered(self, bChecked):
-        path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, self.__file_filters,"", QFileDialog.DontUseNativeDialog)
-        self.saveGraphML( path )
+        path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
+        if path: self.saveGraphML( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):

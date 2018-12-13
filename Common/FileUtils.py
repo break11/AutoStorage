@@ -1,6 +1,8 @@
 import os
 from __main__ import __file__ as baseFName
 
+sGraphML_file_filters = "GraphML (*.graphml);;All Files (*)"
+
 def projectDir():
     return os.path.abspath( os.curdir ) + "/"
 

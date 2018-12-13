@@ -127,10 +127,11 @@ class CSSD_MainWindow(QMainWindow):
         #     elif res == QMessageBox.Cancel:
         #         event.ignore()
 
-    def loadGraphML( self ):
+    def loadGraphML( self, bReload=False ):
         grafObj = CNetObj_Manager.rootObj.resolvePath("Graf")
         if grafObj:
-            CNetObj_Manager.sendNetCMD( CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = grafObj.UID ) )
+            if bReload: CNetObj_Manager.sendNetCMD( CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = grafObj.UID ) )
+            else: return
 
         sFName=self.leGraphML.text()
         sFName = correctFNameToProjectDir( sFName )
@@ -305,3 +306,11 @@ class CSSD_MainWindow(QMainWindow):
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphML()
+
+    def on_btnReloadGraphML_released( self ):
+        self.loadGraphML( bReload=True )
+
+    def on_btnSelectGraphML_released( self ):
+        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
+        if path: self.loadGraphML( path )
+

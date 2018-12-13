@@ -215,7 +215,7 @@ class CNetObj_Manager( object ):
         cls.__objects[ cls.rootObj.UID ] = cls.rootObj
 
     @classmethod
-    def connect( cls, bIsServer ):
+    def connect( cls ):
         try:
             redisOptDict = CSM.rootOpt( s_Redis_opt, default = redisDefSettings )
             ip_address   = CSM.dictOpt( redisOptDict, s_Redis_ip,   default=s_Redis_ip__default )
@@ -231,8 +231,6 @@ class CNetObj_Manager( object ):
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
-            # сервер при коннекте сбрасывает содержимое БД
-            if bIsServer: cls.redisConn.flushdb()
                 
         except redis.exceptions.ConnectionError as e:
             print( f"[Error]: Can not connect to REDIS: {e}" )
@@ -244,13 +242,12 @@ class CNetObj_Manager( object ):
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
-        # клиенты при старте подхватывают содержимое с сервера
-        if not bIsServer:
-            objects = cls.redisConn.smembers( s_ObjectsSet )
-            if ( objects ):
-                objects = sorted( objects )
-                for it in objects:
-                    netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+        # все клиенты при старте подхватывают содержимое с сервера
+        objects = cls.redisConn.smembers( s_ObjectsSet )
+        if ( objects ):
+            objects = sorted( objects )
+            for it in objects:
+                netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
@@ -259,7 +256,7 @@ class CNetObj_Manager( object ):
         return True
 
     @classmethod
-    def disconnect( cls, bIsServer ):
+    def disconnect( cls ):
         if not cls.redisConn: return
         
         cls.netCmds_Reader.stop()
@@ -268,8 +265,6 @@ class CNetObj_Manager( object ):
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
-        # при дисконнекте сервер сбрасывает содержимое БД
-        if bIsServer: cls.redisConn.flushdb()
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None
         print( cls.__name__, cls.disconnect.__name__ )
