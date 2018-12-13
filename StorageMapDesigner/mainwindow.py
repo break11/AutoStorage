@@ -102,7 +102,9 @@ class CSMD_MainWindow(QMainWindow):
         #форма курсора
         self.updateCursor()
 
-        # self.acAddNode.setChecked( bool(self.SGraf_Manager.EditMode & EGManagerEditMode.AddNode) )
+        #ui
+        self.acAddNode.setChecked     ( bool (self.SGraf_Manager.EditMode & EGManagerEditMode.AddNode ) )
+        self.acLockEditing.setChecked ( not  (self.SGraf_Manager.Mode     & EGManagerMode.EditScene   ) )
 
     def updateCursor(self):
         if self.GV_EventFilter.actionCursor != Qt.ArrowCursor:
@@ -204,15 +206,12 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraf_Manager.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
-    def on_acLockEditing_triggered(self, bChecked):
-        self.SGraf_Manager.setEditSceneMode(not bChecked)
+    def on_acLockEditing_triggered(self):
+        self.SGraf_Manager.setModeFlags( self.SGraf_Manager.Mode ^ EGManagerMode.EditScene )
 
     @pyqtSlot(bool)
-    def on_acAddNode_triggered(self, bChecked):
-        if bChecked:
-            self.SGraf_Manager.EditMode |= EGManagerEditMode.AddNode
-        else:
-            self.SGraf_Manager.EditMode &= ~EGManagerEditMode.AddNode
+    def on_acAddNode_triggered(self):
+        self.SGraf_Manager.EditMode ^= EGManagerEditMode.AddNode
 
     @pyqtSlot(bool)
     def on_acDelMultiEdge_triggered (self, bChecked):
