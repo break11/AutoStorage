@@ -211,6 +211,10 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraph_Manager.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
+    def on_acStorageRotateLines_triggered(self, bChecked):
+        self.SGraph_Manager.setDrawStorageRotateLines( bChecked )
+
+    @pyqtSlot(bool)
     def on_acLockEditing_triggered(self):
         self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode ^ EGManagerMode.EditScene )
 

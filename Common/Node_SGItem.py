@@ -28,6 +28,7 @@ class CNode_SGItem(QGraphicsItem):
         super().__init__()
 
         self.bDrawBBox = False
+        self.bDrawStorageRotateLines = False
         self.nxGraph  = nxGraph
         self.nodeID = nodeID
         self.nodeType = SGT.ENodeTypes.NoneType
@@ -127,7 +128,7 @@ class CNode_SGItem(QGraphicsItem):
                 pass        
 
         # отладочные линии
-        if self.nodeType == SGT.ENodeTypes.StorageSingle:
+        if self.nodeType == SGT.ENodeTypes.StorageSingle and self.bDrawStorageRotateLines:
             #прямая пропорциональности
             pen = QPen( Qt.magenta )
             pen.setWidth( 4 )

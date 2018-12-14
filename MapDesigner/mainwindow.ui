@@ -54,7 +54,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -278,6 +278,7 @@ selection-background-color: red;*/
          <addaction name="acGrid"/>
          <addaction name="acSnapToGrid"/>
          <addaction name="acBBox"/>
+         <addaction name="acStorageRotateLines"/>
         </widget>
        </item>
       </layout>
@@ -580,6 +581,21 @@ selection-background-color: red;*/
    </property>
    <property name="toolTip">
     <string>Lock scene editing</string>
+   </property>
+  </action>
+  <action name="acStorageRotateLines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/storage_rotate_lines.png</normaloff>:/images/storage_rotate_lines.png</iconset>
+   </property>
+   <property name="text">
+    <string>Storages rotate lines</string>
+   </property>
+   <property name="toolTip">
+    <string>Show storages rotate lines</string>
    </property>
   </action>
  </widget>
