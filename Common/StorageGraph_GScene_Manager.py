@@ -303,6 +303,7 @@ class CStorageGraph_GScene_Manager():
         nodeGItem.updateStorages()
         nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.bDrawBBox = self.bDrawBBox
+        nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
         self.bHasChanges = True

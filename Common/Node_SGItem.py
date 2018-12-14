@@ -32,7 +32,7 @@ class CNode_SGItem(QGraphicsItem):
         self.nxGraph  = nxGraph
         self.nodeID = nodeID
         self.nodeType = SGT.ENodeTypes.NoneType
-        self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable )
+        self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
         self.storageLineAngle = 0
         self.__singleStorages = []
