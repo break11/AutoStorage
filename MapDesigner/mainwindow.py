@@ -268,7 +268,9 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acSaveGraphMLAs_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path: self.saveGraphML( path )
+        if path:
+            path = path if path.endswith( extensionsFiltersDict[extension] ) else ( path + "." + extensionsFiltersDict[extension] )
+            self.saveGraphML( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):

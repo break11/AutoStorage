@@ -1,7 +1,12 @@
 import os
 from __main__ import __file__ as baseFName
 
-sGraphML_file_filters = "GraphML (*.graphml);;All Files (*)"
+extensionsFiltersDict = {
+                            "GraphML (*.graphml)" : "graphml",
+                            "All Files (*)"       : ""
+                        }
+
+sGraphML_file_filters = ";;".join( extensionsFiltersDict.keys() )
 
 def projectDir():
     return os.path.abspath( os.curdir ) + "/"
