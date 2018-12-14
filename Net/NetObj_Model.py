@@ -2,7 +2,8 @@
 
 from PyQt5.QtCore import ( Qt, QAbstractItemModel, QModelIndex )
 
-from .NetObj import *
+from .NetObj import CNetObj
+from .Net_Events import ENet_Event as EV
 from .NetObj_Manager import CNetObj_Manager
 
 class CNetObj_Model( QAbstractItemModel ):

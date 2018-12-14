@@ -1,5 +1,7 @@
 
-dir( test )
+
+
+# dir( test )
 
 class Base:
     def testF( self ):

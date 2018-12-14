@@ -133,6 +133,9 @@ class CNetObj_Manager( object ):
             netCmd = cls.qNetCmds.get()
             if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
+            if netCmd.Event <= EV.ClientDisconnected:
+                cls.doCallbacks( netCmd )
+
             if netCmd.Event == EV.ObjCreated:
                 netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
 

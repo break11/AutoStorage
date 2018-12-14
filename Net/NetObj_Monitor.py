@@ -4,10 +4,14 @@ import os
 from PyQt5 import uic
 from PyQt5.QtWidgets import ( QWidget )
 from PyQt5.QtCore import (Qt, QByteArray, QModelIndex, QItemSelectionModel)
+from PyQt5.Qt import QInputDialog
 
+from .NetObj import CNetObj
+from .Net_Events import ENet_Event as EV
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import ( CNetObj_WidgetsManager )
+from .NetCmd import CNetCmd
 
 from Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
@@ -59,6 +63,16 @@ class CNetObj_Monitor(QWidget):
 
         CNetObj_Manager.objModel = self.netObjModel
 
+        self.sbClientID.setValue( CNetObj_Manager.ClientID )
+        for ev in EV:
+            self.cbEvent.addItem( ev.name, ev )
+
+    def on_btnSendNetCmd_released( self ):
+        cmd = CNetCmd( ClientID=self.sbClientID.value(),
+                       Event=self.cbEvent.currentData(), Obj_UID=self.sbObj_UID.value(),
+                       PropName=self.lePropName.text(), ExtCmdData=self.leExtCmdData.text() )
+        CNetObj_Manager.sendNetCMD( cmd )
+
     def treeView_SelectionChanged( self, selected, deselected ):
         if len( deselected ): self.initOrDone_NetObj_Widget( deselected.indexes()[0], False )
         if len( selected )  : self.initOrDone_NetObj_Widget( selected.indexes()[0],   True )
@@ -80,18 +94,6 @@ class CNetObj_Monitor(QWidget):
             widget.done()
             widget.hide()
 
-    def keyPressEvent( self, event ):
-        if ( event.key() != Qt.Key_Delete ): return
-        
-        ci = self.tvNetObj.selectionModel().currentIndex()
-
-        if not ci.isValid(): return
-
-        row = ci.row()
-        parent = ci.parent()
-        
-        self.tvNetObj.model().removeRow( row, parent )
-
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
         
@@ -112,3 +114,23 @@ class CNetObj_Monitor(QWidget):
         for col in range( 0, self.tvNetObj.header().count() ):
             self.tvNetObj.resizeColumnToContents( col )
 
+    def on_btnAdd_NetObj_released( self ):
+        ci = self.tvNetObj.selectionModel().currentIndex()
+        # if ci.isValid():
+        parent = self.netObjModel.getNetObj_or_Root( ci )
+
+        text, ok = QInputDialog.getText(self, 'New NetObj Name', 'Enter object name:')
+        if not ok: return
+
+
+        netObj = CNetObj(name=text, parent=parent)
+        # if ok: self.netObj[ text ] = text
+
+    def on_btnDel_NetObj_released( self ):
+        ci = self.tvNetObj.selectionModel().currentIndex()
+        if not ci.isValid(): return
+
+        row = ci.row()
+        parent = ci.parent()
+        
+        self.tvNetObj.model().removeRow( row, parent )
