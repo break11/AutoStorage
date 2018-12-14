@@ -1,20 +1,21 @@
 
-from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer)
+from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer, Qt)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
 from PyQt5 import uic
 
-from Common.StorageGraph_GScene_Manager import *
-from Common.GridGraphicsScene import *
-from Common.GV_Wheel_Zoom_EventFilter import *
+from Common.GuiUtils import Std_Model_Item
+from Common.StorageGraph_GScene_Manager import ( CStorageGraph_GScene_Manager, windowDefSettings )
+from Common.GridGraphicsScene import CGridGraphicsScene
+from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
-from Common.Graph_NetObjects import *
+from Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
 
 from Net.NetObj_Manager import CNetObj_Manager
 
 import sys
-from Common.FileUtils import *
+import os
 
 # Storage Map Designer Main Window
 class CSSD_MainWindow(QMainWindow):
