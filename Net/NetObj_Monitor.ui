@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Net Obj Form</string>
+   <string>NetObj Monitor Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -162,7 +162,7 @@ NetCmd</string>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
@@ -267,7 +267,7 @@ selection-color: black;
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>384</width>
+          <width>296</width>
           <height>478</height>
          </rect>
         </property>

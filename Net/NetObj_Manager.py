@@ -127,6 +127,15 @@ class CNetObj_Manager( object ):
 
     #####################################################
     @classmethod
+    def updateClientInfo( cls ):
+        from __main__ import __file__ as baseFName
+        import os
+        sKey = f"client:{cls.ClientID}:name"
+
+        cls.serviceConn.set( sKey, baseFName.rsplit(os.sep, 1)[1] )
+        cls.serviceConn.expire( sKey, 3 )
+
+    @classmethod
     def onTick( cls ):
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while not cls.qNetCmds.empty():

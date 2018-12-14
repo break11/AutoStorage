@@ -27,20 +27,23 @@ def registerNetNodeWidgets( parent ):
 class CBaseApplication( QApplication ):
     def __init__(self, argv ):
         super().__init__( argv )
-        self.timer = QTimer()
-        CNetObj_Manager.initRoot()
 
-    def setTickFunction( self, f ):
-        self.timer.stop()
-        self.timer.timeout.connect( f )
-        self.timer.start()
+        self.tickTimer = QTimer()
+        self.tickTimer.start()
+
+        self.ttlTimer = QTimer()
+        self.ttlTimer.setInterval( 1500 )
+        self.ttlTimer.start()
+        
+        CNetObj_Manager.initRoot()
 
     def init(self, default_settings={}, parent=None ):
         CSM.loadSettings( default=default_settings )
 
         if not CNetObj_Manager.connect(): return False
 
-        self.setTickFunction( CNetObj_Manager.onTick )
+        self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
+        self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
 
         self.objMonitor = None
 

@@ -63,6 +63,7 @@ class CNetObj_Monitor(QWidget):
 
         CNetObj_Manager.objModel = self.netObjModel
 
+        # подготовка контролов сетевых команд
         self.sbClientID.setValue( CNetObj_Manager.ClientID )
         for ev in EV:
             self.cbEvent.addItem( ev.name, ev )

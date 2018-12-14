@@ -3,8 +3,10 @@ import os
 from .images_rc import *
 from PyQt5 import uic
 from PyQt5.Qt import QInputDialog
+from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
-from .NetObj_Widgets import *        
+from .NetObj_Widgets import ( CNetObj_Widget, CNetObj_Manager )
+from .Net_Events import ENet_Event as EV
 
 class CDictProps_Widget( CNetObj_Widget ):
 
