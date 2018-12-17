@@ -75,6 +75,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
     def netObj_To_Index( self, netObj ):
         if netObj is self.__rootNetObj: return QModelIndex()
+        if netObj is None: return QModelIndex()
         
         parentNetObj = netObj.parent
         if parentNetObj is None: return QModelIndex()

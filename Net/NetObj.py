@@ -143,7 +143,7 @@ class CNetObj( NodeMixin ):
         redisConn.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
         redisConn.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
         parent = self.parent.UID if self.parent else None
-        redisConn.set( self.redisKey_Parent(),  self.parent.UID )
+        redisConn.set( self.redisKey_Parent(),  parent )
 
         # сохранение справочника свойств
         if len( self.propsDict() ):

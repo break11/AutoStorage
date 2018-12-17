@@ -9,7 +9,8 @@ class CGraphRoot_NO( CNetObj ):
         self.nxGraph = nxGraph
         super().__init__( name=name, parent=parent, id=id )
 
-    def propsDict(self): return self.nxGraph.graph
+    def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
+        # return self.nxGraph.graph
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
