@@ -149,7 +149,7 @@ class CNetObj_Manager( object ):
                 netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
 
                 if netObj:
                     # приходится давать сигнал на обновление модели здесь, чтобы завернуть внутрь них все эвенты и удаление объектов
