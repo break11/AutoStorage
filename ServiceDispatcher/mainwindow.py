@@ -11,6 +11,7 @@ from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 from Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
+from Common import NetUtils
 
 from Net.NetObj_Manager import CNetObj_Manager
 
@@ -36,6 +37,7 @@ class CSSD_MainWindow(QMainWindow):
 
         # модель со списком сервисов
         self.clientList_Model = QStandardItemModel( self )
+        self.clientList_Model.setHorizontalHeaderLabels( [ "Client UID", "App", "Ip Address" ] )
         self.tvClientList.setModel( self.clientList_Model )
 
         #load settings
@@ -64,8 +66,11 @@ class CSSD_MainWindow(QMainWindow):
 
             ClientID = int( sClientID )
             ClientName = net.get( f"client:{sClientID}:name" ).decode()
+            ClientIpAddress = NetUtils.get_ip()
 
-            rowItems = [ Std_Model_Item( ClientID, False ), Std_Model_Item( ClientName, False ) ]
+            rowItems = [ Std_Model_Item( ClientID, bReadOnly = True ),
+                         Std_Model_Item( ClientName, bReadOnly = True ),
+                         Std_Model_Item( ClientIpAddress, bReadOnly = True ) ]
             m.appendRow( rowItems )
         
         # проход по модели - сравнение с найденными ключами в редис - обнаружение отключенных клиентов
