@@ -149,7 +149,8 @@ class CNetObj_Manager( object ):
                 netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
+
                 if netObj:
                     # приходится давать сигнал на обновление модели здесь, чтобы завернуть внутрь них все эвенты и удаление объектов
                     # иначе получим ошибку InvalidIndex, т.к. объект еще не будет удален к моменту вызова endRemoveRows() - он вызовет rowCount()
@@ -176,9 +177,11 @@ class CNetObj_Manager( object ):
             elif netCmd.Event == EV.ObjPropDeleted:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
 
-                # cls.redisConn.hdel( netObj.redisKey_Props(), netCmd.sPropName )
-                cls.doCallbacks( netCmd )
-                del netObj.propsDict()[ netCmd.sPropName ]
+                propExist = netObj.propsDict().get( netCmd.sPropName )
+                if not propExist is None:
+                    cls.doCallbacks( netCmd )
+                    del netObj.propsDict()[ netCmd.sPropName ]
+                    del propExist
 
             cls.qNetCmds.task_done()
     #####################################################
@@ -213,10 +216,18 @@ class CNetObj_Manager( object ):
                 CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
 
     @classmethod
-    def accessObj( cls, UID, genAssert=False ):
+    def accessObj( cls, UID, genAssert=False, genWarning=False ):
         netObj = cls.__objects.get( UID )
+
+        if genAssert or genWarning:
+            sMsg = f"CNetObj_Manager.accessObj : netObj with UID={UID} can not accepted!"
+            
+        if genWarning:
+            print( f"{SC.sWarning} {sMsg}" )
+
         if genAssert:
-            assert netObj, f"[Assert] CNetObj_Manager.accessObj : netObj with UID={UID} can not accepted!"
+            assert netObj, f"{SC.sAssert} {sMsg}"
+
         return netObj
 
     #####################################################

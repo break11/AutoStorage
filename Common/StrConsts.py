@@ -1,6 +1,7 @@
 
 sWarning = "[Warning]:"
 sError   = "[Error]:"
+sAssert  = "[Assert]:"
 
 _strList = [
             "last_opened_file",

@@ -4,7 +4,7 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
 from PyQt5 import uic
 
-from Common.GuiUtils import Std_Model_Item
+from Common import GuiUtils
 from Common.StorageGraph_GScene_Manager import ( CStorageGraph_GScene_Manager, windowDefSettings )
 from Common.GridGraphicsScene import CGridGraphicsScene
 from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EventFilter
@@ -12,11 +12,14 @@ from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 from Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
 from Common import NetUtils
+from Common import FileUtils
 
 from Net.NetObj_Manager import CNetObj_Manager
+from Net.NetObj import CNetObj
 
 import sys
 import os
+import networkx as nx
 
 # Storage Map Designer Main Window
 class CSSD_MainWindow(QMainWindow):
@@ -68,9 +71,9 @@ class CSSD_MainWindow(QMainWindow):
             ClientName = net.get( f"client:{sClientID}:name" ).decode()
             ClientIpAddress = NetUtils.get_ip()
 
-            rowItems = [ Std_Model_Item( ClientID, bReadOnly = True ),
-                         Std_Model_Item( ClientName, bReadOnly = True ),
-                         Std_Model_Item( ClientIpAddress, bReadOnly = True ) ]
+            rowItems = [ GuiUtils.Std_Model_Item( ClientID, bReadOnly = True ),
+                         GuiUtils.Std_Model_Item( ClientName, bReadOnly = True ),
+                         GuiUtils.Std_Model_Item( ClientIpAddress, bReadOnly = True ) ]
             m.appendRow( rowItems )
         
         # проход по модели - сравнение с найденными ключами в редис - обнаружение отключенных клиентов
@@ -96,8 +99,8 @@ class CSSD_MainWindow(QMainWindow):
                 graphObj.prepareDelete( bOnlySendNetCmd = False )
             else: return
 
-        sFName=self.leGraphML.text()
-        sFName = correctFNameToProjectDir( sFName )
+        sFName = self.leGraphML.text()
+        sFName = FileUtils.correctFNameToProjectDir( sFName )
 
         # загрузка графа и создание его объектов для сетевой синхронизации
         if not os.path.exists( sFName ):
@@ -123,7 +126,7 @@ class CSSD_MainWindow(QMainWindow):
         for edgeID in nxGraph.edges():
             n1 = edgeID[0]
             n2 = edgeID[1]
-            edge = CGraphEdge_NO( name = GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
+            edge = CGraphEdge_NO( name = GuiUtils.GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
 
         # print( RenderTree(parentBranch) )
 
