@@ -127,6 +127,9 @@ class CSMD_MainWindow(QMainWindow):
                                         s_draw_main_rail  : self.SGraph_Manager.bDrawMainRail,
                                     }
 
+        self.OnCloseGraphML()
+
+    def OnCloseGraphML(self):
         if self.SGraph_Manager.bHasChanges:
             mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Cancel | QMessageBox.Save)
             mb.addButton("Close without saving", QMessageBox.RejectRole )
@@ -138,6 +141,7 @@ class CSMD_MainWindow(QMainWindow):
                 event.ignore()
 
     def loadGraphML( self, sFName ):
+        self.OnCloseGraphML()
         sFName = correctFNameToProjectDir( sFName )
         if self.SGraph_Manager.load( sFName ):
             self.graphML_fname = sFName
@@ -211,6 +215,10 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraph_Manager.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
+    def on_acStorageRotateLines_triggered(self, bChecked):
+        self.SGraph_Manager.setDrawStorageRotateLines( bChecked )
+
+    @pyqtSlot(bool)
     def on_acLockEditing_triggered(self):
         self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode ^ EGManagerMode.EditScene )
 
@@ -247,6 +255,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acNewGraphML_triggered(self, bChecked):
+        self.OnCloseGraphML()
         self.graphML_fname = SC.s_storage_graph_file__default
         self.SGraph_Manager.new()
         self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
@@ -259,7 +268,9 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acSaveGraphMLAs_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path: self.saveGraphML( path )
+        if path:
+            path = path if path.endswith( extensionsFiltersDict[extension] ) else ( path + "." + extensionsFiltersDict[extension] )
+            self.saveGraphML( path )
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):

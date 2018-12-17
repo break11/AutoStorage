@@ -56,9 +56,12 @@ class CStorageGraph_GScene_Manager():
         self.gScene_evI   = None
         self.gView        = None
         self.nxGraph       = None
+
         self.bDrawBBox      = False
         self.bDrawInfoRails = False
         self.bDrawMainRail  = False
+        self.bDrawStorageRotateLines = False
+
         self.Mode           = EGManagerMode.View | EGManagerMode.EditScene | EGManagerMode.EditProps
         self.EditMode       = EGManagerEditMode.Default
         self.bHasChanges    = False
@@ -149,6 +152,14 @@ class CStorageGraph_GScene_Manager():
 
         for e, v in self.edgeGItems.items():
             v.bDrawBBox = bVal
+
+    def setDrawStorageRotateLines(self, bVal):
+        self.bDrawStorageRotateLines = bVal
+        for n, v in self.nodeGItems.items():
+            v.bDrawStorageRotateLines = bVal
+
+        for e, v in self.edgeGItems.items():
+            v.bDrawStorageRotateLines = bVal
 
     #рассчет средней линии для нод типа StorageSingle
     def calcNodeStorageLine(self, nodeGItem):
@@ -292,6 +303,7 @@ class CStorageGraph_GScene_Manager():
         nodeGItem.updateStorages()
         nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.bDrawBBox = self.bDrawBBox
+        nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
 
         self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
         self.bHasChanges = True
