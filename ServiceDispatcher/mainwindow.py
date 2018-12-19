@@ -137,9 +137,9 @@ class CSSD_MainWindow(QMainWindow):
         self.loadGraphML( bReload=True )
 
     def on_btnSelectGraphML_released( self ):
-        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
+        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", FileUtils.graphML_Path(), FileUtils.sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
         if path:
-            path = correctFNameToProjectDir( path )
+            path = FileUtils.correctFNameToProjectDir( path )
             self.leGraphML.setText( path )
             CSM.options[ SC.s_storage_graph_file ] = path
 

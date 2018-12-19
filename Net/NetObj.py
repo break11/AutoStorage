@@ -139,15 +139,19 @@ class CNetObj( NodeMixin ):
 
         hd = self.__modelHeaderData
 
+        pipe = redisConn.pipeline()
+
         # сохранение стандартного набора полей
-        redisConn.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
-        redisConn.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
+        pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
+        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
         parent = self.parent.UID if self.parent else None
-        redisConn.set( self.redisKey_Parent(),  parent )
+        pipe.set( self.redisKey_Parent(),  parent )
 
         # сохранение справочника свойств
         if len( self.propsDict() ):
-            redisConn.hmset( self.redisKey_Props(), CStrTypeConverter.DictToStr( self.propsDict() ) )
+            pipe.hmset( self.redisKey_Props(), CStrTypeConverter.DictToStr( self.propsDict() ) )
+
+        pipe.execute()
 
         # вызов дополнительных действий по сохранению наследника
         self.onSaveToRedis( redisConn )
@@ -159,30 +163,41 @@ class CNetObj( NodeMixin ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj: return netObj
 
+        pipe = redisConn.pipeline()
+        pipe.get( cls.redisKey_Name_C( UID ) )
+        pipe.get( cls.redisKey_Parent_C( UID ) )
+        pipe.get( cls.redisKey_TypeUID_C( UID ) )
+        pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )
+        values = pipe.execute()
+
+        nameField = values[0]
+        parentID  = int( values[1].decode() )
+        typeUID   = values[2].decode()
+        pProps    = values[3]
+
         # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
         # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
         # анализируем наличие данных по этому объекту в редисе
-        nameField = redisConn.get( cls.redisKey_Name_C( UID ) )
         if nameField is None:
             print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
             return
 
         name     = nameField.decode()
-        parentID = int( redisConn.get( cls.redisKey_Parent_C( UID ) ).decode() )
-        typeUID  = redisConn.get( cls.redisKey_TypeUID_C( UID ) ).decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
 
-        netObj.props = CStrTypeConverter.DictFromBytes( redisConn.hgetall( netObj.redisKey_Props() ) )
+        netObj.props = CStrTypeConverter.DictFromBytes( pProps )
 
         netObj.onLoadFromRedis( redisConn, netObj )
         
         return netObj
 
     def delFromRedis( self, redisConn ):
+        pipe = redisConn.pipeline()
         for key in redisConn.keys( self.redisBase_Name() + ":*" ):
-            redisConn.delete( key )
+            pipe.delete( key )
+        pipe.execute()
 
     # методы для переопределения дополнительного поведения в наследниках
     def onSaveToRedis( self, redisConn ): pass

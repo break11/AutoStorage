@@ -137,8 +137,6 @@ class CSMD_MainWindow(QMainWindow):
         
             if res == QMessageBox.Save:
                 self.on_acSaveGraphML_triggered(True)
-            elif res == QMessageBox.Cancel:
-                event.ignore()
 
     def loadGraphML( self, sFName ):
         self.OnCloseGraphML()

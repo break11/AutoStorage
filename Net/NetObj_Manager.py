@@ -266,10 +266,11 @@ class CNetObj_Manager( object ):
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
+
         # все клиенты при старте подхватывают содержимое с сервера
         objects = cls.redisConn.smembers( s_ObjectsSet )
         if ( objects ):
-            objects = sorted( objects )
+            objects = sorted( objects, key = lambda x: int(x.decode()) )
             for it in objects:
                 netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
 
