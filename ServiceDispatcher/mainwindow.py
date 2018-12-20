@@ -114,8 +114,6 @@ class CSSD_MainWindow(QMainWindow):
         del nxGraph.graph["node_default"]
         del nxGraph.graph["edge_default"]
 
-        # nxGraph  = nx.read_graphml( "GraphML/magadanskaya_vrn.graphml" )
-
         Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
         Nodes = CNetObj(name="Nodes", parent=Graph)
         Edges = CNetObj(name="Edges", parent=Graph)

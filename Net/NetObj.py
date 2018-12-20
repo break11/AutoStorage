@@ -29,6 +29,8 @@ class CNetObj( NodeMixin ):
             return self.__pathResolver.get(self, sPath)
         except resolver.ChildResolverError as e:
             return None
+        except AttributeError as e:
+            return None
         
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
