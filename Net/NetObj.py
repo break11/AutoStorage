@@ -169,7 +169,7 @@ class CNetObj( NodeMixin ):
         pipe.get( cls.redisKey_Name_C( UID ) )
         pipe.get( cls.redisKey_Parent_C( UID ) )
         pipe.get( cls.redisKey_TypeUID_C( UID ) )
-        pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )
+        pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )        
         values = pipe.execute()
 
         nameField = values[0]
@@ -178,7 +178,7 @@ class CNetObj( NodeMixin ):
         # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
         # анализируем наличие данных по этому объекту в редисе
         if nameField is None:
-            print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
+            # print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
             return
 
         parentID  = int( values[1].decode() )

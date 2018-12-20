@@ -82,7 +82,8 @@ class CGraphEdge_NO( CNetObj ):
         self.nxNodeID_1 = values[0].decode()
         self.nxNodeID_2 = values[1].decode()
 
-        self.nxGraph().add_edge( self.nxNodeID_1, self.nxNodeID_2, **self.props )
+        if self.graphNode():
+            self.nxGraph().add_edge( self.nxNodeID_1, self.nxNodeID_2, **self.props )
 
     def onSaveToRedis( self, redisConn ):
         super().onSaveToRedis( redisConn )
