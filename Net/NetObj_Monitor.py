@@ -99,7 +99,7 @@ class CNetObj_Monitor(QWidget):
         self.tvNetObj.selectionModel().clear()
         
         # в случае если парент передан, то окно монитора разместится внутри него и нет смысла сохранять его геометрию
-        if self.parent: return
+        if self.parent(): return
 
         settings = CSM.rootOpt( s_obj_monitor )
         settings[ s_window ][ s_geometry ] = self.saveGeometry().toHex().data().decode()
