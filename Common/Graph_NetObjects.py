@@ -76,7 +76,8 @@ class CGraphEdge_NO( CNetObj ):
         pipe.get( self.redisKey_NodeID_2() )
         values = pipe.execute()
 
-        if not len( values ): return
+        # попытка создать объект, которого уже нет в редис
+        if values[0] is None: return
 
         self.nxNodeID_1 = values[0].decode()
         self.nxNodeID_2 = values[1].decode()
