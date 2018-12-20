@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
+from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget)
 from PyQt5 import uic
 
 from Common.StorageGraph_GScene_Manager import *
@@ -52,6 +52,9 @@ class CSMD_MainWindow(QMainWindow):
         self.timer.timeout.connect( self.tick )
         self.timer.start()
 
+        self.bFullScreen = False
+        self.DocWidgetsHiddenStates = {}
+
         self.graphML_fname = SC.s_storage_graph_file__default
         self.objProps = QStandardItemModel( self )
         self.tvObjectProps.setModel( self.objProps )
@@ -92,6 +95,17 @@ class CSMD_MainWindow(QMainWindow):
         self.acMainRail.setChecked   ( self.SGraph_Manager.bDrawMainRail  )
         self.acInfoRails.setChecked  ( self.SGraph_Manager.bDrawInfoRails )
         self.acSnapToGrid.setChecked ( self.StorageMap_Scene.bSnapToGrid )
+
+    def unhideDocWidgets(self):
+        for doc in self.DocWidgetsHiddenStates:
+            isHidden = self.DocWidgetsHiddenStates[doc]
+            if not isHidden: doc.show()
+
+    def hideDocWidgets(self):
+        DocWidgetsList = [ doc for doc in self.children() if isinstance( doc, QDockWidget ) ]
+        for doc in DocWidgetsList:
+            self.DocWidgetsHiddenStates[ doc ] = doc.isHidden()
+            doc.hide()
 
     def tick(self):
         #добавляем '*' в заголовок окна если есть изменения
@@ -191,6 +205,16 @@ class CSMD_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acZoomOut_triggered(self, bChecked):
         self.GV_EventFilter.zoomOut()
+
+    @pyqtSlot()
+    def on_acFullScreen_triggered(self):
+        self.bFullScreen = not self.bFullScreen
+
+        if self.bFullScreen:
+            self.hideDocWidgets()
+            self.showMaximized()
+        else:
+            self.unhideDocWidgets()
 
     @pyqtSlot(bool)
     def on_acGrid_triggered(self, bChecked):
