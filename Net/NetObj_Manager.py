@@ -201,8 +201,12 @@ class CNetObj_Manager( object ):
         cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
-                CNetObj_Manager.redisConn.sadd( s_ObjectsSet, netObj.UID )
-                netObj.saveToRedis( cls.redisConn )
+
+                pipe = cls.redisConn.pipeline()
+                pipe.sadd( s_ObjectsSet, netObj.UID )
+                netObj.saveToRedis( pipe )
+                pipe.execute()
+
                 CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
     
@@ -211,8 +215,12 @@ class CNetObj_Manager( object ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
         if cls.isConnected() and netObj.UID > 0:
             if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
-                CNetObj_Manager.redisConn.srem( s_ObjectsSet, netObj.UID )
-                netObj.delFromRedis( cls.redisConn )
+
+                pipe = cls.redisConn.pipeline()
+                pipe.srem( s_ObjectsSet, netObj.UID )
+                netObj.delFromRedis( cls.redisConn, pipe )
+                pipe.execute()
+
                 CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
 
     @classmethod

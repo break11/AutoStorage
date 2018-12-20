@@ -136,12 +136,10 @@ class CNetObj( NodeMixin ):
     def redisKey_Props_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_props }"
     def redisKey_Props(self)       : return self.redisKey_Props_C( self.UID )
 ###################################################################################
-    def saveToRedis( self, redisConn ):
+    def saveToRedis( self, pipe ):
         if self.UID < 0: return
 
         hd = self.__modelHeaderData
-
-        pipe = redisConn.pipeline()
 
         # сохранение стандартного набора полей
         pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
@@ -153,10 +151,8 @@ class CNetObj( NodeMixin ):
         if len( self.propsDict() ):
             pipe.hmset( self.redisKey_Props(), CStrTypeConverter.DictToStr( self.propsDict() ) )
 
-        pipe.execute()
-
         # вызов дополнительных действий по сохранению наследника
-        self.onSaveToRedis( redisConn )
+        self.onSaveToRedis( pipe )
 
     @classmethod
     def loadFromRedis( cls, redisConn, UID ):
@@ -196,14 +192,12 @@ class CNetObj( NodeMixin ):
         
         return netObj
 
-    def delFromRedis( self, redisConn ):
-        pipe = redisConn.pipeline()
+    def delFromRedis( self, redisConn, pipe ):
         for key in redisConn.keys( self.redisBase_Name() + ":*" ):
             pipe.delete( key )
-        pipe.execute()
 
     # методы для переопределения дополнительного поведения в наследниках
-    def onSaveToRedis( self, redisConn ): pass
+    def onSaveToRedis( self, pipe ): pass
     def onLoadFromRedis( self, redisConn, netObj ): pass
 
     # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
