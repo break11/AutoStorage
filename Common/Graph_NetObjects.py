@@ -68,14 +68,26 @@ class CGraphEdge_NO( CNetObj ):
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        self.nxNodeID_1 = redisConn.get( self.redisKey_NodeID_1() ).decode()
-        self.nxNodeID_2 = redisConn.get( self.redisKey_NodeID_2() ).decode()
+
+        pipe = redisConn.pipeline()
+        pipe.get( self.redisKey_NodeID_1() )
+        pipe.get( self.redisKey_NodeID_2() )
+        values = pipe.execute()
+
+        self.nxNodeID_1 = values[0].decode()
+        self.nxNodeID_2 = values[1].decode()
+
         self.nxGraph().add_edge( self.nxNodeID_1, self.nxNodeID_2, **self.props )
 
     def onSaveToRedis( self, redisConn ):
         super().onSaveToRedis( redisConn )
-        redisConn.set( self.redisKey_NodeID_1(), self.nxNodeID_1 )
-        redisConn.set( self.redisKey_NodeID_2(), self.nxNodeID_2 )
+
+        pipe = redisConn.pipeline()
+
+        pipe.set( self.redisKey_NodeID_1(), self.nxNodeID_1 )
+        pipe.set( self.redisKey_NodeID_2(), self.nxNodeID_2 )
+
+        pipe.execute()
 
     def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1, self.nxNodeID_2 )
     def __nxEdgeName(self): return ( self.nxNodeID_1, self.nxNodeID_2 )
