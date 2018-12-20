@@ -34,7 +34,8 @@ class CGraphNode_NO( CNetObj ):
         # при удалении NetObj объекта ноды удаляем соответствующую ноду из графа
         self.nxGraph().remove_node( self.name )
 
-    def propsDict(self): return self.nxNode()
+    def propsDict(self): return self.nxNode() if self.graphNode() else {}
+        # return self.nxNode()
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
@@ -64,7 +65,8 @@ class CGraphEdge_NO( CNetObj ):
         if self.__has_nxEdge():
             self.nxGraph().remove_edge( *self.__nxEdgeName() )
 
-    def propsDict(self): return self.nxEdge()
+    def propsDict(self): return self.nxEdge() if self.graphNode() else {}
+        #  return self.nxEdge()
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
@@ -73,6 +75,8 @@ class CGraphEdge_NO( CNetObj ):
         pipe.get( self.redisKey_NodeID_1() )
         pipe.get( self.redisKey_NodeID_2() )
         values = pipe.execute()
+
+        if not len( values ): return
 
         self.nxNodeID_1 = values[0].decode()
         self.nxNodeID_2 = values[1].decode()
