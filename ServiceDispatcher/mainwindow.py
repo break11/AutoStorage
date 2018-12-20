@@ -30,6 +30,11 @@ class CSSD_MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
 
+        self.timer1 = QTimer()
+        self.timer1.setInterval(100)
+        self.timer1.timeout.connect( self.tick1 )
+        self.timer1.start()
+
         self.timer = QTimer()
         self.timer.setInterval(1500)
         self.timer.timeout.connect( self.tick )
@@ -52,6 +57,12 @@ class CSSD_MainWindow(QMainWindow):
 
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
+
+    def tick1(self):
+        nodes = CNetObj_Manager.rootObj.resolvePath("Graph/Nodes")
+        for child in nodes.children:
+            child["x"] += 1
+            child["y"] += 1
 
     def tick(self):
         net = CNetObj_Manager.serviceConn
