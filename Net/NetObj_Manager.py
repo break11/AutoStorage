@@ -196,12 +196,11 @@ class CNetObj_Manager( object ):
         return cls.__genNetObj_UID
 
     @classmethod
-    def registerObj( cls, netObj ):
+    def registerObj( cls, netObj, saveToRedis ):
         cls.__objects[ netObj.UID ] = netObj
         cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
-        if cls.isConnected() and netObj.UID > 0:
+        if cls.isConnected() and netObj.UID > 0 and saveToRedis:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
-                print( netObj.UID, "*****" )
                 pipe = cls.redisConn.pipeline()
                 pipe.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( pipe )

@@ -5,9 +5,9 @@ from .GuiUtils import GraphEdgeName
 from .StrTypeConverter import *
 
 class CGraphRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None, nxGraph=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxGraph=None ):
         self.nxGraph = nxGraph
-        super().__init__( name=name, parent=parent, id=id )
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
 
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
         # return self.nxGraph.graph
@@ -54,10 +54,10 @@ class CGraphEdge_NO( CNetObj ):
     def redisKey_NodeID_1(self): return f"{self.redisBase_Name()}:{self.__s_NodeID_1}"
     def redisKey_NodeID_2(self): return f"{self.redisBase_Name()}:{self.__s_NodeID_2}"
 
-    def __init__( self, name="", nxNodeID_1=None, nxNodeID_2=None, parent=None, id=None, nxEdge=None ):
+    def __init__( self, name="", nxNodeID_1=None, nxNodeID_2=None, parent=None, id=None, saveToRedis=True, nxEdge=None ):
         self.nxNodeID_1 = nxNodeID_1
         self.nxNodeID_2 = nxNodeID_2
-        super().__init__( name=name, parent=parent, id=id )
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
 
     def ObjPrepareDelete( self, netCmd ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа

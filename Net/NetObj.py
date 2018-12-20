@@ -37,7 +37,7 @@ class CNetObj( NodeMixin ):
 
 ###################################################################################
 
-    def __init__( self, name="", parent=None, id=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
         super().__init__()
         self.UID     = id if id else CNetObj_Manager.genNetObj_UID()
         self.name    = name
@@ -51,7 +51,7 @@ class CNetObj( NodeMixin ):
                             hd.index( self.__s_TypeUID  ) : self.typeUID,
                             }
 
-        CNetObj_Manager.registerObj( self )
+        CNetObj_Manager.registerObj( self, saveToRedis=saveToRedis )
 
     def __del__(self):
         # print("CNetObj destructor", self)
@@ -184,7 +184,7 @@ class CNetObj( NodeMixin ):
         name     = nameField.decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
 
-        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
+        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False )
 
         netObj.props = CStrTypeConverter.DictFromBytes( pProps )
 
