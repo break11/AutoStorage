@@ -58,11 +58,11 @@ class CSSD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-    def tick1(self):
-        nodes = CNetObj_Manager.rootObj.resolvePath("Graph/Nodes")
-        for child in nodes.children:
-            child["x"] += 1
-            child["y"] += 1
+    def tick1(self): pass
+        # nodes = CNetObj_Manager.rootObj.resolvePath("Graph/Nodes")
+        # for child in nodes.children:
+        #     child["x"] += 1
+        #     child["y"] += 1
 
     def tick(self):
         net = CNetObj_Manager.serviceConn

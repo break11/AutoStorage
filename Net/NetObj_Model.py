@@ -71,8 +71,7 @@ class CNetObj_Model( QAbstractItemModel ):
     def columnCount( self, parentIndex ): return CNetObj.modelDataColCount()
     
     def netObj_From_Index( self, index ): return CNetObj_Manager.accessObj( index.internalId() )
-        
-
+    
     def netObj_To_Index( self, netObj ):
         if netObj is self.__rootNetObj: return QModelIndex()
         if netObj is None: return QModelIndex()

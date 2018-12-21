@@ -13,10 +13,11 @@ from .Net_Events import ENet_Event as EV
 import Common.StrConsts as SC
 
 class CNetObj( NodeMixin ):
-    __s_Name     = "name"
-    __s_UID      = "UID"
-    __s_TypeUID  = "typeUID"
-    __modelHeaderData = [ __s_Name, __s_UID, __s_TypeUID, ]
+    __s_Name       = "name"
+    __s_ChildCount = "ChildCount"
+    __s_UID        = "UID"
+    __s_TypeUID    = "typeUID"
+    __modelHeaderData = [ __s_Name, __s_ChildCount, __s_UID, __s_TypeUID, ]
     __s_Parent   = "parent"
     __s_obj      = "obj"
     __s_props    = "props"
@@ -33,7 +34,7 @@ class CNetObj( NodeMixin ):
             return None
         
 
-    typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
+    typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()        
 
 ###################################################################################
 
@@ -45,10 +46,14 @@ class CNetObj( NodeMixin ):
         self.isUpdated = False
 
         hd = self.__modelHeaderData
+        import weakref
+        weakSelf = weakref.ref(self)
+        
         self.__modelData = {
-                            hd.index( self.__s_Name     ) : self.name,
-                            hd.index( self.__s_UID      ) : self.UID,
-                            hd.index( self.__s_TypeUID  ) : self.typeUID,
+                            hd.index( self.__s_Name     )   : lambda: weakSelf().name,
+                            hd.index( self.__s_ChildCount ) : lambda: len( weakSelf().children ),
+                            hd.index( self.__s_UID      )   : lambda: weakSelf().UID,
+                            hd.index( self.__s_TypeUID  )   : lambda: weakSelf().typeUID,
                             }
 
         CNetObj_Manager.registerObj( self, saveToRedis=saveToRedis )
@@ -111,7 +116,7 @@ class CNetObj( NodeMixin ):
     def modelDataColCount( cls )   : return len( cls.__modelHeaderData )
     @classmethod
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
-    def modelData( self, col )     : return self.__modelData[ col ]
+    def modelData( self, col )     : return self.__modelData[ col ]()
 
     def propsDict(self): return self.props
 
@@ -142,8 +147,8 @@ class CNetObj( NodeMixin ):
         hd = self.__modelHeaderData
 
         # сохранение стандартного набора полей
-        pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
-        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
+        pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ]() )
+        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ]() )
         parent = self.parent.UID if self.parent else None
         pipe.set( self.redisKey_Parent(),  parent )
 

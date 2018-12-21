@@ -75,8 +75,8 @@ class CNetObj_Monitor(QWidget):
         CNetObj_Manager.sendNetCMD( cmd )
 
     def treeView_SelectionChanged( self, selected, deselected ):
-        if len( deselected ): self.initOrDone_NetObj_Widget( deselected.indexes()[0], False )
-        if len( selected )  : self.initOrDone_NetObj_Widget( selected.indexes()[0],   True )
+        if len( deselected.indexes() ) : self.initOrDone_NetObj_Widget( deselected.indexes()[0], False )
+        if len( selected.indexes() ) : self.initOrDone_NetObj_Widget( selected.indexes()[0],   True )
 
     def initOrDone_NetObj_Widget( self, index, bInit ):
         if not index.isValid(): return
@@ -106,7 +106,8 @@ class CNetObj_Monitor(QWidget):
 
     def setRootNetObj( self, root ):
         self.netObjModel.setRootNetObj( root )
-        self.clearView()
+        if len(root.children) < 1000:
+            self.clearView()
 
 
     def clearView( self ):

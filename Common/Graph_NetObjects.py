@@ -22,7 +22,8 @@ class CGraphRoot_NO( CNetObj ):
 
 class CGraphNode_NO( CNetObj ):
     def ObjPrepareDelete( self, netCmd ):
-        incEdges = list( self.nxGraph().out_edges( self.name ) ) +  list( self.nxGraph().in_edges( self.name ) )
+        if self.nxGraph():
+            incEdges = list( self.nxGraph().out_edges( self.name ) ) +  list( self.nxGraph().in_edges( self.name ) )
 
         for edgeID in incEdges:
             n1 = edgeID[0]
@@ -41,8 +42,8 @@ class CGraphNode_NO( CNetObj ):
         super().onLoadFromRedis( redisConn, netObj )
         self.nxGraph().add_node( self.name, **self.props )
 
-    def nxGraph(self): return self.graphNode().nxGraph
-    def nxNode(self): return self.nxGraph().nodes()[ self.name ]
+    def nxGraph(self)  : return self.graphNode().nxGraph if self.graphNode() else None
+    def nxNode(self)   : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else None
     def graphNode(self): return self.resolvePath('../../')
 
 ###################################################################################
@@ -91,8 +92,8 @@ class CGraphEdge_NO( CNetObj ):
         pipe.set( self.redisKey_NodeID_1(), self.nxNodeID_1 )
         pipe.set( self.redisKey_NodeID_2(), self.nxNodeID_2 )
 
-    def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1, self.nxNodeID_2 )
+    def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1, self.nxNodeID_2 ) if self.nxGraph() else None
     def __nxEdgeName(self): return ( self.nxNodeID_1, self.nxNodeID_2 )
-    def nxGraph(self): return self.graphNode().nxGraph
-    def nxEdge(self): return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
-    def graphNode(self): return self.resolvePath('../../')
+    def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
+    def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
+    def graphNode(self)   : return self.resolvePath('../../')

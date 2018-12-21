@@ -137,8 +137,10 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def onTick( cls ):
+        i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
-        while not cls.qNetCmds.empty():
+        while ( not cls.qNetCmds.empty() ):
+            i += 1
             netCmd = cls.qNetCmds.get()
             if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
@@ -184,6 +186,7 @@ class CNetObj_Manager( object ):
                     del propExist
 
             cls.qNetCmds.task_done()
+        if i: print( i )
     #####################################################
 
     @classmethod
