@@ -54,6 +54,7 @@ class CSMD_MainWindow(QMainWindow):
 
         self.bFullScreen = False
         self.DocWidgetsHiddenStates = {}
+        self.geometry = ""
 
         self.graphML_fname = SC.s_storage_graph_file__default
         self.objProps = QStandardItemModel( self )
@@ -212,9 +213,11 @@ class CSMD_MainWindow(QMainWindow):
 
         if self.bFullScreen:
             self.hideDocWidgets()
+            self.geometry = self.saveGeometry()
             self.showMaximized()
         else:
             self.unhideDocWidgets()
+            self.restoreGeometry(self.geometry)
 
     @pyqtSlot(bool)
     def on_acGrid_triggered(self, bChecked):
