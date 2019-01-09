@@ -40,6 +40,7 @@ s_Client_UID = "client_uid_gen"
 s_ObjectsSet = "objects_set"
 
 ########################################################
+from time import sleep
 
 class CNetObj_Manager( object ):
     callbacksDict = {} # type: ignore # Dict of List by ECallbackType
@@ -87,7 +88,7 @@ class CNetObj_Manager( object ):
             self.__bIsRunning = True
 
             while self.__bIsRunning:
-                msg = self.receiver.get_message(False, 0.5)
+                msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
                     # принимаем сообщения от всех клиентов - в том числе от себя самого

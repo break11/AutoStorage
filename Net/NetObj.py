@@ -11,6 +11,7 @@ from Common.StrTypeConverter import *
 from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
 import Common.StrConsts as SC
+import weakref
 
 class CNetObj( NodeMixin ):
     __s_Name       = "name"
@@ -43,10 +44,8 @@ class CNetObj( NodeMixin ):
         self.UID     = id if id else CNetObj_Manager.genNetObj_UID()
         self.name    = name
         self.parent  = parent
-        self.isUpdated = False
 
         hd = self.__modelHeaderData
-        import weakref
         weakSelf = weakref.ref(self)
         
         self.__modelData = {
@@ -65,6 +64,10 @@ class CNetObj( NodeMixin ):
     def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
 
 ###################################################################################
+
+    def destroy(self):
+        cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
+        CNetObj_Manager.sendNetCMD( cmd )
 
     def prepareDelete(self, bOnlySendNetCmd = True):
 

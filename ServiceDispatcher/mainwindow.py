@@ -106,8 +106,10 @@ class CSSD_MainWindow(QMainWindow):
         graphObj = CNetObj_Manager.rootObj.resolvePath("Graph")
         if graphObj:
             if bReload:
+                graphObj.parent = None
                 graphObj.prepareDelete( bOnlySendNetCmd = True )
-                graphObj.prepareDelete( bOnlySendNetCmd = False )
+                print( "***", graphObj.UID )
+                # graphObj.prepareDelete( bOnlySendNetCmd = False )
             else: return
 
         sFName = self.leGraphML.text()

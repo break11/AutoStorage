@@ -29,6 +29,7 @@ class CBaseApplication( QApplication ):
         super().__init__( argv )
 
         self.tickTimer = QTimer()
+        self.tickTimer.setInterval( 5 )
         self.tickTimer.start()
 
         self.ttlTimer = QTimer()
