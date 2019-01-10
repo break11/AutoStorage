@@ -160,13 +160,19 @@ class CNetObj_Manager( object ):
                     # и построит индекс, который уже числится в модели Qt как удаленный
                     if cls.objModel: cls.objModel.beginRemove( netObj )
 
-                    netObj.prepareDelete( bOnlySendNetCmd = False )
+                    ##remove##netObj.prepareDelete( bOnlySendNetCmd = False )
+                    netObj.localDestroy()
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
+                    print( "****", netCmd.Obj_UID )
+                else:
+                    print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
-            elif netCmd.Event == EV.ObjDeleted:
-                cls.doCallbacks( netCmd )
+
+            ##remove##
+            # elif netCmd.Event == EV.ObjDeleted:
+            #     cls.doCallbacks( netCmd )
 
             elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
@@ -224,7 +230,9 @@ class CNetObj_Manager( object ):
                 netObj.delFromRedis( cls.redisConn, pipe )
                 pipe.execute()
 
-                CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+                # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+                # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
+                # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
 
     @classmethod
     def accessObj( cls, UID, genAssert=False, genWarning=False ):

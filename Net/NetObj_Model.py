@@ -117,6 +117,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
         netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
 
-        netObj.prepareDelete( bOnlySendNetCmd = True )
+        netObj.sendDeleted_NetCmd()
+        ##remove## netObj.prepareDelete( bOnlySendNetCmd = True )
 
         return True

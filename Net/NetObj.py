@@ -65,33 +65,62 @@ class CNetObj( NodeMixin ):
 
 ###################################################################################
 
-    def destroy(self):
-        cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
+    # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
+    def sendDeleted_NetCmd( self ):
+        cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.sendNetCMD( cmd )
 
-    def prepareDelete(self, bOnlySendNetCmd = True):
-
+    def localDestroy( self ):
+        print( self.UID, "!!!" )
+        
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
-
-        # при заданном bOnlySendNetCmd = True - только отправляем команду, которую поймает парсер сетевых команд и выполнит
-        # prepareDelete с параметром bOnlySendNetCmd = False, так же со значением False prepareDelete может быть вызван при завершении программы,
-        # чтобы в сеть не отправлялись команды, если это не нужно
-        if bOnlySendNetCmd:
-            CNetObj_Manager.sendNetCMD( cmd )
-            return
-
         CNetObj_Manager.doCallbacks( cmd )
 
         for child in self.children:
-            child.prepareDelete( bOnlySendNetCmd )
+            child.localDestroy()
             child.parent = None
-            child.children = []
+
+        # startParent = self
+        # while len( startParent.children ):
+        #     child = startParent.children[ 0 ]
+        #     if len( child.children ) == 0:
+
+        #         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = child.UID )
+        #         CNetObj_Manager.doCallbacks( cmd )
+                
+        #         child.parent = None
+
+        #         # startParent = child.parent
+        #         if len( startParent.children ) == 0:
+        #             startParent = startParent.parent
+        #     else:
+        #         startParent = child
         
+
         self.parent = None
 
-    def clearChildren(self, bOnlySendNetCmd = False):
+    # def prepareDelete(self, bOnlySendNetCmd = True):
+
+    #     cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
+
+    #     # при заданном bOnlySendNetCmd = True - только отправляем команду, которую поймает парсер сетевых команд и выполнит
+    #     # prepareDelete с параметром bOnlySendNetCmd = False, так же со значением False prepareDelete может быть вызван при завершении программы,
+    #     # чтобы в сеть не отправлялись команды, если это не нужно
+    #     if bOnlySendNetCmd:
+    #         CNetObj_Manager.sendNetCMD( cmd )
+    #         return
+
+    #     CNetObj_Manager.doCallbacks( cmd )
+
+    #     for child in self.children:
+    #         child.prepareDelete( bOnlySendNetCmd )
+    #         child.parent = None
+        
+    #     self.parent = None
+
+    def clearChildren( self ):
         for child in self.children:
-            child.prepareDelete( bOnlySendNetCmd )
+            child.localDestroy()
 
 ###################################################################################
     # Интерфейс для работы с кастомными пропертями реализован через []
