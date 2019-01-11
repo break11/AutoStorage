@@ -9,6 +9,7 @@ import redis
 from queue import Queue
 import threading
 import weakref
+import time
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -152,6 +153,9 @@ class CNetObj_Manager( object ):
                 netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
+                ##remove##
+                start = time.time()
+
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
 
                 if netObj:
@@ -161,14 +165,16 @@ class CNetObj_Manager( object ):
                     if cls.objModel: cls.objModel.beginRemove( netObj )
 
                     ##remove##netObj.prepareDelete( bOnlySendNetCmd = False )
+                    
                     netObj.localDestroy()
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
-                    print( "****", netCmd.Obj_UID )
                 else:
                     print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
+                ##remove##
+                print( time.time() - start, "!!!")
 
             ##remove##
             # elif netCmd.Event == EV.ObjDeleted:

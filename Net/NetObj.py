@@ -70,8 +70,9 @@ class CNetObj( NodeMixin ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.sendNetCMD( cmd )
 
+
     def localDestroy( self ):
-        print( self.UID, "!!!" )
+        # print( self.UID, "!!!" )
         
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.doCallbacks( cmd )
@@ -80,7 +81,8 @@ class CNetObj( NodeMixin ):
             child.localDestroy()
             child.parent = None
 
-        # startParent = self
+        # topParent = self
+        # startParent = topParent
         # while len( startParent.children ):
         #     child = startParent.children[ 0 ]
         #     if len( child.children ) == 0:
@@ -93,9 +95,9 @@ class CNetObj( NodeMixin ):
         #         # startParent = child.parent
         #         if len( startParent.children ) == 0:
         #             startParent = startParent.parent
+        #             if startParent == topParent: break
         #     else:
         #         startParent = child
-        
 
         self.parent = None
 
