@@ -135,13 +135,13 @@ class CNetObj_Manager( object ):
         sKey = f"client:{cls.ClientID}:name"
 
         cls.serviceConn.set( sKey, baseFName.rsplit(os.sep, 1)[1] )
-        cls.serviceConn.expire( sKey, 3 )
+        cls.serviceConn.expire( sKey, 5 )
 
     @classmethod
     def onTick( cls ):
         i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
-        while ( not cls.qNetCmds.empty() ):
+        while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
             i += 1
             netCmd = cls.qNetCmds.get()
             if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
@@ -149,7 +149,7 @@ class CNetObj_Manager( object ):
             if netCmd.Event <= EV.ClientDisconnected:
                 cls.doCallbacks( netCmd )
 
-            if netCmd.Event == EV.ObjCreated:
+            elif netCmd.Event == EV.ObjCreated:
                 netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
