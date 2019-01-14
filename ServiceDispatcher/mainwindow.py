@@ -110,7 +110,8 @@ class CSSD_MainWindow(QMainWindow):
                 ##remove## graphObj.prepareDelete( bOnlySendNetCmd = True )
                 graphObj.parent = None
                 ##remove## graphObj.prepareDelete( bOnlySendNetCmd = False )
-            else: return
+            else:
+                return
 
         sFName = self.leGraphML.text()
         sFName = FileUtils.correctFNameToProjectDir( sFName )

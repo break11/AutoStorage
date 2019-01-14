@@ -22,6 +22,7 @@ class CGraphRoot_NO( CNetObj ):
 
 class CGraphNode_NO( CNetObj ):
     def ObjPrepareDelete( self, netCmd ):
+        incEdges = []
         if self.nxGraph():
             incEdges = list( self.nxGraph().out_edges( self.name ) ) +  list( self.nxGraph().in_edges( self.name ) )
 
@@ -42,7 +43,10 @@ class CGraphNode_NO( CNetObj ):
 
     def onLoadFromRedis( self, redisConn, netObj ):
         super().onLoadFromRedis( redisConn, netObj )
-        self.nxGraph().add_node( self.name, **self.props )
+
+        # попытка создать объект, которого уже нет в редис
+        if self.graphNode():
+            self.nxGraph().add_node( self.name, **self.props )
 
     def nxGraph(self)  : return self.graphNode().nxGraph if self.graphNode() else None
     def nxNode(self)   : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else None

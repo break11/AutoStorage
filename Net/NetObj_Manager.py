@@ -166,6 +166,7 @@ class CNetObj_Manager( object ):
 
                     ##remove##netObj.prepareDelete( bOnlySendNetCmd = False )
                     
+                    # netObj.parent = None
                     netObj.localDestroy()
                     del netObj
 
