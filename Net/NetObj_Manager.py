@@ -48,6 +48,25 @@ class CNetObj_Manager( object ):
     for e in EV:
         callbacksDict[ e ] = [] 
 
+    ########################################################
+    bIsBuffering = False
+    sCmdBuff = ""
+
+    @classmethod
+    def beginBuffering( cls ):
+        cls.bIsBuffering = True
+    
+    @classmethod
+    def endBuffering( cls ):
+
+        if cls.isConnected() and cls.bIsBuffering:
+            cls.sCmdBuff = cls.sCmdBuff[1::] if cls.sCmdBuff.startswith("|") else cls.sCmdBuff
+            cls.redisConn.publish( s_Redis_NetObj_Channel, cls.sCmdBuff )
+
+        cls.bIsBuffering = False
+        cls.sCmdBuff = ""
+    ########################################################
+
     @classmethod
     def addCallback( cls, eventType, callback ):
         assert callable( callback ), "CNetObj_Manager.addCallback need take a function!"
@@ -89,12 +108,15 @@ class CNetObj_Manager( object ):
             self.__bIsRunning = True
 
             while self.__bIsRunning:
+                # принимаем сообщения от всех клиентов - в том числе от себя самого
                 msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
-                    # принимаем сообщения от всех клиентов - в том числе от себя самого
-                    cmd = CNetCmd.fromString( msgData )
-                    CNetObj_Manager.qNetCmds.put( cmd )
+
+                    cmdList = msgData.split("|")
+                    for cmdItem in cmdList:
+                        cmd = CNetCmd.fromString( cmdItem )
+                        CNetObj_Manager.qNetCmds.put( cmd )
 
                 if self.__bStop: self.__bIsRunning = False
 
@@ -328,7 +350,12 @@ class CNetObj_Manager( object ):
     @classmethod
     def sendNetCMD( cls, cmd ):
         if not cls.isConnected(): return
-        cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
+        
+        if not cls.bIsBuffering:
+            cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
+            return
+
+        cls.sCmdBuff = f"{cls.sCmdBuff}|{cmd.toString()}"        
 
 
 from .NetObj import CNetObj

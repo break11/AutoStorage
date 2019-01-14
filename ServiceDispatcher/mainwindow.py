@@ -128,6 +128,8 @@ class CSSD_MainWindow(QMainWindow):
         del nxGraph.graph["node_default"]
         del nxGraph.graph["edge_default"]
 
+        CNetObj_Manager.beginBuffering()
+
         Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
         Nodes = CNetObj(name="Nodes", parent=Graph)
         Edges = CNetObj(name="Edges", parent=Graph)
@@ -139,6 +141,8 @@ class CSSD_MainWindow(QMainWindow):
             n1 = edgeID[0]
             n2 = edgeID[1]
             edge = CGraphEdge_NO( name = GuiUtils.GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
+        
+        CNetObj_Manager.endBuffering()
 
         # print( RenderTree(parentBranch) )
 
