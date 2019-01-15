@@ -195,8 +195,14 @@ class CNetObj( NodeMixin ):
         return netObj
 
     def delFromRedis( self, redisConn, pipe ):
-        for key in redisConn.keys( self.redisBase_Name() + ":*" ):
-            pipe.delete( key )
+        pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_TypeUID(), self.redisKey_Props() )
+
+        # метод keys работает медленно по сравнению с ручным удалением  фиксированных полей
+        # метод scan работает еще медленнее, чем м метод keys
+        # во всех наследниках с дополнительными редис полями должен быть переопределен данный метод ( delFromRedis )
+
+        # for key in redisConn.keys( self.redisBase_Name() + ":*" ):
+        #     pipe.delete( key )
 
     # методы для переопределения дополнительного поведения в наследниках
     def onSaveToRedis( self, pipe ): pass
