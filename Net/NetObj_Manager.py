@@ -109,12 +109,13 @@ class CNetObj_Manager( object ):
 
             while self.__bIsRunning:
                 # принимаем сообщения от всех клиентов - в том числе от себя самого
-                msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
+                msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.5 )
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
 
-                    print( msgData )
-                    print( "************************************************" )
+                    ##remove##
+                    # print( msgData )
+                    # print( "************************************************" )
 
                     cmdList = msgData.split("|")
                     for cmdItem in cmdList:
@@ -222,12 +223,12 @@ class CNetObj_Manager( object ):
                     del propExist
 
             cls.qNetCmds.task_done()
-        if i: print( i )
+        if i: print( f"net cmd count = {i}" )
 
         ##remove##
         t = (time.time() - start)*1000
-        if t > 100:
-            print( t, " tick time!")
+        if t > 50:
+            print( f"tick time -------------------------- {t} -------------------------- tick time")
     #####################################################
 
     @classmethod
