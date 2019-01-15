@@ -312,8 +312,15 @@ class CNetObj_Manager( object ):
         objects = cls.redisConn.smembers( s_ObjectsSet )
         if ( objects ):
             objects = sorted( objects, key = lambda x: int(x.decode()) )
+
+            pipe = cls.redisConn.pipeline()
             for it in objects:
-                netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+                # netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+                CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
+            values = pipe.execute()
+
+            while len( values ):
+                netObj = CNetObj.createObj_From_PipeData( values )
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
