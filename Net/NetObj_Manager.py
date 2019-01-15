@@ -113,10 +113,6 @@ class CNetObj_Manager( object ):
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
 
-                    ##remove##
-                    # print( msgData )
-                    # print( "************************************************" )
-
                     cmdList = msgData.split("|")
                     for cmdItem in cmdList:
                         cmd = CNetCmd.fromString( cmdItem )
@@ -165,7 +161,6 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def onTick( cls ):
-        ##remove##
         start = time.time()
 
         i = 0
@@ -190,19 +185,12 @@ class CNetObj_Manager( object ):
                     # и построит индекс, который уже числится в модели Qt как удаленный
                     if cls.objModel: cls.objModel.beginRemove( netObj )
 
-                    ##remove##netObj.prepareDelete( bOnlySendNetCmd = False )
-                    
-                    # netObj.parent = None
                     netObj.localDestroy()
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
                 else:
                     print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
-
-            ##remove##
-            # elif netCmd.Event == EV.ObjDeleted:
-            #     cls.doCallbacks( netCmd )
 
             elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
@@ -225,7 +213,6 @@ class CNetObj_Manager( object ):
             cls.qNetCmds.task_done()
         if i: print( f"net cmd count = {i}" )
 
-        ##remove##
         t = (time.time() - start)*1000
         if t > 50:
             print( f"tick time -------------------------- {t} -------------------------- tick time")

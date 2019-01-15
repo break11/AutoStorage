@@ -116,8 +116,5 @@ class CNetObj_Model( QAbstractItemModel ):
         # они будут вызваны при обработке команды в тике CNetObj_Manager-а
 
         netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
-
         netObj.sendDeleted_NetCmd()
-        ##remove## netObj.prepareDelete( bOnlySendNetCmd = True )
-
         return True

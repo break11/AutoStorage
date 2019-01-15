@@ -14,7 +14,6 @@ class CNetCmd:
     def toString( self, bDebug = False ):
         cmd = self.Event.name if bDebug else self.Event
         if self.Event <= EV.ClientDisconnected: return f"{self.ClientID}:{cmd}"
-        ##remove## if self.Event <= EV.ObjDeleted:         return f"{self.ClientID}:{cmd}:{self.Obj_UID}"
         if self.Event <= EV.ObjPropUpdated:     return f"{self.ClientID}:{cmd}:{self.Obj_UID}:{self.sPropName}"
         if self.Event >  EV.ObjPropUpdated:     return f"{self.ClientID}:{cmd}:{self.Obj_UID}:{self.ExtCmdData}"
 
@@ -29,9 +28,6 @@ class CNetCmd:
             return CNetCmd( ClientID=Client_UID, Event=ev )
 
         objUID    = int( l[2] )
-        ##remove##
-        # if ev <= EV.ObjDeleted:
-        #     return CNetCmd( ClientID=Client_UID, Event=ev, Obj_UID=objUID )
 
         if ev <= EV.ObjPropUpdated:
             propName = l[3]
