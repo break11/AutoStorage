@@ -134,7 +134,7 @@ class CNetObj_Manager( object ):
 
     __netObj_Types = {} # type: ignore
     __objects      = weakref.WeakValueDictionary() # type: ignore
-    objModel = None # модель представление для дерева требует специйической обработки
+    objModel = None # модель представление для дерева требует специфической обработки
 
     bNetCmd_Log = False
     bEvent_Log = False
@@ -164,6 +164,9 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def onTick( cls ):
+        ##remove##
+        start = time.time()
+
         i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
@@ -178,9 +181,6 @@ class CNetObj_Manager( object ):
                 netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
-                ##remove##
-                start = time.time()
-
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
 
                 if netObj:
@@ -198,9 +198,6 @@ class CNetObj_Manager( object ):
                     if cls.objModel: cls.objModel.endRemove()
                 else:
                     print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
-
-                ##remove##
-                print( time.time() - start, "!!!")
 
             ##remove##
             # elif netCmd.Event == EV.ObjDeleted:
@@ -226,6 +223,11 @@ class CNetObj_Manager( object ):
 
             cls.qNetCmds.task_done()
         if i: print( i )
+
+        ##remove##
+        t = (time.time() - start)*1000
+        if t > 100:
+            print( t, " tick time!")
     #####################################################
 
     @classmethod
