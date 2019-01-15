@@ -113,6 +113,9 @@ class CNetObj_Manager( object ):
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
 
+                    print( msgData )
+                    print( "************************************************" )
+
                     cmdList = msgData.split("|")
                     for cmdItem in cmdList:
                         cmd = CNetCmd.fromString( cmdItem )
