@@ -113,7 +113,7 @@ class CSSD_MainWindow(QMainWindow):
         if graphObj:
             if bReload:
                 graphObj.sendDeleted_NetCmd()
-                graphObj.parent = None
+                # graphObj.parent = None
             else:
                 return
 

@@ -167,7 +167,7 @@ class CNetObj( NodeMixin ):
     
     @classmethod
     def createObj_From_PipeData( cls, values, UID, redisConn ):
-        nameField = values[0]
+        nameField = values.pop( 0 )
 
         # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
         # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
@@ -176,9 +176,9 @@ class CNetObj( NodeMixin ):
             print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
             return
 
-        parentID  = int( values[1].decode() )
-        typeUID   = values[2].decode()
-        pProps    = values[3]
+        parentID  = int( values.pop( 0 ).decode() )
+        typeUID   = values.pop( 0 ).decode()
+        pProps    = values.pop( 0 )
 
         name     = nameField.decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
@@ -188,8 +188,7 @@ class CNetObj( NodeMixin ):
         netObj.props = CStrTypeConverter.DictFromBytes( pProps )
 
         netObj.onLoadFromRedis( redisConn, netObj )
-        
-        return netObj, values[4::]
+        return netObj
 
     @classmethod
     def loadFromRedis( cls, redisConn, UID ):
