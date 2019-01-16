@@ -313,6 +313,8 @@ class CNetObj_Manager( object ):
         if ( objects ):
             objects = sorted( objects, key = lambda x: int(x.decode()) )
 
+            start = time.time()
+
             # for it in objects:
             #     netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
 
@@ -324,6 +326,8 @@ class CNetObj_Manager( object ):
             # while len( values ):
             for it in objects:
                 netObj = CNetObj.createObj_From_PipeData( values, int(it.decode()), cls.redisConn )
+                
+            print (time.time() - start, " *****************************" )
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
