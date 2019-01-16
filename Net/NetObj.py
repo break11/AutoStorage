@@ -166,7 +166,7 @@ class CNetObj( NodeMixin ):
         pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )        
     
     @classmethod
-    def createObj_From_PipeData( cls, values ):
+    def createObj_From_PipeData( cls, values, UID, redisConn ):
         nameField = values[0]
 
         # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
@@ -189,8 +189,7 @@ class CNetObj( NodeMixin ):
 
         netObj.onLoadFromRedis( redisConn, netObj )
         
-        values = values[4::]
-        return netObj
+        return netObj, values[4::]
 
     @classmethod
     def loadFromRedis( cls, redisConn, UID ):

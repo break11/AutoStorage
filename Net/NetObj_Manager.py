@@ -319,8 +319,9 @@ class CNetObj_Manager( object ):
                 CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
             values = pipe.execute()
 
-            while len( values ):
-                netObj = CNetObj.createObj_From_PipeData( values )
+            # while len( values ):
+            for it in objects:
+                netObj, values = CNetObj.createObj_From_PipeData( values, int(it.decode()), cls.redisConn )
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
