@@ -234,11 +234,10 @@ class CNetObj_Manager( object ):
         cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0 and saveToRedis:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
-
-                # pipe = cls.redisConn.pipeline()
-                cls.pipe.sadd( s_ObjectsSet, netObj.UID )
-                netObj.saveToRedis( cls.pipe )
-                # pipe.execute()
+                pipe = cls.redisConn.pipeline()
+                pipe.sadd( s_ObjectsSet, netObj.UID )
+                netObj.saveToRedis( pipe )
+                pipe.execute()
 
                 CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
