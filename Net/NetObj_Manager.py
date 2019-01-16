@@ -325,7 +325,7 @@ class CNetObj_Manager( object ):
 
             # из values удаляются элементы использованные для создания очередного объекта netObj
             for it in objects:
-                CNetObj.createObj_From_PipeData( values, int(it.decode()), cls.redisConn )
+                netObj, values = CNetObj.createObj_From_PipeData( values, int(it.decode()), cls.redisConn )
 
             print (time.time() - start, " *****************************" )
 
