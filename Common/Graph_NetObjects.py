@@ -12,8 +12,9 @@ class CGraphRoot_NO( CNetObj ):
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
         # return self.nxGraph.graph
 
-    def onLoadFromRedis( self, redisConn, netObj ):
-        super().onLoadFromRedis( redisConn, netObj )
+    def loadFromRedis( self, redisConn ):
+        super().loadFromRedis( redisConn )
+
         # при загрузке из сети self.props уже загрузится в коде предка
         self.nxGraph = nx.DiGraph( **self.props )
 
@@ -39,15 +40,15 @@ class CGraphNode_NO( CNetObj ):
     def propsDict(self): return self.nxNode() if self.graphNode() else {}
         # return self.nxNode()
 
-    def onLoadFromRedis( self, redisConn, netObj ):
-        super().onLoadFromRedis( redisConn, netObj )
+    def loadFromRedis( self, redisConn ):
+        super().loadFromRedis( redisConn )
 
         # попытка создать объект, которого уже нет в редис
         if self.graphNode():
             self.nxGraph().add_node( self.name, **self.props )
 
     def nxGraph(self)  : return self.graphNode().nxGraph if self.graphNode() else None
-    def nxNode(self)   : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else None
+    def nxNode(self)   : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else {}
     def graphNode(self): return self.resolvePath('../../')
 
 ###################################################################################
@@ -73,8 +74,8 @@ class CGraphEdge_NO( CNetObj ):
     def propsDict(self): return self.nxEdge() if self.graphNode() else {}
         #  return self.nxEdge()
 
-    def onLoadFromRedis( self, redisConn, netObj ):
-        super().onLoadFromRedis( redisConn, netObj )
+    def loadFromRedis( self, redisConn  ):
+        super().loadFromRedis( redisConn )
 
         pipe = redisConn.pipeline()
         pipe.get( self.redisKey_NodeID_1() )

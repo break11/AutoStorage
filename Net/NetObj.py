@@ -166,7 +166,7 @@ class CNetObj( NodeMixin ):
         pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )        
     
     @classmethod
-    def createObj_From_PipeData( cls, values, UID, redisConn ):
+    def createObj_From_PipeData( cls, values, UID ):
         nameField = values.pop( 0 )
 
         # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
@@ -174,6 +174,9 @@ class CNetObj( NodeMixin ):
         # анализируем наличие данных по этому объекту в редисе
         if nameField is None:
             print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
+            values.pop( 0 )
+            values.pop( 0 )
+            values.pop( 0 )
             return
 
         parentID  = int( values.pop( 0 ).decode() )
@@ -187,11 +190,10 @@ class CNetObj( NodeMixin ):
 
         netObj.props = CStrTypeConverter.DictFromBytes( pProps )
 
-        netObj.onLoadFromRedis( redisConn, netObj )
         return netObj
 
     @classmethod
-    def loadFromRedis( cls, redisConn, UID ):
+    def createObj_FromRedis( cls, redisConn, UID ):
         # функционал query - если объект уже есть - возвращаем его - это полезно на клиенте который этот объект только что создал
         # соответственно повторной отправки команды в сеть о создании объекта и вызова событий не происходит, что так же правильно
         netObj = CNetObj_Manager.accessObj( UID )
@@ -224,7 +226,7 @@ class CNetObj( NodeMixin ):
 
         netObj.props = CStrTypeConverter.DictFromBytes( pProps )
 
-        netObj.onLoadFromRedis( redisConn, netObj )
+        netObj.loadFromRedis( CNetObj_Manager.redisConn )
         
         return netObj
 
@@ -238,9 +240,12 @@ class CNetObj( NodeMixin ):
         # for key in redisConn.keys( self.redisBase_Name() + ":*" ):
         #     pipe.delete( key )
 
-    # методы для переопределения дополнительного поведения в наследниках
+    ##remove##
+    # # методы для переопределения дополнительного поведения в наследниках
+    def load_From_PipeData( self, values ): pass
+
     def onSaveToRedis( self, pipe ): pass
-    def onLoadFromRedis( self, redisConn, netObj ): pass
+    def loadFromRedis( self, redisConn ): pass
 
     # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
     # если соответствующий метод есть в объекте он будет вызван до глобальных, только для конкретного объекта

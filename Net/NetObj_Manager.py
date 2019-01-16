@@ -174,7 +174,7 @@ class CNetObj_Manager( object ):
                 cls.doCallbacks( netCmd )
 
             elif netCmd.Event == EV.ObjCreated:
-                netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
+                netObj = CNetObj.createObj_FromRedis( cls.redisConn, netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
@@ -316,7 +316,7 @@ class CNetObj_Manager( object ):
             start = time.time()
 
             # for it in objects:
-            #     netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+            #     netObj = CNetObj.createObj_FromRedis( cls.redisConn, int(it.decode()) )
 
             pipe = cls.redisConn.pipeline()
             for it in objects:
@@ -325,7 +325,7 @@ class CNetObj_Manager( object ):
 
             # из values удаляются элементы использованные для создания очередного объекта netObj
             for it in objects:
-                CNetObj.createObj_From_PipeData( values, int(it.decode()), cls.redisConn )
+                CNetObj.createObj_From_PipeData( values, int(it.decode()) )
 
             print (time.time() - start, " *****************************" )
 
