@@ -248,10 +248,10 @@ class CNetObj_Manager( object ):
         if cls.isConnected() and netObj.UID > 0:
             # if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
 
-            pipe = cls.redisConn.pipeline()
-            pipe.srem( s_ObjectsSet, netObj.UID )
-            netObj.delFromRedis( cls.redisConn, pipe )
-            pipe.execute()
+            # pipe = cls.redisConn.pipeline()
+            cls.pipe.srem( s_ObjectsSet, netObj.UID )
+            netObj.delFromRedis( cls.redisConn, cls.pipe )
+            # pipe.execute()
 
             # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
             # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
