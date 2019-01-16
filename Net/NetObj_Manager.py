@@ -211,6 +211,7 @@ class CNetObj_Manager( object ):
                     del propExist
 
             cls.qNetCmds.task_done()
+        cls.pipe.execute()
         if i: print( f"net cmd count = {i}" )
 
         t = (time.time() - start)*1000
@@ -247,10 +248,10 @@ class CNetObj_Manager( object ):
         if cls.isConnected() and netObj.UID > 0:
             if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
 
-                pipe = cls.redisConn.pipeline()
-                pipe.srem( s_ObjectsSet, netObj.UID )
-                netObj.delFromRedis( cls.redisConn, pipe )
-                pipe.execute()
+                # pipe = cls.redisConn.pipeline()
+                cls.pipe.srem( s_ObjectsSet, netObj.UID )
+                netObj.delFromRedis( cls.redisConn, cls.pipe )
+                # pipe.execute()
 
                 # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
                 # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
@@ -294,6 +295,8 @@ class CNetObj_Manager( object ):
                     cls.addCallback( e, cls.eventLogCallBack )
 
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
+            cls.pipe = cls.redisConn.pipeline()
+
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
                 
@@ -315,17 +318,17 @@ class CNetObj_Manager( object ):
 
             start = time.time()
 
+            for it in objects:
+                netObj = CNetObj.createObj_FromRedis( cls.redisConn, int(it.decode()) )
+
+            # pipe = cls.redisConn.pipeline()
             # for it in objects:
-            #     netObj = CNetObj.createObj_FromRedis( cls.redisConn, int(it.decode()) )
+            #     CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
+            # values = pipe.execute()
 
-            pipe = cls.redisConn.pipeline()
-            for it in objects:
-                CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
-            values = pipe.execute()
-
-            # из values удаляются элементы использованные для создания очередного объекта netObj
-            for it in objects:
-                CNetObj.createObj_From_PipeData( values, int(it.decode()) )
+            # # из values удаляются элементы использованные для создания очередного объекта netObj
+            # for it in objects:
+            #     CNetObj.createObj_From_PipeData( values, int(it.decode()) )
 
             print (time.time() - start, " *****************************" )
 
