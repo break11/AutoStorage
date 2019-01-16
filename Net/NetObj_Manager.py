@@ -246,16 +246,16 @@ class CNetObj_Manager( object ):
     def unregisterObj( cls, netObj ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
         if cls.isConnected() and netObj.UID > 0:
-            if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
+            # if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
 
-                # pipe = cls.redisConn.pipeline()
-                cls.pipe.srem( s_ObjectsSet, netObj.UID )
-                netObj.delFromRedis( cls.redisConn, cls.pipe )
-                # pipe.execute()
+            # pipe = cls.redisConn.pipeline()
+            cls.pipe.srem( s_ObjectsSet, netObj.UID )
+            netObj.delFromRedis( cls.redisConn, cls.pipe )
+            # pipe.execute()
 
-                # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
-                # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
-                # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
+            # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+            # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
+            # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
 
     @classmethod
     def accessObj( cls, UID, genAssert=False, genWarning=False ):
