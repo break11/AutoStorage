@@ -30,8 +30,6 @@ def main():
 
     app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
 
-    if app.objMonitor: app.objMonitor.clearView()
-
     app.exec_() # главный цикл сообщений Qt
 
     app.done()

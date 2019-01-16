@@ -323,10 +323,10 @@ class CNetObj_Manager( object ):
                 CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
             values = pipe.execute()
 
-            # while len( values ):
+            # из values удаляются элементы использованные для создания очередного объекта netObj
             for it in objects:
-                netObj = CNetObj.createObj_From_PipeData( values, int(it.decode()), cls.redisConn )
-                
+                CNetObj.createObj_From_PipeData( values, int(it.decode()), cls.redisConn )
+
             print (time.time() - start, " *****************************" )
 
         cls.qNetCmds = Queue()
