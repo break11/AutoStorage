@@ -59,7 +59,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def endBuffering( cls ):
 
-        if cls.isConnected() and cls.bIsBuffering:
+        if cls.isConnected() and cls.bIsBuffering and cls.sCmdBuff != "":
             cls.sCmdBuff = cls.sCmdBuff[1::] if cls.sCmdBuff.startswith("|") else cls.sCmdBuff
             cls.redisConn.publish( s_Redis_NetObj_Channel, cls.sCmdBuff )
 
@@ -163,6 +163,7 @@ class CNetObj_Manager( object ):
     def onTick( cls ):
         start = time.time()
 
+        CNetObj_Manager.beginBuffering()
         i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
@@ -212,6 +213,7 @@ class CNetObj_Manager( object ):
 
             cls.qNetCmds.task_done()
         cls.pipe.execute()
+        CNetObj_Manager.endBuffering()
         if i: print( f"net cmd count = {i}" )
 
         t = (time.time() - start)*1000
@@ -234,10 +236,10 @@ class CNetObj_Manager( object ):
         cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0 and saveToRedis:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
-                pipe = cls.redisConn.pipeline()
-                pipe.sadd( s_ObjectsSet, netObj.UID )
-                netObj.saveToRedis( pipe )
-                pipe.execute()
+                # pipe = cls.redisConn.pipeline()
+                cls.pipe.sadd( s_ObjectsSet, netObj.UID )
+                netObj.saveToRedis( cls.pipe )
+                # pipe.execute()
 
                 CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )

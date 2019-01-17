@@ -113,7 +113,7 @@ class CSSD_MainWindow(QMainWindow):
         if graphObj:
             if bReload:
                 graphObj.sendDeleted_NetCmd()
-                # graphObj.parent = None
+                graphObj.parent = None
             else:
                 return
 
@@ -146,7 +146,7 @@ class CSSD_MainWindow(QMainWindow):
             n2 = edgeID[1]
             edge = CGraphEdge_NO( name = GuiUtils.GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
         
-        CNetObj_Manager.endBuffering()
+        # CNetObj_Manager.endBuffering()
 
         # print( RenderTree(parentBranch) )
 
@@ -154,6 +154,7 @@ class CSSD_MainWindow(QMainWindow):
         self.loadGraphML()
 
     def on_btnReloadGraphML_released( self ):
+        CNetObj_Manager.beginBuffering()
         self.loadGraphML( bReload=True )
 
     def on_btnSelectGraphML_released( self ):
