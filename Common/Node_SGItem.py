@@ -95,7 +95,10 @@ class CNode_SGItem(QGraphicsItem):
         self.__singleStorages.append (spGItem)
 
     def paint(self, painter, option, widget):
-        self.prepareGeometryChange()
+        ##remove## self.prepareGeometryChange()
+        painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
+        return
+
         # if self.isSelected():
         #     print (self.nxGraph.node[ self.nodeID ])
         if self.bDrawBBox == True:

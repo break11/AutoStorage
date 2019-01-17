@@ -49,7 +49,7 @@ class CSMD_MainWindow(QMainWindow):
 
         self.timer = QTimer()
         self.timer.setInterval(100)
-        self.timer.timeout.connect( self.tick )
+        # self.timer.timeout.connect( self.tick )
         self.timer.start()
 
         self.graphML_fname = SC.s_storage_graph_file__default

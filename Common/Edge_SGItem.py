@@ -57,7 +57,8 @@ class CEdge_SGItem(QGraphicsItem):
         self.__BBoxRect = QRectF( t.map(p1), t.map(p2) ).normalized()
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
         
-        self.prepareGeometryChange()
+        ##remove##
+        # self.prepareGeometryChange()
 
     def edgeName(self):
         return GraphEdgeName( self.nodeID_1, self.nodeID_2 )
@@ -79,6 +80,10 @@ class CEdge_SGItem(QGraphicsItem):
         return math.degrees(self.__rAngle)
 
     def paint(self, painter, option, widget):
+
+        painter.drawLine( 0, 10, self.__baseLine.length(), 10 )
+        return
+
 
         # if self.isSelected():
         #     print ( self.nxGraph.edges[ self.nodeID_1, self.nodeID_2 ] )
