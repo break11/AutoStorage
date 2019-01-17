@@ -27,7 +27,4 @@ class CTreeView_Arrows_EventFilter( QObject ):
 
                 return True
 
-            elif event.key() == Qt.Key_Left:
-                return True
-
         return False

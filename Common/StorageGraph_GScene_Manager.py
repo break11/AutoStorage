@@ -305,7 +305,6 @@ class CStorageGraph_GScene_Manager():
         nodeGItem.bDrawBBox = self.bDrawBBox
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
 
-        self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
         self.bHasChanges = True
 
     def addEdge(self, nodeID_1, nodeID_2, **attr):
@@ -322,8 +321,6 @@ class CStorageGraph_GScene_Manager():
         edgeGItem.installSceneEventFilter( self.gScene_evI )
         # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
         edgeGItem.buildInfoRails()
-
-        self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
 
         self.bHasChanges = True
         return True
@@ -430,6 +427,11 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
                 attr[ SGT.s_x ] = self.__gView.mapToScene(event.pos()).x()
                 attr[ SGT.s_y ] = self.__gView.mapToScene(event.pos()).y()
                 self.__SGraph_Manager.addNode( self.__SGraph_Manager.genStrNodeID(), **attr )
+
+                ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю
+                # self.__gScene.setSceneRect( self.__gScene.itemsBoundingRect() )
+                # self.__gView.setSceneRect( self.__gView.scene().sceneRect() )
+
                 event.accept()
                 return True
 

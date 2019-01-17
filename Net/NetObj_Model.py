@@ -36,11 +36,11 @@ class CNetObj_Model( QAbstractItemModel ):
         self.__rootNetObj = rootNetObj
         self.modelReset.emit()
 
-    def index( self, row, column, parent ):
-        if not self.hasIndex( row, column, parent ):
+    def index( self, row, column, parentIdx ):
+        if not self.hasIndex( row, column, parentIdx ):
             return QModelIndex()
 
-        parent = self.getNetObj_or_Root( parent )
+        parent = self.getNetObj_or_Root( parentIdx )
         child  = parent.children[ row ]
 
         if child:

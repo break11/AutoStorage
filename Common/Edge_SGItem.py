@@ -55,6 +55,7 @@ class CEdge_SGItem(QGraphicsItem):
         p1 = QPointF( 0, 0 )
         p2 = QPointF( 0, -self.__baseLine.length() )
         self.__BBoxRect = QRectF( t.map(p1), t.map(p2) ).normalized()
+        self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
         
         self.prepareGeometryChange()
 
@@ -65,7 +66,7 @@ class CEdge_SGItem(QGraphicsItem):
         return self.nxGraph[ self.nodeID_1 ][ self.nodeID_2 ]
 
     def boundingRect(self):
-        return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+        return self.__BBoxRect_Adj
 
     # обновление позиции на сцене по атрибутам из графа
     def updatePos(self):
