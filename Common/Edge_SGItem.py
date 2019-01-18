@@ -29,7 +29,7 @@ class CEdge_SGItem(QGraphicsItem):
         self.__baseLine  = None
         
         self.bDrawBBox      = False
-        self.bDrawInfoRails = False
+        self.bInfoRailsVisible = False
         self.nxGraph = nxGraph
         self.nodeID_1 = nodeID_1
         self.nodeID_2 = nodeID_2
@@ -102,6 +102,11 @@ class CEdge_SGItem(QGraphicsItem):
         painter.drawLine( 0, of, self.__baseLine.length(), of )                                             # -----
         painter.drawLine( self.__baseLine.length() - 30, 1 + of, self.__baseLine.length() - 50, 10 + of )   #     /
 
+    def setInfoRailsVisible( self, bVal ):
+        self.bInfoRailsVisible = bVal
+        for lItem in self.__InfoRails:
+            lItem.setVisible( bVal )
+
     def rebuildInfoRails( self ):
         self.clearInfoRails()
         self.buildInfoRails()
@@ -113,7 +118,6 @@ class CEdge_SGItem(QGraphicsItem):
         self.__InfoRails = []
 
     def buildInfoRails( self ):
-        if not self.bDrawInfoRails: return
         if len(self.__InfoRails) > 0: return
 
         wt = self.nxEdge().get( SGT.s_widthType )
@@ -139,6 +143,7 @@ class CEdge_SGItem(QGraphicsItem):
             lineGItem.setTransform( self.sceneTransform() )
             lineGItem.setRotation( -self.rotateAngle() )
             lineGItem.setZValue( 5 )
+            lineGItem.setVisible( self.bInfoRailsVisible )
             self.__InfoRails.append( lineGItem )
 
         sensorSide = self.nxEdge().get( SGT.s_sensorSide )

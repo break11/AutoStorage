@@ -144,8 +144,7 @@ class CStorageGraph_GScene_Manager():
     def setDrawInfoRails( self, bVal ):
         self.bDrawInfoRails = bVal
         for e, v in self.edgeGItems.items():
-            v.bDrawInfoRails = self.bDrawInfoRails
-            v.rebuildInfoRails()
+            v.setInfoRailsVisible( self.bDrawInfoRails )
 
     def setDrawMainRail( self, bVal ):
         self.bDrawMainRail = bVal
@@ -321,13 +320,13 @@ class CStorageGraph_GScene_Manager():
 
         edgeGItem = CEdge_SGItem ( self.nxGraph, nodeID_1, nodeID_2 )
         edgeGItem.bDrawBBox = self.bDrawBBox
-        edgeGItem.bDrawInfoRails = self.bDrawInfoRails
         self.edgeGItems[ (nodeID_1, nodeID_2) ] = edgeGItem
         edgeGItem.updatePos()
         self.addEdgeToGrop( edgeGItem )
         edgeGItem.installSceneEventFilter( self.gScene_evI )
         # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
         edgeGItem.buildInfoRails()
+        edgeGItem.setInfoRailsVisible( self.bDrawInfoRails )
 
         self.bHasChanges = True
         return True
