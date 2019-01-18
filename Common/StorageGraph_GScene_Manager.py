@@ -20,6 +20,8 @@ from .GuiUtils import *
 from . import StrConsts as SC
 from . import StorageGraphTypes as SGT
 
+import time
+
 class EGManagerMode (Flag):
     View      = auto()
     EditScene = auto()
@@ -103,6 +105,7 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges = True
 
     def load(self, sFName):
+        start = time.time()
         self.clear()
 
         if not os.path.exists( sFName ):
@@ -119,7 +122,10 @@ class CStorageGraph_GScene_Manager():
 
         self.updateMaxNodeID()
 
+        count = 0
         for e in self.nxGraph.edges():
+            s = time.time()
+            count+=1
             self.addEdge(*e)
 
         #после создания граней перерасчитываем линии расположения мест хранения для нод типа StorageSingle
@@ -128,6 +134,8 @@ class CStorageGraph_GScene_Manager():
         
         gvFitToPage( self.gView )
         self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
+
+        print( f"Graph '{sFName}' loaded in time: {(time.time() - start)*1000} ms" )
         return True
 
     def save( self, sFName ):
@@ -142,8 +150,7 @@ class CStorageGraph_GScene_Manager():
     def setDrawMainRail( self, bVal ):
         self.bDrawMainRail = bVal
         for e, g in self.groupsByEdge.items():
-            g.bDrawMainRail = self.bDrawMainRail
-            g.rebuildMainRail()
+            g.setMainRailVisible( bVal )
 
     def setDrawBBox( self, bVal ):
         self.bDrawBBox = bVal
@@ -344,8 +351,8 @@ class CStorageGraph_GScene_Manager():
         groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
         edgeGroup = self.groupsByEdge.get( groupKey )
         if edgeGroup == None:
-            edgeGroup = CRail_SGItem(groupKey)
-            edgeGroup.bDrawMainRail = self.bDrawMainRail
+            edgeGroup = CRail_SGItem(groupKey=groupKey, scene=self.gScene)
+            edgeGroup.setMainRailVisible( self.bDrawMainRail )
             edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
             self.groupsByEdge[ groupKey ] = edgeGroup
             self.gScene.addItem( edgeGroup )

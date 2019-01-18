@@ -194,7 +194,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acGrid_triggered(self, bChecked):
-        self.StorageMap_Scene.bDrawGrid = bChecked
+        self.StorageMap_Scene.setDrawGrid( bChecked )
 
     @pyqtSlot(bool)
     def on_acSnapToGrid_triggered(self, bChecked):
@@ -249,7 +249,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_sbGridSize_editingFinished(self):
-        self.StorageMap_Scene.gridSize = self.sbGridSize.value()
+        self.StorageMap_Scene.setGridSize( self.sbGridSize.value() )
 
     @pyqtSlot(bool)
     def on_acNewGraphML_triggered(self, bChecked):

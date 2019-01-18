@@ -6,12 +6,15 @@ from PyQt5.QtCore import ( Qt, QLine )
 from . import StorageGraphTypes as SGT
 
 class CRail_SGItem(QGraphicsItemGroup):
-    def __init__(self, groupKey):
+    def __init__(self, groupKey, scene):
         super().__init__()
         self.groupKey = groupKey #frozenset из nodeID_1, nodeID_2 любой грани
         self.setZValue( 10 )
-        self.bDrawMainRail  = False
-        self.__lineGItem = None
+        self.__lineGItem = scene.addLine( 0, 0, 0, 0 )
+
+    def setMainRailVisible( self, bVal ):
+        self.__lineGItem.setVisible( bVal )
+
 
     def removeFromGroup( self, item ):
         super().removeFromGroup( item )
@@ -24,9 +27,8 @@ class CRail_SGItem(QGraphicsItemGroup):
 
     def buildMainRail(self, edgeGItem):
         self.clearMainRail()
-        if not self.bDrawMainRail: return
         width = edgeGItem.nxEdge().get( SGT.s_widthType )
-        self.__lineGItem = self.scene().addLine( edgeGItem.x1, edgeGItem.y1, edgeGItem.x2, edgeGItem.y2 )
+        self.__lineGItem.setLine( edgeGItem.x1, edgeGItem.y1, edgeGItem.x2, edgeGItem.y2 )
 
         pen = QPen()
         pen.setWidth( SGT.railWidth[ width ] )
@@ -37,9 +39,7 @@ class CRail_SGItem(QGraphicsItemGroup):
         self.__lineGItem.setPen( pen )
 
     def clearMainRail(self):
-        if self.__lineGItem is None: return
-        self.scene().removeItem( self.__lineGItem )
-        self.__lineGItem = None # удаление QLineGraohicsItem произойдет автоматически
+        self.__lineGItem.setLine( 0, 0, 0, 0 )
 
     def rebuildMainRail(self):
         if len ( self.childItems() ): self.buildMainRail( self.childItems()[0] )

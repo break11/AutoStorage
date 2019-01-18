@@ -95,12 +95,6 @@ class CNode_SGItem(QGraphicsItem):
         self.__singleStorages.append (spGItem)
 
     def paint(self, painter, option, widget):
-        ##remove## self.prepareGeometryChange()
-        painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
-        return
-
-        # if self.isSelected():
-        #     print (self.nxGraph.node[ self.nodeID ])
         if self.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
@@ -147,8 +141,6 @@ class CNode_SGItem(QGraphicsItem):
             l = QLineF (-250,0, 250, 0)
             painter.rotate(-self.storageLineAngle)
             painter.drawLine(l)
-
-        self.prepareGeometryChange()
 
     def mouseMoveEvent( self, event ):
         if not bool(self.flags() & QGraphicsItem.ItemIsMovable): return

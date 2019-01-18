@@ -23,6 +23,7 @@ def Std_Model_Item( val, bReadOnly = False, userData = None ):
     return item
 
 def gvFitToPage( gView ):
+    if not gView.scene(): return
     gView.scene().setSceneRect( gView.scene().itemsBoundingRect() )
     # изначально в качестве обзора вьюва ставим BRect сцены, чтобы не происходило постоянного ув-я обзора вьюва при каждом вызове ф-и
     gView.setSceneRect( gView.scene().sceneRect() )
