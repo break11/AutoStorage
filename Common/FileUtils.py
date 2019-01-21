@@ -13,7 +13,7 @@ def projectDir():
 
 # перевод абсолютного пути в относительный, относительно заданной директории
 def correctFNameToDir( path, sDir ):
-    if path == "": return
+    if path == "": return path
     if path.startswith( sDir ):
         path = path.replace( sDir, "" )
     return path

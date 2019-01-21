@@ -11,8 +11,7 @@ windowDefSettings = {
                     }
 
 
-def GraphEdgeName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
-
+def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 
 # хелперная функция создание итема стандартной модели с дополнительными параметрами
 def Std_Model_Item( val, bReadOnly = False, userData = None ):

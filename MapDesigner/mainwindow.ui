@@ -278,7 +278,7 @@ selection-background-color: red;*/
          <addaction name="acGrid"/>
          <addaction name="acSnapToGrid"/>
          <addaction name="acBBox"/>
-         <addaction name="acStorageRotateLines"/>
+         <addaction name="acSpecialLines"/>
         </widget>
        </item>
       </layout>
@@ -583,13 +583,13 @@ selection-background-color: red;*/
     <string>Lock scene editing</string>
    </property>
   </action>
-  <action name="acStorageRotateLines">
+  <action name="acSpecialLines">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/images/storage_rotate_lines.png</normaloff>:/images/storage_rotate_lines.png</iconset>
+     <normaloff>:/images/special_lines.png</normaloff>:/images/special_lines.png</iconset>
    </property>
    <property name="text">
     <string>Storages rotate lines</string>

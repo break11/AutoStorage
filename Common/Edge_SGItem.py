@@ -5,7 +5,7 @@ from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
 from . import StorageGraphTypes as SGT
-from .GuiUtils import GraphEdgeName, getLineAngle
+from .GuiUtils import EdgeDisplayName, getLineAngle
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
@@ -39,6 +39,10 @@ class CEdge_SGItem(QGraphicsItem):
 
         self.buildEdge()
 
+    def done( self ):
+        self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
+        self.clearInfoRails()
+
     def buildEdge(self):
         self.prepareGeometryChange()
 
@@ -55,10 +59,10 @@ class CEdge_SGItem(QGraphicsItem):
         p1 = QPointF( 0, 0 )
         p2 = QPointF( 0, -self.__baseLine.length() )
         self.__BBoxRect = QRectF( t.map(p1), t.map(p2) ).normalized()
-        self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+        self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD + 1, -1*self.__fBBoxD + 1, self.__fBBoxD + 1, self.__fBBoxD + 1)
         
     def edgeName(self):
-        return GraphEdgeName( self.nodeID_1, self.nodeID_2 )
+        return EdgeDisplayName( self.nodeID_1, self.nodeID_2 )
 
     def nxEdge(self):
         return self.nxGraph[ self.nodeID_1 ][ self.nodeID_2 ]
@@ -67,10 +71,8 @@ class CEdge_SGItem(QGraphicsItem):
         return self.__BBoxRect_Adj
 
     # обновление позиции на сцене по атрибутам из графа
-    def updatePos(self):
-        x = self.nxGraph.node[ self.nodeID_1 ][ SGT.s_x ]
-        y = self.nxGraph.node[ self.nodeID_1 ][ SGT.s_y ]
-        self.setPos( x, y )
+    def updatePos_From_NX(self):
+        self.setPos( self.x1, self.y1 )
 
     # угол поворта в градусах
     def rotateAngle(self):
@@ -80,11 +82,13 @@ class CEdge_SGItem(QGraphicsItem):
         pen = QPen()
         
         # Draw BBox
-        pen.setWidth( 8 )
+        w = 8
+        pen.setWidth( w )
         if self.bDrawBBox == True:
             pen.setColor( Qt.blue )
             painter.setPen(pen)
-            painter.drawRect( self.boundingRect() )
+            bbox = self.boundingRect()
+            painter.drawRect( bbox.x() + w / 2, bbox.y() + w / 2, bbox.width()- w, bbox.height() - w )
 
         # Draw Edge
         if self.isSelected():

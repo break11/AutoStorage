@@ -144,7 +144,7 @@ class CSSD_MainWindow(QMainWindow):
         for edgeID in nxGraph.edges():
             n1 = edgeID[0]
             n2 = edgeID[1]
-            edge = CGraphEdge_NO( name = GuiUtils.GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
+            edge = CGraphEdge_NO( name = GuiUtils.EdgeDisplayName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
         
         # CNetObj_Manager.endBuffering()
 

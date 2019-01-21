@@ -1,7 +1,7 @@
 
 import networkx as nx
 from Net.NetObj import *
-from .GuiUtils import GraphEdgeName
+from .GuiUtils import EdgeDisplayName
 from .StrTypeConverter import *
 
 class CGraphRoot_NO( CNetObj ):
@@ -30,7 +30,7 @@ class CGraphNode_NO( CNetObj ):
         for edgeID in incEdges:
             n1 = edgeID[0]
             n2 = edgeID[1]
-            edgeObj = self.resolvePath('../../Edges/' + GraphEdgeName( n1, n2 ) )
+            edgeObj = self.resolvePath('../../Edges/' + EdgeDisplayName( n1, n2 ) )
             if ( edgeObj ):
                 edgeObj.localDestroy()
 

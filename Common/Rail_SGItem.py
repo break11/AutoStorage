@@ -11,10 +11,10 @@ class CRail_SGItem(QGraphicsItemGroup):
         self.groupKey = groupKey #frozenset из nodeID_1, nodeID_2 любой грани
         self.setZValue( 10 )
         self.__lineGItem = scene.addLine( 0, 0, 0, 0 )
+        self.__lineGItem.setZValue( 0 )
 
     def setMainRailVisible( self, bVal ):
         self.__lineGItem.setVisible( bVal )
-
 
     def removeFromGroup( self, item ):
         super().removeFromGroup( item )
@@ -34,8 +34,6 @@ class CRail_SGItem(QGraphicsItemGroup):
         pen.setWidth( SGT.railWidth[ width ] )
         pen.setColor( QColor( 150, 150, 150 ) )
         pen.setCapStyle( Qt.RoundCap )
-
-        self.__lineGItem.setZValue( 0 )
         self.__lineGItem.setPen( pen )
 
     def clearMainRail(self):
