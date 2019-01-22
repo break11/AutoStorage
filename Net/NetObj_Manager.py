@@ -44,6 +44,18 @@ s_ObjectsSet = "objects_set"
 from time import sleep
 
 class CNetObj_Manager( object ):
+
+    # __pathResolver = Resolver( "name" )
+    # @classmethod
+    # def resolvePath( cls, sSourceObj, sPath ):
+    #     try:
+    #         return cls.__pathResolver.get(sSourceObj, sPath)
+    #     except resolver.ChildResolverError as e:
+    #         return None
+    #     except AttributeError as e:
+    #         return None
+    ########################################################
+
     callbacksDict = {} # type: ignore # Dict of List by ECallbackType
     for e in EV:
         callbacksDict[ e ] = [] 

@@ -15,7 +15,7 @@ from Common import NetUtils
 from Common import FileUtils
 
 from Net.NetObj_Manager import CNetObj_Manager
-from Net.NetObj import CNetObj
+from Net.NetObj import CNetObj, CTreeNode
 
 import sys
 import os
@@ -23,7 +23,6 @@ import networkx as nx
 
 # Storage Map Designer Main Window
 class CSSD_MainWindow(QMainWindow):
-    # __file_filters = "GraphML (*.graphml);;All Files (*)"
     global CSM
 
     def __init__(self):
@@ -109,7 +108,7 @@ class CSSD_MainWindow(QMainWindow):
 
     def loadGraphML( self, bReload=False ):
         # self.btnReloadGraphML.setEnabled( False )
-        graphObj = CNetObj_Manager.rootObj.resolvePath("Graph")
+        graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
         if graphObj:
             if bReload:
                 graphObj.sendDeleted_NetCmd()
@@ -147,8 +146,6 @@ class CSSD_MainWindow(QMainWindow):
             edge = CGraphEdge_NO( name = GuiUtils.EdgeDisplayName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
         
         # CNetObj_Manager.endBuffering()
-
-        # print( RenderTree(parentBranch) )
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphML()

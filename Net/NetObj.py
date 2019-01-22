@@ -2,10 +2,6 @@
 
 import sys
 
-from anytree import NodeMixin
-from anytree import Resolver
-from anytree import resolver
-
 from Common.SettingsManager import CSettingsManager as CSM
 from Common.StrTypeConverter import *
 from .NetCmd import CNetCmd
@@ -13,7 +9,64 @@ from .Net_Events import ENet_Event as EV
 import Common.StrConsts as SC
 import weakref
 
-class CNetObj( NodeMixin ):
+class CTreeNode:
+    ##########################
+
+    @property
+    def children( self ):
+        return self.__children
+
+    def clearChildren( self ):
+        self.__children.clear()
+
+    ##########################
+    @property
+    def parent( self ):
+        return self.__parent
+    
+    @parent.setter
+    def parent( self, value ):
+        if value is None:
+            self.clearParent()
+            return
+        
+        self.__parent = value
+        self.__parent.__children.append( self )
+
+    def clearParent( self ):
+        if self.__parent is None: return
+        self.__parent.__children.remove( self )
+        self.__parent = None
+    ##########################
+
+    def __init__( self, parent=None ):
+        self.__parent = parent
+        self.__children = []
+
+    def childByName( self, name ):
+        for child in self.children:
+            if child.name == name:
+                return child
+        return None
+
+    @classmethod
+    def resolvePath( cls, obj, path ):
+        l = path.split("/")
+        l = [ item for item in l if item != "" ]
+        dest = obj
+        for item in l:
+            if item == "..":
+                dest = dest.parent
+            else:
+                for child in dest.children:
+                    if child.name == item:
+                        dest = child
+                        break
+                else:
+                    return None
+        return dest
+
+class CNetObj( CTreeNode ):
     __s_Name       = "name"
     __s_ChildCount = "ChildCount"
     __s_UID        = "UID"
@@ -23,17 +76,7 @@ class CNetObj( NodeMixin ):
     __s_obj      = "obj"
     __s_props    = "props"
 
-    props = {} # type: ignore
-
-    __pathResolver = Resolver( __s_Name )
-    def resolvePath( self, sPath ):
-        try:
-            return self.__pathResolver.get(self, sPath)
-        except resolver.ChildResolverError as e:
-            return None
-        except AttributeError as e:
-            return None
-        
+    props = {} # type: ignore        
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()        
 
@@ -71,19 +114,20 @@ class CNetObj( NodeMixin ):
         CNetObj_Manager.sendNetCMD( cmd )
 
 
-    def localDestroy( self ):
-        # print( self.UID, "!!!" )
-        
+    def __localDestroy( self ):                
+        for child in self.children:
+            child.__localDestroy()
+
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.doCallbacks( cmd )
 
-        for child in self.children:
-            child.localDestroy()
-            child.parent = None
+        self.clearChildren()
 
+    def localDestroy( self ):
+        self.__localDestroy()
         self.parent = None
 
-    def clearChildren( self ):
+    def localDestroyChildren( self ):
         for child in self.children:
             child.localDestroy()
 

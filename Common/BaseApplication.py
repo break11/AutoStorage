@@ -71,6 +71,6 @@ class CBaseApplication( QApplication ):
     def done(self):
         # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
         CNetObj_Manager.disconnect()
-        CNetObj_Manager.rootObj.clearChildren()
+        CNetObj_Manager.rootObj.localDestroyChildren()
 
         CSM.saveSettings()
