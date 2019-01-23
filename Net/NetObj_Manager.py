@@ -49,23 +49,14 @@ class CNetObj_Manager( object ):
         callbacksDict[ e ] = [] 
 
     ########################################################
-    ##remove##bIsBuffering = False
     sNetCmd_Buff = ""
-
-    ##remove##
-    # @classmethod
-    # def beginBuffering( cls ):
-    #     cls.bIsBuffering = True
     
     @classmethod
     def processBuffering_NetCmd( cls ):
         if cls.isConnected() and cls.sNetCmd_Buff != "":
-            ##remove##cls.sNetCmd_Buff = cls.sNetCmd_Buff[1::] if cls.sNetCmd_Buff.startswith("|") else cls.sNetCmd_Buff
             cls.redisConn.publish( s_Redis_NetObj_Channel, cls.sNetCmd_Buff )
 
         cls.sNetCmd_Buff = ""
-        ##remove##
-        # cls.bIsBuffering = False
     ########################################################
 
     @classmethod
@@ -164,7 +155,6 @@ class CNetObj_Manager( object ):
     def onTick( cls ):
         start = time.time()
 
-        ##remove##CNetObj_Manager.beginBuffering()
         i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
@@ -264,10 +254,8 @@ class CNetObj_Manager( object ):
             ##remove##
             # if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
 
-            # pipe = cls.redisConn.pipeline()
             cls.pipe.srem( s_ObjectsSet, netObj.UID )
             netObj.delFromRedis( cls.redisConn, cls.pipe )
-            # pipe.execute()
 
             # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
             # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
@@ -328,10 +316,7 @@ class CNetObj_Manager( object ):
 
 
         # все клиенты при старте подхватывают содержимое с сервера
-        start = time.time()
         objects = cls.redisConn.smembers( s_ObjectsSet )
-        print (time.time() - start, " set load time *****************************" )
-
         if ( objects ):
             objects = sorted( objects, key = lambda x: int(x.decode()) )
 
@@ -379,14 +364,6 @@ class CNetObj_Manager( object ):
     @classmethod
     def sendNetCMD( cls, cmd ):
         if not cls.isConnected(): return
-
-        ##remove##
-        # if not cls.bIsBuffering:
-        #     cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
-        #     return
-
-        ##remove##cls.sNetCmd_Buff = f"{cls.sNetCmd_Buff}|{cmd.toString()}"
-
         cls.sNetCmd_Buff = f"{cls.sNetCmd_Buff}|{cmd.toString()}" if cls.sNetCmd_Buff else cmd.toString()
 
 

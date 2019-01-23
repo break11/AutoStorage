@@ -1,4 +1,3 @@
-# from . import NetObj_Manager
 
 import sys
 
@@ -75,11 +74,20 @@ class CNetObj( CTreeNode ):
     __s_Parent   = "parent"
     __s_obj      = "obj"
     __s_props    = "props"
+    __s_ext_fields = "ext_fields"
 
-    props = {} # type: ignore        
+    typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
-    typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()        
-
+    # размещаем данные поля здесь - в классе - это будет служить заглушкой для всех вызовов self.props
+    # будет возвращен этот пустой dict и не будет ошибки, между тем, если в наследнике будет присвоение в self.props
+    # то данный пустой dict уже использоваться не будет
+    # еще один способ реализации кастомных полей в наследнике - переопределение метода propsDict()
+    # для ext_fields это так же имеет смысл для возможности вызова кода заполнения ext_fields до вызова базового конструктора в наследниках
+    # ведь если бы ext_fields инициализировался в нем (в базовом конструкторе), то вызов инициализации в наследнике до него не имел бы смысла и 
+    # информация о дополнительных полях не попала бы в редис при отправке в registerObject(...) по завершению конрструктора
+    props      = {} #type:ignore
+    ext_fields = {} #type:ignore
+    
 ###################################################################################
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
@@ -159,8 +167,9 @@ class CNetObj( CTreeNode ):
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
     def modelData( self, col )     : return self.__modelData[ col ]()
 
-    def propsDict(self): return self.props
+###################################################################################
 
+    def propsDict(self): return self.props
 ###################################################################################
     @classmethod    
     def redisBase_Name_C(cls, UID) : return f"{cls.__s_obj}:{UID}" 
@@ -181,6 +190,10 @@ class CNetObj( CTreeNode ):
     @classmethod        
     def redisKey_Props_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_props }"
     def redisKey_Props(self)       : return self.redisKey_Props_C( self.UID )
+
+    @classmethod        
+    def redisKey_ExtFields_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_ext_fields }"
+    def redisKey_ExtFields(self)       : return self.redisKey_ExtFields_C( self.UID )
 ###################################################################################
     def saveToRedis( self, pipe ):
         if self.UID < 0: return
@@ -197,8 +210,11 @@ class CNetObj( CTreeNode ):
         if len( self.propsDict() ):
             pipe.hmset( self.redisKey_Props(), CStrTypeConverter.DictToStr( self.propsDict() ) )
 
+        if len( self.ext_fields ):
+            pipe.hmset( self.redisKey_ExtFields(), CStrTypeConverter.DictToStr( self.ext_fields ) )
+
         # вызов дополнительных действий по сохранению наследника
-        self.onSaveToRedis( pipe )
+        self.onSaveToRedis()
 
     @classmethod
     def load_PipeData_FromRedis( cls, pipe, UID ):
@@ -208,6 +224,7 @@ class CNetObj( CTreeNode ):
         pipe.get( cls.redisKey_Parent_C( UID ) )
         pipe.get( cls.redisKey_TypeUID_C( UID ) )
         pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )        
+        pipe.hgetall( CNetObj.redisKey_ExtFields_C( UID ) )
     
     @classmethod
     def createObj_From_PipeData( cls, values, UID ):
@@ -221,21 +238,23 @@ class CNetObj( CTreeNode ):
             values.pop( 0 )
             values.pop( 0 )
             values.pop( 0 )
+            values.pop( 0 )
             return
 
         parentID  = int( values.pop( 0 ).decode() )
         typeUID   = values.pop( 0 ).decode()
         pProps    = values.pop( 0 )
+        extFields = values.pop( 0 )
 
         name     = nameField.decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False )
 
-        netObj.props = CStrTypeConverter.DictFromBytes( pProps )
+        netObj.props      = CStrTypeConverter.DictFromBytes( pProps )
+        netObj.ext_fields = CStrTypeConverter.DictFromBytes( extFields )
 
-        # netObj.load_From_PipeData( values )
-        # netObj.loadFromRedis( CNetObj_Manager.redisConn )
+        netObj.onLoadFromRedis( CNetObj_Manager.redisConn )
 
         return netObj
     ####################
@@ -250,7 +269,8 @@ class CNetObj( CTreeNode ):
         pipe.get( cls.redisKey_Name_C( UID ) )
         pipe.get( cls.redisKey_Parent_C( UID ) )
         pipe.get( cls.redisKey_TypeUID_C( UID ) )
-        pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )        
+        pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )
+        pipe.hgetall( CNetObj.redisKey_ExtFields_C( UID ) )
         values = pipe.execute()
 
         nameField = values[0]
@@ -265,6 +285,7 @@ class CNetObj( CTreeNode ):
         parentID  = int( values[1].decode() )
         typeUID   = values[2].decode()
         pProps    = values[3]
+        extFields = values[4]
 
         name     = nameField.decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
@@ -272,27 +293,18 @@ class CNetObj( CTreeNode ):
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False )
 
         netObj.props = CStrTypeConverter.DictFromBytes( pProps )
+        netObj.ext_fields = CStrTypeConverter.DictFromBytes( extFields )
 
-        netObj.loadFromRedis( CNetObj_Manager.redisConn )
+        netObj.onLoadFromRedis()
         
         return netObj
 
     def delFromRedis( self, redisConn, pipe ):
-        pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_TypeUID(), self.redisKey_Props() )
+        pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_TypeUID(), self.redisKey_Props(), self.redisKey_ExtFields() )
 
-        # метод keys работает медленно по сравнению с ручным удалением  фиксированных полей
-        # метод scan работает еще медленнее, чем м метод keys
-        # во всех наследниках с дополнительными редис полями должен быть переопределен данный метод ( delFromRedis )
-
-        # for key in redisConn.keys( self.redisBase_Name() + ":*" ):
-        #     pipe.delete( key )
-
-    ##remove##
-    # # методы для переопределения дополнительного поведения в наследниках
-    def load_From_PipeData( self, values ): pass
-
-    def onSaveToRedis( self, pipe ): pass
-    def loadFromRedis( self, redisConn ): pass
+    # методы для переопределения дополнительного поведения в наследниках
+    def onSaveToRedis( self ): pass
+    def onLoadFromRedis( self ): pass
 
     # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
     # если соответствующий метод есть в объекте он будет вызван до глобальных, только для конкретного объекта

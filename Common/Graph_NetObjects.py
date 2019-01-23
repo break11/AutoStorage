@@ -13,15 +13,13 @@ class CGraphRoot_NO( CNetObj ):
         self.__edges = None
 
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
-        # return self.nxGraph.graph
 
-    def loadFromRedis( self, redisConn ):
-        super().loadFromRedis( redisConn )
+    def onLoadFromRedis( self ):
+        super().onLoadFromRedis()
 
         # при загрузке из сети self.props уже загрузится в коде предка
         self.nxGraph = nx.DiGraph( **self.props )
 
-    # def edgesNode( self ): return self.childByName( 'Edges')
     def edgesNode( self ):
         if not hasattr( self, "__edges" ):
             self.__edges = self.childByName( 'Edges')
@@ -50,10 +48,9 @@ class CGraphNode_NO( CNetObj ):
         self.__graphNode = None
 
     def propsDict(self): return self.nxNode() if self.graphNode() else {}
-        # return self.nxNode()
 
-    def loadFromRedis( self, redisConn ):
-        super().loadFromRedis( redisConn )
+    def onLoadFromRedis( self ):
+        super().onLoadFromRedis()
 
         # попытка создать объект, которого уже нет в редис
         if self.graphNode():
@@ -72,12 +69,11 @@ class CGraphEdge_NO( CNetObj ):
     __s_NodeID_1 = "NodeID_1"
     __s_NodeID_2 = "NodeID_2"
 
-    def redisKey_NodeID_1(self): return f"{self.redisBase_Name()}:{self.__s_NodeID_1}"
-    def redisKey_NodeID_2(self): return f"{self.redisBase_Name()}:{self.__s_NodeID_2}"
-
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxNodeID_1=None, nxNodeID_2=None ):
-        self.nxNodeID_1 = nxNodeID_1
-        self.nxNodeID_2 = nxNodeID_2
+        self.ext_fields = {}
+        self.ext_fields[ self.__s_NodeID_1 ] = nxNodeID_1
+        self.ext_fields[ self.__s_NodeID_2 ] = nxNodeID_2
+
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
 
     def ObjPrepareDelete( self, netCmd ):
@@ -88,38 +84,17 @@ class CGraphEdge_NO( CNetObj ):
         self.__graphNode = None
 
     def propsDict(self): return self.nxEdge() if self.graphNode() else {}
-        #  return self.nxEdge()
 
-    def loadFromRedis( self, redisConn  ):
-        super().loadFromRedis( redisConn )
-
-        pipe = redisConn.pipeline()
-        pipe.get( self.redisKey_NodeID_1() )
-        pipe.get( self.redisKey_NodeID_2() )
-        values = pipe.execute()
-
-        # попытка создать объект, которого уже нет в редис
-        if values[0] is None: return
-
-        self.nxNodeID_1 = values[0].decode()
-        self.nxNodeID_2 = values[1].decode()
+    def onLoadFromRedis( self ):
+        super().onLoadFromRedis()
 
         if self.graphNode():
-            self.nxGraph().add_edge( self.nxNodeID_1, self.nxNodeID_2, **self.props )
+            self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
 
-    def onSaveToRedis( self, pipe ):
-        super().onSaveToRedis( pipe )
-
-        pipe.set( self.redisKey_NodeID_1(), self.nxNodeID_1 )
-        pipe.set( self.redisKey_NodeID_2(), self.nxNodeID_2 )
-
-    def delFromRedis( self, redisConn, pipe ):
-        super().delFromRedis( redisConn, pipe )
-        pipe.delete( self.redisKey_NodeID_1(), self.redisKey_NodeID_2() )
-
-
-    def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1, self.nxNodeID_2 ) if self.nxGraph() else None
-    def __nxEdgeName(self): return ( self.nxNodeID_1, self.nxNodeID_2 )
+    def nxNodeID_1(self)  : return self.ext_fields[ self.__s_NodeID_1 ]
+    def nxNodeID_2(self)  : return self.ext_fields[ self.__s_NodeID_2 ]
+    def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1(), self.nxNodeID_2() ) if self.nxGraph() else None
+    def __nxEdgeName(self): return ( self.nxNodeID_1(), self.nxNodeID_2() )
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
     def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
     def graphNode(self):
