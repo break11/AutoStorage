@@ -44,39 +44,28 @@ s_ObjectsSet = "objects_set"
 from time import sleep
 
 class CNetObj_Manager( object ):
-
-    # __pathResolver = Resolver( "name" )
-    # @classmethod
-    # def resolvePath( cls, sSourceObj, sPath ):
-    #     try:
-    #         return cls.__pathResolver.get(sSourceObj, sPath)
-    #     except resolver.ChildResolverError as e:
-    #         return None
-    #     except AttributeError as e:
-    #         return None
-    ########################################################
-
     callbacksDict = {} # type: ignore # Dict of List by ECallbackType
     for e in EV:
         callbacksDict[ e ] = [] 
 
     ########################################################
-    bIsBuffering = False
-    sCmdBuff = ""
+    ##remove##bIsBuffering = False
+    sNetCmd_Buff = ""
 
-    @classmethod
-    def beginBuffering( cls ):
-        cls.bIsBuffering = True
+    ##remove##
+    # @classmethod
+    # def beginBuffering( cls ):
+    #     cls.bIsBuffering = True
     
     @classmethod
-    def endBuffering( cls ):
+    def processBuffering_NetCmd( cls ):
+        if cls.isConnected() and cls.sNetCmd_Buff != "":
+            ##remove##cls.sNetCmd_Buff = cls.sNetCmd_Buff[1::] if cls.sNetCmd_Buff.startswith("|") else cls.sNetCmd_Buff
+            cls.redisConn.publish( s_Redis_NetObj_Channel, cls.sNetCmd_Buff )
 
-        if cls.isConnected() and cls.bIsBuffering and cls.sCmdBuff != "":
-            cls.sCmdBuff = cls.sCmdBuff[1::] if cls.sCmdBuff.startswith("|") else cls.sCmdBuff
-            cls.redisConn.publish( s_Redis_NetObj_Channel, cls.sCmdBuff )
-
-        cls.bIsBuffering = False
-        cls.sCmdBuff = ""
+        cls.sNetCmd_Buff = ""
+        ##remove##
+        # cls.bIsBuffering = False
     ########################################################
 
     @classmethod
@@ -175,7 +164,7 @@ class CNetObj_Manager( object ):
     def onTick( cls ):
         start = time.time()
 
-        CNetObj_Manager.beginBuffering()
+        ##remove##CNetObj_Manager.beginBuffering()
         i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
@@ -188,6 +177,9 @@ class CNetObj_Manager( object ):
 
             elif netCmd.Event == EV.ObjCreated:
                 netObj = CNetObj.createObj_FromRedis( cls.redisConn, netCmd.Obj_UID )
+
+                # objType.load_PipeData_FromRedis( cls.pipeCreateObjects, netCmd.Obj_UID )
+                # cls.createdObjects.append( netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
@@ -224,8 +216,17 @@ class CNetObj_Manager( object ):
                     del propExist
 
             cls.qNetCmds.task_done()
+
         cls.pipe.execute()
-        CNetObj_Manager.endBuffering()
+        CNetObj_Manager.processBuffering_NetCmd()
+
+        # создание всех объектов пришедших от команд в тике за один проход
+        # if len(cls.createdObjects):
+        #     values = cls.pipeCreateObjects.execute()
+        #     for objID in createdObjects:
+        #         dsds.createObj_From_PipeData( values, objID )
+        #     cls.createdObjects.clear()
+
         if i: print( f"net cmd count = {i}" )
 
         t = (time.time() - start)*1000
@@ -327,7 +328,10 @@ class CNetObj_Manager( object ):
 
 
         # все клиенты при старте подхватывают содержимое с сервера
+        start = time.time()
         objects = cls.redisConn.smembers( s_ObjectsSet )
+        print (time.time() - start, " set load time *****************************" )
+
         if ( objects ):
             objects = sorted( objects, key = lambda x: int(x.decode()) )
 
@@ -375,12 +379,15 @@ class CNetObj_Manager( object ):
     @classmethod
     def sendNetCMD( cls, cmd ):
         if not cls.isConnected(): return
-        
-        if not cls.bIsBuffering:
-            cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
-            return
 
-        cls.sCmdBuff = f"{cls.sCmdBuff}|{cmd.toString()}"        
+        ##remove##
+        # if not cls.bIsBuffering:
+        #     cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
+        #     return
+
+        ##remove##cls.sNetCmd_Buff = f"{cls.sNetCmd_Buff}|{cmd.toString()}"
+
+        cls.sNetCmd_Buff = f"{cls.sNetCmd_Buff}|{cmd.toString()}" if cls.sNetCmd_Buff else cmd.toString()
 
 
 from .NetObj import CNetObj

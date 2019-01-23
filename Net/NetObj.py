@@ -234,8 +234,11 @@ class CNetObj( CTreeNode ):
 
         netObj.props = CStrTypeConverter.DictFromBytes( pProps )
 
-        return netObj
+        # netObj.load_From_PipeData( values )
+        # netObj.loadFromRedis( CNetObj_Manager.redisConn )
 
+        return netObj
+    ####################
     @classmethod
     def createObj_FromRedis( cls, redisConn, UID ):
         # функционал query - если объект уже есть - возвращаем его - это полезно на клиенте который этот объект только что создал

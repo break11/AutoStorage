@@ -131,7 +131,7 @@ class CSSD_MainWindow(QMainWindow):
         del nxGraph.graph["node_default"]
         del nxGraph.graph["edge_default"]
 
-        CNetObj_Manager.beginBuffering()
+        ##remove##CNetObj_Manager.beginBuffering()
 
         Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
         Nodes = CNetObj(name="Nodes", parent=Graph)
@@ -151,7 +151,7 @@ class CSSD_MainWindow(QMainWindow):
         self.loadGraphML()
 
     def on_btnReloadGraphML_released( self ):
-        CNetObj_Manager.beginBuffering()
+        ##remove##CNetObj_Manager.beginBuffering()
         self.loadGraphML( bReload=True )
 
     def on_btnSelectGraphML_released( self ):
