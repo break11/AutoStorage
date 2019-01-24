@@ -20,6 +20,7 @@ from Net.NetObj import CNetObj, CTreeNode
 import sys
 import os
 import networkx as nx
+import time
 
 # Storage Map Designer Main Window
 class CSSD_MainWindow(QMainWindow):
@@ -58,18 +59,19 @@ class CSSD_MainWindow(QMainWindow):
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
     def tick1(self):
-        pass
-        # nodes = CNetObj_Manager.rootObj.resolvePath("Graph/Nodes")
+        # pass
+        start = time.time()
 
-        # CNetObj_Manager.beginBuffering()
+        nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
 
-        # for child in nodes.children:
-        #     child["x"] += 1
-        #     child["y"] += 1
+        for child in nodes.children:
+            child["x"] += 1
+            child["y"] += 1
 
-        # CNetObj_Manager.endBuffering()
+        print( f"update send time {(time.time() - start)*1000}")
 
     def tick(self):
+
         net = CNetObj_Manager.serviceConn
         m = self.clientList_Model
 

@@ -90,7 +90,7 @@ class CNetObj_Manager( object ):
 
             while self.__bIsRunning:
                 # принимаем сообщения от всех клиентов - в том числе от себя самого
-                msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.5 )
+                msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
 
@@ -157,6 +157,7 @@ class CNetObj_Manager( object ):
                 cls.doCallbacks( netCmd )
 
             elif netCmd.Event == EV.ObjCreated:
+                ##remove##
                 # netObj = CNetObj.createObj_FromRedis( cls.redisConn, netCmd.Obj_UID )
 
                 CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
@@ -245,11 +246,10 @@ class CNetObj_Manager( object ):
     def unregisterObj( cls, netObj ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
         if cls.isConnected() and netObj.UID > 0:
-            ##remove##
+            # посылка команды удаления в редис, для объектов, которые уже удалены занимает меньше времени, чем проверка, что их там нет
             # if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
-
             cls.pipe.srem( s_ObjectsSet, netObj.UID )
-            netObj.delFromRedis( cls.redisConn, cls.pipe )
+            netObj.delFromRedis( cls.pipe )
 
             # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
             # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
@@ -262,7 +262,7 @@ class CNetObj_Manager( object ):
         if genAssert or genWarning:
             sMsg = f"CNetObj_Manager.accessObj : netObj with UID={UID} can not accepted!"
             
-        if genWarning:
+        if genWarning and netObj is None:
             print( f"{SC.sWarning} {sMsg}" )
 
         if genAssert:
@@ -357,19 +357,21 @@ class CNetObj_Manager( object ):
 
     #####################################################
 
-    sNetCmd_Buff = ""
+    NetCmd_Buff = [] # type: ignore
 
     @classmethod
     def sendNetCMD( cls, cmd ):
         if not cls.isConnected(): return
-        cls.sNetCmd_Buff = f"{cls.sNetCmd_Buff}|{cmd.toString()}" if cls.sNetCmd_Buff else cmd.toString()
+        cls.NetCmd_Buff.append( cmd.toString() )
+        ##remove##cls.NetCmd_Buff = f"{cls.NetCmd_Buff}|{cmd.toString()}" if cls.NetCmd_Buff else cmd.toString()
     
     @classmethod
     def send_NetCmd_Buffer( cls ):
-        if cls.isConnected() and cls.sNetCmd_Buff != "":
-            cls.redisConn.publish( s_Redis_NetObj_Channel, cls.sNetCmd_Buff )
+        if cls.isConnected() and len( cls.NetCmd_Buff ):
+            sNetCmdBuf = "|".join( cls.NetCmd_Buff )
+            cls.redisConn.publish( s_Redis_NetObj_Channel, sNetCmdBuf )
 
-        cls.sNetCmd_Buff = ""
+        cls.NetCmd_Buff.clear()
     ########################################################
 
 from .NetObj import CNetObj
