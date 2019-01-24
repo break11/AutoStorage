@@ -7,6 +7,7 @@ from .StrTypeConverter import *
 class CGraphRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxGraph=None ):
         self.nxGraph = nxGraph
+        self.__edges = None
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
 
     def ObjPrepareDelete( self, netCmd ):
@@ -21,14 +22,17 @@ class CGraphRoot_NO( CNetObj ):
         self.nxGraph = nx.DiGraph( **self.props )
 
     def edgesNode( self ):
-        if not hasattr( self, "__edges" ):
+        if self.__edges is None:
             self.__edges = self.childByName( 'Edges')
-
         return self.__edges
 
 ###################################################################################
 
 class CGraphNode_NO( CNetObj ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
+        self.__graphNode = None
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
+
     def ObjPrepareDelete( self, netCmd ):
         incEdges = []
         if self.nxGraph():
@@ -59,7 +63,7 @@ class CGraphNode_NO( CNetObj ):
     def nxGraph(self)  : return self.graphNode().nxGraph if self.graphNode() else None
     def nxNode(self)   : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else {}
     def graphNode(self):
-        if not hasattr( self, "__graphNode" ):
+        if self.__graphNode is None:
             self.__graphNode = CTreeNode.resolvePath( self, '../../')
         return self.__graphNode
 
@@ -73,6 +77,7 @@ class CGraphEdge_NO( CNetObj ):
         self.ext_fields = {}
         self.ext_fields[ self.__s_NodeID_1 ] = nxNodeID_1
         self.ext_fields[ self.__s_NodeID_2 ] = nxNodeID_2
+        self.__graphNode = None
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
 
@@ -98,6 +103,6 @@ class CGraphEdge_NO( CNetObj ):
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
     def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
     def graphNode(self):
-        if not hasattr( self, "__graphNode" ):
+        if self.__graphNode is None:
             self.__graphNode = CTreeNode.resolvePath( self, '../../')
         return self.__graphNode

@@ -56,6 +56,8 @@ class CTreeNode:
         for item in l:
             if item == "..":
                 dest = dest.parent
+                if dest is None:
+                    break
             else:
                 for child in dest.children:
                     if child.name == item:
@@ -230,7 +232,9 @@ class CNetObj( CTreeNode ):
     @classmethod
     def createObj_From_PipeData( cls, values, UID, valIDX ):
         netObj = CNetObj_Manager.accessObj( UID )
-        if netObj: return netObj
+        if netObj: return netObj, valIDX
+
+        nextIDX = valIDX + 5
         
         nameField = values[ valIDX ]
 
@@ -239,7 +243,7 @@ class CNetObj( CTreeNode ):
         # анализируем наличие данных по этому объекту в редисе
         if nameField is None:
             print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
-            return
+            return None, nextIDX
 
         parentID  = int( values[ valIDX + 1 ].decode() )
         typeUID   = values[ valIDX + 2 ].decode()
@@ -256,7 +260,7 @@ class CNetObj( CTreeNode ):
 
         netObj.onLoadFromRedis()
 
-        return netObj
+        return netObj, nextIDX
     ####################
     @classmethod
     def createObj_FromRedis( cls, redisConn, UID ):

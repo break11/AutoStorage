@@ -157,10 +157,11 @@ class CNetObj_Manager( object ):
                 cls.doCallbacks( netCmd )
 
             elif netCmd.Event == EV.ObjCreated:
-                netObj = CNetObj.createObj_FromRedis( cls.redisConn, netCmd.Obj_UID )
+                # netObj = CNetObj.createObj_FromRedis( cls.redisConn, netCmd.Obj_UID )
 
-                # CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
-                # NetCreatedObj_UIDs.append( netCmd.Obj_UID )
+                CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
+                if cls.accessObj( netCmd.Obj_UID ) is None:
+                    NetCreatedObj_UIDs.append( netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
@@ -179,7 +180,7 @@ class CNetObj_Manager( object ):
                     print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
             elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
 
                 val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
                 val = val.decode()
@@ -188,7 +189,7 @@ class CNetObj_Manager( object ):
                 cls.doCallbacks( netCmd )
     
             elif netCmd.Event == EV.ObjPropDeleted:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
 
                 propExist = netObj.propsDict().get( netCmd.sPropName )
                 if not propExist is None:
@@ -201,12 +202,13 @@ class CNetObj_Manager( object ):
         # выполнение общего пакета редис команд (в том числе удаление объектов)
         cls.pipe.execute()
 
-        # # создание всех объектов пришедших от команд в тике за один проход из отдельного пакета редис
-        # if len( NetCreatedObj_UIDs ):
-        #     values = cls.pipeCreatedObjects.execute()
-        #     for objID in createdObjects:
-        #         CNetObj.createObj_From_PipeData( values, objID )
-        #     cls.createdObjects.clear()
+        # создание всех объектов пришедших от команд в тике за один проход из отдельного пакета редис
+        if len( NetCreatedObj_UIDs ):
+            values = cls.pipeCreatedObjects.execute()
+            valIDX = 0
+            for objID in NetCreatedObj_UIDs:
+                obj, valIDX = CNetObj.createObj_From_PipeData( values, objID, valIDX )
+            NetCreatedObj_UIDs.clear()
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()
@@ -307,7 +309,6 @@ class CNetObj_Manager( object ):
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
-
         # все клиенты при старте подхватывают содержимое с сервера
         objects = cls.redisConn.smembers( s_ObjectsSet )
         if ( objects ):
@@ -315,6 +316,7 @@ class CNetObj_Manager( object ):
 
             start = time.time()
 
+            ##remove##
             # for it in objects:
             #     netObj = CNetObj.createObj_FromRedis( cls.redisConn, int(it.decode()) )
 
@@ -326,8 +328,7 @@ class CNetObj_Manager( object ):
             # из values удаляются элементы использованные для создания очередного объекта netObj
             valIDX = 0
             for it in objects:
-                CNetObj.createObj_From_PipeData( values, int(it.decode()), valIDX )
-                valIDX += 5
+                obj, valIDX = CNetObj.createObj_From_PipeData( values, int(it.decode()), valIDX )
 
             print ( f"Loading NetObj from Redis time = {time.time() - start}" )
 
