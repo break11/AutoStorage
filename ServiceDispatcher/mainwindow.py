@@ -84,7 +84,7 @@ class CSSD_MainWindow(QMainWindow):
             if len( l ): continue
 
             ClientID = int( sClientID )
-            ClientName = net.get( f"client:{sClientID}:name" ).decode()
+            ClientName = net.get( f"client:{sClientID}:name" ).decode() # !!!!!!!!!!
             ClientIpAddress = NetUtils.get_ip()
 
             rowItems = [ GuiUtils.Std_Model_Item( ClientID, bReadOnly = True ),

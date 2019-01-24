@@ -219,7 +219,8 @@ class CNetObj( CTreeNode ):
     @classmethod
     def load_PipeData_FromRedis( cls, pipe, UID ):
         netObj = CNetObj_Manager.accessObj( UID )
-        if netObj: return netObj
+        if netObj: return
+            
         pipe.get( cls.redisKey_Name_C( UID ) )
         pipe.get( cls.redisKey_Parent_C( UID ) )
         pipe.get( cls.redisKey_TypeUID_C( UID ) )
@@ -227,24 +228,23 @@ class CNetObj( CTreeNode ):
         pipe.hgetall( CNetObj.redisKey_ExtFields_C( UID ) )
     
     @classmethod
-    def createObj_From_PipeData( cls, values, UID ):
-        nameField = values.pop( 0 )
+    def createObj_From_PipeData( cls, values, UID, valIDX ):
+        netObj = CNetObj_Manager.accessObj( UID )
+        if netObj: return netObj
+        
+        nameField = values[ valIDX ]
 
         # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
         # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
         # анализируем наличие данных по этому объекту в редисе
         if nameField is None:
             print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
-            values.pop( 0 )
-            values.pop( 0 )
-            values.pop( 0 )
-            values.pop( 0 )
             return
 
-        parentID  = int( values.pop( 0 ).decode() )
-        typeUID   = values.pop( 0 ).decode()
-        pProps    = values.pop( 0 )
-        extFields = values.pop( 0 )
+        parentID  = int( values[ valIDX + 1 ].decode() )
+        typeUID   = values[ valIDX + 2 ].decode()
+        pProps    = values[ valIDX + 3 ]
+        extFields = values[ valIDX + 4 ]
 
         name     = nameField.decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
@@ -254,7 +254,7 @@ class CNetObj( CTreeNode ):
         netObj.props      = CStrTypeConverter.DictFromBytes( pProps )
         netObj.ext_fields = CStrTypeConverter.DictFromBytes( extFields )
 
-        netObj.onLoadFromRedis( CNetObj_Manager.redisConn )
+        netObj.onLoadFromRedis()
 
         return netObj
     ####################
