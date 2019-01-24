@@ -17,6 +17,7 @@ class CTreeNode:
 
     def clearChildren( self ):
         self.__children.clear()
+        self.__children_dict.clear()
 
     ##########################
     @property
@@ -31,22 +32,22 @@ class CTreeNode:
         
         self.__parent = value
         self.__parent.__children.append( self )
+        self.__parent.__children_dict[ self.name ] = self
 
     def clearParent( self ):
         if self.__parent is None: return
         self.__parent.__children.remove( self )
+        del self.__parent.__children_dict[ self.name ]
         self.__parent = None
     ##########################
 
     def __init__( self, parent=None ):
         self.__parent = parent
         self.__children = []
+        self.__children_dict = {}
 
     def childByName( self, name ):
-        for child in self.children:
-            if child.name == name:
-                return child
-        return None
+        return self.__children_dict.get( name )
 
     @classmethod
     def resolvePath( cls, obj, path ):
