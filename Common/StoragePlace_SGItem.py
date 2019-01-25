@@ -16,37 +16,28 @@ class CStoragePlace_SGItem(QGraphicsItem):
         self.x = x
         self.y = y
         self.__BBoxRect = QRectF( -self.width/2, -self.height/2, self.width, self.height )
-        self.setZValue( 25 )
+        self.setZValue( 5 )
         self.ID = ID
 
     def boundingRect(self):
         return self.__BBoxRect
-        #  return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
-
-    def setPos(self, x, y):
-        super().setPos(x, y)
-    
-    def move(self, deltaPos):
-        pos = self.pos() + deltaPos
-        self.setPos(pos.x(), pos.y())
 
     def paint(self, painter, option, widget):
-        self.prepareGeometryChange()
-
         fill_color = QColor ( Qt.darkGray )
         brush = QBrush( fill_color, Qt.SolidPattern )
         painter.setBrush( brush )
 
+        w = 4
         pen = QPen( Qt.black )
-        pen.setWidth( 4 )
+        pen.setWidth( w )
         painter.setPen( pen )
+        bbox = self.__BBoxRect
+        painter.drawRect( bbox.x() + w / 2, bbox.y() + w / 2, bbox.width()- w, bbox.height() - w )
             
-        painter.drawRect( self.__BBoxRect )
         font = QFont()
         font.setPointSize(40)
         painter.setFont( font )
         painter.drawText( self.boundingRect().adjusted(20, 20, -20, -20), Qt.AlignTop | Qt.AlignLeft, self.ID )
-        self.prepareGeometryChange()
 
     def mouseMoveEvent( self, event ):
         pos = self.mapToScene (event.pos())
@@ -65,9 +56,3 @@ class CStoragePlace_SGItem(QGraphicsItem):
                 y = snap_y
         
         self.setPos(x,y)
-
-        #перемещаем все выделенные места хранения, включая текущий
-        # deltaPos = QPointF(x, y) - self.pos()
-        # for gItem in self.scene().selectedItems():
-        #     if isinstance(gItem, CStoragePlace_SGItem):
-        #         gItem.move(deltaPos)

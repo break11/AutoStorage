@@ -5,7 +5,7 @@ from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF )
 import math
 
 from . import StorageGraphTypes as SGT
-from .GuiUtils import GraphEdgeName, getLineAngle
+from .GuiUtils import EdgeDisplayName, getLineAngle
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
@@ -29,7 +29,7 @@ class CEdge_SGItem(QGraphicsItem):
         self.__baseLine  = None
         
         self.bDrawBBox      = False
-        self.bDrawInfoRails = False
+        self.bInfoRailsVisible = False
         self.nxGraph = nxGraph
         self.nodeID_1 = nodeID_1
         self.nodeID_2 = nodeID_2
@@ -38,6 +38,10 @@ class CEdge_SGItem(QGraphicsItem):
         self.setZValue( 10 )
 
         self.buildEdge()
+
+    def done( self ):
+        self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
+        self.clearInfoRails()
 
     def buildEdge(self):
         self.prepareGeometryChange()
@@ -55,41 +59,36 @@ class CEdge_SGItem(QGraphicsItem):
         p1 = QPointF( 0, 0 )
         p2 = QPointF( 0, -self.__baseLine.length() )
         self.__BBoxRect = QRectF( t.map(p1), t.map(p2) ).normalized()
+        self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD + 1, -1*self.__fBBoxD + 1, self.__fBBoxD + 1, self.__fBBoxD + 1)
         
-        self.prepareGeometryChange()
-
     def edgeName(self):
-        return GraphEdgeName( self.nodeID_1, self.nodeID_2 )
+        return EdgeDisplayName( self.nodeID_1, self.nodeID_2 )
 
     def nxEdge(self):
         return self.nxGraph[ self.nodeID_1 ][ self.nodeID_2 ]
 
     def boundingRect(self):
-        return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+        return self.__BBoxRect_Adj
 
     # обновление позиции на сцене по атрибутам из графа
-    def updatePos(self):
-        x = self.nxGraph.node[ self.nodeID_1 ][ SGT.s_x ]
-        y = self.nxGraph.node[ self.nodeID_1 ][ SGT.s_y ]
-        self.setPos( x, y )
+    def updatePos_From_NX(self):
+        self.setPos( self.x1, self.y1 )
 
     # угол поворта в градусах
     def rotateAngle(self):
         return math.degrees(self.__rAngle)
 
     def paint(self, painter, option, widget):
-
-        # if self.isSelected():
-        #     print ( self.nxGraph.edges[ self.nodeID_1, self.nodeID_2 ] )
-
         pen = QPen()
         
         # Draw BBox
-        pen.setWidth( 8 )
+        w = 8
+        pen.setWidth( w )
         if self.bDrawBBox == True:
             pen.setColor( Qt.blue )
             painter.setPen(pen)
-            painter.drawRect( self.boundingRect() )
+            bbox = self.boundingRect()
+            painter.drawRect( bbox.x() + w / 2, bbox.y() + w / 2, bbox.width()- w, bbox.height() - w )
 
         # Draw Edge
         if self.isSelected():
@@ -107,6 +106,11 @@ class CEdge_SGItem(QGraphicsItem):
         painter.drawLine( 0, of, self.__baseLine.length(), of )                                             # -----
         painter.drawLine( self.__baseLine.length() - 30, 1 + of, self.__baseLine.length() - 50, 10 + of )   #     /
 
+    def setInfoRailsVisible( self, bVal ):
+        self.bInfoRailsVisible = bVal
+        for lItem in self.__InfoRails:
+            lItem.setVisible( bVal )
+
     def rebuildInfoRails( self ):
         self.clearInfoRails()
         self.buildInfoRails()
@@ -118,7 +122,6 @@ class CEdge_SGItem(QGraphicsItem):
         self.__InfoRails = []
 
     def buildInfoRails( self ):
-        if not self.bDrawInfoRails: return
         if len(self.__InfoRails) > 0: return
 
         wt = self.nxEdge().get( SGT.s_widthType )
@@ -144,6 +147,7 @@ class CEdge_SGItem(QGraphicsItem):
             lineGItem.setTransform( self.sceneTransform() )
             lineGItem.setRotation( -self.rotateAngle() )
             lineGItem.setZValue( 5 )
+            lineGItem.setVisible( self.bInfoRailsVisible )
             self.__InfoRails.append( lineGItem )
 
         sensorSide = self.nxEdge().get( SGT.s_sensorSide )

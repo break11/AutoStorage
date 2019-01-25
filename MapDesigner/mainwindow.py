@@ -132,6 +132,10 @@ class CSMD_MainWindow(QMainWindow):
             self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
     def closeEvent( self, event ):
+        if not self.unsavedChangesDialog():
+            event.ignore()
+            return
+        
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
         CSM.options[s_scene] =   {
@@ -142,9 +146,8 @@ class CSMD_MainWindow(QMainWindow):
                                         s_draw_main_rail  : self.SGraph_Manager.bDrawMainRail,
                                     }
 
-        self.OnCloseGraphML()
 
-    def OnCloseGraphML(self):
+    def unsavedChangesDialog(self):
         if self.SGraph_Manager.bHasChanges:
             mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Cancel | QMessageBox.Save)
             mb.addButton("Close without saving", QMessageBox.RejectRole )
@@ -153,8 +156,14 @@ class CSMD_MainWindow(QMainWindow):
             if res == QMessageBox.Save:
                 self.on_acSaveGraphML_triggered(True)
 
+            elif res == QMessageBox.Cancel:
+                return False
+        
+        return True
+
     def loadGraphML( self, sFName ):
-        self.OnCloseGraphML()
+        if not self.unsavedChangesDialog(): return
+        
         sFName = correctFNameToProjectDir( sFName )
         if self.SGraph_Manager.load( sFName ):
             self.graphML_fname = sFName
@@ -221,7 +230,7 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acGrid_triggered(self, bChecked):
-        self.StorageMap_Scene.bDrawGrid = bChecked
+        self.StorageMap_Scene.setDrawGrid( bChecked )
 
     @pyqtSlot(bool)
     def on_acSnapToGrid_triggered(self, bChecked):
@@ -240,8 +249,8 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraph_Manager.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
-    def on_acStorageRotateLines_triggered(self, bChecked):
-        self.SGraph_Manager.setDrawStorageRotateLines( bChecked )
+    def on_acSpecialLines_triggered(self, bChecked):
+        self.SGraph_Manager.setDrawSpecialLines( bChecked )
 
     @pyqtSlot(bool)
     def on_acLockEditing_triggered(self):
@@ -276,11 +285,11 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_sbGridSize_editingFinished(self):
-        self.StorageMap_Scene.gridSize = self.sbGridSize.value()
+        self.StorageMap_Scene.setGridSize( self.sbGridSize.value() )
 
     @pyqtSlot(bool)
     def on_acNewGraphML_triggered(self, bChecked):
-        self.OnCloseGraphML()
+        self.unsavedChangesDialog()
         self.graphML_fname = SC.s_storage_graph_file__default
         self.SGraph_Manager.new()
         self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )

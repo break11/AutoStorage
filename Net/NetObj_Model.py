@@ -36,11 +36,11 @@ class CNetObj_Model( QAbstractItemModel ):
         self.__rootNetObj = rootNetObj
         self.modelReset.emit()
 
-    def index( self, row, column, parent ):
-        if not self.hasIndex( row, column, parent ):
+    def index( self, row, column, parentIdx ):
+        if not self.hasIndex( row, column, parentIdx ):
             return QModelIndex()
 
-        parent = self.getNetObj_or_Root( parent )
+        parent = self.getNetObj_or_Root( parentIdx )
         child  = parent.children[ row ]
 
         if child:
@@ -71,8 +71,7 @@ class CNetObj_Model( QAbstractItemModel ):
     def columnCount( self, parentIndex ): return CNetObj.modelDataColCount()
     
     def netObj_From_Index( self, index ): return CNetObj_Manager.accessObj( index.internalId() )
-        
-
+    
     def netObj_To_Index( self, netObj ):
         if netObj is self.__rootNetObj: return QModelIndex()
         if netObj is None: return QModelIndex()
@@ -117,7 +116,5 @@ class CNetObj_Model( QAbstractItemModel ):
         # они будут вызваны при обработке команды в тике CNetObj_Manager-а
 
         netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
-
-        netObj.prepareDelete( bOnlySendNetCmd = True )
-
+        netObj.sendDeleted_NetCmd()
         return True

@@ -15,20 +15,25 @@ from Common import NetUtils
 from Common import FileUtils
 
 from Net.NetObj_Manager import CNetObj_Manager
-from Net.NetObj import CNetObj
+from Net.NetObj import CNetObj, CTreeNode
 
 import sys
 import os
 import networkx as nx
+import time
 
 # Storage Map Designer Main Window
 class CSSD_MainWindow(QMainWindow):
-    # __file_filters = "GraphML (*.graphml);;All Files (*)"
     global CSM
 
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
+
+        self.timer1 = QTimer()
+        self.timer1.setInterval(100)
+        self.timer1.timeout.connect( self.tick1 )
+        self.timer1.start()
 
         self.timer = QTimer()
         self.timer.setInterval(1500)
@@ -53,7 +58,20 @@ class CSSD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
+    def tick1(self):
+        # pass
+        start = time.time()
+
+        nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
+
+        for child in nodes.children:
+            child["x"] += 1
+            child["y"] += 1
+
+        print( f"update send time {(time.time() - start)*1000}")
+
     def tick(self):
+
         net = CNetObj_Manager.serviceConn
         m = self.clientList_Model
 
@@ -68,7 +86,7 @@ class CSSD_MainWindow(QMainWindow):
             if len( l ): continue
 
             ClientID = int( sClientID )
-            ClientName = net.get( f"client:{sClientID}:name" ).decode()
+            ClientName = net.get( f"client:{sClientID}:name" ).decode() # !!!!!!!!!!
             ClientIpAddress = NetUtils.get_ip()
 
             rowItems = [ GuiUtils.Std_Model_Item( ClientID, bReadOnly = True ),
@@ -92,12 +110,13 @@ class CSSD_MainWindow(QMainWindow):
 
     def loadGraphML( self, bReload=False ):
         # self.btnReloadGraphML.setEnabled( False )
-        graphObj = CNetObj_Manager.rootObj.resolvePath("Graph")
+        graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
         if graphObj:
             if bReload:
-                graphObj.prepareDelete( bOnlySendNetCmd = True )
-                graphObj.prepareDelete( bOnlySendNetCmd = False )
-            else: return
+                graphObj.sendDeleted_NetCmd()
+                graphObj.parent = None
+            else:
+                return
 
         sFName = self.leGraphML.text()
         sFName = FileUtils.correctFNameToProjectDir( sFName )
@@ -124,9 +143,7 @@ class CSSD_MainWindow(QMainWindow):
         for edgeID in nxGraph.edges():
             n1 = edgeID[0]
             n2 = edgeID[1]
-            edge = CGraphEdge_NO( name = GuiUtils.GraphEdgeName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
-
-        # print( RenderTree(parentBranch) )
+            edge = CGraphEdge_NO( name = GuiUtils.EdgeDisplayName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphML()

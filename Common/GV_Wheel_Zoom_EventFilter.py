@@ -54,7 +54,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
 
         if event.type() == QEvent.KeyPress:
             if event.modifiers() & Qt.AltModifier:
-                self.__gView.setDragMode( QGraphicsView.DragMode.ScrollHandDrag )
+                self.__gView.setDragMode( QGraphicsView.ScrollHandDrag )
                 return True
 
         if event.type() == QEvent.KeyRelease:
@@ -65,7 +65,7 @@ class CGV_Wheel_Zoom_EventFilter(QObject):
                     self.__gView.rotate( 90 )
             
             if not ( event.modifiers() & Qt.AltModifier):
-                self.__gView.setDragMode( QGraphicsView.DragMode.RubberBandDrag )
+                self.__gView.setDragMode( QGraphicsView.RubberBandDrag )
                 return True
 
         if event.type() == QEvent.Wheel:

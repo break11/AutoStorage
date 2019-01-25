@@ -1,57 +1,115 @@
-# from . import NetObj_Manager
 
 import sys
-
-from anytree import NodeMixin
-from anytree import Resolver
-from anytree import resolver
 
 from Common.SettingsManager import CSettingsManager as CSM
 from Common.StrTypeConverter import *
 from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
 import Common.StrConsts as SC
+import weakref
 
-class CNetObj( NodeMixin ):
-    __s_Name     = "name"
-    __s_UID      = "UID"
-    __s_TypeUID  = "typeUID"
-    __modelHeaderData = [ __s_Name, __s_UID, __s_TypeUID, ]
+class CTreeNode:
+    ##########################
+
+    @property
+    def children( self ):
+        return self.__children
+
+    def clearChildren( self ):
+        self.__children.clear()
+        self.__children_dict.clear()
+
+    ##########################
+    @property
+    def parent( self ):
+        return self.__parent
+    
+    @parent.setter
+    def parent( self, value ):
+        if value is None:
+            self.clearParent()
+            return
+        
+        self.__parent = value
+        self.__parent.__children.append( self )
+        self.__parent.__children_dict[ self.name ] = self
+
+    def clearParent( self ):
+        if self.__parent is None: return
+        self.__parent.__children.remove( self )
+        del self.__parent.__children_dict[ self.name ]
+        self.__parent = None
+    ##########################
+
+    def __init__( self, parent=None ):
+        self.__parent = parent
+        self.__children = []
+        self.__children_dict = {}
+
+    def childByName( self, name ):
+        return self.__children_dict.get( name )
+
+    @classmethod
+    def resolvePath( cls, obj, path ):
+        l = path.split("/")
+        l = [ item for item in l if item != "" ]
+        dest = obj
+        for item in l:
+            if item == "..":
+                dest = dest.parent
+                if dest is None:
+                    break
+            else:
+                for child in dest.children:
+                    if child.name == item:
+                        dest = child
+                        break
+                else:
+                    return None
+        return dest
+
+class CNetObj( CTreeNode ):
+    __s_Name       = "name"
+    __s_ChildCount = "ChildCount"
+    __s_UID        = "UID"
+    __s_TypeUID    = "typeUID"
+    __modelHeaderData = [ __s_Name, __s_ChildCount, __s_UID, __s_TypeUID, ]
     __s_Parent   = "parent"
     __s_obj      = "obj"
     __s_props    = "props"
-
-    props = {} # type: ignore
-
-    __pathResolver = Resolver( __s_Name )
-    def resolvePath( self, sPath ):
-        try:
-            return self.__pathResolver.get(self, sPath)
-        except resolver.ChildResolverError as e:
-            return None
-        except AttributeError as e:
-            return None
-        
+    __s_ext_fields = "ext_fields"
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
+    # размещаем данные поля здесь - в классе - это будет служить заглушкой для всех вызовов self.props
+    # будет возвращен этот пустой dict и не будет ошибки, между тем, если в наследнике будет присвоение в self.props
+    # то данный пустой dict уже использоваться не будет
+    # еще один способ реализации кастомных полей в наследнике - переопределение метода propsDict()
+    # для ext_fields это так же имеет смысл для возможности вызова кода заполнения ext_fields до вызова базового конструктора в наследниках
+    # ведь если бы ext_fields инициализировался в нем (в базовом конструкторе), то вызов инициализации в наследнике до него не имел бы смысла и 
+    # информация о дополнительных полях не попала бы в редис при отправке в registerObject(...) по завершению конрструктора
+    props      = {} #type:ignore
+    ext_fields = {} #type:ignore
+    
 ###################################################################################
 
-    def __init__( self, name="", parent=None, id=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
         super().__init__()
         self.UID     = id if id else CNetObj_Manager.genNetObj_UID()
         self.name    = name
         self.parent  = parent
-        self.isUpdated = False
 
         hd = self.__modelHeaderData
+        weakSelf = weakref.ref(self)
+        
         self.__modelData = {
-                            hd.index( self.__s_Name     ) : self.name,
-                            hd.index( self.__s_UID      ) : self.UID,
-                            hd.index( self.__s_TypeUID  ) : self.typeUID,
+                            hd.index( self.__s_Name     )   : lambda: weakSelf().name,
+                            hd.index( self.__s_ChildCount ) : lambda: len( weakSelf().children ),
+                            hd.index( self.__s_UID      )   : lambda: weakSelf().UID,
+                            hd.index( self.__s_TypeUID  )   : lambda: weakSelf().typeUID,
                             }
 
-        CNetObj_Manager.registerObj( self )
+        CNetObj_Manager.registerObj( self, saveToRedis=saveToRedis )
 
     def __del__(self):
         # print("CNetObj destructor", self)
@@ -61,29 +119,28 @@ class CNetObj( NodeMixin ):
 
 ###################################################################################
 
-    def prepareDelete(self, bOnlySendNetCmd = True):
+    # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
+    def sendDeleted_NetCmd( self ):
+        cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
+        CNetObj_Manager.sendNetCMD( cmd )
+
+
+    def __localDestroy( self ):                
+        for child in self.children:
+            child.__localDestroy()
 
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
-
-        # при заданном bOnlySendNetCmd = True - только отправляем команду, которую поймает парсер сетевых команд и выполнит
-        # prepareDelete с параметром bOnlySendNetCmd = False, так же со значением False prepareDelete может быть вызван при завершении программы,
-        # чтобы в сеть не отправлялись команды, если это не нужно
-        if bOnlySendNetCmd:
-            CNetObj_Manager.sendNetCMD( cmd )
-            return
-
         CNetObj_Manager.doCallbacks( cmd )
 
-        for child in self.children:
-            child.prepareDelete( bOnlySendNetCmd )
-            child.parent = None
-            child.children = []
-        
+        self.clearChildren()
+
+    def localDestroy( self ):
+        self.__localDestroy()
         self.parent = None
 
-    def clearChildren(self, bOnlySendNetCmd = False):
+    def localDestroyChildren( self ):
         for child in self.children:
-            child.prepareDelete( bOnlySendNetCmd )
+            child.localDestroy()
 
 ###################################################################################
     # Интерфейс для работы с кастомными пропертями реализован через []
@@ -94,7 +151,14 @@ class CNetObj( NodeMixin ):
     def __setitem__( self, key, value ):
         bPropExist = not self.propsDict().get( key ) is None
 
-        CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
+        ##remove##
+        # CNetObj_Manager.redisConn.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
+        # cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        # if not bPropExist:
+        #     cmd.Event = EV.ObjPropCreated
+        # CNetObj_Manager.sendNetCMD( cmd )
+
+        CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
         cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
@@ -111,10 +175,11 @@ class CNetObj( NodeMixin ):
     def modelDataColCount( cls )   : return len( cls.__modelHeaderData )
     @classmethod
     def modelHeaderData( cls, col ): return cls.__modelHeaderData[ col ]
-    def modelData( self, col )     : return self.__modelData[ col ]
+    def modelData( self, col )     : return self.__modelData[ col ]()
+
+###################################################################################
 
     def propsDict(self): return self.props
-
 ###################################################################################
     @classmethod    
     def redisBase_Name_C(cls, UID) : return f"{cls.__s_obj}:{UID}" 
@@ -135,6 +200,10 @@ class CNetObj( NodeMixin ):
     @classmethod        
     def redisKey_Props_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_props }"
     def redisKey_Props(self)       : return self.redisKey_Props_C( self.UID )
+
+    @classmethod        
+    def redisKey_ExtFields_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_ext_fields }"
+    def redisKey_ExtFields(self)       : return self.redisKey_ExtFields_C( self.UID )
 ###################################################################################
     def saveToRedis( self, pipe ):
         if self.UID < 0: return
@@ -142,8 +211,8 @@ class CNetObj( NodeMixin ):
         hd = self.__modelHeaderData
 
         # сохранение стандартного набора полей
-        pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ] )
-        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ] )
+        pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ]() )
+        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ]() )
         parent = self.parent.UID if self.parent else None
         pipe.set( self.redisKey_Parent(),  parent )
 
@@ -151,54 +220,104 @@ class CNetObj( NodeMixin ):
         if len( self.propsDict() ):
             pipe.hmset( self.redisKey_Props(), CStrTypeConverter.DictToStr( self.propsDict() ) )
 
+        if len( self.ext_fields ):
+            pipe.hmset( self.redisKey_ExtFields(), CStrTypeConverter.DictToStr( self.ext_fields ) )
+
         # вызов дополнительных действий по сохранению наследника
-        self.onSaveToRedis( pipe )
+        self.onSaveToRedis()
 
     @classmethod
-    def loadFromRedis( cls, redisConn, UID ):
-        # функционал query - если объект уже есть - возвращаем его - это полезно на клиенте который этот объект только что создал
-        # соответственно повторной отправки команды в сеть о создании объекта и вызова событий не происходит, что так же правильно
+    def load_PipeData_FromRedis( cls, pipe, UID ):
         netObj = CNetObj_Manager.accessObj( UID )
-        if netObj: return netObj
-
-        pipe = redisConn.pipeline()
+        if netObj: return
+            
         pipe.get( cls.redisKey_Name_C( UID ) )
         pipe.get( cls.redisKey_Parent_C( UID ) )
         pipe.get( cls.redisKey_TypeUID_C( UID ) )
         pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )        
-        values = pipe.execute()
+        pipe.hgetall( CNetObj.redisKey_ExtFields_C( UID ) )
+    
+    @classmethod
+    def createObj_From_PipeData( cls, values, UID, valIDX ):
+        netObj = CNetObj_Manager.accessObj( UID )
+        if netObj: return netObj, valIDX
 
-        nameField = values[0]
+        nextIDX = valIDX + 5
+        
+        nameField = values[ valIDX ]
 
         # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
         # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
         # анализируем наличие данных по этому объекту в редисе
         if nameField is None:
             print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
-            return
+            return None, nextIDX
 
-        parentID  = int( values[1].decode() )
-        typeUID   = values[2].decode()
-        pProps    = values[3]
+        parentID  = int( values[ valIDX + 1 ].decode() )
+        typeUID   = values[ valIDX + 2 ].decode()
+        pProps    = values[ valIDX + 3 ]
+        extFields = values[ valIDX + 4 ]
 
         name     = nameField.decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
 
-        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID )
+        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False )
 
-        netObj.props = CStrTypeConverter.DictFromBytes( pProps )
+        netObj.props      = CStrTypeConverter.DictFromBytes( pProps )
+        netObj.ext_fields = CStrTypeConverter.DictFromBytes( extFields )
 
-        netObj.onLoadFromRedis( redisConn, netObj )
+        netObj.onLoadFromRedis()
+
+        return netObj, nextIDX
+    ####################
+    ##remove##
+    # @classmethod
+    # def createObj_FromRedis( cls, redisConn, UID ):
+    #     # функционал query - если объект уже есть - возвращаем его - это полезно на клиенте который этот объект только что создал
+    #     # соответственно повторной отправки команды в сеть о создании объекта и вызова событий не происходит, что так же правильно
+    #     netObj = CNetObj_Manager.accessObj( UID )
+    #     if netObj: return netObj
+
+    #     pipe = redisConn.pipeline()
+    #     pipe.get( cls.redisKey_Name_C( UID ) )
+    #     pipe.get( cls.redisKey_Parent_C( UID ) )
+    #     pipe.get( cls.redisKey_TypeUID_C( UID ) )
+    #     pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )
+    #     pipe.hgetall( CNetObj.redisKey_ExtFields_C( UID ) )
+    #     values = pipe.execute()
+
+    #     nameField = values[0]
+
+    #     # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
+    #     # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
+    #     # анализируем наличие данных по этому объекту в редисе
+    #     if nameField is None:
+    #         print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
+    #         return
+
+    #     parentID  = int( values[1].decode() )
+    #     typeUID   = values[2].decode()
+    #     pProps    = values[3]
+    #     extFields = values[4]
+
+    #     name     = nameField.decode()
+    #     objClass = CNetObj_Manager.netObj_Type( typeUID )
+
+    #     netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False )
+
+    #     netObj.props = CStrTypeConverter.DictFromBytes( pProps )
+    #     netObj.ext_fields = CStrTypeConverter.DictFromBytes( extFields )
+
+    #     netObj.onLoadFromRedis()
         
-        return netObj
+    #     return netObj
 
-    def delFromRedis( self, redisConn, pipe ):
-        for key in redisConn.keys( self.redisBase_Name() + ":*" ):
-            pipe.delete( key )
+    def delFromRedis( self, pipe ):
+        pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_TypeUID(), self.redisKey_Props(), self.redisKey_ExtFields() )
 
     # методы для переопределения дополнительного поведения в наследниках
-    def onSaveToRedis( self, pipe ): pass
-    def onLoadFromRedis( self, redisConn, netObj ): pass
+    def onSaveToRedis( self ): pass
+    def onLoadFromRedis( self ): pass
 
     # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
     # если соответствующий метод есть в объекте он будет вызван до глобальных, только для конкретного объекта

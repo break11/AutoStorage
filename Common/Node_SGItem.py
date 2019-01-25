@@ -24,41 +24,82 @@ class CNode_SGItem(QGraphicsItem):
     @y.setter
     def y(self, value): self.__writeGraphAttr( SGT.s_y, value )
 
-    def __init__(self, nxGraph, nodeID):
+    def __init__(self, nxGraph, nodeID, scene):
         super().__init__()
 
         self.bDrawBBox = False
-        self.bDrawStorageRotateLines = False
+        self.bDrawSpecialLines = False
         self.nxGraph  = nxGraph
         self.nodeID = nodeID
         self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
-        self.storageLineAngle = 0
+        self.middleLineAngle = 0
         self.__singleStorages = []
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
+        self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+        self.createSpecialLines( scene )
 
-        self.updateType()
+    def createSpecialLines( self, scene ):
+        # кривая прямой пропорциональности
+        self.__lineDirectProportionality = scene.addLine( 0, 0, 0, 0 )
+        pen = QPen( Qt.magenta )
+        pen.setWidth( 4 )
+        self.__lineDirectProportionality.setPen( pen )
+        self.__lineDirectProportionality.setVisible( self.bDrawSpecialLines )
 
-    def removeStorages(self):
-        for singleStorage in self.__singleStorages:
-            self.scene().removeItem(singleStorage)
-        self.__singleStorages = []
+        #расчетная средняя линия (перпендикуляр к расчетной линии, т.к. сама средняя линия напрямую пока не нужна)
+        self.__normalToMiddleLine = scene.addLine( 0, 0, 0, 0 )
+        pen = QPen( Qt.black )
+        pen.setWidth( 8 )
+        self.__normalToMiddleLine.setPen( pen )
+        self.__normalToMiddleLine.setVisible( self.bDrawSpecialLines )
+
+    def removeSpecialLines( self ):
+        self.scene().removeItem( self.__lineDirectProportionality )
+        self.scene().removeItem( self.__normalToMiddleLine )
+
+    def setMiddleLineAngle( self, fVal ):
+        self.middleLineAngle = fVal
+        l = self.__normalToMiddleLine
+        l.setTransformOriginPoint( QPointF (self.x, self.y) )
+        l.setRotation(-self.middleLineAngle)
+
+        self.rotateStorages()
+
+    def setDrawSpecialLines( self, bVal ):
+        self.bDrawSpecialLines = bVal
+        self.__lineDirectProportionality.setVisible( bVal )
+        self.__normalToMiddleLine.setVisible( bVal )
 
     def nxNode(self):
         return self.nxGraph.node[ self.nodeID ]
 
     def boundingRect(self):
-        return self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+        return self.__BBoxRect_Adj
     
+    # инициализация после добавления в сцену
+    def init(self):
+        self.updateType()
+        self.updateStorages()
+        self.updatePos_From_NX()
+
+    def done(self):
+        self.nxGraph.remove_node( self.nodeID )
+        self.removeStorages()
+        self.removeSpecialLines()
+
     # обновление позиции на сцене по атрибутам из графа
-    def updatePos(self):
+    def updatePos_From_NX(self):
         super().setPos( self.x, self.y )
+        self.__lineDirectProportionality.setLine( self.x-500, self.y+500, self.x+500, self.y-500 )
+        self.__normalToMiddleLine.setLine( self.x-250, self.y, self.x+250, self.y )
 
     def setPos(self, x, y):
-        self.nxNode()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, round(x) )
-        self.nxNode()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, round(y) )
-        self.updatePos()
+        self.x = round(x)
+        self.y = round(y)
+        self.updatePos_From_NX()
+
         self.scene().itemChanged.emit( self )
     
     def move(self, deltaPos):
@@ -79,12 +120,13 @@ class CNode_SGItem(QGraphicsItem):
     def updateStorages(self):
         #добавление и удаление мест хранения
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
-            if len( self.__singleStorages ) == 0:
-                self.addStorages()
-        elif len(self.__singleStorages) != 0:
+            self.addStorages()
+        else:
             self.removeStorages()
 
     def addStorages(self):
+        if len( self.__singleStorages ) != 0: return
+        
         spGItem = CStoragePlace_SGItem(ID="L")
         self.scene().addItem( spGItem )
         self.__singleStorages.append (spGItem)
@@ -93,10 +135,29 @@ class CNode_SGItem(QGraphicsItem):
         self.scene().addItem( spGItem )
         self.__singleStorages.append (spGItem)
 
+    def removeStorages(self):
+        if len(self.__singleStorages) == 0: return
+
+        for singleStorage in self.__singleStorages:
+            self.scene().removeItem(singleStorage)
+        self.__singleStorages = []
+
+    def rotateStorages(self):
+        #позиционирование и поворот мест хранения
+        if self.nodeType == SGT.ENodeTypes.StorageSingle:
+            
+            # если поворот более 45 градусов, доворачиваем на 180, чтобы левая коробка была в левом секторе
+            storagesAngle = self.middleLineAngle % 180
+            storagesAngle = storagesAngle if (storagesAngle < 45) else storagesAngle + 180
+
+            for i in range ( len(self.__singleStorages) ):
+                st = self.__singleStorages[i]
+                k = 1 if i % 2 == 0 else -1
+                st.setPos( self.x - k * self.__storage_offset, self.y)
+                st.setTransformOriginPoint( QPointF (k * self.__storage_offset, 0) )
+                st.setRotation(-storagesAngle)
+
     def paint(self, painter, option, widget):
-        self.prepareGeometryChange()
-        # if self.isSelected():
-        #     print (self.nxGraph.node[ self.nodeID ])
         if self.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
@@ -108,43 +169,6 @@ class CNode_SGItem(QGraphicsItem):
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
 
         painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
-        
-        #позиционирование и поворот мест хранения
-        if self.nodeType == SGT.ENodeTypes.StorageSingle:
-            
-            # если поворот более 45 градусов, доворачиваем на 180, чтобы левая коробка была в левом секторе
-            storagesAngle = self.storageLineAngle % 180
-            storagesAngle = storagesAngle if (storagesAngle < 45) else storagesAngle + 180
-
-            try:
-                self.__singleStorages[0].setPos( self.x - self.__storage_offset, self.y)
-                self.__singleStorages[0].setTransformOriginPoint( QPointF (self.__storage_offset, 0) )
-                self.__singleStorages[0].setRotation(-storagesAngle)
-
-                self.__singleStorages[1].setPos( self.x + self.__storage_offset, self.y)
-                self.__singleStorages[1].setTransformOriginPoint( QPointF (-self.__storage_offset, 0) )
-                self.__singleStorages[1].setRotation(-storagesAngle)
-            except IndexError:
-                pass        
-
-        # отладочные линии
-        if self.nodeType == SGT.ENodeTypes.StorageSingle and self.bDrawStorageRotateLines:
-            #прямая пропорциональности
-            pen = QPen( Qt.magenta )
-            pen.setWidth( 4 )
-            painter.setPen( pen )
-            l = QLineF (-500,500,500,-500)
-            painter.drawLine(l)
-
-            #расчетная средняя линия
-            pen = QPen( Qt.black )
-            pen.setWidth( 8 )
-            painter.setPen( pen )
-            l = QLineF (-250,0, 250, 0)
-            painter.rotate(-self.storageLineAngle)
-            painter.drawLine(l)
-
-        self.prepareGeometryChange()
 
     def mouseMoveEvent( self, event ):
         if not bool(self.flags() & QGraphicsItem.ItemIsMovable): return

@@ -29,6 +29,7 @@ class CBaseApplication( QApplication ):
         super().__init__( argv )
 
         self.tickTimer = QTimer()
+        self.tickTimer.setInterval(100)
         self.tickTimer.start()
 
         self.ttlTimer = QTimer()
@@ -50,7 +51,7 @@ class CBaseApplication( QApplication ):
         return True
 
     def init_NetObj_Monitor(self, parent=None ):
-        if CNetObj_Monitor.enabledInOptions() or parent:
+        if CNetObj_Monitor.enabledInOptions():
             self.objMonitor = CNetObj_Monitor( parent=parent )
                     
             # т.к. Qt уничтожает пустой layoput() (без виджетов в нем) при загрузке ui-шника, то
@@ -70,6 +71,6 @@ class CBaseApplication( QApplication ):
     def done(self):
         # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
         CNetObj_Manager.disconnect()
-        CNetObj_Manager.rootObj.clearChildren( bOnlySendNetCmd = False )
+        CNetObj_Manager.rootObj.localDestroyChildren()
 
         CSM.saveSettings()

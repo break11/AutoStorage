@@ -14,10 +14,17 @@ class CGridGraphicsScene(QGraphicsScene):
         self.orderedSelection = [] #элементы в порядке выделения (стандартая функция selectedItems() возвращает в неопределенном порядке)
 
         self.selectionChanged.connect( self.updateOrderedSelection )
+        self.setBackgroundBrush( Qt.gray )
+    
+    def setDrawGrid( self, bDrawGrid ):
+        self.bDrawGrid = bDrawGrid
+        self.update()
+
+    def setGridSize( self, nGridSize ):
+        self.gridSize = nGridSize
+        self.update()
 
     def drawForeground( self, painter, rect ):
-        self.setBackgroundBrush( Qt.gray )
-
         super().drawForeground( painter, rect )
 
         if not self.bDrawGrid or not self.gridSize: return

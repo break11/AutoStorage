@@ -9,6 +9,7 @@ import redis
 from queue import Queue
 import threading
 import weakref
+import time
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -40,6 +41,7 @@ s_Client_UID = "client_uid_gen"
 s_ObjectsSet = "objects_set"
 
 ########################################################
+from time import sleep
 
 class CNetObj_Manager( object ):
     callbacksDict = {} # type: ignore # Dict of List by ECallbackType
@@ -87,12 +89,15 @@ class CNetObj_Manager( object ):
             self.__bIsRunning = True
 
             while self.__bIsRunning:
-                msg = self.receiver.get_message(False, 0.5)
+                # принимаем сообщения от всех клиентов - в том числе от себя самого
+                msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                     msgData = msg[ s_Redis_data ].decode()
-                    # принимаем сообщения от всех клиентов - в том числе от себя самого
-                    cmd = CNetCmd.fromString( msgData )
-                    CNetObj_Manager.qNetCmds.put( cmd )
+
+                    cmdList = msgData.split("|")
+                    for cmdItem in cmdList:
+                        cmd = CNetCmd.fromString( cmdItem )
+                        CNetObj_Manager.qNetCmds.put( cmd )
 
                 if self.__bStop: self.__bIsRunning = False
 
@@ -107,7 +112,7 @@ class CNetObj_Manager( object ):
 
     __netObj_Types = {} # type: ignore
     __objects      = weakref.WeakValueDictionary() # type: ignore
-    objModel = None # модель представление для дерева требует специйической обработки
+    objModel = None # модель представление для дерева требует специфической обработки
 
     bNetCmd_Log = False
     bEvent_Log = False
@@ -133,20 +138,31 @@ class CNetObj_Manager( object ):
         sKey = f"client:{cls.ClientID}:name"
 
         cls.serviceConn.set( sKey, baseFName.rsplit(os.sep, 1)[1] )
-        cls.serviceConn.expire( sKey, 3 )
+        cls.serviceConn.expire( sKey, 5 )
 
     @classmethod
     def onTick( cls ):
+        start = time.time()
+
+        NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
+
+        i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
-        while not cls.qNetCmds.empty():
+        while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
+            i += 1
             netCmd = cls.qNetCmds.get()
             if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
             if netCmd.Event <= EV.ClientDisconnected:
                 cls.doCallbacks( netCmd )
 
-            if netCmd.Event == EV.ObjCreated:
-                netObj = CNetObj.loadFromRedis( cls.redisConn, netCmd.Obj_UID )
+            elif netCmd.Event == EV.ObjCreated:
+                ##remove##
+                # netObj = CNetObj.createObj_FromRedis( cls.redisConn, netCmd.Obj_UID )
+
+                CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
+                if cls.accessObj( netCmd.Obj_UID ) is None:
+                    NetCreatedObj_UIDs.append( netCmd.Obj_UID )
 
             elif netCmd.Event == EV.ObjPrepareDelete:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
@@ -157,16 +173,15 @@ class CNetObj_Manager( object ):
                     # и построит индекс, который уже числится в модели Qt как удаленный
                     if cls.objModel: cls.objModel.beginRemove( netObj )
 
-                    netObj.prepareDelete( bOnlySendNetCmd = False )
+                    netObj.localDestroy()
                     del netObj
 
                     if cls.objModel: cls.objModel.endRemove()
-
-            elif netCmd.Event == EV.ObjDeleted:
-                cls.doCallbacks( netCmd )
+                else:
+                    print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
             elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
 
                 val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
                 val = val.decode()
@@ -175,7 +190,7 @@ class CNetObj_Manager( object ):
                 cls.doCallbacks( netCmd )
     
             elif netCmd.Event == EV.ObjPropDeleted:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
+                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
 
                 propExist = netObj.propsDict().get( netCmd.sPropName )
                 if not propExist is None:
@@ -184,6 +199,26 @@ class CNetObj_Manager( object ):
                     del propExist
 
             cls.qNetCmds.task_done()
+
+        # выполнение общего пакета редис команд (в том числе удаление объектов)
+        cls.pipe.execute()
+
+        # создание всех объектов пришедших от команд в тике за один проход из отдельного пакета редис
+        if len( NetCreatedObj_UIDs ):
+            values = cls.pipeCreatedObjects.execute()
+            valIDX = 0
+            for objID in NetCreatedObj_UIDs:
+                obj, valIDX = CNetObj.createObj_From_PipeData( values, objID, valIDX )
+            NetCreatedObj_UIDs.clear()
+
+        # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
+        CNetObj_Manager.send_NetCmd_Buffer()
+
+        if i: print( f"NetCmd count in tick = {i}" )
+
+        t = (time.time() - start)*1000
+        if t > 50:
+            print( f"tick time -------------------------- {t} -------------------------- tick time")
     #####################################################
 
     @classmethod
@@ -196,16 +231,13 @@ class CNetObj_Manager( object ):
         return cls.__genNetObj_UID
 
     @classmethod
-    def registerObj( cls, netObj ):
+    def registerObj( cls, netObj, saveToRedis ):
         cls.__objects[ netObj.UID ] = netObj
         cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
-        if cls.isConnected() and netObj.UID > 0:
+        if cls.isConnected() and netObj.UID > 0 and saveToRedis:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
-                print( netObj.UID, "*****" )
-                pipe = cls.redisConn.pipeline()
-                pipe.sadd( s_ObjectsSet, netObj.UID )
-                netObj.saveToRedis( pipe )
-                pipe.execute()
+                cls.pipe.sadd( s_ObjectsSet, netObj.UID )
+                netObj.saveToRedis( cls.pipe )
 
                 CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
@@ -214,14 +246,14 @@ class CNetObj_Manager( object ):
     def unregisterObj( cls, netObj ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
         if cls.isConnected() and netObj.UID > 0:
-            if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
+            # посылка команды удаления в редис, для объектов, которые уже удалены занимает меньше времени, чем проверка, что их там нет
+            # if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
+            cls.pipe.srem( s_ObjectsSet, netObj.UID )
+            netObj.delFromRedis( cls.pipe )
 
-                pipe = cls.redisConn.pipeline()
-                pipe.srem( s_ObjectsSet, netObj.UID )
-                netObj.delFromRedis( cls.redisConn, pipe )
-                pipe.execute()
-
-                CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+            # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+            # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
+            # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
 
     @classmethod
     def accessObj( cls, UID, genAssert=False, genWarning=False ):
@@ -230,7 +262,7 @@ class CNetObj_Manager( object ):
         if genAssert or genWarning:
             sMsg = f"CNetObj_Manager.accessObj : netObj with UID={UID} can not accepted!"
             
-        if genWarning:
+        if genWarning and netObj is None:
             print( f"{SC.sWarning} {sMsg}" )
 
         if genAssert:
@@ -261,6 +293,9 @@ class CNetObj_Manager( object ):
                     cls.addCallback( e, cls.eventLogCallBack )
 
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
+            cls.pipe = cls.redisConn.pipeline()
+            cls.pipeCreatedObjects = cls.redisConn.pipeline()
+
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
                 
@@ -274,13 +309,28 @@ class CNetObj_Manager( object ):
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
-
         # все клиенты при старте подхватывают содержимое с сервера
         objects = cls.redisConn.smembers( s_ObjectsSet )
         if ( objects ):
             objects = sorted( objects, key = lambda x: int(x.decode()) )
+
+            start = time.time()
+
+            ##remove##
+            # for it in objects:
+            #     netObj = CNetObj.createObj_FromRedis( cls.redisConn, int(it.decode()) )
+
+            pipe = cls.redisConn.pipeline()
             for it in objects:
-                netObj = CNetObj.loadFromRedis( cls.redisConn, int(it.decode()) )
+                CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
+            values = pipe.execute()
+
+            # из values удаляются элементы использованные для создания очередного объекта netObj
+            valIDX = 0
+            for it in objects:
+                obj, valIDX = CNetObj.createObj_From_PipeData( values, int(it.decode()), valIDX )
+
+            print ( f"Loading NetObj from Redis time = {time.time() - start}" )
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
@@ -307,11 +357,22 @@ class CNetObj_Manager( object ):
 
     #####################################################
 
+    NetCmd_Buff = [] # type: ignore
+
     @classmethod
     def sendNetCMD( cls, cmd ):
         if not cls.isConnected(): return
-        cls.redisConn.publish( s_Redis_NetObj_Channel, cmd.toString() )
+        cls.NetCmd_Buff.append( cmd.toString() )
+        ##remove##cls.NetCmd_Buff = f"{cls.NetCmd_Buff}|{cmd.toString()}" if cls.NetCmd_Buff else cmd.toString()
+    
+    @classmethod
+    def send_NetCmd_Buffer( cls ):
+        if cls.isConnected() and len( cls.NetCmd_Buff ):
+            sNetCmdBuf = "|".join( cls.NetCmd_Buff )
+            cls.redisConn.publish( s_Redis_NetObj_Channel, sNetCmdBuf )
 
+        cls.NetCmd_Buff.clear()
+    ########################################################
 
 from .NetObj import CNetObj
 from .NetCmd import CNetCmd
