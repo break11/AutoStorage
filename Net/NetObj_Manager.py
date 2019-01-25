@@ -110,72 +110,74 @@ class CNetObj_Manager( object ):
     @classmethod
     def onTick( cls ):
 
-        TickNetCmds = []
-
-        # принимаем сообщения от всех клиентов - в том числе от себя самого
-        while True:
-            msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
-            if msg is None: break
-            if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
-                msgData = msg[ s_Redis_data ].decode()
-
-                cmdList = msgData.split("|")
-                for cmdItem in cmdList:
-                    cmd = CNetCmd.fromString( cmdItem )
-                    TickNetCmds.append( cmd )
-
-        #################################################################################################
         start = time.time()
+
+        # TickNetCmds = []
 
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
         NetUpdatedObj = [] # контейнер хранящий ... объектов по которым прошли обновления полей
 
+        # принимаем сообщения от всех клиентов - в том числе от себя самого
+        # while True:
+        msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
+        # if msg is None: break
+
         i = 0
-        for netCmd in TickNetCmds:
-            i += 1
-            if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
+        if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
+            msgData = msg[ s_Redis_data ].decode()
 
-            if netCmd.Event <= EV.ClientDisconnected:
-                cls.doCallbacks( netCmd )
+            cmdList = msgData.split("|")
+            for cmdItem in cmdList:
+                netCmd = CNetCmd.fromString( cmdItem )
+                # TickNetCmds.append( cmd )
 
-            elif netCmd.Event == EV.ObjCreated:
-                CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
-                if cls.accessObj( netCmd.Obj_UID ) is None:
-                    NetCreatedObj_UIDs.append( netCmd.Obj_UID )
+                #################################################################################################
+                # i = 0
+                # for netCmd in TickNetCmds:
+                i += 1
+                if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
-            elif netCmd.Event == EV.ObjPrepareDelete:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
-
-                if netObj:
-                    # приходится давать сигнал на обновление модели здесь, чтобы завернуть внутрь них все эвенты и удаление объектов
-                    # иначе получим ошибку InvalidIndex, т.к. объект еще не будет удален к моменту вызова endRemoveRows() - он вызовет rowCount()
-                    # и построит индекс, который уже числится в модели Qt как удаленный
-                    if cls.objModel: cls.objModel.beginRemove( netObj )
-
-                    netObj.localDestroy()
-                    del netObj
-
-                    if cls.objModel: cls.objModel.endRemove()
-                else:
-                    print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
-
-            elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                if netCmd.ClientID != cls.ClientID:
-                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-                    if not netObj is None:
-                        NetUpdatedObj.append( [ netObj, netCmd ] )
-
-                        cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
-    
-            elif netCmd.Event == EV.ObjPropDeleted:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-
-                propExist = netObj.propsDict().get( netCmd.sPropName )
-                if not propExist is None:
+                if netCmd.Event <= EV.ClientDisconnected:
                     cls.doCallbacks( netCmd )
-                    del netObj.propsDict()[ netCmd.sPropName ]
-                    del propExist
-        ###################################################################################################
+
+                elif netCmd.Event == EV.ObjCreated:
+                    CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
+                    if cls.accessObj( netCmd.Obj_UID ) is None:
+                        NetCreatedObj_UIDs.append( netCmd.Obj_UID )
+
+                elif netCmd.Event == EV.ObjPrepareDelete:
+                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
+
+                    if netObj:
+                        # приходится давать сигнал на обновление модели здесь, чтобы завернуть внутрь них все эвенты и удаление объектов
+                        # иначе получим ошибку InvalidIndex, т.к. объект еще не будет удален к моменту вызова endRemoveRows() - он вызовет rowCount()
+                        # и построит индекс, который уже числится в модели Qt как удаленный
+                        if cls.objModel: cls.objModel.beginRemove( netObj )
+
+                        netObj.localDestroy()
+                        del netObj
+
+                        if cls.objModel: cls.objModel.endRemove()
+                    else:
+                        print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
+
+                elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
+                    if netCmd.ClientID != cls.ClientID:
+                        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
+                        if not netObj is None:
+                            NetUpdatedObj.append( [ netObj, netCmd ] )
+
+                            cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
+        
+                elif netCmd.Event == EV.ObjPropDeleted:
+                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
+
+                    propExist = netObj.propsDict().get( netCmd.sPropName )
+                    if not propExist is None:
+                        cls.doCallbacks( netCmd )
+                        del netObj.propsDict()[ netCmd.sPropName ]
+                        del propExist
+                ###################################################################################################
 
         # выполнение общего пакета редис команд (в том числе удаление объектов)
         cls.pipe.execute()
