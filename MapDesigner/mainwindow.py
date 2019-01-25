@@ -20,7 +20,9 @@ _strList = [
             "draw_grid",
             "draw_info_rails",
             "draw_main_rail",
-            "snap_to_grid"
+            "snap_to_grid",
+            "draw_bbox",
+            "draw_special_lines"
           ]
 
 # Экспортируем "короткие" алиасы строковых констант
@@ -28,11 +30,13 @@ for str_item in _strList:
     locals()[ "s_" + str_item ] = str_item
 ###########################################
 sceneDefSettings = {
-                    s_grid_size       : 400,   # type: ignore
-                    s_draw_grid       : False, # type: ignore
-                    s_draw_info_rails : False, # type: ignore
-                    s_draw_main_rail  : False, # type: ignore
-                    s_snap_to_grid    : False, # type: ignore
+                    s_grid_size           : 400,   # type: ignore
+                    s_draw_grid           : False, # type: ignore
+                    s_draw_info_rails     : False, # type: ignore
+                    s_draw_main_rail      : False, # type: ignore
+                    s_snap_to_grid        : False, # type: ignore
+                    s_draw_bbox           : False, # type: ignore
+                    s_draw_special_lines  : False, # type: ignore
                    }
 ###########################################
 
@@ -84,18 +88,22 @@ class CSMD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, s_grid_size,       default = self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, s_draw_grid,       default = self.StorageMap_Scene.bDrawGrid )
-        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, s_snap_to_grid,    default = self.StorageMap_Scene.bSnapToGrid)
-        self.SGraph_Manager.setDrawMainRail ( CSM.dictOpt( sceneSettings, s_draw_main_rail,  default = self.SGraph_Manager.bDrawMainRail ) )
-        self.SGraph_Manager.setDrawInfoRails( CSM.dictOpt( sceneSettings, s_draw_info_rails, default = self.SGraph_Manager.bDrawInfoRails ) )
+        self.StorageMap_Scene.gridSize     =      CSM.dictOpt( sceneSettings, s_grid_size,          default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    =      CSM.dictOpt( sceneSettings, s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  =      CSM.dictOpt( sceneSettings, s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
+        self.SGraph_Manager.setDrawMainRail     ( CSM.dictOpt( sceneSettings, s_draw_main_rail,     default = self.SGraph_Manager.bDrawMainRail ) )
+        self.SGraph_Manager.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, s_draw_info_rails,    default = self.SGraph_Manager.bDrawInfoRails ) )
+        self.SGraph_Manager.setDrawBBox         ( CSM.dictOpt( sceneSettings, s_draw_bbox,          default = self.SGraph_Manager.bDrawBBox ) )
+        self.SGraph_Manager.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, s_draw_special_lines, default = self.SGraph_Manager.bDrawSpecialLines ) )
 
         #setup ui
-        self.sbGridSize.setValue     ( self.StorageMap_Scene.gridSize    )
-        self.acGrid.setChecked       ( self.StorageMap_Scene.bDrawGrid   )
-        self.acMainRail.setChecked   ( self.SGraph_Manager.bDrawMainRail  )
-        self.acInfoRails.setChecked  ( self.SGraph_Manager.bDrawInfoRails )
-        self.acSnapToGrid.setChecked ( self.StorageMap_Scene.bSnapToGrid )
+        self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
+        self.acGrid.setChecked         ( self.StorageMap_Scene.bDrawGrid )
+        self.acMainRail.setChecked     ( self.SGraph_Manager.bDrawMainRail )
+        self.acInfoRails.setChecked    ( self.SGraph_Manager.bDrawInfoRails )
+        self.acSnapToGrid.setChecked   ( self.StorageMap_Scene.bSnapToGrid )
+        self.acBBox.setChecked         ( self.SGraph_Manager.bDrawBBox )
+        self.acSpecialLines.setChecked ( self.SGraph_Manager.bDrawSpecialLines )
 
     def unhideDocWidgets(self):
         for doc in self.DocWidgetsHiddenStates:
@@ -139,11 +147,13 @@ class CSMD_MainWindow(QMainWindow):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
         CSM.options[s_scene] =   {
-                                        s_grid_size       : self.StorageMap_Scene.gridSize,
-                                        s_draw_grid       : self.StorageMap_Scene.bDrawGrid,
-                                        s_snap_to_grid    : self.StorageMap_Scene.bSnapToGrid,
-                                        s_draw_info_rails : self.SGraph_Manager.bDrawInfoRails,
-                                        s_draw_main_rail  : self.SGraph_Manager.bDrawMainRail,
+                                        s_grid_size           : self.StorageMap_Scene.gridSize,
+                                        s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
+                                        s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
+                                        s_draw_info_rails     : self.SGraph_Manager.bDrawInfoRails,
+                                        s_draw_main_rail      : self.SGraph_Manager.bDrawMainRail,
+                                        s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
+                                        s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
                                     }
 
 
