@@ -191,8 +191,10 @@ class CNetObj_Manager( object ):
                 if netCmd.ClientID != cls.ClientID:
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
                     if not netObj is None:
-                        NetUpdatedObj.append( netObj )
-                        NetUpdatedObj.append( netCmd )
+                        # NetUpdatedObj.append( netObj )
+                        # NetUpdatedObj.append( netCmd )
+                        NetUpdatedObj.append( [ netObj, netCmd ] )
+
                         ###CNetObj_Manager.pipe.hset( netObj.redisKey_Props(), netCmd.sPropName, CStrTypeConverter.ValToStr( netCmd.PropValue ) )
                         cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
                         ###netObj.propsDict()[ netCmd.sPropName ] = netCmd.PropValue
@@ -228,18 +230,30 @@ class CNetObj_Manager( object ):
             NetCreatedObj_UIDs.clear()
 
         # ...
-        if len( NetUpdatedObj ):
+        lenNetUpdatedObj = len( NetUpdatedObj )
+        if lenNetUpdatedObj:
             startU = time.time()
             values = cls.pipeUpdatedObjects.execute()
             print( f"update time {(time.time() - startU)*1000}")
-            for i in range( len(NetUpdatedObj) // 2 ):
-                obj       = NetUpdatedObj[ i*2 ]
-                netCmd    = NetUpdatedObj[ i*2 + 1 ]
-                val = values[ i ]
+            valIDX = 0
+            for item in NetUpdatedObj:
+                obj       = item[0]
+                netCmd    = item[1]
+                val = values[ valIDX ]
                 val = val.decode()
                 val = CStrTypeConverter.ValFromStr( val )
                 obj.propsDict()[ netCmd.sPropName ] = val
                 cls.doCallbacks( netCmd )
+                valIDX += 1
+
+            # for i in range( lenNetUpdatedObj // 2 ):
+            #     obj       = NetUpdatedObj[ i*2 ]
+            #     netCmd    = NetUpdatedObj[ i*2 + 1 ]
+            #     val = values[ i ]
+            #     val = val.decode()
+            #     val = CStrTypeConverter.ValFromStr( val )
+            #     obj.propsDict()[ netCmd.sPropName ] = val
+            #     cls.doCallbacks( netCmd )
             NetUpdatedObj.clear()
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
