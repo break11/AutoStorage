@@ -2,7 +2,7 @@
 import sys
 
 from Common.SettingsManager import CSettingsManager as CSM
-from Common.StrTypeConverter import *
+from Common.StrTypeConverter import CStrTypeConverter
 from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
 import Common.StrConsts as SC
@@ -158,15 +158,15 @@ class CNetObj( CTreeNode ):
         #     cmd.Event = EV.ObjPropCreated
         # CNetObj_Manager.sendNetCMD( cmd )
 
-        CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
-        cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        ##remove##CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
+        cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key, PropValue=value )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
         CNetObj_Manager.sendNetCMD( cmd )
 
     def __delitem__( self, key ):
         CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
-        cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key, PropValue="" )
         CNetObj_Manager.sendNetCMD( cmd )
 
 ###################################################################################
