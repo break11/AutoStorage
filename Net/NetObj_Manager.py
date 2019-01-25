@@ -188,14 +188,15 @@ class CNetObj_Manager( object ):
                     print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
             elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-                if not netObj is None:
-                    # NetUpdatedObj.append( netObj )
-                    # NetUpdatedObj.append( netCmd )
-                    CNetObj_Manager.pipe.hset( netObj.redisKey_Props(), netCmd.sPropName, CStrTypeConverter.ValToStr( netCmd.PropValue ) )
-                    # cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
-                    netObj.propsDict()[ netCmd.sPropName ] = netCmd.PropValue
-                    cls.doCallbacks( netCmd )
+                if netCmd.ClientID != cls.ClientID:
+                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
+                    if not netObj is None:
+                        NetUpdatedObj.append( netObj )
+                        NetUpdatedObj.append( netCmd )
+                        ###CNetObj_Manager.pipe.hset( netObj.redisKey_Props(), netCmd.sPropName, CStrTypeConverter.ValToStr( netCmd.PropValue ) )
+                        cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
+                        ###netObj.propsDict()[ netCmd.sPropName ] = netCmd.PropValue
+                        ###cls.doCallbacks( netCmd )
 
                 # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
                 # val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
@@ -226,23 +227,20 @@ class CNetObj_Manager( object ):
                 obj, valIDX = CNetObj.createObj_From_PipeData( values, objID, valIDX )
             NetCreatedObj_UIDs.clear()
 
-        # # ...
-        # if len( NetUpdatedObj ):
-        #     # startU = time.time()
-        #     # values = cls.pipeUpdatedObjects.execute()
-        #     # print( f"update time {(time.time() - startU)*1000}")
-        #     # valIDX = 0
-        #     for i in range( len(NetUpdatedObj) // 2 ):
-        #         obj       = NetUpdatedObj[ i*2 ]
-        #         netCmd    = NetUpdatedObj[ i*2 + 1 ]
-        #         # print( valIDX )
-        #         # val = values[ i ]
-        #         # val = val.decode()
-        #         # val = CStrTypeConverter.ValFromStr( val )
-        #         # obj.propsDict()[ netCmd.sPropName ] = val
-        #         cls.doCallbacks( netCmd )
-        #         # valIDX += 1
-        #     NetUpdatedObj.clear()
+        # ...
+        if len( NetUpdatedObj ):
+            startU = time.time()
+            values = cls.pipeUpdatedObjects.execute()
+            print( f"update time {(time.time() - startU)*1000}")
+            for i in range( len(NetUpdatedObj) // 2 ):
+                obj       = NetUpdatedObj[ i*2 ]
+                netCmd    = NetUpdatedObj[ i*2 + 1 ]
+                val = values[ i ]
+                val = val.decode()
+                val = CStrTypeConverter.ValFromStr( val )
+                obj.propsDict()[ netCmd.sPropName ] = val
+                cls.doCallbacks( netCmd )
+            NetUpdatedObj.clear()
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()

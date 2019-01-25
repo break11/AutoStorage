@@ -159,9 +159,15 @@ class CNetObj( CTreeNode ):
         # CNetObj_Manager.sendNetCMD( cmd )
 
         ##remove##CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
+        CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
+
         cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key, PropValue=value )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
+
+        self.propsDict()[ cmd.sPropName ] = value ###
+        CNetObj_Manager.doCallbacks( cmd )      ###
+
         CNetObj_Manager.sendNetCMD( cmd )
 
     def __delitem__( self, key ):
