@@ -192,8 +192,9 @@ class CNetObj_Manager( object ):
                 if not netObj is None:
                     NetUpdatedObj.append( netObj )
                     NetUpdatedObj.append( netCmd )
-                    cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
+                    # cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
 
+                # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
                 # val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
                 # val = val.decode()
                 # val = CStrTypeConverter.ValFromStr( val )
@@ -232,20 +233,13 @@ class CNetObj_Manager( object ):
                 obj       = NetUpdatedObj[ i*2 ]
                 netCmd    = NetUpdatedObj[ i*2 + 1 ]
                 # print( valIDX )
-                val = values[ i ]
-                val = val.decode()
-                val = CStrTypeConverter.ValFromStr( val )
-                obj.propsDict()[ netCmd.sPropName ] = val
+                # val = values[ i ]
+                # val = val.decode()
+                # val = CStrTypeConverter.ValFromStr( val )
+                # obj.propsDict()[ netCmd.sPropName ] = val
                 cls.doCallbacks( netCmd )
                 # valIDX += 1
             NetUpdatedObj.clear()
-
-
-                # val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
-                # val = val.decode()
-                # val = CStrTypeConverter.ValFromStr( val )
-                # netObj.propsDict()[ netCmd.sPropName ] = val
-                # cls.doCallbacks( netCmd )
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()
