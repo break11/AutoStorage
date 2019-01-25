@@ -30,10 +30,9 @@ class CSSD_MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
 
-        self.timer1 = QTimer()
-        self.timer1.setInterval(100)
-        self.timer1.timeout.connect( self.tick1 )
-        self.timer1.start()
+        self.updateTestTimer = QTimer()
+        self.updateTestTimer.setInterval(100)
+        self.updateTestTimer.timeout.connect( self.updateTest )
 
         self.timer = QTimer()
         self.timer.setInterval(1500)
@@ -58,11 +57,11 @@ class CSSD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-    def tick1(self):
-        # pass
-        start = time.time()
-
+    def updateTest(self):
+        pass
         nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
+
+        start = time.time()
 
         for child in nodes.children:
             child["x"] += 1
@@ -150,6 +149,13 @@ class CSSD_MainWindow(QMainWindow):
 
     def on_btnReloadGraphML_released( self ):
         self.loadGraphML( bReload=True )
+
+    @pyqtSlot("bool")
+    def on_btnUpdateTest_clicked( self, bVal ):
+        if bVal:
+            self.updateTestTimer.start()
+        else:
+            self.updateTestTimer.stop()
 
     def on_btnSelectGraphML_released( self ):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", FileUtils.graphML_Path(), FileUtils.sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)

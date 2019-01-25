@@ -89,6 +89,8 @@ class CNetObj_Manager( object ):
             self.__bIsRunning = True
 
             while self.__bIsRunning:
+                # start = time.time()
+
                 # принимаем сообщения от всех клиентов - в том числе от себя самого
                 msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
                 if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
@@ -100,6 +102,9 @@ class CNetObj_Manager( object ):
                         CNetObj_Manager.qNetCmds.put( cmd )
 
                 if self.__bStop: self.__bIsRunning = False
+
+                # print( f"NetCmd read time {(time.time() - start)*1000}")
+
 
         def stop(self):
             self.__bStop = True
@@ -145,10 +150,12 @@ class CNetObj_Manager( object ):
         start = time.time()
 
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
+        NetUpdatedObj = [] # контейнер хранящий ... объектов по которым прошли обновления полей
 
         i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
-        while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
+        # while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
+        while ( not cls.qNetCmds.empty() ):
             i += 1
             netCmd = cls.qNetCmds.get()
             if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
@@ -182,12 +189,16 @@ class CNetObj_Manager( object ):
 
             elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
+                if not netObj is None:
+                    NetUpdatedObj.append( netObj )
+                    NetUpdatedObj.append( netCmd )
+                    cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
 
-                val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
-                val = val.decode()
-                val = CStrTypeConverter.ValFromStr( val )
-                netObj.propsDict()[ netCmd.sPropName ] = val
-                cls.doCallbacks( netCmd )
+                # val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
+                # val = val.decode()
+                # val = CStrTypeConverter.ValFromStr( val )
+                # netObj.propsDict()[ netCmd.sPropName ] = val
+                # cls.doCallbacks( netCmd )
     
             elif netCmd.Event == EV.ObjPropDeleted:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
@@ -210,6 +221,31 @@ class CNetObj_Manager( object ):
             for objID in NetCreatedObj_UIDs:
                 obj, valIDX = CNetObj.createObj_From_PipeData( values, objID, valIDX )
             NetCreatedObj_UIDs.clear()
+
+        # ...
+        if len( NetUpdatedObj ):
+            startU = time.time()
+            values = cls.pipeUpdatedObjects.execute()
+            print( f"update time {(time.time() - startU)*1000}")
+            # valIDX = 0
+            for i in range( len(NetUpdatedObj) // 2 ):
+                obj       = NetUpdatedObj[ i*2 ]
+                netCmd    = NetUpdatedObj[ i*2 + 1 ]
+                # print( valIDX )
+                val = values[ i ]
+                val = val.decode()
+                val = CStrTypeConverter.ValFromStr( val )
+                obj.propsDict()[ netCmd.sPropName ] = val
+                cls.doCallbacks( netCmd )
+                # valIDX += 1
+            NetUpdatedObj.clear()
+
+
+                # val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
+                # val = val.decode()
+                # val = CStrTypeConverter.ValFromStr( val )
+                # netObj.propsDict()[ netCmd.sPropName ] = val
+                # cls.doCallbacks( netCmd )
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()
@@ -295,6 +331,7 @@ class CNetObj_Manager( object ):
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.pipe = cls.redisConn.pipeline()
             cls.pipeCreatedObjects = cls.redisConn.pipeline()
+            cls.pipeUpdatedObjects = cls.redisConn.pipeline()
 
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
