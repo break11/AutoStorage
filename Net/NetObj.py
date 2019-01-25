@@ -267,48 +267,6 @@ class CNetObj( CTreeNode ):
         netObj.onLoadFromRedis()
 
         return netObj, nextIDX
-    ####################
-    ##remove##
-    # @classmethod
-    # def createObj_FromRedis( cls, redisConn, UID ):
-    #     # функционал query - если объект уже есть - возвращаем его - это полезно на клиенте который этот объект только что создал
-    #     # соответственно повторной отправки команды в сеть о создании объекта и вызова событий не происходит, что так же правильно
-    #     netObj = CNetObj_Manager.accessObj( UID )
-    #     if netObj: return netObj
-
-    #     pipe = redisConn.pipeline()
-    #     pipe.get( cls.redisKey_Name_C( UID ) )
-    #     pipe.get( cls.redisKey_Parent_C( UID ) )
-    #     pipe.get( cls.redisKey_TypeUID_C( UID ) )
-    #     pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )
-    #     pipe.hgetall( CNetObj.redisKey_ExtFields_C( UID ) )
-    #     values = pipe.execute()
-
-    #     nameField = values[0]
-
-    #     # В некоторых случаях возможна ситуация, что события создания объекта приходит, но он уже был удален, это не должно
-    #     # быть нормой проектирования, но и вызывать падение приложения это не должно - по nameField (obj:UID:name полю в Redis)
-    #     # анализируем наличие данных по этому объекту в редисе
-    #     if nameField is None:
-    #         print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
-    #         return
-
-    #     parentID  = int( values[1].decode() )
-    #     typeUID   = values[2].decode()
-    #     pProps    = values[3]
-    #     extFields = values[4]
-
-    #     name     = nameField.decode()
-    #     objClass = CNetObj_Manager.netObj_Type( typeUID )
-
-    #     netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False )
-
-    #     netObj.props = CStrTypeConverter.DictFromBytes( pProps )
-    #     netObj.ext_fields = CStrTypeConverter.DictFromBytes( extFields )
-
-    #     netObj.onLoadFromRedis()
-        
-    #     return netObj
 
     def delFromRedis( self, pipe ):
         pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_TypeUID(), self.redisKey_Props(), self.redisKey_ExtFields() )

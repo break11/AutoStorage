@@ -139,9 +139,6 @@ class CNetObj_Manager( object ):
                 cls.doCallbacks( netCmd )
 
             elif netCmd.Event == EV.ObjCreated:
-                ##remove##
-                # netObj = CNetObj.createObj_FromRedis( cls.redisConn, netCmd.Obj_UID )
-
                 CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
                 if cls.accessObj( netCmd.Obj_UID ) is None:
                     NetCreatedObj_UIDs.append( netCmd.Obj_UID )
@@ -319,10 +316,6 @@ class CNetObj_Manager( object ):
 
             start = time.time()
 
-            ##remove##
-            # for it in objects:
-            #     netObj = CNetObj.createObj_FromRedis( cls.redisConn, int(it.decode()) )
-
             pipe = cls.redisConn.pipeline()
             for it in objects:
                 CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
@@ -361,7 +354,6 @@ class CNetObj_Manager( object ):
     def sendNetCMD( cls, cmd ):
         if not cls.isConnected(): return
         cls.NetCmd_Buff.append( cmd.toString() )
-        ##remove##cls.NetCmd_Buff = f"{cls.NetCmd_Buff}|{cmd.toString()}" if cls.NetCmd_Buff else cmd.toString()
     
     @classmethod
     def send_NetCmd_Buffer( cls ):
