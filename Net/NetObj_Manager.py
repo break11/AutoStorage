@@ -147,6 +147,22 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def onTick( cls ):
+
+        TickNetCmds = []
+
+        # принимаем сообщения от всех клиентов - в том числе от себя самого
+        msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
+        while msg:
+            if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
+                msgData = msg[ s_Redis_data ].decode()
+
+                cmdList = msgData.split("|")
+                for cmdItem in cmdList:
+                    cmd = CNetCmd.fromString( cmdItem )
+                    TickNetCmds.append( cmd )
+            msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
+
+        #################################################################################################
         start = time.time()
 
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
@@ -155,9 +171,11 @@ class CNetObj_Manager( object ):
         i = 0
         # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
         # while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
-        while ( not cls.qNetCmds.empty() ):
+        ###while ( not cls.qNetCmds.empty() ):
+        for cmdItem in TickNetCmds:
             i += 1
-            netCmd = cls.qNetCmds.get()
+            ###netCmd = cls.qNetCmds.get()
+            netCmd = cmdItem
             if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
             if netCmd.Event <= EV.ClientDisconnected:
@@ -216,7 +234,7 @@ class CNetObj_Manager( object ):
                     del netObj.propsDict()[ netCmd.sPropName ]
                     del propExist
 
-            cls.qNetCmds.task_done()
+            ###cls.qNetCmds.task_done()
 
         # выполнение общего пакета редис команд (в том числе удаление объектов)
         cls.pipe.execute()
@@ -344,6 +362,10 @@ class CNetObj_Manager( object ):
 
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
+
+            cls.receiver = cls.redisConn.pubsub()
+            cls.receiver.subscribe( s_Redis_NetObj_Channel )
+
                 
         except redis.exceptions.ConnectionError as e:
             print( f"{SC.sError} Can not connect to REDIS: {e}" )
@@ -380,7 +402,7 @@ class CNetObj_Manager( object ):
 
         cls.qNetCmds = Queue()
         cls.netCmds_Reader = cls.CNetCMDReader()
-        cls.netCmds_Reader.start()
+        # cls.netCmds_Reader.start()
 
         return True
 
