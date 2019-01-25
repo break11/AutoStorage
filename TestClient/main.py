@@ -11,7 +11,6 @@ from Net.NetObj_Manager import *
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.NetObj_Widgets import *
 
-from anytree import AnyNode, NodeMixin, RenderTree
 import redis
 import os
 from .def_settings import *

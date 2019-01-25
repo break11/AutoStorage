@@ -112,15 +112,11 @@ class CNetObj_Manager( object ):
 
         start = time.time()
 
-        # TickNetCmds = []
-
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
         NetUpdatedObj = [] # контейнер хранящий ... объектов по которым прошли обновления полей
 
         # принимаем сообщения от всех клиентов - в том числе от себя самого
-        # while True:
-        msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
-        # if msg is None: break
+        msg = cls.receiver.get_message( ignore_subscribe_messages=False )
 
         i = 0
         if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
