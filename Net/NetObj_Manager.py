@@ -169,13 +169,8 @@ class CNetObj_Manager( object ):
         NetUpdatedObj = [] # контейнер хранящий ... объектов по которым прошли обновления полей
 
         i = 0
-        # Берем из очереди сетевые команды и обрабатываем их - вероятно ф-я предназначена для работы в основном потоке
-        # while ( not cls.qNetCmds.empty() ) and ( i < 1000 ):
-        ###while ( not cls.qNetCmds.empty() ):
-        for cmdItem in TickNetCmds:
+        for netCmd in TickNetCmds:
             i += 1
-            ###netCmd = cls.qNetCmds.get()
-            netCmd = cmdItem
             if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
             if netCmd.Event <= EV.ClientDisconnected:
@@ -209,21 +204,9 @@ class CNetObj_Manager( object ):
                 if netCmd.ClientID != cls.ClientID:
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
                     if not netObj is None:
-                        # NetUpdatedObj.append( netObj )
-                        # NetUpdatedObj.append( netCmd )
                         NetUpdatedObj.append( [ netObj, netCmd ] )
 
-                        ###CNetObj_Manager.pipe.hset( netObj.redisKey_Props(), netCmd.sPropName, CStrTypeConverter.ValToStr( netCmd.PropValue ) )
                         cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
-                        ###netObj.propsDict()[ netCmd.sPropName ] = netCmd.PropValue
-                        ###cls.doCallbacks( netCmd )
-
-                # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-                # val = cls.redisConn.hget( netObj.redisKey_Props(), netCmd.sPropName )
-                # val = val.decode()
-                # val = CStrTypeConverter.ValFromStr( val )
-                # netObj.propsDict()[ netCmd.sPropName ] = val
-                # cls.doCallbacks( netCmd )
     
             elif netCmd.Event == EV.ObjPropDeleted:
                 netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
@@ -233,8 +216,7 @@ class CNetObj_Manager( object ):
                     cls.doCallbacks( netCmd )
                     del netObj.propsDict()[ netCmd.sPropName ]
                     del propExist
-
-            ###cls.qNetCmds.task_done()
+        ###################################################################################################
 
         # выполнение общего пакета редис команд (в том числе удаление объектов)
         cls.pipe.execute()
@@ -248,8 +230,8 @@ class CNetObj_Manager( object ):
             NetCreatedObj_UIDs.clear()
 
         # ...
-        lenNetUpdatedObj = len( NetUpdatedObj )
-        if lenNetUpdatedObj:
+        len_NetUpdatedObj = len( NetUpdatedObj )
+        if len_NetUpdatedObj:
             startU = time.time()
             values = cls.pipeUpdatedObjects.execute()
             print( f"update time {(time.time() - startU)*1000}")
@@ -263,15 +245,6 @@ class CNetObj_Manager( object ):
                 obj.propsDict()[ netCmd.sPropName ] = val
                 cls.doCallbacks( netCmd )
                 valIDX += 1
-
-            # for i in range( lenNetUpdatedObj // 2 ):
-            #     obj       = NetUpdatedObj[ i*2 ]
-            #     netCmd    = NetUpdatedObj[ i*2 + 1 ]
-            #     val = values[ i ]
-            #     val = val.decode()
-            #     val = CStrTypeConverter.ValFromStr( val )
-            #     obj.propsDict()[ netCmd.sPropName ] = val
-            #     cls.doCallbacks( netCmd )
             NetUpdatedObj.clear()
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
