@@ -6,8 +6,6 @@ from Common import StrConsts as SC
 from .Net_Events import ENet_Event as EV
 import weakref
 import redis
-from queue import Queue
-import threading
 import weakref
 import time
 
@@ -74,42 +72,6 @@ class CNetObj_Manager( object ):
         print( f"[EventLog]:{netCmd}" )
 
     ########################################################
-    class CNetCMDReader( threading.Thread ):
-        def __init__(self):
-            super().__init__()
-            self.setDaemon(True)
-            self.receiver = CNetObj_Manager.redisConn.pubsub()
-            self.receiver.subscribe( s_Redis_NetObj_Channel )
-
-            self.__bIsRunning = False
-            self.__bStop = False
-        
-        def run(self):
-            self.__bStop = False
-            self.__bIsRunning = True
-
-            while self.__bIsRunning:
-                # start = time.time()
-
-                # принимаем сообщения от всех клиентов - в том числе от себя самого
-                msg = self.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
-                if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
-                    msgData = msg[ s_Redis_data ].decode()
-
-                    cmdList = msgData.split("|")
-                    for cmdItem in cmdList:
-                        cmd = CNetCmd.fromString( cmdItem )
-                        CNetObj_Manager.qNetCmds.put( cmd )
-
-                if self.__bStop: self.__bIsRunning = False
-
-                # print( f"NetCmd read time {(time.time() - start)*1000}")
-
-
-        def stop(self):
-            self.__bStop = True
-            while self.__bIsRunning: pass
-    ########################################################
 
     redisConn = None
     serviceConn = None
@@ -151,8 +113,9 @@ class CNetObj_Manager( object ):
         TickNetCmds = []
 
         # принимаем сообщения от всех клиентов - в том числе от себя самого
-        msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
-        while msg:
+        while True:
+            msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
+            if msg is None: break
             if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
                 msgData = msg[ s_Redis_data ].decode()
 
@@ -160,7 +123,6 @@ class CNetObj_Manager( object ):
                 for cmdItem in cmdList:
                     cmd = CNetCmd.fromString( cmdItem )
                     TickNetCmds.append( cmd )
-            msg = cls.receiver.get_message( ignore_subscribe_messages=False, timeout=0.05 )
 
         #################################################################################################
         start = time.time()
@@ -373,24 +335,19 @@ class CNetObj_Manager( object ):
 
             print ( f"Loading NetObj from Redis time = {time.time() - start}" )
 
-        cls.qNetCmds = Queue()
-        cls.netCmds_Reader = cls.CNetCMDReader()
-        # cls.netCmds_Reader.start()
-
         return True
 
     @classmethod
     def disconnect( cls ):
         if not cls.redisConn: return
         
-        cls.netCmds_Reader.stop()
-
         cmd = CNetCmd( ClientID=cls.ClientID, Event=EV.ClientDisconnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
         cls.redisConn.connection_pool.disconnect()
         cls.redisConn = None
+        cls.serviceConn = None
         # print( cls.__name__, cls.disconnect.__name__ )
         
     @classmethod
