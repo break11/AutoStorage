@@ -125,11 +125,8 @@ class CNetObj_Manager( object ):
             cmdList = msgData.split("|")
             for cmdItem in cmdList:
                 netCmd = CNetCmd.fromString( cmdItem )
-                # TickNetCmds.append( cmd )
 
                 #################################################################################################
-                # i = 0
-                # for netCmd in TickNetCmds:
                 i += 1
                 if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
 
@@ -187,8 +184,7 @@ class CNetObj_Manager( object ):
             NetCreatedObj_UIDs.clear()
 
         # ...
-        len_NetUpdatedObj = len( NetUpdatedObj )
-        if len_NetUpdatedObj:
+        if len( NetUpdatedObj ):
             startU = time.time()
             values = cls.pipeUpdatedObjects.execute()
             print( f"update time {(time.time() - startU)*1000}")
