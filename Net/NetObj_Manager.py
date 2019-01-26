@@ -113,7 +113,7 @@ class CNetObj_Manager( object ):
         start = time.time()
 
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
-        NetUpdatedObj = [] # контейнер хранящий ... объектов по которым прошли обновления полей
+        NetUpdatedObj = [] # контейнер хранящий [ [netObj, netCmd], ... ] объектов по которым прошли обновления полей
 
         # принимаем сообщения от всех клиентов - в том числе от себя самого
         msg = cls.receiver.get_message( ignore_subscribe_messages=False )
@@ -166,11 +166,12 @@ class CNetObj_Manager( object ):
                 elif netCmd.Event == EV.ObjPropDeleted:
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
 
-                    propExist = netObj.propsDict().get( netCmd.sPropName )
-                    if not propExist is None:
-                        cls.doCallbacks( netCmd )
-                        del netObj.propsDict()[ netCmd.sPropName ]
-                        del propExist
+                    if netObj:
+                        propExist = netObj.propsDict().get( netCmd.sPropName )
+                        if not propExist is None:
+                            cls.doCallbacks( netCmd )
+                            del netObj.propsDict()[ netCmd.sPropName ]
+                            del propExist
                 ###################################################################################################
 
         # выполнение общего пакета редис команд (в том числе удаление объектов)
@@ -184,7 +185,7 @@ class CNetObj_Manager( object ):
                 obj, valIDX = CNetObj.createObj_From_PipeData( values, objID, valIDX )
             NetCreatedObj_UIDs.clear()
 
-        # ...
+        #  применение обновления полей для всех объектов по которым были получены команды обновления полей
         if len( NetUpdatedObj ):
             startU = time.time()
             values = cls.pipeUpdatedObjects.execute()

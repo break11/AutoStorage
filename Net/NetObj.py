@@ -163,7 +163,7 @@ class CNetObj( CTreeNode ):
         CNetObj_Manager.sendNetCMD( cmd )
 
     def __delitem__( self, key ):
-        CNetObj_Manager.redisConn.hdel( self.redisKey_Props(), key )
+        CNetObj_Manager.pipe.hdel( self.redisKey_Props(), key )
         cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
         CNetObj_Manager.sendNetCMD( cmd )
 
