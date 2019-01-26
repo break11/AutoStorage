@@ -123,12 +123,13 @@ class CNetObj_Manager( object ):
             msgData = msg[ s_Redis_data ].decode()
 
             cmdList = msgData.split("|")
-            for cmdItem in cmdList:
+            packetClientID = int( cmdList[0] )
+            for cmdItem in cmdList[1::]:
                 netCmd = CNetCmd.fromString( cmdItem )
 
                 #################################################################################################
                 i += 1
-                if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd}" )
+                if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd} ClientID={packetClientID}" )
 
                 if netCmd.Event <= EV.ClientDisconnected:
                     cls.doCallbacks( netCmd )
@@ -155,7 +156,7 @@ class CNetObj_Manager( object ):
                         print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
                 elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                    if netCmd.ClientID != cls.ClientID:
+                    if packetClientID != cls.ClientID:
                         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
                         if not netObj is None:
                             NetUpdatedObj.append( [ netObj, netCmd ] )
@@ -222,7 +223,7 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerObj( cls, netObj, saveToRedis ):
         cls.__objects[ netObj.UID ] = netObj
-        cmd = CNetCmd( ClientID = cls.ClientID, Event = EV.ObjCreated, Obj_UID = netObj.UID )
+        cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0 and saveToRedis:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 cls.pipe.sadd( s_ObjectsSet, netObj.UID )
@@ -240,7 +241,7 @@ class CNetObj_Manager( object ):
             cls.pipe.srem( s_ObjectsSet, netObj.UID )
             netObj.delFromRedis( cls.pipe )
 
-            # CNetObj_Manager.sendNetCMD( CNetCmd( ClientID = cls.ClientID, Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+            # CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
             # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
             # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
 
@@ -299,7 +300,7 @@ class CNetObj_Manager( object ):
 
         if cls.ClientID is None:
             cls.ClientID = cls.serviceConn.incr( s_Client_UID, 1 )
-        cmd = CNetCmd( ClientID=cls.ClientID, Event=EV.ClientConnected )
+        cmd = CNetCmd( Event=EV.ClientConnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
@@ -328,7 +329,7 @@ class CNetObj_Manager( object ):
     def disconnect( cls ):
         if not cls.redisConn: return
         
-        cmd = CNetCmd( ClientID=cls.ClientID, Event=EV.ClientDisconnected )
+        cmd = CNetCmd( Event=EV.ClientDisconnected )
         CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
@@ -352,7 +353,8 @@ class CNetObj_Manager( object ):
     @classmethod
     def send_NetCmd_Buffer( cls ):
         if cls.isConnected() and len( cls.NetCmd_Buff ):
-            sNetCmdBuf = "|".join( cls.NetCmd_Buff )
+            sNetCmdBuf =  f"{cls.ClientID}|" + "|".join( cls.NetCmd_Buff )
+
             cls.redisConn.publish( s_Redis_NetObj_Channel, sNetCmdBuf )
 
         cls.NetCmd_Buff.clear()

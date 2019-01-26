@@ -59,9 +59,9 @@ class CSSD_MainWindow(QMainWindow):
 
     def updateTest(self):
         pass
-        nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
-
         start = time.time()
+        
+        nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
 
         for child in nodes.children:
             child["x"] += 1

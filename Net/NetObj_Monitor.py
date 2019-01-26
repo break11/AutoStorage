@@ -69,8 +69,7 @@ class CNetObj_Monitor(QWidget):
             self.cbEvent.addItem( ev.name, ev )
 
     def on_btnSendNetCmd_released( self ):
-        cmd = CNetCmd( ClientID=self.sbClientID.value(),
-                       Event=self.cbEvent.currentData(), Obj_UID=self.sbObj_UID.value(),
+        cmd = CNetCmd( Event=self.cbEvent.currentData(), Obj_UID=self.sbObj_UID.value(),
                        PropName=self.lePropName.text(), ExtCmdData=self.leExtCmdData.text() )
         CNetObj_Manager.sendNetCMD( cmd )
 
