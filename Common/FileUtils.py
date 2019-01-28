@@ -1,5 +1,6 @@
 import os
 from __main__ import __file__ as baseFName
+import sys
 
 extensionsFiltersDict = {
                             "GraphML (*.graphml)" : "graphml",
@@ -26,3 +27,23 @@ def graphML_Path():
     
 def mainAppBaseName():
     return os.path.basename( baseFName ).replace( ".py", "" )
+
+def execScript(app):
+    bProfile = "--profile" in sys.argv
+
+    if bProfile:
+        import cProfile, pstats
+        from __main__ import __file__ as baseFName
+        import subprocess
+
+        pr = cProfile.Profile()
+        pr.run( "app.main()" )
+        pr.create_stats()
+        pstats.Stats(pr).sort_stats('tottime', 'name', 'file').print_stats(0.05)
+        pr.dump_stats( baseFName + ".profile_output" )
+
+        subprocess.run(["pyprof2calltree", "-i", baseFName + ".profile_output", "-k"])
+        # f"pyprof2calltree -i ./{baseFName + ".profile_output"} -k"
+    else:
+        app.main()
+        # sys.exit( main.main() ) # raise exception when debug in IDE
