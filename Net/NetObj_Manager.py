@@ -125,12 +125,7 @@ class CNetObj_Manager( object ):
             cmdList = msgData.split("|")
             packetClientID = int( cmdList[0] )
 
-            # for cmdItem in cmdList[1::]:
-            j = 0
-            while j < len( cmdList )-1:
-                j += 1 # start on index 1, in index 0 clientID
-                cmdItem = cmdList[j]
-
+            for cmdItem in cmdList[1::]:
                 netCmd = CNetCmd.fromString( cmdItem )
 
                 #################################################################################################
