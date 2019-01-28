@@ -67,13 +67,13 @@ class CSSD_MainWindow(QMainWindow):
 
         print( f"update send time {(time.time() - start)*1000}")
 
-    def tick(self):
-
+    def updateClientList( self ):
         net = CNetObj_Manager.serviceConn
         m = self.clientList_Model
 
         clientIDList = []
         for key in net.keys( "client:*" ):
+            if net.pttl( key ) == -1: net.delete( key )
             clientIDList.append( key.decode().split(":")[1] )
 
         # проход по найденным ключам клиентов в редис - обнаружение подключенных клиентов
@@ -108,6 +108,9 @@ class CSSD_MainWindow(QMainWindow):
             if not ( sID in clientIDList ):
                 m.removeRow( i )
             i += 1
+
+    def tick(self):
+        self.updateClientList()
 
     def closeEvent( self, event ):
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
