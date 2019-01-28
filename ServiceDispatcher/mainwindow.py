@@ -11,7 +11,6 @@ from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 from Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
-from Common import NetUtils
 from Common import FileUtils
 
 from Net.NetObj_Manager import CNetObj_Manager
@@ -58,7 +57,6 @@ class CSSD_MainWindow(QMainWindow):
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
     def updateTest(self):
-        pass
         start = time.time()
         
         nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
@@ -85,12 +83,20 @@ class CSSD_MainWindow(QMainWindow):
             if len( l ): continue
 
             ClientID = int( sClientID )
-            ClientName = net.get( f"client:{sClientID}:name" ).decode() # !!!!!!!!!!
-            ClientIpAddress = NetUtils.get_ip()
+            pipe = net.pipeline()
+            pipe.get( CNetObj_Manager.redisKey_clientInfoName_C( ClientID ) )
+            pipe.get( CNetObj_Manager.redisKey_clientInfoIPAddress_C( ClientID ) )
+            pipeVals = pipe.execute()
+            
+            ClientName = pipeVals[0]
+            ClientIPAddress = pipeVals[1]
+
+            if not ( ClientID and ClientIPAddress ):
+                continue
 
             rowItems = [ GuiUtils.Std_Model_Item( ClientID, bReadOnly = True ),
-                         GuiUtils.Std_Model_Item( ClientName, bReadOnly = True ),
-                         GuiUtils.Std_Model_Item( ClientIpAddress, bReadOnly = True ) ]
+                         GuiUtils.Std_Model_Item( ClientName.decode(), bReadOnly = True ),
+                         GuiUtils.Std_Model_Item( ClientIPAddress.decode(), bReadOnly = True ) ]
             m.appendRow( rowItems )
         
         # проход по модели - сравнение с найденными ключами в редис - обнаружение отключенных клиентов

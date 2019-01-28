@@ -21,7 +21,7 @@ class CNetCmd:
     def fromString( sVal ):
         l = sVal.split(":")
 
-        ev         = EV( int( l[0] ) )
+        ev = EV( int( l[0] ) )
 
         if ev <= EV.ClientDisconnected:
             return CNetCmd( Event=ev )

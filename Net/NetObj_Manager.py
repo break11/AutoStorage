@@ -8,6 +8,9 @@ import weakref
 import redis
 import weakref
 import time
+from __main__ import __file__ as baseFName
+import os
+from Common import NetUtils
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -99,13 +102,27 @@ class CNetObj_Manager( object ):
 
     #####################################################
     @classmethod
-    def updateClientInfo( cls ):
-        from __main__ import __file__ as baseFName
-        import os
-        sKey = f"client:{cls.ClientID}:name"
+    def redisKey_clientInfoName_C(cls, ClientID): return f"client:{ClientID}:name"
+    @classmethod
+    def redisKey_clientInfoName(cls): return cls.redisKey_clientInfoName_C( cls.ClientID )
 
-        cls.serviceConn.set( sKey, baseFName.rsplit(os.sep, 1)[1] )
-        cls.serviceConn.expire( sKey, 5 )
+    @classmethod
+    def redisKey_clientInfoIPAddress_C(cls, ClientID): return f"client:{ClientID}:ipaddress"
+    @classmethod
+    def redisKey_clientInfoIPAddress(cls): return cls.redisKey_clientInfoIPAddress_C( cls.ClientID )
+
+    clientInfoExpTime = 5
+    @classmethod
+    def updateClientInfo( cls ):
+        appName = baseFName.rsplit(os.sep, 1)[1]
+
+        sKey = cls.redisKey_clientInfoName()
+        cls.serviceConn.set( sKey, appName )
+        cls.serviceConn.expire( sKey, cls.clientInfoExpTime )
+
+        sKey = cls.redisKey_clientInfoIPAddress()
+        cls.serviceConn.set( sKey, NetUtils.get_ip() )
+        cls.serviceConn.expire( sKey, cls.clientInfoExpTime )
 
     @classmethod
     def onTick( cls ):
@@ -126,6 +143,7 @@ class CNetObj_Manager( object ):
             packetClientID = int( cmdList[0] )
 
             for cmdItem in cmdList[1::]:
+
                 netCmd = CNetCmd.fromString( cmdItem )
 
                 #################################################################################################
