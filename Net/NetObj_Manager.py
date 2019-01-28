@@ -183,7 +183,7 @@ class CNetObj_Manager( object ):
             valIDX = 0
             for objID in NetCreatedObj_UIDs:
                 obj, valIDX = CNetObj.createObj_From_PipeData( values, objID, valIDX )
-            NetCreatedObj_UIDs.clear()
+            # NetCreatedObj_UIDs.clear()
 
         #  применение обновления полей для всех объектов по которым были получены команды обновления полей
         if len( NetUpdatedObj ):
@@ -200,7 +200,7 @@ class CNetObj_Manager( object ):
                 obj.propsDict()[ netCmd.sPropName ] = val
                 cls.doCallbacks( netCmd )
                 valIDX += 1
-            NetUpdatedObj.clear()
+            # NetUpdatedObj.clear()
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()
