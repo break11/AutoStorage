@@ -2,9 +2,10 @@
 from PyQt5.QtWidgets import ( QWidget, QVBoxLayout, QTableView, QAbstractItemView )
 from PyQt5.QtGui import ( QStandardItemModel )
 
-from .NetObj import *
+from .NetObj import CNetObj
+from .NetObj_Manager import CNetObj_Manager
+from .Net_Events import ENet_Event as EV
 
-from Common.GuiUtils import *
 from Common import StorageGraphTypes as SGT
 
 class CNetObj_WidgetsManager:

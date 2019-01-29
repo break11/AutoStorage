@@ -1,5 +1,5 @@
 
-from enum import *
+from enum import Enum, auto
 from PyQt5.QtCore import (Qt)
 
 class EGraphAttrs( Enum ):

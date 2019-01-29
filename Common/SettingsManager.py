@@ -3,7 +3,7 @@ import os
 import sys
 import json
 
-from .FileUtils import *
+from .FileUtils import mainAppBaseName, projectDir
 from . import StrConsts as SC
 
 def settingsDir():

@@ -7,15 +7,15 @@ from enum import Enum, Flag, auto
 from copy import deepcopy
 
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (pyqtSlot, QObject, QLineF, QPointF)
+from PyQt5.QtCore import (pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt)
 from PyQt5.QtWidgets import ( QGraphicsItem )
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Rail_SGItem import CRail_SGItem
 from .StoragePlace_SGItem import CStoragePlace_SGItem
-from .GItem_EventFilter import *
-from .GuiUtils import *
+from .GItem_EventFilter import CGItem_EventFilter
+from .GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item
 
 from . import StrConsts as SC
 from . import StorageGraphTypes as SGT

@@ -3,11 +3,12 @@ from PyQt5.QtWidgets import ( QApplication, QDockWidget, QWidget )
 from PyQt5.QtCore import QTimer
 
 from .SettingsManager import CSettingsManager as CSM
+from Net.NetObj import CNetObj
 from Net.NetObj_Manager import CNetObj_Manager
 from Net.NetObj_Monitor import CNetObj_Monitor
 from Net.DictProps_Widget import CDictProps_Widget
 from Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
-from Common.Graph_NetObjects import *
+from Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 
 
 def registerNetObjTypes():

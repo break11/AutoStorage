@@ -1,5 +1,5 @@
 
-from enum import *
+from enum import IntEnum, auto
 
 class ENet_Event( IntEnum ):
     ClientConnected    = auto()

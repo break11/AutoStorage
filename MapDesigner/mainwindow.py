@@ -1,17 +1,19 @@
 
-from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer)
+from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer, Qt)
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction)
 from PyQt5 import uic
 
-from Common.StorageGraph_GScene_Manager import *
-from Common.GridGraphicsScene import *
-from Common.GV_Wheel_Zoom_EventFilter import *
+from Common.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CDEventFilter, EGManagerMode, EGManagerEditMode
+from Common.GridGraphicsScene import CGridGraphicsScene
+from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EventFilter
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
 import sys
-from Common.FileUtils import *
+import os
+from Common.FileUtils import correctFNameToProjectDir
+from Common.GuiUtils import windowDefSettings
 
 ###########################################
 _strList = [

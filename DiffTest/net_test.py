@@ -28,7 +28,7 @@ from anytree.importer import DictImporter
 from anytree import RenderTree
 from anytree import AnyNode, NodeMixin, RenderTree
 
-from enum import *
+from enum import Enum, auto
 
 nUID_Gen = 0
 

@@ -38,5 +38,3 @@ class CNetCmd:
                 return CNetCmd( Event=ev, Obj_UID=objUID, ExtCmdData=extCmdData )
 
     def __repr__(self): return self.toString( bDebug = True )
-
-from .NetObj_Manager import CNetObj_Manager

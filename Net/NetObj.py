@@ -1,4 +1,3 @@
-
 import sys
 
 from Common.SettingsManager import CSettingsManager as CSM

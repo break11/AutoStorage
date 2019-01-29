@@ -5,7 +5,8 @@ from PyQt5 import uic
 from PyQt5.Qt import ( QInputDialog, Qt )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 
-from .NetObj_Widgets import ( CNetObj_Widget, CNetObj_Manager )
+from .NetObj_Manager import CNetObj_Manager
+from .NetObj_Widgets import CNetObj_Widget
 from .Net_Events import ENet_Event as EV
 from Common.GuiUtils import ( Std_Model_Item )
 

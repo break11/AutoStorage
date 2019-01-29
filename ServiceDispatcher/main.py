@@ -1,20 +1,7 @@
-import networkx as nx
-import redis
-import os
+import sys
 
-from PyQt5.QtWidgets import ( QApplication, QWidget )
-
-from Common.SettingsManager import CSettingsManager as CSM
-from Common.BaseApplication import *
-import Common.StrConsts as SC
-from Net.NetObj import *
-from Net.NetObj_Manager import *
-from Net.NetObj_Monitor import CNetObj_Monitor
-from Net.NetObj_Widgets import *
-
-from Common.Graph_NetObjects import *
-from .def_settings import *
-
+from Common.BaseApplication import CBaseApplication, registerNetObjTypes
+from .def_settings import SD_DefSet
 from .mainwindow import CSSD_MainWindow
 
 def main():    
@@ -22,7 +9,7 @@ def main():
     
     app = CBaseApplication(sys.argv)
 
-    if not app.init( default_settings = serverDefSet ): return -1
+    if not app.init( default_settings = SD_DefSet ): return -1
     
     window = CSSD_MainWindow()
     window.show()

@@ -4,6 +4,7 @@ from Common.SettingsManager import CSettingsManager as CSM
 from Common.StrTypeConverter import CStrTypeConverter
 from Common import StrConsts as SC
 from .Net_Events import ENet_Event as EV
+from .NetCmd import CNetCmd
 import weakref
 import redis
 import weakref
@@ -381,4 +382,3 @@ class CNetObj_Manager( object ):
     ########################################################
 
 from .NetObj import CNetObj
-from .NetCmd import CNetCmd

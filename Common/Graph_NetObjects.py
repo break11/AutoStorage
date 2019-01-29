@@ -2,7 +2,6 @@
 import networkx as nx
 from Net.NetObj import CTreeNode, CNetObj
 from .GuiUtils import EdgeDisplayName
-from .StrTypeConverter import *
 
 class CGraphRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxGraph=None ):

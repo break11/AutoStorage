@@ -2,7 +2,7 @@
 from PyQt5.QtCore import ( Qt, QObject, QEvent, QTimer, QRectF )
 from PyQt5.QtWidgets import ( QGraphicsView )
 
-from .GuiUtils import *
+from .GuiUtils import gvFitToPage
 
 class CGV_Wheel_Zoom_EventFilter(QObject):
     ZoomFactor = 1.15
