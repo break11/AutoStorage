@@ -426,8 +426,8 @@ class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.__SGraph_Manager.EditMode & EGManagerEditMode.AddNode) :
                 attr = deepcopy (self.__SGraph_Manager.default_Node)
-                attr[ SGT.s_x ] = self.__gView.mapToScene(event.pos()).x()
-                attr[ SGT.s_y ] = self.__gView.mapToScene(event.pos()).y()
+                attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.__gView.mapToScene(event.pos()).x() )
+                attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
                 self.__SGraph_Manager.addNode( self.__SGraph_Manager.genStrNodeID(), **attr )
 
                 ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю

@@ -71,6 +71,7 @@
     <addaction name="acLoadGraphML"/>
     <addaction name="acSaveGraphML"/>
     <addaction name="acSaveGraphMLAs"/>
+    <addaction name="acFullScreen"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -596,6 +597,17 @@ selection-background-color: red;*/
    </property>
    <property name="toolTip">
     <string>Show storages rotate lines</string>
+   </property>
+  </action>
+  <action name="acFullScreen">
+   <property name="text">
+    <string>Full screen</string>
+   </property>
+   <property name="toolTip">
+    <string>Full screen</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>
