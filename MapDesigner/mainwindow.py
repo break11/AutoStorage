@@ -13,7 +13,7 @@ import Common.StrConsts as SC
 import sys
 import os
 from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters
-from Common.GuiUtils import windowDefSettings, gvFitToPage
+from Common.GuiUtils import windowDefSettings, gvFitToPage, time_func
 
 ###########################################
 sceneDefSettings = {
@@ -159,6 +159,7 @@ class CSMD_MainWindow(QMainWindow):
         
         return True
 
+    @time_func( f"Graph loaded in time:" )
     def loadGraphML( self, sFName ):
         if not self.unsavedChangesDialog(): return
         

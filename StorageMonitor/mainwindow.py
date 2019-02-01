@@ -61,8 +61,6 @@ class CSM_MainWindow(QMainWindow):
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraph_Manager )
         
-        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
-
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
         sceneSettings = CSM.rootOpt( SC.s_scene, default=sceneDefSettings )
@@ -113,11 +111,7 @@ class CSM_MainWindow(QMainWindow):
         else:
             self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
-    def closeEvent( self, event ):
-        if not self.unsavedChangesDialog():
-            event.ignore()
-            return
-        
+    def closeEvent( self, event ):        
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
         CSM.options[SC.s_scene] =   {
@@ -129,38 +123,6 @@ class CSM_MainWindow(QMainWindow):
                                         SC.s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
                                         SC.s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
                                     }
-
-
-    def unsavedChangesDialog(self):
-        if self.SGraph_Manager.bHasChanges:
-            mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Cancel | QMessageBox.Save)
-            mb.addButton("Close without saving", QMessageBox.RejectRole )
-            res = mb.exec()
-        
-            if res == QMessageBox.Save:
-                self.on_acSaveGraphML_triggered(True)
-
-            elif res == QMessageBox.Cancel:
-                return False
-        
-        return True
-
-    def loadGraphML( self, sFName ):
-        if not self.unsavedChangesDialog(): return
-        
-        sFName = correctFNameToProjectDir( sFName )
-        if self.SGraph_Manager.load( sFName ):
-            self.graphML_fname = sFName
-            self.setWindowTitle( self.__sWindowTitle + sFName )
-            CSM.options[ SC.s_last_opened_file ] = sFName
-
-    def saveGraphML( self, sFName ):
-        sFName = correctFNameToProjectDir( sFName )
-        self.graphML_fname = sFName
-        self.SGraph_Manager.save( sFName )
-        self.setWindowTitle( self.__sWindowTitle + sFName )
-        CSM.options[ SC.s_last_opened_file ] = sFName
-        self.SGraph_Manager.bHasChanges = False
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):

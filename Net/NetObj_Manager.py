@@ -12,6 +12,7 @@ import time
 from __main__ import __file__ as baseFName
 import os
 from Common import NetUtils
+from Common.GuiUtils import time_func
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -126,10 +127,8 @@ class CNetObj_Manager( object ):
         cls.serviceConn.expire( sKey, cls.clientInfoExpTime )
 
     @classmethod
+    @time_func( sMsg="tick time --------------------------", threshold=50 )
     def onTick( cls ):
-
-        start = time.time()
-
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
         NetUpdatedObj = [] # контейнер хранящий [ [netObj, netCmd], ... ] объектов по которым прошли обновления полей
 
@@ -227,9 +226,6 @@ class CNetObj_Manager( object ):
 
         if i: print( f"NetCmd count in tick = {i}" )
 
-        t = (time.time() - start)*1000
-        if t > 50:
-            print( f"tick time -------------------------- {t} -------------------------- tick time")
     #####################################################
 
     @classmethod
@@ -326,11 +322,16 @@ class CNetObj_Manager( object ):
         CNetObj_Manager.doCallbacks( cmd )
 
         # все клиенты при старте подхватывают содержимое с сервера
+        cls.loadAllObj_From_Redis()
+
+        return True
+    
+    @classmethod
+    @time_func( sMsg="Loading NetObj from Redis time" )
+    def loadAllObj_From_Redis( cls ):
         objects = cls.redisConn.smembers( s_ObjectsSet )
         if ( objects ):
             objects = sorted( objects, key = lambda x: int(x.decode()) )
-
-            start = time.time()
 
             pipe = cls.redisConn.pipeline()
             for it in objects:
@@ -341,10 +342,6 @@ class CNetObj_Manager( object ):
             valIDX = 0
             for it in objects:
                 obj, valIDX = CNetObj.createObj_From_PipeData( values, int(it.decode()), valIDX )
-
-            print ( f"Loading NetObj from Redis time = {time.time() - start}" )
-
-        return True
 
     @classmethod
     def disconnect( cls ):

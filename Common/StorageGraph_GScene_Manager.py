@@ -20,8 +20,6 @@ from .GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item
 from . import StrConsts as SC
 from . import StorageGraphTypes as SGT
 
-import time
-
 class EGManagerMode (Flag):
     View      = auto()
     EditScene = auto()
@@ -105,7 +103,6 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges = True
 
     def load(self, sFName):
-        start = time.time()
         self.clear()
 
         if not os.path.exists( sFName ):
@@ -124,7 +121,6 @@ class CStorageGraph_GScene_Manager():
 
         count = 0
         for e in self.nxGraph.edges():
-            s = time.time()
             count+=1
             self.addEdge(*e)
 
@@ -135,7 +131,6 @@ class CStorageGraph_GScene_Manager():
         gvFitToPage( self.gView )
         self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
 
-        print( f"Graph '{sFName}' loaded in time: {(time.time() - start)*1000} ms" )
         return True
 
     def save( self, sFName ):

@@ -12,6 +12,7 @@ from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 from Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
 from Common import FileUtils
+from Common.GuiUtils import time_func
 
 from Net.NetObj_Manager import CNetObj_Manager
 from Net.NetObj import CNetObj, CTreeNode
@@ -56,16 +57,13 @@ class CSSD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-    def updateTest(self):
-        start = time.time()
-        
+    @time_func( sMsg="update send time" )
+    def updateTest(self):        
         nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
 
         for child in nodes.children:
             child["x"] += 1
             child["y"] += 1
-
-        print( f"update send time {(time.time() - start)*1000}")
 
     def updateClientList( self ):
         net = CNetObj_Manager.serviceConn
