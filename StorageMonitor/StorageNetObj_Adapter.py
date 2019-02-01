@@ -11,4 +11,10 @@ class CStorageNetObj_Adapter:
     def ObjCreated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
         if isinstance( netObj, CGraphRoot_NO ):
+            self.SGraph_Manager.nxGraph = netObj.nxGraph
             print( netObj.nxGraph )
+
+        if isinstance( netObj, CGraphNode_NO ):
+            self.SGraph_Manager.addNode( netObj.name )
+            # print( netObj.id )
+
