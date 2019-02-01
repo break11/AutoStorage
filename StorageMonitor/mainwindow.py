@@ -44,13 +44,12 @@ sceneDefSettings = {
 
 
 # Storage Map Designer Main Window
-class CSMD_MainWindow(QMainWindow):
+class CSM_MainWindow(QMainWindow):
     __sWindowTitle = "Storage Map Designer : "
     global CSM
 
     def __init__(self):
         super().__init__()
-
         uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
         self.setWindowTitle( self.__sWindowTitle )
 
@@ -78,6 +77,8 @@ class CSMD_MainWindow(QMainWindow):
         self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
         self.CD_EventFilter = CGItem_CDEventFilter (self.SGraph_Manager )
         
+        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
+
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
         sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
@@ -102,11 +103,8 @@ class CSMD_MainWindow(QMainWindow):
         self.acGrid.setChecked         ( self.StorageMap_Scene.bDrawGrid )
         self.acMainRail.setChecked     ( self.SGraph_Manager.bDrawMainRail )
         self.acInfoRails.setChecked    ( self.SGraph_Manager.bDrawInfoRails )
-        self.acSnapToGrid.setChecked   ( self.StorageMap_Scene.bSnapToGrid )
         self.acBBox.setChecked         ( self.SGraph_Manager.bDrawBBox )
         self.acSpecialLines.setChecked ( self.SGraph_Manager.bDrawSpecialLines )
-
-        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
 
     def unhideDocWidgets(self):
         for doc in self.DocWidgetsHiddenStates:
@@ -120,19 +118,8 @@ class CSMD_MainWindow(QMainWindow):
             doc.hide()
 
     def tick(self):
-        #добавляем '*' в заголовок окна если есть изменения
-        sign = "" if not self.SGraph_Manager.bHasChanges else "*"
-        self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
-
-        #в зависимости от режима активируем/деактивируем панель
-        self.toolEdit.setEnabled( bool (self.SGraph_Manager.Mode & EGManagerMode.EditScene) )
-
         #форма курсора
         self.updateCursor()
-
-        #ui
-        self.acAddNode.setChecked     ( bool (self.SGraph_Manager.EditMode & EGManagerEditMode.AddNode ) )
-        self.acLockEditing.setChecked ( not  (self.SGraph_Manager.Mode     & EGManagerMode.EditScene   ) )
 
     def updateCursor(self):
         if self.GV_EventFilter.actionCursor != Qt.ArrowCursor:

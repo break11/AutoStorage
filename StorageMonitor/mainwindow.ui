@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CSMD_MainWindow</class>
- <widget class="QMainWindow" name="CSMD_MainWindow">
+ <class>SM_MainWindow</class>
+ <widget class="QMainWindow" name="SM_MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Storage Map Designer</string>
+   <string>Storage Monitor</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -67,10 +67,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="acNewGraphML"/>
-    <addaction name="acLoadGraphML"/>
-    <addaction name="acSaveGraphML"/>
-    <addaction name="acSaveGraphMLAs"/>
     <addaction name="acFullScreen"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -81,19 +77,12 @@
     <addaction name="acZoomIn"/>
     <addaction name="acZoomOut"/>
     <addaction name="acGrid"/>
-    <addaction name="acSnapToGrid"/>
     <addaction name="acBBox"/>
    </widget>
    <widget class="QMenu" name="menuGraph_Edit">
     <property name="title">
      <string>Graph Edit</string>
     </property>
-    <addaction name="acAddNode"/>
-    <addaction name="acAddEdge_direct"/>
-    <addaction name="acAddEdge_reverse"/>
-    <addaction name="acAddEdge"/>
-    <addaction name="acDelMultiEdge"/>
-    <addaction name="acReverseEdges"/>
     <addaction name="acSelectAll"/>
    </widget>
    <addaction name="menuFile"/>
@@ -118,11 +107,9 @@
    <addaction name="acZoomIn"/>
    <addaction name="acZoomOut"/>
    <addaction name="acGrid"/>
-   <addaction name="acSnapToGrid"/>
    <addaction name="acBBox"/>
    <addaction name="acInfoRails"/>
    <addaction name="acMainRail"/>
-   <addaction name="acLockEditing"/>
   </widget>
   <widget class="QToolBar" name="toolEdit">
    <property name="windowTitle">
@@ -137,12 +124,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="acAddNode"/>
-   <addaction name="acAddEdge_direct"/>
-   <addaction name="acAddEdge_reverse"/>
-   <addaction name="acAddEdge"/>
-   <addaction name="acDelMultiEdge"/>
-   <addaction name="acReverseEdges"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
    <property name="enabled">
@@ -277,7 +258,6 @@ selection-background-color: red;*/
           <enum>Qt::Horizontal</enum>
          </property>
          <addaction name="acGrid"/>
-         <addaction name="acSnapToGrid"/>
          <addaction name="acBBox"/>
          <addaction name="acSpecialLines"/>
         </widget>
@@ -385,126 +365,6 @@ selection-background-color: red;*/
     <string>BBox</string>
    </property>
   </action>
-  <action name="acLoadGraphML">
-   <property name="text">
-    <string>Load GraphML</string>
-   </property>
-   <property name="toolTip">
-    <string>Load GraphML</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+O</string>
-   </property>
-  </action>
-  <action name="acSaveGraphMLAs">
-   <property name="text">
-    <string>Save GraphML as...</string>
-   </property>
-   <property name="toolTip">
-    <string>Save GraphML as..</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+S</string>
-   </property>
-  </action>
-  <action name="acAddNode">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/add_node.png</normaloff>:/images/add_node.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add node mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Add node mode</string>
-   </property>
-  </action>
-  <action name="acAddEdge">
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/add_edge.png</normaloff>:/images/add_edge.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add edges</string>
-   </property>
-   <property name="toolTip">
-    <string>Add edges for selected nodes</string>
-   </property>
-  </action>
-  <action name="acAddEdge_direct">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/add_edge_1-2_off.png</normaloff>
-     <normalon>:/images/add_edge_1-2.png</normalon>:/images/add_edge_1-2_off.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add edges direct mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Add edges in a direct order (1 --&gt; 2)</string>
-   </property>
-  </action>
-  <action name="acAddEdge_reverse">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/add_edge_2-1_off.png</normaloff>
-     <normalon>:/images/add_edge_2-1.png</normalon>:/images/add_edge_2-1_off.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add edges reverse mode</string>
-   </property>
-   <property name="toolTip">
-    <string>Add edges in a reverse order (1 &lt;-- 2)</string>
-   </property>
-  </action>
-  <action name="acDelMultiEdge">
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/del_edge.png</normaloff>:/images/del_edge.png</iconset>
-   </property>
-   <property name="text">
-    <string>Delete multiple edge</string>
-   </property>
-   <property name="toolTip">
-    <string>Delete multiple edge</string>
-   </property>
-  </action>
-  <action name="acReverseEdges">
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/reverse_edge.png</normaloff>:/images/reverse_edge.png</iconset>
-   </property>
-   <property name="text">
-    <string>Reverse selected edges</string>
-   </property>
-   <property name="toolTip">
-    <string>Reverse selected edges</string>
-   </property>
-  </action>
-  <action name="acSnapToGrid">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/snap_to_grid.png</normaloff>:/images/snap_to_grid.png</iconset>
-   </property>
-   <property name="text">
-    <string>Snap to grid</string>
-   </property>
-   <property name="toolTip">
-    <string>Snap to grid</string>
-   </property>
-  </action>
   <action name="acInfoRails">
    <property name="checkable">
     <bool>true</bool>
@@ -544,44 +404,6 @@ selection-background-color: red;*/
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
-   </property>
-  </action>
-  <action name="acSaveGraphML">
-   <property name="text">
-    <string>Save GraphML</string>
-   </property>
-   <property name="toolTip">
-    <string>Save GraphML</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="acNewGraphML">
-   <property name="text">
-    <string>New GraphML</string>
-   </property>
-   <property name="toolTip">
-    <string>New GraphML</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
-   </property>
-  </action>
-  <action name="acLockEditing">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="images.qrc">
-     <normaloff>:/images/lock_editing_off.png</normaloff>
-     <normalon>:/images/lock_editing_on.png</normalon>:/images/lock_editing_off.png</iconset>
-   </property>
-   <property name="text">
-    <string>Lock editing</string>
-   </property>
-   <property name="toolTip">
-    <string>Lock scene editing</string>
    </property>
   </action>
   <action name="acSpecialLines">

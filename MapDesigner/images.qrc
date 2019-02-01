@@ -1,10 +1,16 @@
 <RCC>
   <qresource prefix="/">
+    <file>../Common/images/special_lines.png</file>
+    <file>../Common/images/info_rails.png</file>
+    <file>../Common/images/main_rail.png</file>
+    <file>../Common/images/bbox.png</file>
+    <file>../Common/images/grid.png</file>
+    <file>../Common/images/zoom_fit.png</file>
+    <file>../Common/images/zoom_in.png</file>
+    <file>../Common/images/zoom_out.png</file>
+
     <file>images/lock_editing_on.png</file>
-    <file>images/special_lines.png</file>
     <file>images/lock_editing_off.png</file>
-    <file>images/info_rails.png</file>
-    <file>images/main_rail.png</file>
     <file>images/snap_to_grid.png</file>
     <file>images/add_edge_1-2_off.png</file>
     <file>images/add_edge_2-1_off.png</file>
@@ -14,10 +20,5 @@
     <file>images/add_edge_2-1.png</file>
     <file>images/add_edge.png</file>
     <file>images/add_node.png</file>
-    <file>images/bbox.png</file>
-    <file>images/grid.png</file>
-    <file>images/zoom_fit.png</file>
-    <file>images/zoom_in.png</file>
-    <file>images/zoom_out.png</file>
   </qresource>
 </RCC>
