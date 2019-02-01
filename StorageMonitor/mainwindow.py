@@ -15,30 +15,14 @@ import os
 from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters
 from Common.GuiUtils import windowDefSettings, gvFitToPage
 
-###########################################
-_strList = [
-            "scene",
-            "grid_size",
-            "draw_grid",
-            "draw_info_rails",
-            "draw_main_rail",
-            "snap_to_grid",
-            "draw_bbox",
-            "draw_special_lines"
-          ]
-
-# Экспортируем "короткие" алиасы строковых констант
-for str_item in _strList:
-    locals()[ "s_" + str_item ] = str_item
-###########################################
 sceneDefSettings = {
-                    s_grid_size           : 400,   # type: ignore
-                    s_draw_grid           : False, # type: ignore
-                    s_draw_info_rails     : False, # type: ignore
-                    s_draw_main_rail      : False, # type: ignore
-                    s_snap_to_grid        : False, # type: ignore
-                    s_draw_bbox           : False, # type: ignore
-                    s_draw_special_lines  : False, # type: ignore
+                    SC.s_grid_size           : 400,   # type: ignore
+                    SC.s_draw_grid           : False, # type: ignore
+                    SC.s_draw_info_rails     : False, # type: ignore
+                    SC.s_draw_main_rail      : False, # type: ignore
+                    SC.s_snap_to_grid        : False, # type: ignore
+                    SC.s_draw_bbox           : False, # type: ignore
+                    SC.s_draw_special_lines  : False, # type: ignore
                    }
 ###########################################
 
@@ -81,7 +65,7 @@ class CSM_MainWindow(QMainWindow):
 
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
-        sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
+        sceneSettings = CSM.rootOpt( SC.s_scene, default=sceneDefSettings )
 
         #if winSettings:
         geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
@@ -90,13 +74,13 @@ class CSM_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-        self.StorageMap_Scene.gridSize     =      CSM.dictOpt( sceneSettings, s_grid_size,          default = self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    =      CSM.dictOpt( sceneSettings, s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
-        self.StorageMap_Scene.bSnapToGrid  =      CSM.dictOpt( sceneSettings, s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
-        self.SGraph_Manager.setDrawMainRail     ( CSM.dictOpt( sceneSettings, s_draw_main_rail,     default = self.SGraph_Manager.bDrawMainRail ) )
-        self.SGraph_Manager.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, s_draw_info_rails,    default = self.SGraph_Manager.bDrawInfoRails ) )
-        self.SGraph_Manager.setDrawBBox         ( CSM.dictOpt( sceneSettings, s_draw_bbox,          default = self.SGraph_Manager.bDrawBBox ) )
-        self.SGraph_Manager.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, s_draw_special_lines, default = self.SGraph_Manager.bDrawSpecialLines ) )
+        self.StorageMap_Scene.gridSize     =      CSM.dictOpt( sceneSettings, SC.s_grid_size,          default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    =      CSM.dictOpt( sceneSettings, SC.s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  =      CSM.dictOpt( sceneSettings, SC.s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
+        self.SGraph_Manager.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGraph_Manager.bDrawMainRail ) )
+        self.SGraph_Manager.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGraph_Manager.bDrawInfoRails ) )
+        self.SGraph_Manager.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGraph_Manager.bDrawBBox ) )
+        self.SGraph_Manager.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGraph_Manager.bDrawSpecialLines ) )
 
         #setup ui
         self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
@@ -136,14 +120,14 @@ class CSM_MainWindow(QMainWindow):
         
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
-        CSM.options[s_scene] =   {
-                                        s_grid_size           : self.StorageMap_Scene.gridSize,
-                                        s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
-                                        s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
-                                        s_draw_info_rails     : self.SGraph_Manager.bDrawInfoRails,
-                                        s_draw_main_rail      : self.SGraph_Manager.bDrawMainRail,
-                                        s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
-                                        s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
+        CSM.options[SC.s_scene] =   {
+                                        SC.s_grid_size           : self.StorageMap_Scene.gridSize,
+                                        SC.s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
+                                        SC.s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
+                                        SC.s_draw_info_rails     : self.SGraph_Manager.bDrawInfoRails,
+                                        SC.s_draw_main_rail      : self.SGraph_Manager.bDrawMainRail,
+                                        SC.s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
+                                        SC.s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
                                     }
 
 
@@ -233,10 +217,6 @@ class CSM_MainWindow(QMainWindow):
         self.StorageMap_Scene.setDrawGrid( bChecked )
 
     @pyqtSlot(bool)
-    def on_acSnapToGrid_triggered(self, bChecked):
-        self.StorageMap_Scene.bSnapToGrid = bChecked
-
-    @pyqtSlot(bool)
     def on_acBBox_triggered(self, bChecked):
         self.SGraph_Manager.setDrawBBox(bChecked)
 
@@ -252,32 +232,6 @@ class CSM_MainWindow(QMainWindow):
     def on_acSpecialLines_triggered(self, bChecked):
         self.SGraph_Manager.setDrawSpecialLines( bChecked )
 
-    @pyqtSlot(bool)
-    def on_acLockEditing_triggered(self):
-        self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode ^ EGManagerMode.EditScene )
-
-    @pyqtSlot(bool)
-    def on_acAddNode_triggered(self):
-        self.SGraph_Manager.EditMode ^= EGManagerEditMode.AddNode
-
-    @pyqtSlot(bool)
-    def on_acDelMultiEdge_triggered (self, bChecked):
-        edgeGroups = [ g for g in self.StorageMap_Scene.selectedItems() if isinstance(g, CRail_SGItem) ]
-        for edgeGroup in edgeGroups:
-            self.SGraph_Manager.deleteMultiEdge( edgeGroup.groupKey )
-
-    @pyqtSlot(bool)
-    def on_acReverseEdges_triggered (self, bChecked):
-        edgeGroups = [ g for g in self.StorageMap_Scene.selectedItems() if isinstance(g, CRail_SGItem) ]
-        for edgeGroup in edgeGroups:
-            groupChilds = edgeGroup.childItems()
-            for edgeGItem in groupChilds:
-                self.SGraph_Manager.reverseEdge( edgeGItem.nodeID_1, edgeGItem.nodeID_2 )
-
-    @pyqtSlot(bool)
-    def on_acAddEdge_triggered(self):
-        self.SGraph_Manager.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
-
     @pyqtSlot()
     def on_acSelectAll_triggered(self):
         for gItem in self.StorageMap_Scene.items():
@@ -286,29 +240,3 @@ class CSM_MainWindow(QMainWindow):
     @pyqtSlot()
     def on_sbGridSize_editingFinished(self):
         self.StorageMap_Scene.setGridSize( self.sbGridSize.value() )
-
-    @pyqtSlot(bool)
-    def on_acNewGraphML_triggered(self, bChecked):
-        self.unsavedChangesDialog()
-        self.graphML_fname = SC.s_storage_graph_file__default
-        self.SGraph_Manager.new()
-        self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
-
-    @pyqtSlot(bool)
-    def on_acLoadGraphML_triggered(self, bChecked):
-        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path: self.loadGraphML( path )
-
-    @pyqtSlot(bool)
-    def on_acSaveGraphMLAs_triggered(self, bChecked):
-        path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
-        if path:
-            path = path if path.endswith( extensionsFiltersDict[extension] ) else ( path + "." + extensionsFiltersDict[extension] )
-            self.saveGraphML( path )
-
-    @pyqtSlot(bool)
-    def on_acSaveGraphML_triggered(self, bChecked):
-        if self.graphML_fname == SC.s_storage_graph_file__default:
-            self.on_acSaveGraphMLAs_triggered(True)
-        else:
-            self.saveGraphML( self.graphML_fname )

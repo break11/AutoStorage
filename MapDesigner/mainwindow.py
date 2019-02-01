@@ -16,29 +16,14 @@ from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_fi
 from Common.GuiUtils import windowDefSettings, gvFitToPage
 
 ###########################################
-_strList = [
-            "scene",
-            "grid_size",
-            "draw_grid",
-            "draw_info_rails",
-            "draw_main_rail",
-            "snap_to_grid",
-            "draw_bbox",
-            "draw_special_lines"
-          ]
-
-# Экспортируем "короткие" алиасы строковых констант
-for str_item in _strList:
-    locals()[ "s_" + str_item ] = str_item
-###########################################
 sceneDefSettings = {
-                    s_grid_size           : 400,   # type: ignore
-                    s_draw_grid           : False, # type: ignore
-                    s_draw_info_rails     : False, # type: ignore
-                    s_draw_main_rail      : False, # type: ignore
-                    s_snap_to_grid        : False, # type: ignore
-                    s_draw_bbox           : False, # type: ignore
-                    s_draw_special_lines  : False, # type: ignore
+                    SC.s_grid_size           : 400,   # type: ignore
+                    SC.s_draw_grid           : False, # type: ignore
+                    SC.s_draw_info_rails     : False, # type: ignore
+                    SC.s_draw_main_rail      : False, # type: ignore
+                    SC.s_snap_to_grid        : False, # type: ignore
+                    SC.s_draw_bbox           : False, # type: ignore
+                    SC.s_draw_special_lines  : False, # type: ignore
                    }
 ###########################################
 
@@ -80,7 +65,7 @@ class CSMD_MainWindow(QMainWindow):
         
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
-        sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
+        sceneSettings = CSM.rootOpt( SC.s_scene, default=sceneDefSettings )
 
         #if winSettings:
         geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
@@ -89,13 +74,13 @@ class CSMD_MainWindow(QMainWindow):
         state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
         self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
 
-        self.StorageMap_Scene.gridSize     =      CSM.dictOpt( sceneSettings, s_grid_size,          default = self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    =      CSM.dictOpt( sceneSettings, s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
-        self.StorageMap_Scene.bSnapToGrid  =      CSM.dictOpt( sceneSettings, s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
-        self.SGraph_Manager.setDrawMainRail     ( CSM.dictOpt( sceneSettings, s_draw_main_rail,     default = self.SGraph_Manager.bDrawMainRail ) )
-        self.SGraph_Manager.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, s_draw_info_rails,    default = self.SGraph_Manager.bDrawInfoRails ) )
-        self.SGraph_Manager.setDrawBBox         ( CSM.dictOpt( sceneSettings, s_draw_bbox,          default = self.SGraph_Manager.bDrawBBox ) )
-        self.SGraph_Manager.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, s_draw_special_lines, default = self.SGraph_Manager.bDrawSpecialLines ) )
+        self.StorageMap_Scene.gridSize     =      CSM.dictOpt( sceneSettings, SC.s_grid_size,          default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    =      CSM.dictOpt( sceneSettings, SC.s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  =      CSM.dictOpt( sceneSettings, SC.s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
+        self.SGraph_Manager.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGraph_Manager.bDrawMainRail ) )
+        self.SGraph_Manager.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGraph_Manager.bDrawInfoRails ) )
+        self.SGraph_Manager.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGraph_Manager.bDrawBBox ) )
+        self.SGraph_Manager.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGraph_Manager.bDrawSpecialLines ) )
 
         #setup ui
         self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
@@ -149,14 +134,14 @@ class CSMD_MainWindow(QMainWindow):
         
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
-        CSM.options[s_scene] =   {
-                                        s_grid_size           : self.StorageMap_Scene.gridSize,
-                                        s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
-                                        s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
-                                        s_draw_info_rails     : self.SGraph_Manager.bDrawInfoRails,
-                                        s_draw_main_rail      : self.SGraph_Manager.bDrawMainRail,
-                                        s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
-                                        s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
+        CSM.options[SC.s_scene] =   {
+                                        SC.s_grid_size           : self.StorageMap_Scene.gridSize,
+                                        SC.s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
+                                        SC.s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
+                                        SC.s_draw_info_rails     : self.SGraph_Manager.bDrawInfoRails,
+                                        SC.s_draw_main_rail      : self.SGraph_Manager.bDrawMainRail,
+                                        SC.s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
+                                        SC.s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
                                     }
 
 
