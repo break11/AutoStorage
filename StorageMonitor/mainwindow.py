@@ -4,16 +4,20 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget)
 from PyQt5 import uic
 
-from Common.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CDEventFilter, EGManagerMode, EGManagerEditMode
+from Common.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CreateDelete_EF, EGManagerMode, EGManagerEditMode
 from Common.GridGraphicsScene import CGridGraphicsScene
-from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EventFilter
+from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
+from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters
+from Common.GuiUtils import windowDefSettings, gvFitToPage
+
+# from Net.NetObj_Manager import CNetObj_Manager
+# from Net.Net_Events import ENet_Event as EV
+# from Net.NetCmd import CNetCmd
 
 import sys
 import os
-from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters
-from Common.GuiUtils import windowDefSettings, gvFitToPage
 
 sceneDefSettings = {
                     SC.s_grid_size           : 400,   # type: ignore
@@ -25,7 +29,6 @@ sceneDefSettings = {
                     SC.s_draw_special_lines  : False, # type: ignore
                    }
 ###########################################
-
 
 # Storage Map Designer Main Window
 class CSM_MainWindow(QMainWindow):
@@ -57,9 +60,10 @@ class CSM_MainWindow(QMainWindow):
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGraph_Manager = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
+        self.SGraph_Manager.init()
 
-        self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
-        self.CD_EventFilter = CGItem_CDEventFilter (self.SGraph_Manager )
+        self.GV_Wheel_Zoom_EF = CGV_Wheel_Zoom_EF(self.StorageMap_View)
+        self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGraph_Manager )
         
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
@@ -104,8 +108,8 @@ class CSM_MainWindow(QMainWindow):
         self.updateCursor()
 
     def updateCursor(self):
-        if self.GV_EventFilter.actionCursor != Qt.ArrowCursor:
-            self.StorageMap_View.setCursor( self.GV_EventFilter.actionCursor )
+        if self.GV_Wheel_Zoom_EF.actionCursor != Qt.ArrowCursor:
+            self.StorageMap_View.setCursor( self.GV_Wheel_Zoom_EF.actionCursor )
         elif bool(self.SGraph_Manager.EditMode & EGManagerEditMode.AddNode):
             self.StorageMap_View.setCursor( Qt.CrossCursor )
         else:
@@ -156,11 +160,11 @@ class CSM_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):
-        self.GV_EventFilter.zoomIn()
+        self.GV_Wheel_Zoom_EF.zoomIn()
 
     @pyqtSlot(bool)
     def on_acZoomOut_triggered(self, bChecked):
-        self.GV_EventFilter.zoomOut()
+        self.GV_Wheel_Zoom_EF.zoomOut()
 
     @pyqtSlot()
     def on_acFullScreen_triggered(self):

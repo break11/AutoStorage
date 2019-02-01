@@ -86,6 +86,10 @@ class CStorageGraph_GScene_Manager():
             for nodeID, nodeGItem in self.nodeGItems.items():
                 nodeGItem.setFlags( nodeGItem.flags() & ~QGraphicsItem.ItemIsMovable )
 
+    def init(self):
+        self.gScene_evI = CGItem_EventFilter()
+        self.gScene.addItem( self.gScene_evI )
+
     def clear(self):
         self.nodeGItems = {}
         self.edgeGItems = {}
@@ -96,14 +100,16 @@ class CStorageGraph_GScene_Manager():
 
     def new(self):
         self.clear()
+        self.init()
+
         if self.nxGraph is None:
             self.nxGraph = nx.DiGraph()
-        self.gScene_evI = CGItem_EventFilter()
-        self.gScene.addItem( self.gScene_evI )
+
         self.bHasChanges = True
 
     def load(self, sFName):
         self.clear()
+        self.init()
 
         if not os.path.exists( sFName ):
             print( f"{SC.sWarning} GraphML file not found '{sFName}'!" )
@@ -111,17 +117,13 @@ class CStorageGraph_GScene_Manager():
             return False
         
         self.nxGraph  = nx.read_graphml( sFName )
-        self.gScene_evI = CGItem_EventFilter()
-        self.gScene.addItem( self.gScene_evI )
 
         for n in self.nxGraph.nodes():
             self.addNode(n)
 
         self.updateMaxNodeID()
 
-        count = 0
         for e in self.nxGraph.edges():
-            count+=1
             self.addEdge(*e)
 
         #после создания граней перерасчитываем линии расположения мест хранения
@@ -398,7 +400,7 @@ class CStorageGraph_GScene_Manager():
         edgeGroup.removeFromGroup(edgeGItem)
         self.deleteEdge(edgeGItem.nodeID_1, edgeGItem.nodeID_2)
 
-class CGItem_CDEventFilter(QObject): # Creation/Destruction GItems
+class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
 
     def __init__(self, SGraph_Manager):
         super().__init__(SGraph_Manager.gView)

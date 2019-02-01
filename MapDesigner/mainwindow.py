@@ -4,9 +4,9 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget)
 from PyQt5 import uic
 
-from Common.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CDEventFilter, EGManagerMode, EGManagerEditMode
+from Common.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CreateDelete_EF, EGManagerMode, EGManagerEditMode
 from Common.GridGraphicsScene import CGridGraphicsScene
-from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EventFilter
+from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
@@ -60,8 +60,8 @@ class CSMD_MainWindow(QMainWindow):
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGraph_Manager = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
 
-        self.GV_EventFilter = CGV_Wheel_Zoom_EventFilter(self.StorageMap_View)
-        self.CD_EventFilter = CGItem_CDEventFilter (self.SGraph_Manager )
+        self.GV_EventFilter = CGV_Wheel_Zoom_EF(self.StorageMap_View)
+        self.CD_EventFilter = CGItem_CreateDelete_EF (self.SGraph_Manager )
         
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )

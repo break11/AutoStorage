@@ -240,14 +240,15 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerObj( cls, netObj, saveToRedis ):
         cls.__objects[ netObj.UID ] = netObj
-        cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
+        
         if cls.isConnected() and netObj.UID > 0 and saveToRedis:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 cls.pipe.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( cls.pipe )
 
+                cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
                 CNetObj_Manager.sendNetCMD( cmd )
-        CNetObj_Manager.doCallbacks( cmd )
+        ##remove## CNetObj_Manager.doCallbacks( cmd )
     
     @classmethod
     def unregisterObj( cls, netObj ):
@@ -327,7 +328,7 @@ class CNetObj_Manager( object ):
         return True
     
     @classmethod
-    @time_func( sMsg="Loading NetObj from Redis time" )
+    @time_func( sMsg="Loading NetObj's from Redis time" )
     def loadAllObj_From_Redis( cls ):
         objects = cls.redisConn.smembers( s_ObjectsSet )
         if ( objects ):
@@ -338,7 +339,6 @@ class CNetObj_Manager( object ):
                 CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
             values = pipe.execute()
 
-            # из values удаляются элементы использованные для создания очередного объекта netObj
             valIDX = 0
             for it in objects:
                 obj, valIDX = CNetObj.createObj_From_PipeData( values, int(it.decode()), valIDX )

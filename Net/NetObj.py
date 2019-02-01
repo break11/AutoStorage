@@ -265,6 +265,9 @@ class CNetObj( CTreeNode ):
 
         netObj.onLoadFromRedis()
 
+        cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
+        CNetObj_Manager.doCallbacks( cmd )
+
         return netObj, nextIDX
 
     def delFromRedis( self, pipe ):

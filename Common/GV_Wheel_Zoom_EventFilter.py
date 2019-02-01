@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import ( QGraphicsView )
 
 from .GuiUtils import gvFitToPage
 
-class CGV_Wheel_Zoom_EventFilter(QObject):
+class CGV_Wheel_Zoom_EF(QObject):
     ZoomFactor = 1.15
 
     def __init__(self, gView):
-        super(CGV_Wheel_Zoom_EventFilter, self).__init__( parent = gView )
+        super(CGV_Wheel_Zoom_EF, self).__init__( parent = gView )
         self.__gView = gView
         self.__gView.installEventFilter( self )
         self.__gView.viewport().installEventFilter( self )
