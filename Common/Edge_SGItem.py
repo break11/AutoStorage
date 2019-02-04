@@ -39,8 +39,9 @@ class CEdge_SGItem(QGraphicsItem):
 
         self.buildEdge()
 
-    def done( self ):
-        self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
+    def done( self, bRemoveFromNX = True ):
+        if bRemoveFromNX:
+            self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
         self.clearInfoRails()
 
     def buildEdge(self):

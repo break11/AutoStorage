@@ -241,14 +241,15 @@ class CNetObj_Manager( object ):
     def registerObj( cls, netObj, saveToRedis ):
         cls.__objects[ netObj.UID ] = netObj
         
+        cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
         if cls.isConnected() and netObj.UID > 0 and saveToRedis:
             if not CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
                 cls.pipe.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( cls.pipe )
-
-                cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
                 CNetObj_Manager.sendNetCMD( cmd )
-        ##remove## CNetObj_Manager.doCallbacks( cmd )
+                
+        if saveToRedis:
+            CNetObj_Manager.doCallbacks( cmd )
     
     @classmethod
     def unregisterObj( cls, netObj ):

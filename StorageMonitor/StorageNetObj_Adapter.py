@@ -7,13 +7,34 @@ from Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 class CStorageNetObj_Adapter:
     def __init__(self):
         CNetObj_Manager.addCallback( EV.ObjCreated, self.ObjCreated )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
 
     def ObjCreated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        SGM = self.SGraph_Manager
 
         if isinstance( netObj, CGraphRoot_NO ):
-            self.SGraph_Manager.nxGraph = netObj.nxGraph
+            SGM.nxGraph = netObj.nxGraph
         elif isinstance( netObj, CGraphNode_NO ):
-            self.SGraph_Manager.addNode( netObj.name )
+            SGM.addNode( netObj.name )
         elif isinstance( netObj, CGraphEdge_NO ):
-            self.SGraph_Manager.addEdge( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
+            SGM.addEdge( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
+            for nodeGItem in [ SGM.nodeGItems[nodeID] for nodeID in [netObj.nxNodeID_1(), netObj.nxNodeID_2()] ]:
+                SGM.calcNodeMiddleLine(nodeGItem)
+
+    def ObjPrepareDelete(self, netCmd):
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        SGM = self.SGraph_Manager
+
+        if isinstance( netObj, CGraphRoot_NO ):
+            SGM.nxGraph = None
+        elif isinstance( netObj, CGraphNode_NO ):
+            SGM.deleteNode( netObj.name, bRemoveFromNX = False )
+        # elif isinstance( netObj, CGraphEdge_NO ):
+        #     groupKey = frozenset( (netObj.nxNodeID_1(), netObj.nxNodeID_2()) )
+            
+        #     SGM.deleteEdge( netObj.nxNodeID_1(), netObj.nxNodeID_2(), bRemoveFromNX = False )
+        #     if not len( SGM.groupsByEdge[ groupKey ].childItems() ):
+        #         SGM.deleteEdgeGroup( groupKey )
+
+            

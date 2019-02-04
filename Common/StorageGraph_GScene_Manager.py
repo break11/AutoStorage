@@ -354,16 +354,16 @@ class CStorageGraph_GScene_Manager():
 
         edgeGroup.addToGroup( edgeGItem )
 
-    def deleteNode(self, nodeID):
-        self.nodeGItems[ nodeID ].done()
+    def deleteNode(self, nodeID, bRemoveFromNX = True):
+        self.nodeGItems[ nodeID ].done( bRemoveFromNX = bRemoveFromNX )
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
         self.bHasChanges = True
 
-    def deleteEdge(self, nodeID_1, nodeID_2):
+    def deleteEdge(self, nodeID_1, nodeID_2, bRemoveFromNX = True):
         e = (nodeID_1, nodeID_2)
         edgeGItem = self.edgeGItems[ e ]
-        edgeGItem.done()
+        edgeGItem.done( bRemoveFromNX = bRemoveFromNX )
         edgeGroup = self.groupsByEdge[ frozenset(e) ]
         edgeGroup.removeFromGroup( edgeGItem )
         self.gScene.removeItem( edgeGItem )
@@ -384,7 +384,7 @@ class CStorageGraph_GScene_Manager():
         edgeGroup.prepareGeometryChange()
         self.gScene.removeItem(edgeGroup)
         del self.groupsByEdge[ groupKey ]
-        del edgeGItem, groupChilds
+        # del edgeGItem, groupChilds
 
         # перерасчет средней линии для всех нод "связанных" с удаленными гранями
         for nodeID in groupKey:

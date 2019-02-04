@@ -32,7 +32,7 @@ sceneDefSettings = {
 
 # Storage Map Designer Main Window
 class CSM_MainWindow(QMainWindow):
-    __sWindowTitle = "Storage Map Designer : "
+    __sWindowTitle = "Storage Monitor"
     global CSM
 
     def __init__(self):

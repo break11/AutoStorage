@@ -84,8 +84,9 @@ class CNode_SGItem(QGraphicsItem):
         self.updateStorages()
         self.updatePos_From_NX()
 
-    def done(self):
-        self.nxGraph.remove_node( self.nodeID )
+    def done(self, bRemoveFromNX = True):
+        if bRemoveFromNX:
+            self.nxGraph.remove_node( self.nodeID )
         self.removeStorages()
         self.removeSpecialLines()
 
