@@ -2,6 +2,7 @@
 import networkx as nx
 from Net.NetObj import CTreeNode, CNetObj
 from .GuiUtils import EdgeDisplayName
+import weakref
 
 class CGraphRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxGraph=None ):
@@ -9,8 +10,8 @@ class CGraphRoot_NO( CNetObj ):
         self.__edges = None
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
 
-    def ObjPrepareDelete( self, netCmd ):
-        self.__edges = None
+    # def ObjPrepareDelete( self, netCmd ):
+    #     self.__edges = None
 
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
 
@@ -23,7 +24,8 @@ class CGraphRoot_NO( CNetObj ):
     def edgesNode( self ):
         if self.__edges is None:
             self.__edges = self.childByName( 'Edges')
-        return self.__edges
+            if self.__edges: self.__edges = weakref.ref( self.__edges )
+        return self.__edges() if self.__edges else None
 
 ###################################################################################
 

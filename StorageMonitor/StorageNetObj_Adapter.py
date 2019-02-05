@@ -27,9 +27,11 @@ class CStorageNetObj_Adapter:
         SGM = self.SGraph_Manager
 
         if isinstance( netObj, CGraphRoot_NO ):
+            SGM.clear()
             SGM.nxGraph = None
-        elif isinstance( netObj, CGraphNode_NO ):
-            SGM.deleteNode( netObj.name, bRemoveFromNX = False )
+        # elif isinstance( netObj, CGraphNode_NO ):
+        #     if SGM.nxGraph:
+        #         SGM.deleteNode( netObj.name, bRemoveFromNX = False )
         # elif isinstance( netObj, CGraphEdge_NO ):
         #     groupKey = frozenset( (netObj.nxNodeID_1(), netObj.nxNodeID_2()) )
             
