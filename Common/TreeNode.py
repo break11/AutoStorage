@@ -1,4 +1,6 @@
 
+import weakref
+
 class CTreeNode:
     ##########################
 
@@ -59,3 +61,17 @@ class CTreeNode:
         return dest
 
     def __repr__(self): return f"<TreeNode Name={self.name} Class={self.__class__.__name__}>"
+
+##################################################################################
+
+class CTreeNodeCache:
+    def __init__( self, baseNode, path):
+        self.baseNode = weakref.ref( baseNode )
+        self.path = path
+        self.__cache = None
+
+    def __call__( self ):
+        if self.__cache is None:
+            self.__cache = CTreeNode.resolvePath( self.baseNode(), self.path )
+            if self.__cache: self.__cache = weakref.ref( self.__cache )
+        return self.__cache() if self.__cache else None
