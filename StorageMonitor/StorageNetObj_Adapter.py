@@ -15,6 +15,7 @@ class CStorageNetObj_Adapter:
 
         if isinstance( netObj, CGraphRoot_NO ):
             SGM.nxGraph = netObj.nxGraph
+            SGM.init()
         elif isinstance( netObj, CGraphNode_NO ):
             SGM.addNode( netObj.name )
         elif isinstance( netObj, CGraphEdge_NO ):

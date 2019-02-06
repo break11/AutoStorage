@@ -5,67 +5,8 @@ from Common.StrTypeConverter import CStrTypeConverter
 from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
 import Common.StrConsts as SC
+from Common.TreeNode import CTreeNode
 import weakref
-
-class CTreeNode:
-    ##########################
-
-    @property
-    def children( self ):
-        return self.__children
-
-    def clearChildren( self ):
-        self.__children.clear()
-        self.__children_dict.clear()
-
-    ##########################
-    @property
-    def parent( self ):
-        return self.__parent
-    
-    @parent.setter
-    def parent( self, value ):
-        if value is None:
-            self.clearParent()
-            return
-        
-        self.__parent = value
-        self.__parent.__children.append( self )
-        self.__parent.__children_dict[ self.name ] = self
-
-    def clearParent( self ):
-        if self.__parent is None: return
-        self.__parent.__children.remove( self )
-        del self.__parent.__children_dict[ self.name ]
-        self.__parent = None
-    ##########################
-
-    def __init__( self, parent=None ):
-        self.__parent = parent
-        self.__children = []
-        self.__children_dict = {}
-
-    def childByName( self, name ):
-        return self.__children_dict.get( name )
-
-    @classmethod
-    def resolvePath( cls, obj, path ):
-        l = path.split("/")
-        l = [ item for item in l if item != "" ]
-        dest = obj
-        for item in l:
-            if item == "..":
-                dest = dest.parent
-                if dest is None:
-                    break
-            else:
-                for child in dest.children:
-                    if child.name == item:
-                        dest = child
-                        break
-                else:
-                    return None
-        return dest
 
 class CNetObj( CTreeNode ):
     __s_Name       = "name"
@@ -93,10 +34,8 @@ class CNetObj( CTreeNode ):
 ###################################################################################
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
-        super().__init__()
+        super().__init__( name = name, parent = parent )
         self.UID     = id if id else CNetObj_Manager.genNetObj_UID()
-        self.name    = name
-        self.parent  = parent
 
         hd = self.__modelHeaderData
         weakSelf = weakref.ref(self)
@@ -127,7 +66,7 @@ class CNetObj( CTreeNode ):
     def __localDestroy( self ):                
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.doCallbacks( cmd )
-        
+
         for child in self.children:
             child.__localDestroy()
 

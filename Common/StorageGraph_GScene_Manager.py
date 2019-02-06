@@ -95,15 +95,13 @@ class CStorageGraph_GScene_Manager():
         self.edgeGItems = {}
         self.groupsByEdge = {}
         self.gScene.clear()
-        if self.nxGraph is not None:
-            self.nxGraph.clear()
+        self.nxGraph = None
 
     def new(self):
         self.clear()
         self.init()
-
-        if self.nxGraph is None:
-            self.nxGraph = nx.DiGraph()
+        
+        self.nxGraph = nx.DiGraph()
 
         self.bHasChanges = True
 

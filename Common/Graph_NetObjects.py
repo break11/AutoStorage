@@ -4,14 +4,15 @@ from Net.NetObj import CTreeNode, CNetObj
 from .GuiUtils import EdgeDisplayName
 import weakref
 
+# class CTreeNodeCache:
+#     def __init__( self, path=None ):
+#         pass
+
 class CGraphRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxGraph=None ):
         self.nxGraph = nxGraph
         self.__edges = None
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
-
-    # def ObjPrepareDelete( self, netCmd ):
-    #     self.__edges = None
 
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
 
