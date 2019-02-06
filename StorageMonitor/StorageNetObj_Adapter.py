@@ -3,13 +3,15 @@ from Net.NetObj_Manager import CNetObj_Manager
 from Net.Net_Events import ENet_Event as EV
 from Net.NetCmd import CNetCmd
 from Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
+from Common.GuiUtils import time_func
 
 class CStorageNetObj_Adapter:
     def __init__(self):
         CNetObj_Manager.addCallback( EV.ObjCreated, self.ObjCreated )
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
 
-    def ObjCreated(self, netCmd):
+    @time_func( sMsg="Create scene items time", threshold=10 )
+    def ObjCreated(self, netCmd=None):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
         SGM = self.SGraph_Manager
 
