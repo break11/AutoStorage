@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import ( QGraphicsItem )
+from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
@@ -39,10 +39,13 @@ class CNode_SGItem(QGraphicsItem):
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
         self.createSpecialLines( scene )
+        # self.setCacheMode( QGraphicsItem.ItemCoordinateCache )
+        # self.setCacheMode( QGraphicsItem.DeviceCoordinateCache )
 
     def createSpecialLines( self, scene ):
         # кривая прямой пропорциональности
         self.__lineDirectProportionality = scene.addLine( 0, 0, 0, 0 )
+        # self.__lineDirectProportionality = QGraphicsLineItem( 0, 0, 0, 0 )
         pen = QPen( Qt.magenta )
         pen.setWidth( 4 )
         self.__lineDirectProportionality.setPen( pen )
@@ -50,6 +53,7 @@ class CNode_SGItem(QGraphicsItem):
 
         #расчетная средняя линия (перпендикуляр к расчетной линии, т.к. сама средняя линия напрямую пока не нужна)
         self.__normalToMiddleLine = scene.addLine( 0, 0, 0, 0 )
+        # self.__normalToMiddleLine = QGraphicsLineItem( 0, 0, 0, 0 )
         pen = QPen( Qt.black )
         pen.setWidth( 8 )
         self.__normalToMiddleLine.setPen( pen )
@@ -168,8 +172,10 @@ class CNode_SGItem(QGraphicsItem):
         painter.setPen( Qt.black )
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
+        # painter.fillRect( 0, 0, self.__R, self.__R, fillColor )
+        # painter.drawRect( 0, 0, self.__R, self.__R )
 
-        painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
+        # painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
     def mouseMoveEvent( self, event ):
         if not bool(self.flags() & QGraphicsItem.ItemIsMovable): return

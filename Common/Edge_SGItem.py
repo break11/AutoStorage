@@ -38,6 +38,8 @@ class CEdge_SGItem(QGraphicsItem):
         self.setZValue( 10 )
 
         self.buildEdge()
+        # self.setCacheMode( QGraphicsItem.DeviceCoordinateCache )
+        # self.setCacheMode( QGraphicsItem.ItemCoordinateCache )
 
     def done( self, bRemoveFromNX = True ):
         if bRemoveFromNX:

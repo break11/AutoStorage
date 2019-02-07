@@ -9,6 +9,7 @@ from copy import deepcopy
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtCore import (pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt)
 from PyQt5.QtWidgets import ( QGraphicsItem )
+from PyQt5.QtOpenGL import ( QGLWidget, QGLFormat, QGL )
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
@@ -52,9 +53,7 @@ class CStorageGraph_GScene_Manager():
         self.nodeGItems     = {}
         self.edgeGItems     = {}
         self.groupsByEdge   = {}
-        self.gScene         = None
         self.gScene_evI     = None
-        self.gView          = None
         self.nxGraph        = None
 
         self.bDrawBBox         = False
@@ -68,6 +67,7 @@ class CStorageGraph_GScene_Manager():
 
         self.gScene = gScene
         self.gView  = gView
+        # self.gView.setViewport( QGLWidget( QGLFormat(QGL.SampleBuffers) ) )
 
         self.__maxNodeID    = 0
 

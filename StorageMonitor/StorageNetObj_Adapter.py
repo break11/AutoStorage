@@ -22,8 +22,8 @@ class CStorageNetObj_Adapter:
             SGM.addNode( netObj.name )
         elif isinstance( netObj, CGraphEdge_NO ):
             SGM.addEdge( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
-            for nodeGItem in [ SGM.nodeGItems[nodeID] for nodeID in [netObj.nxNodeID_1(), netObj.nxNodeID_2()] ]:
-                SGM.calcNodeMiddleLine(nodeGItem)
+            # for nodeGItem in [ SGM.nodeGItems[nodeID] for nodeID in [netObj.nxNodeID_1(), netObj.nxNodeID_2()] ]:
+            #     SGM.calcNodeMiddleLine(nodeGItem)
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
