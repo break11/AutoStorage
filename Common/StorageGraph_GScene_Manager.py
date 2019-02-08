@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtOpenGL import ( QGLWidget, QGLFormat, QGL )
 
 from .Node_SGItem import CNode_SGItem
-from .Edge_SGItem import CEdge_SGItem
+from .Edge_SGItem import CEdge_SGItem, CEdge_SGItem_New
 from .Rail_SGItem import CRail_SGItem
 from .StoragePlace_SGItem import CStoragePlace_SGItem
 from .GItem_EventFilter import CGItem_EventFilter
@@ -53,6 +53,7 @@ class CStorageGraph_GScene_Manager():
         self.nodeGItems     = {}
         self.edgeGItems     = {}
         self.groupsByEdge   = {}
+        self.edgeGItems_New = {}
         self.gScene_evI     = None
         self.nxGraph        = None
 
@@ -93,6 +94,7 @@ class CStorageGraph_GScene_Manager():
     def clear(self):
         self.nodeGItems = {}
         self.edgeGItems = {}
+        self.edgeGItems_New = {}
         self.groupsByEdge = {}
         self.gScene.clear()
         self.nxGraph = None
@@ -121,8 +123,11 @@ class CStorageGraph_GScene_Manager():
 
         self.updateMaxNodeID()
 
+        # for e in self.nxGraph.edges():
+        #     self.addEdge(*e)
+
         for e in self.nxGraph.edges():
-            self.addEdge(*e)
+            self.addEdge_New( e )
 
         #после создания граней перерасчитываем линии расположения мест хранения
         for nodeID, nodeGItem in self.nodeGItems.items():
@@ -130,6 +135,8 @@ class CStorageGraph_GScene_Manager():
         
         gvFitToPage( self.gView )
         self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
+
+        print( f"GraphicsItems on scene = {len(self.gScene.items())}" )
 
         return True
 
@@ -163,6 +170,7 @@ class CStorageGraph_GScene_Manager():
 
     #рассчет средней линии для нод
     def calcNodeMiddleLine(self, nodeGItem):        
+        return
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
         for key in incEdges:
@@ -199,6 +207,17 @@ class CStorageGraph_GScene_Manager():
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
+
+        dictEdges = {}
+        for key in incEdges:
+            dictEdges[frozenset( key )] = self.edgeGItems_New[ frozenset(key) ]
+
+        for edgeGItem in dictEdges.values():
+            edgeGItem.buildEdge()
+            edgeGItem.updatePos_From_NX()
+
+        ##########################################################################
+
         for key in incEdges:
             edgeGItem = self.edgeGItems[ key ]
             edgeGItem.buildEdge()
@@ -305,6 +324,23 @@ class CStorageGraph_GScene_Manager():
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
 
         self.bHasChanges = True
+
+    def addEdge_New( self, tupleKey ):
+        edgeKey = frozenset( tupleKey )
+        if self.edgeGItems_New.get( edgeKey ) : return False
+
+        edgeGItem = CEdge_SGItem_New( self.nxGraph, edgeKey )
+        edgeGItem.bDrawBBox = self.bDrawBBox
+        # edgeGItem.setInfoRailsVisible( self.bDrawInfoRails )
+        # edgeGroup.setMainRailVisible( self.bDrawMainRail )
+        edgeGItem.updatePos_From_NX()
+
+        self.gScene.addItem( edgeGItem )
+        edgeGItem.installSceneEventFilter( self.gScene_evI )
+        self.edgeGItems_New[ edgeKey ] = edgeGItem
+
+        self.bHasChanges = True
+        return True
 
     def addEdge(self, nodeID_1, nodeID_2, **attr):
         if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return False
