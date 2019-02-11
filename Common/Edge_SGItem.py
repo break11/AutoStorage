@@ -42,7 +42,7 @@ class CEdge_SGItem_New(QGraphicsItem):
         self.setZValue( 10 )
 
         self.buildEdge()
-        self.setVisible( False )
+        # self.setVisible( False )
 
     def done( self, bRemoveFromNX = True ):
         if bRemoveFromNX:
@@ -90,6 +90,12 @@ class CEdge_SGItem_New(QGraphicsItem):
         return math.degrees(self.__rAngle)
 
     def paint(self, painter, option, widget):
+        lod = min( self.__baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
+        print( lod )
+        # print( self.__baseLine.length(), "\t", lod, "\t", option.levelOfDetailFromTransform( painter.worldTransform() ) )
+        if lod < 7:
+            return
+        
         pen = QPen()
         
         # Draw BBox
@@ -107,28 +113,25 @@ class CEdge_SGItem_New(QGraphicsItem):
         of = 10
         edgeLines = []
 
-        # if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
-            # nxEdge = self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
-        edgeLines.append( QLineF( self.__baseLine.length() - 30, -1 + of, self.__baseLine.length() - 50, -10 + of ) ) #     \
-        edgeLines.append( QLineF( 0, of, self.__baseLine.length(), of ) )                                             # -----
-        edgeLines.append( QLineF( self.__baseLine.length() - 30, 1 + of, self.__baseLine.length() - 50, 10 + of ) )   #     /
+        if lod > 50:
+            if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
+                nxEdge = self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
+                edgeLines.append( QLineF( self.__baseLine.length() - 30, -1 + of, self.__baseLine.length() - 50, -10 + of ) ) #     \
+                edgeLines.append( QLineF( 0, of, self.__baseLine.length(), of ) )                                             # -----
+                edgeLines.append( QLineF( self.__baseLine.length() - 30, 1 + of, self.__baseLine.length() - 50, 10 + of ) )   #     /
 
-        # if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
-        #     nxEdge = self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
-        edgeLines.append( QLineF( 30, -1 - of, 50, -10 - of ) )              # /
-        edgeLines.append( QLineF( self.__baseLine.length(), -of, 0, -of ) )  # -----
-        edgeLines.append( QLineF( 30, 1  - of,  50, 10 - of ) )              # \
-
-        # # Draw Main Rail
-        # width = nxEdge.get( SGT.s_widthType )
-        
-        # pen.setWidth( SGT.railWidth[ width ] )
-        # pen.setColor( QColor( 150, 150, 150, 100 ) )
-        # pen.setCapStyle( Qt.RoundCap )
-
-        # # painter.setCompositionMode( QPainter.CompositionMode_DestinationOver )
-        # painter.setPen(pen)
-        # painter.drawLine( 0, 0, self.__baseLine.length(), 0 )
+            if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
+                nxEdge = self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
+                edgeLines.append( QLineF( 30, -1 - of, 50, -10 - of ) )              # /
+                edgeLines.append( QLineF( self.__baseLine.length(), -of, 0, -of ) )  # -----
+                edgeLines.append( QLineF( 30, 1  - of,  50, 10 - of ) )              # \
+        elif lod > 30:
+            if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
+                edgeLines.append( QLineF( 0, of, self.__baseLine.length(), of ) )                                             # -----
+            if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
+                edgeLines.append( QLineF( self.__baseLine.length(), -of, 0, -of ) )  # -----
+        elif lod > 7:
+            edgeLines.append( QLineF( 0, 0, self.__baseLine.length(), 0 ) )
 
         # Draw Edge
         if self.isSelected():
@@ -140,10 +143,7 @@ class CEdge_SGItem_New(QGraphicsItem):
         pen.setWidth( 5 )
         painter.setPen(pen)
 
-        # painter.setCompositionMode( QPainter.CompositionMode_SourceOver )
         painter.drawLines( edgeLines )
-
-
 
     # def setInfoRailsVisible( self, bVal ):
     #     self.bInfoRailsVisible = bVal

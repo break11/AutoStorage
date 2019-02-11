@@ -163,6 +163,10 @@ class CNode_SGItem(QGraphicsItem):
                 st.setRotation(-storagesAngle)
 
     def paint(self, painter, option, widget):
+        lod = option.levelOfDetailFromTransform( painter.worldTransform() )
+        # if lod < 0.1: return
+        # print( lod /  )
+
         if self.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
@@ -171,11 +175,13 @@ class CNode_SGItem(QGraphicsItem):
         fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ self.nodeType ]
         painter.setPen( Qt.black )
         painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
-        # painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
-        painter.fillRect( 0, 0, self.__R, self.__R, fillColor )
-        # painter.drawRect( 0, 0, self.__R, self.__R )
+        if lod > 0.5:
+            painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )
+        else:
+            painter.drawRect( 0-self.__R/2, 0-self.__R/2, self.__R, self.__R )
 
-        # painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
+        if lod > 0.5:
+            painter.drawText( self.boundingRect(), Qt.AlignCenter, self.nodeID )
 
     def mouseMoveEvent( self, event ):
         if not bool(self.flags() & QGraphicsItem.ItemIsMovable): return

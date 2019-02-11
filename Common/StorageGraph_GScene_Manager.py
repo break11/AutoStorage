@@ -67,6 +67,7 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges    = False
 
         self.gScene = gScene
+        # self.gScene.setMinimumRenderSize( 3 )
         self.gView  = gView
         # self.gView.setViewport( QGLWidget( QGLFormat(QGL.SampleBuffers) ) )
 
