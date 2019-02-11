@@ -5,7 +5,7 @@ from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF, QLine )
 import math
 
 from . import StorageGraphTypes as SGT
-from .GuiUtils import EdgeDisplayName, getLineAngle
+from .GuiUtils import getLineAngle
 
 class CEdge_SGItem_New(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
@@ -21,9 +21,10 @@ class CEdge_SGItem_New(QGraphicsItem):
     @property
     def y2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_y )
 
-    def __init__(self, nxGraph, edgeKey):
+    def __init__(self, nxGraph, edgeKey ):
         super().__init__()
 
+        self.fsEdgeKey = edgeKey
         t = tuple( edgeKey )
         self.nodeID_1 = t[0]
         self.nodeID_2 = t[1]
@@ -32,7 +33,6 @@ class CEdge_SGItem_New(QGraphicsItem):
         self.__BBoxRect  = None     
         self.__baseLine  = None
         
-        self.bDrawBBox      = False
         self.bInfoRailsVisible = False
         self.bMainRailsVisible = False
 
@@ -72,8 +72,8 @@ class CEdge_SGItem_New(QGraphicsItem):
         self.__BBoxRect = QRectF( t.map(p1), t.map(p2) ).normalized()
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD + 1, -1*self.__fBBoxD + 1, self.__fBBoxD + 1, self.__fBBoxD + 1)
         
-    def edgeName(self):
-        return EdgeDisplayName( self.nodeID_1, self.nodeID_2 )
+    # def edgeName(self):
+    #     return EdgeDisplayName( self.nodeID_1, self.nodeID_2 )
 
     # def nxEdge(self):
     #     return self.nxGraph[ self.nodeID_1 ][ self.nodeID_2 ]
@@ -91,8 +91,6 @@ class CEdge_SGItem_New(QGraphicsItem):
 
     def paint(self, painter, option, widget):
         lod = min( self.__baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
-        print( lod )
-        # print( self.__baseLine.length(), "\t", lod, "\t", option.levelOfDetailFromTransform( painter.worldTransform() ) )
         if lod < 7:
             return
         
@@ -101,7 +99,7 @@ class CEdge_SGItem_New(QGraphicsItem):
         # Draw BBox
         w = 8
         pen.setWidth( w )
-        if self.bDrawBBox == True:
+        if self.SGM.bDrawBBox == True:
             pen.setColor( Qt.blue )
             painter.setPen(pen)
             bbox = self.boundingRect()

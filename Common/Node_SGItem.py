@@ -27,7 +27,6 @@ class CNode_SGItem(QGraphicsItem):
     def __init__(self, nxGraph, nodeID, scene):
         super().__init__()
 
-        self.bDrawBBox = False
         self.bDrawSpecialLines = False
         self.nxGraph  = nxGraph
         self.nodeID = nodeID
@@ -91,8 +90,8 @@ class CNode_SGItem(QGraphicsItem):
     def done(self, bRemoveFromNX = True):
         if bRemoveFromNX:
             self.nxGraph.remove_node( self.nodeID )
-        self.removeStorages()
-        self.removeSpecialLines()
+        # self.removeStorages()
+        # self.removeSpecialLines()
 
     # обновление позиции на сцене по атрибутам из графа
     def updatePos_From_NX(self):
@@ -167,7 +166,7 @@ class CNode_SGItem(QGraphicsItem):
         # if lod < 0.1: return
         # print( lod /  )
 
-        if self.bDrawBBox == True:
+        if self.SGM.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
         

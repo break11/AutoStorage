@@ -16,7 +16,7 @@ from .Edge_SGItem import CEdge_SGItem, CEdge_SGItem_New
 from .Rail_SGItem import CRail_SGItem
 from .StoragePlace_SGItem import CStoragePlace_SGItem
 from .GItem_EventFilter import CGItem_EventFilter
-from .GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item
+from .GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item, EdgeDisplayName
 
 from . import StrConsts as SC
 from . import StorageGraphTypes as SGT
@@ -71,7 +71,7 @@ class CStorageGraph_GScene_Manager():
         self.gView  = gView
         # self.gView.setViewport( QGLWidget( QGLFormat(QGL.SampleBuffers) ) )
 
-        self.__maxNodeID    = 0
+        self.__maxNodeID    = 0            
 
     def setModeFlags(self, flags):
         self.Mode = flags
@@ -145,9 +145,10 @@ class CStorageGraph_GScene_Manager():
         nx.write_graphml(self.nxGraph, sFName)
 
     def setDrawInfoRails( self, bVal ):
-        self.bDrawInfoRails = bVal
-        for e, v in self.edgeGItems.items():
-            v.setInfoRailsVisible( self.bDrawInfoRails )
+        pass
+        # self.bDrawInfoRails = bVal
+        # for e, v in self.edgeGItems.items():
+        #     v.setInfoRailsVisible( self.bDrawInfoRails )
 
     def setDrawMainRail( self, bVal ):
         self.bDrawMainRail = bVal
@@ -156,11 +157,6 @@ class CStorageGraph_GScene_Manager():
 
     def setDrawBBox( self, bVal ):
         self.bDrawBBox = bVal
-        for n, v in self.nodeGItems.items():
-            v.bDrawBBox = bVal
-
-        for e, v in self.edgeGItems.items():
-            v.bDrawBBox = bVal
         self.gScene.update()
 
     def setDrawSpecialLines(self, bVal):
@@ -175,7 +171,7 @@ class CStorageGraph_GScene_Manager():
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
         for key in incEdges:
-            dictEdges[frozenset( key )] = self.edgeGItems[ key ] #оставляем только некратные грани
+            dictEdges[frozenset( key )] = self.edgeGItems[ key ] # оставляем только некратные грани
         
         listEdges = dictEdges.values()
         AllPairEdges = [ (e1, e2) for e1 in listEdges for e2 in listEdges ]
@@ -217,26 +213,8 @@ class CStorageGraph_GScene_Manager():
             edgeGItem.buildEdge()
             edgeGItem.updatePos_From_NX()
 
-        ##########################################################################
-
-        for key in incEdges:
-            edgeGItem = self.edgeGItems[ key ]
-            edgeGItem.buildEdge()
-
-            # Граням выходящим из узла обновляем позицию, входящим - нет
-            if nodeGItem.nodeID == key[0]:
-                edgeGItem.updatePos_From_NX()
-
-            # необходимо перестроить инфо-рельс, т.к. он является отдельным лайн-итемом чилдом грани
-            edgeGItem.rebuildInfoRails()
-
-            groupItem = self.groupsByEdge[ frozenset( key ) ]
-
-            # https://bugreports.qt.io/browse/QTBUG-25974
-            # В связи с ошибкой в Qt группа не меняет свой размер при изменении геометрии чилдов
-            # поэтому приходится пересоздавать группу, убирая элементы и занося их в нее вновь 
-            groupItem.removeFromGroup( edgeGItem )
-            groupItem.addToGroup( edgeGItem )
+        #     # необходимо перестроить инфо-рельс, т.к. он является отдельным лайн-итемом чилдом грани
+        #     edgeGItem.rebuildInfoRails()
         
         self.bHasChanges = True
 
@@ -259,11 +237,11 @@ class CStorageGraph_GScene_Manager():
             gItem.updateType()
             self.updateNodeIncEdges( gItem )
 
-        if isinstance( gItem, CRail_SGItem ):
-            # грани лежат в группе по тем же индексам, что и столбцы полей в модели
-            edgeGItem = gItem.childItems()[ stdMItem.column() - 1 ]
-            edgeGItem.nxEdge()[ propName ] = SGT.adjustAttrType( propName, propValue )
-            edgeGItem.rebuildInfoRails()
+        if isinstance( gItem, CEdge_SGItem_New ):
+            tKey = stdMItem.data( Qt.UserRole + 1 )
+            nxEdge = self.nxGraph.edges[ tKey ]
+            nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
+            # gItem.rebuildInfoRails()
 
         self.bHasChanges = True
 
@@ -277,23 +255,32 @@ class CStorageGraph_GScene_Manager():
                 rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
                 objProps.appendRow( rowItems )
 
-        if isinstance( gItem, CRail_SGItem ):
+        if isinstance( gItem, CEdge_SGItem_New ):
+            def addNxEdgeIfExists( nodeID_1, nodeID_2, nxEdges ):
+                if self.nxGraph.has_edge( nodeID_1, nodeID_2 ):
+                    tE_Name = (nodeID_1, nodeID_2)
+                    nxEdges[ tE_Name ] = self.nxGraph.edges[ tE_Name ]
+
             objProps.setColumnCount( len( gItem.childItems() ) )
             header = [ "edgeID" ]
             uniqAttrSet = set()
-            for eGItem in gItem.childItems():
-                eGItem.edgeName()
-                header.append( eGItem.edgeName() )
-                uniqAttrSet = uniqAttrSet.union( eGItem.nxEdge().keys() )
+
+            nxEdges = {}
+            addNxEdgeIfExists( gItem.nodeID_1, gItem.nodeID_2, nxEdges )
+            addNxEdgeIfExists( gItem.nodeID_2, gItem.nodeID_1, nxEdges )
+
+            for k,v in nxEdges.items():
+                header.append( EdgeDisplayName( *k ) )
+                uniqAttrSet = uniqAttrSet.union( v.keys() )
 
             objProps.setHorizontalHeaderLabels( header )
 
             for key in sorted( uniqAttrSet ):
                 rowItems = []
                 rowItems.append( Std_Model_Item( key, True ) )
-                for eGItem in gItem.childItems():
-                    val = eGItem.nxEdge().get( key )
-                    rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ) ) )
+                for k, v in nxEdges.items():
+                    val = v.get( key )
+                    rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ), userData=k ) ) ## k - ключ тапл-имя грани в графе nx
                 objProps.appendRow( rowItems )
 
     def updateMaxNodeID(self):
@@ -323,6 +310,7 @@ class CStorageGraph_GScene_Manager():
         nodeGItem.bDrawBBox         = self.bDrawBBox
         nodeGItem.setDrawSpecialLines( self.bDrawSpecialLines )
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
+        nodeGItem.SGM = self
 
         self.bHasChanges = True
 
@@ -339,24 +327,8 @@ class CStorageGraph_GScene_Manager():
         self.gScene.addItem( edgeGItem )
         edgeGItem.installSceneEventFilter( self.gScene_evI )
         self.edgeGItems_New[ edgeKey ] = edgeGItem
-
-        self.bHasChanges = True
-        return True
-
-    def addEdge(self, nodeID_1, nodeID_2, **attr):
-        if self.edgeGItems.get( (nodeID_1, nodeID_2) ):return False
-        if not self.nxGraph.has_edge(nodeID_1, nodeID_2):
-            self.nxGraph.add_edge (nodeID_1, nodeID_2, **attr)
-
-        edgeGItem = CEdge_SGItem ( self.nxGraph, nodeID_1, nodeID_2 )
-        edgeGItem.bDrawBBox = self.bDrawBBox
-        self.edgeGItems[ (nodeID_1, nodeID_2) ] = edgeGItem
-        edgeGItem.updatePos_From_NX()
-        self.addEdgeToGrop( edgeGItem )
-        edgeGItem.installSceneEventFilter( self.gScene_evI )
-        # создаем информационные рельсы для граней после добавления граней в группу, чтобы BBox группы не включал инфо-рельсы
-        edgeGItem.buildInfoRails()
-        edgeGItem.setInfoRailsVisible( self.bDrawInfoRails )
+        edgeGItem.SGM = self
+        # edgeGItem.buildInfoRails()
 
         self.bHasChanges = True
         return True
@@ -375,19 +347,20 @@ class CStorageGraph_GScene_Manager():
     
         for nodeGItem in nodeGItems:
             self.calcNodeMiddleLine(nodeGItem)
-    
-    def addEdgeToGrop(self, edgeGItem):
-        groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
-        edgeGroup = self.groupsByEdge.get( groupKey )
-        if edgeGroup == None:
-            edgeGroup = CRail_SGItem(groupKey=groupKey, scene=self.gScene)
-            edgeGroup.setMainRailVisible( self.bDrawMainRail )
-            edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
-            self.groupsByEdge[ groupKey ] = edgeGroup
-            self.gScene.addItem( edgeGroup )
-            edgeGroup.installSceneEventFilter( self.gScene_evI )
 
-        edgeGroup.addToGroup( edgeGItem )
+##remove##    
+    # def addEdgeToGrop(self, edgeGItem):
+    #     groupKey = frozenset( (edgeGItem.nodeID_1, edgeGItem.nodeID_2) )
+    #     edgeGroup = self.groupsByEdge.get( groupKey )
+    #     if edgeGroup == None:
+    #         edgeGroup = CRail_SGItem(groupKey=groupKey, scene=self.gScene)
+    #         edgeGroup.setMainRailVisible( self.bDrawMainRail )
+    #         edgeGroup.setFlags( QGraphicsItem.ItemIsSelectable )
+    #         self.groupsByEdge[ groupKey ] = edgeGroup
+    #         self.gScene.addItem( edgeGroup )
+    #         edgeGroup.installSceneEventFilter( self.gScene_evI )
+
+    #     edgeGroup.addToGroup( edgeGItem )
 
     def deleteNode(self, nodeID, bRemoveFromNX = True):
         self.nodeGItems[ nodeID ].done( bRemoveFromNX = bRemoveFromNX )
@@ -395,36 +368,27 @@ class CStorageGraph_GScene_Manager():
         del self.nodeGItems[ nodeID ]
         self.bHasChanges = True
 
-    def deleteEdge(self, nodeID_1, nodeID_2, bRemoveFromNX = True):
-        e = (nodeID_1, nodeID_2)
-        edgeGItem = self.edgeGItems[ e ]
-        edgeGItem.done( bRemoveFromNX = bRemoveFromNX )
-        edgeGroup = self.groupsByEdge[ frozenset(e) ]
-        edgeGroup.removeFromGroup( edgeGItem )
-        self.gScene.removeItem( edgeGItem )
-        del self.edgeGItems[e]
-        self.bHasChanges = True
+    def deleteEdge(self, *fsKeys : frozenset, bRemoveFromNX = True ):
+        for fsKey in fsKeys:
+            edgeGItem = self.edgeGItems_New.get( fsKey )
+            if edgeGItem is None:
+                continue
+            edgeGItem.done( bRemoveFromNX = bRemoveFromNX )
+            self.gScene.removeItem( edgeGItem )
+            del self.edgeGItems_New[ fsKey ]
+
+            # перерасчет средней линии для всех нод "связанных" с удаленными гранями
+            for nodeID in fsKey:
+                self.calcNodeMiddleLine( self.nodeGItems[ nodeID ] )
+
+            self.bHasChanges = True
+
 
     def reverseEdge(self, nodeID_1, nodeID_2):
         if self.edgeGItems.get( (nodeID_2, nodeID_1) ) is None:
             attrs = self.edgeGItems.get( (nodeID_1, nodeID_2) ).nxEdge()
             self.deleteEdge( nodeID_1, nodeID_2 )
             self.addEdge ( nodeID_2, nodeID_1, **attrs )
-    
-    def deleteEdgeGroup(self, groupKey):
-        edgeGroup = self.groupsByEdge[groupKey]
-        groupChilds = edgeGroup.childItems()
-        for edgeGItem in groupChilds:
-            self.deleteEdge(edgeGItem.nodeID_1, edgeGItem.nodeID_2)
-        edgeGroup.prepareGeometryChange()
-        self.gScene.removeItem(edgeGroup)
-        del self.groupsByEdge[ groupKey ]
-        # del edgeGItem, groupChilds
-
-        # перерасчет средней линии для всех нод "связанных" с удаленными гранями
-        for nodeID in groupKey:
-            self.calcNodeMiddleLine( self.nodeGItems[nodeID] )
-
 
     def deleteMultiEdge(self, groupKey): #удаление кратной грани
         edgeGroup = self.groupsByEdge[groupKey]
@@ -439,28 +403,24 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
 
     def __init__(self, SGraph_Manager):
         super().__init__(SGraph_Manager.gView)
-        self.__SGraph_Manager = SGraph_Manager
+        self.__SGM = SGraph_Manager
         self.__gView  = SGraph_Manager.gView
         self.__gScene = SGraph_Manager.gScene
 
         self.__gView.installEventFilter(self)
         self.__gView.viewport().installEventFilter(self)
 
-    def __deleteEdgesGroups(self, *groupKeys):
-        for groupKey in groupKeys:
-            self.__SGraph_Manager.deleteEdgeGroup(groupKey)
-
     def eventFilter(self, object, event):
-        if not (self.__SGraph_Manager.Mode & EGManagerMode.EditScene):
+        if not (self.__SGM.Mode & EGManagerMode.EditScene):
             return False
 
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
-            if event.button() == Qt.LeftButton and (self.__SGraph_Manager.EditMode & EGManagerEditMode.AddNode) :
-                attr = deepcopy (self.__SGraph_Manager.default_Node)
+            if event.button() == Qt.LeftButton and (self.__SGM.EditMode & EGManagerEditMode.AddNode) :
+                attr = deepcopy (self.__SGM.default_Node)
                 attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.__gView.mapToScene(event.pos()).x() )
                 attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
-                self.__SGraph_Manager.addNode( self.__SGraph_Manager.genStrNodeID(), **attr )
+                self.__SGM.addNode( self.__SGM.genStrNodeID(), **attr )
 
                 ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю
                 # self.__gScene.setSceneRect( self.__gScene.itemsBoundingRect() )
@@ -473,16 +433,16 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:
 
             for item in self.__gScene.selectedItems():
+
                 if isinstance( item, CNode_SGItem ):
-                    incEdges = list( self.__SGraph_Manager.nxGraph.out_edges( item.nodeID ) ) +  list( self.__SGraph_Manager.nxGraph.in_edges( item.nodeID ) )
-                    groupsKeys = set( [ frozenset(s) for s in incEdges ] )
-                    for groupsKey in groupsKeys:
-                        self.__deleteEdgesGroups(groupsKey)
-                    self.__SGraph_Manager.deleteNode( item.nodeID )            
-            
-            for item in self.__gScene.selectedItems():
-                if isinstance( item, CRail_SGItem ):
-                    self.__deleteEdgesGroups( item.groupKey )
+                    incEdges = list( self.__SGM.nxGraph.out_edges( item.nodeID ) ) +  list( self.__SGM.nxGraph.in_edges( item.nodeID ) )
+                    fsKeys = set( [ frozenset(s) for s in incEdges ] )
+                    self.__SGM.deleteEdge( *fsKeys )
+                    self.__SGM.deleteNode( item.nodeID )            
+
+                # if isinstance( item, CEdge_SGItem_New ):
+                #     self.__SGM.deleteEdge( item.fsEdgeKey )
+
             
             event.accept()
             return True
