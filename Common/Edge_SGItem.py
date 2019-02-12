@@ -7,6 +7,8 @@ import math
 from . import StorageGraphTypes as SGT
 from .GuiUtils import getLineAngle
 
+from Common.EdgeDecorate_SGItem import CEdgeDecorate_SGItem
+
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
     
@@ -29,20 +31,18 @@ class CEdge_SGItem(QGraphicsItem):
         self.nodeID_1 = t[0]
         self.nodeID_2 = t[1]
 
-        self.__rAngle    = None
-        self.__BBoxRect  = None     
-        self.__baseLine  = None
+        self.__rAngle   = 0
+        self.__BBoxRect = None     
+        self.baseLine   = QLineF()
         
-        self.bInfoRailsVisible = False
-        self.bMainRailsVisible = False
-
         self.nxGraph = nxGraph
 
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 10 )
 
+        self.decorateSGItem = CEdgeDecorate_SGItem( parentEdge = self )
+
         self.buildEdge()
-        # self.setVisible( False )
 
     def done( self, bRemoveFromNX = True ):
         if bRemoveFromNX:
@@ -52,40 +52,49 @@ class CEdge_SGItem(QGraphicsItem):
             if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
                 self.nxGraph.remove_edge( self.nodeID_2, self.nodeID_1 )
 
-        # self.clearInfoRails()
+        self.scene().removeItem( self.decorateSGItem )
+
+    def updateDecorateOnScene( self ):
+        bVal = self.SGM.bDrawMainRail or self.SGM.bDrawInfoRails
+
+        if bVal and self.decorateSGItem.scene() is None:
+            self.scene().addItem( self.decorateSGItem )
+        elif self.decorateSGItem.scene() is not None:
+            self.scene().removeItem( self.decorateSGItem )
+        # self.update() ???????????????????????????
 
     def buildEdge(self):
         self.prepareGeometryChange()
 
         # исходная линия может быть полезной далее, например для получения длины
-        self.__baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
+        self.baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
 
         # угол поворота грани при рисовании (она рисуется горизонтально в своей локальной системе координат, потом поворачивается)
-        self.__rAngle = getLineAngle ( self.__baseLine )
+        self.__rAngle = getLineAngle ( self.baseLine )
 
         # расчет BBox-а поворачиваем точки BBox-а (topLeft, bottomRight) на тот же угол
-        t = QTransform()
-        t.rotate( -self.rotateAngle() + 90 )
-
+        self.setRotation( -self.rotateAngle() )
         p1 = QPointF( 0, 0 )
-        p2 = QPointF( 0, -self.__baseLine.length() )
-        self.__BBoxRect = QRectF( t.map(p1), t.map(p2) ).normalized()
+        p2 = QPointF( self.baseLine.length(), 0 )
+        self.__BBoxRect = QRectF( p1, p2 ).normalized()
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD + 1, -1*self.__fBBoxD + 1, self.__fBBoxD + 1, self.__fBBoxD + 1)
-        
 
+        self.decorateSGItem.updatedDecorate()
+        
     def boundingRect(self):
         return self.__BBoxRect_Adj
 
     # обновление позиции на сцене по атрибутам из графа
     def updatePos_From_NX(self):
         self.setPos( self.x1, self.y1 )
+        self.decorateSGItem.setPos( self.x1, self.y1 )
 
     # угол поворта в градусах
     def rotateAngle(self):
         return math.degrees(self.__rAngle)
 
     def paint(self, painter, option, widget):
-        lod = min( self.__baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
+        lod = min( self.baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
         if lod < 7:
             return
         
@@ -100,8 +109,6 @@ class CEdge_SGItem(QGraphicsItem):
             bbox = self.boundingRect()
             painter.drawRect( bbox.x() + w / 2, bbox.y() + w / 2, bbox.width()- w, bbox.height() - w )
 
-        painter.rotate( -self.rotateAngle() )
-
         # Create Edge Lines
         of = 10
         edgeLines = []
@@ -109,23 +116,23 @@ class CEdge_SGItem(QGraphicsItem):
         if lod > 50:
             if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
                 nxEdge = self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
-                edgeLines.append( QLineF( self.__baseLine.length() - 30, -1 + of, self.__baseLine.length() - 50, -10 + of ) ) #     \
-                edgeLines.append( QLineF( 0, of, self.__baseLine.length(), of ) )                                             # -----
-                edgeLines.append( QLineF( self.__baseLine.length() - 30, 1 + of, self.__baseLine.length() - 50, 10 + of ) )   #     /
+                edgeLines.append( QLineF( self.baseLine.length() - 30, -1 + of, self.baseLine.length() - 50, -10 + of ) ) #     \
+                edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                             # -----
+                edgeLines.append( QLineF( self.baseLine.length() - 30, 1 + of, self.baseLine.length() - 50, 10 + of ) )   #     /
 
             if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
                 nxEdge = self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
                 edgeLines.append( QLineF( 30, -1 - of, 50, -10 - of ) )              # /
-                edgeLines.append( QLineF( self.__baseLine.length(), -of, 0, -of ) )  # -----
+                edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )  # -----
                 edgeLines.append( QLineF( 30, 1  - of,  50, 10 - of ) )              # \
                 # edgeLines.append( QLineF( 50, -10 - of,  50, 10 - of ) )
         elif lod > 30:
             if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
-                edgeLines.append( QLineF( 0, of, self.__baseLine.length(), of ) )                                             # -----
+                edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                             # -----
             if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
-                edgeLines.append( QLineF( self.__baseLine.length(), -of, 0, -of ) )  # -----
+                edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )  # -----
         elif lod > 7:
-            edgeLines.append( QLineF( 0, 0, self.__baseLine.length(), 0 ) )
+            edgeLines.append( QLineF( 0, 0, self.baseLine.length(), 0 ) )
 
         # Draw Edge
         if self.isSelected():
@@ -138,11 +145,6 @@ class CEdge_SGItem(QGraphicsItem):
         painter.setPen(pen)
 
         painter.drawLines( edgeLines )
-
-    # def setInfoRailsVisible( self, bVal ):
-    #     self.bInfoRailsVisible = bVal
-    #     for lItem in self.__InfoRails:
-    #         lItem.setVisible( bVal )
 
     # def rebuildInfoRails( self ):
     #     self.clearInfoRails()

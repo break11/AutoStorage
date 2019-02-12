@@ -51,7 +51,6 @@ class CStorageGraph_GScene_Manager():
 
     def __init__(self, gScene, gView):
         self.nodeGItems     = {}
-        self.groupsByEdge   = {}
         self.edgeGItems     = {}
         self.gScene_evI     = None
         self.nxGraph        = None
@@ -94,7 +93,6 @@ class CStorageGraph_GScene_Manager():
     def clear(self):
         self.nodeGItems = {}
         self.edgeGItems = {}
-        self.groupsByEdge = {}
         self.gScene.clear()
         self.nxGraph = None
 
@@ -140,15 +138,14 @@ class CStorageGraph_GScene_Manager():
         nx.write_graphml(self.nxGraph, sFName)
 
     def setDrawInfoRails( self, bVal ):
-        pass
-        # self.bDrawInfoRails = bVal
-        # for e, v in self.edgeGItems.items():
-        #     v.setInfoRailsVisible( self.bDrawInfoRails )
+        self.bDrawInfoRails = bVal
+        for k, v in self.edgeGItems.items():
+            v.updateDecorateOnScene()
 
     def setDrawMainRail( self, bVal ):
         self.bDrawMainRail = bVal
-        for e, g in self.groupsByEdge.items():
-            g.setMainRailVisible( bVal )
+        for k, v in self.edgeGItems.items():
+            v.updateDecorateOnScene()
 
     def setDrawBBox( self, bVal ):
         self.bDrawBBox = bVal
@@ -207,9 +204,6 @@ class CStorageGraph_GScene_Manager():
         for edgeGItem in dictEdges.values():
             edgeGItem.buildEdge()
             edgeGItem.updatePos_From_NX()
-
-        #     # необходимо перестроить инфо-рельс, т.к. он является отдельным лайн-итемом чилдом грани
-        #     edgeGItem.rebuildInfoRails()
         
         self.bHasChanges = True
 
@@ -302,7 +296,7 @@ class CStorageGraph_GScene_Manager():
 
         nodeGItem.init()
         nodeGItem.installSceneEventFilter( self.gScene_evI )
-        nodeGItem.bDrawBBox         = self.bDrawBBox
+        # nodeGItem.bDrawBBox         = self.bDrawBBox
         nodeGItem.setDrawSpecialLines( self.bDrawSpecialLines )
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
         nodeGItem.SGM = self
@@ -314,16 +308,15 @@ class CStorageGraph_GScene_Manager():
         if self.edgeGItems.get( fsKey ) : return False
 
         edgeGItem = CEdge_SGItem( self.nxGraph, fsKey )
-        edgeGItem.bDrawBBox = self.bDrawBBox
-        # edgeGItem.setInfoRailsVisible( self.bDrawInfoRails )
-        # edgeGroup.setMainRailVisible( self.bDrawMainRail )
-        edgeGItem.updatePos_From_NX()
-
+        # edgeGItem.bDrawBBox = self.bDrawBBox
         self.gScene.addItem( edgeGItem )
+
+        edgeGItem.updatePos_From_NX()
         edgeGItem.installSceneEventFilter( self.gScene_evI )
         self.edgeGItems[ fsKey ] = edgeGItem
         edgeGItem.SGM = self
-        # edgeGItem.buildInfoRails()
+
+        edgeGItem.updateDecorateOnScene()
 
         self.bHasChanges = True
         return True
