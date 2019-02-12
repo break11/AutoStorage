@@ -14,6 +14,8 @@ import sys
 import os
 from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters
 from Common.GuiUtils import windowDefSettings, gvFitToPage, time_func
+from Common.Edge_SGItem import CEdge_SGItem
+from Common.Node_SGItem import CNode_SGItem
 
 ###########################################
 sceneDefSettings = {
@@ -198,10 +200,12 @@ class CSMD_MainWindow(QMainWindow):
         self.SGraph_Manager.updateGItemFromProps( gItem, item )
 
     # событие изменения итема (ноды вызывают при перемещении)
-    def itemChangedOnScene(self, nodeGItem):
-        self.SGraph_Manager.updateNodeIncEdges( nodeGItem )
+    def itemChangedOnScene(self, GItem):
+        if isinstance( GItem, CNode_SGItem ):
+            self.SGraph_Manager.updateNodeIncEdges( GItem )
+        
         self.objProps.clear()
-        self.SGraph_Manager.fillPropsForGItem( nodeGItem, self.objProps )
+        self.SGraph_Manager.fillPropsForGItem( GItem, self.objProps )
 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
@@ -261,17 +265,15 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acDelMultiEdge_triggered (self, bChecked):
-        edgeGroups = [ g for g in self.StorageMap_Scene.selectedItems() if isinstance(g, CRail_SGItem) ]
-        for edgeGroup in edgeGroups:
-            self.SGraph_Manager.deleteMultiEdge( edgeGroup.groupKey )
+        edgeSGItems = [ e for e in self.StorageMap_Scene.selectedItems() if isinstance(e, CEdge_SGItem) ]
+        for edgeSGItem in edgeSGItems:
+            self.SGraph_Manager.deleteMultiEdge( edgeSGItem.fsEdgeKey )
 
     @pyqtSlot(bool)
     def on_acReverseEdges_triggered (self, bChecked):
-        edgeGroups = [ g for g in self.StorageMap_Scene.selectedItems() if isinstance(g, CRail_SGItem) ]
-        for edgeGroup in edgeGroups:
-            groupChilds = edgeGroup.childItems()
-            for edgeGItem in groupChilds:
-                self.SGraph_Manager.reverseEdge( edgeGItem.nodeID_1, edgeGItem.nodeID_2 )
+        edgeSGItems = [ e for e in self.StorageMap_Scene.selectedItems() if isinstance(e, CEdge_SGItem) ]
+        for edgeSGItem in edgeSGItems:
+            self.SGraph_Manager.reverseEdge( edgeSGItem.fsEdgeKey )
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):
