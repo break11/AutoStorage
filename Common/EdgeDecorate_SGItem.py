@@ -13,7 +13,10 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
     
     def updatedDecorate( self ):
         self.prepareGeometryChange()
-        nxEdge = self.parentEdge.nxEdge_1_2() or self.parentEdge.nxEdge_2_1()
+
+        nxEdge = self.parentEdge.nxEdge_1_2()
+        if nxEdge is None:
+            nxEdge = self.parentEdge.nxEdge_2_1()
         assert nxEdge is not None
 
         self.setRotation( -self.parentEdge.rotateAngle() )
@@ -84,28 +87,19 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
             elif sensorSide == SGT.ESensorSide.SRight.name:
                 sides = [1]
 
-        pen = QPen()
-        pen.setWidth( 20 )
-        pen.setCapStyle( Qt.FlatCap )
-
-        l1 = []
-        l2 = []
+        l1, l2 = [], []
 
         for sK in sides:
             y = (w + 10)* sK
 
             if sensorSide != SGT.ESensorSide.SPassive.name:
-                # pen.setColor( Qt.blue )
                 l1.append( QLineF( eHFrom * kW, y, bline_length - eHTo * kW, y ) )
 
-            # pen.setColor( color )
             if eHFrom:
                 l2.append( QLineF( 0, y, eHFrom * kW, y ) )
 
             if eHTo:
                 l2.append( QLineF( bline_length - eHTo * kW, y, bline_length, y ) )
-
-        pen.setColor( Qt.blue )
 
         if reverse_edge:
             t = painter.transform()
@@ -113,6 +107,11 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
             t.rotate (180)
             painter.setTransform (t)
 
+        pen = QPen()
+        pen.setWidth( 20 )
+        pen.setCapStyle( Qt.FlatCap )
+
+        pen.setColor( Qt.blue )
         painter.setPen( pen )
         painter.drawLines( l1 )
 
