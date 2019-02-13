@@ -152,17 +152,15 @@ class CStorageGraph_GScene_Manager():
 
     def setDrawSpecialLines(self, bVal):
         self.bDrawSpecialLines = bVal
-        for n, v in self.nodeGItems.items():
-            v.setDrawSpecialLines( bVal )
         self.gScene.update()
 
     #рассчет средней линии для нод
     def calcNodeMiddleLine(self, nodeGItem):        
-        return
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
         for key in incEdges:
-            dictEdges[frozenset( key )] = self.edgeGItems[ key ] # оставляем только некратные грани
+            fsEdgeKey = frozenset( key )
+            dictEdges[ fsEdgeKey ] = self.edgeGItems[ fsEdgeKey ] # оставляем только некратные грани
         
         listEdges = dictEdges.values()
         AllPairEdges = [ (e1, e2) for e1 in listEdges for e2 in listEdges ]
@@ -295,7 +293,6 @@ class CStorageGraph_GScene_Manager():
 
         nodeGItem.init()
         nodeGItem.installSceneEventFilter( self.gScene_evI )
-        nodeGItem.setDrawSpecialLines( self.bDrawSpecialLines )
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
         nodeGItem.SGM = self
 

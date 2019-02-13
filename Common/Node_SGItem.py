@@ -27,7 +27,6 @@ class CNode_SGItem(QGraphicsItem):
     def __init__(self, nxGraph, nodeID, scene):
         super().__init__()
 
-        self.bDrawSpecialLines = False
         self.nxGraph  = nxGraph
         self.nodeID = nodeID
         self.nodeType = SGT.ENodeTypes.NoneType
@@ -37,43 +36,10 @@ class CNode_SGItem(QGraphicsItem):
         self.__singleStorages = []
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
-        self.createSpecialLines( scene )
-        # self.setCacheMode( QGraphicsItem.ItemCoordinateCache )
-        # self.setCacheMode( QGraphicsItem.DeviceCoordinateCache )
-
-    def createSpecialLines( self, scene ):
-        # кривая прямой пропорциональности
-        # self.__lineDirectProportionality = scene.addLine( 0, 0, 0, 0 )
-        self.__lineDirectProportionality = QGraphicsLineItem( 0, 0, 0, 0 )
-        pen = QPen( Qt.magenta )
-        pen.setWidth( 4 )
-        self.__lineDirectProportionality.setPen( pen )
-        self.__lineDirectProportionality.setVisible( self.bDrawSpecialLines )
-
-        #расчетная средняя линия (перпендикуляр к расчетной линии, т.к. сама средняя линия напрямую пока не нужна)
-        # self.__normalToMiddleLine = scene.addLine( 0, 0, 0, 0 )
-        self.__normalToMiddleLine = QGraphicsLineItem( 0, 0, 0, 0 )
-        pen = QPen( Qt.black )
-        pen.setWidth( 8 )
-        self.__normalToMiddleLine.setPen( pen )
-        self.__normalToMiddleLine.setVisible( self.bDrawSpecialLines )
-
-    def removeSpecialLines( self ):
-        self.scene().removeItem( self.__lineDirectProportionality )
-        self.scene().removeItem( self.__normalToMiddleLine )
 
     def setMiddleLineAngle( self, fVal ):
         self.middleLineAngle = fVal
-        l = self.__normalToMiddleLine
-        l.setTransformOriginPoint( QPointF (self.x, self.y) )
-        l.setRotation(-self.middleLineAngle)
-
-        self.rotateStorages()
-
-    def setDrawSpecialLines( self, bVal ):
-        self.bDrawSpecialLines = bVal
-        self.__lineDirectProportionality.setVisible( bVal )
-        self.__normalToMiddleLine.setVisible( bVal )
+        self.updateStorages()
 
     def nxNode(self):
         return self.nxGraph.node[ self.nodeID ]
@@ -84,20 +50,17 @@ class CNode_SGItem(QGraphicsItem):
     # инициализация после добавления в сцену
     def init(self):
         self.updateType()
-        self.updateStorages()
+        self.Add_Del_Storages()
         self.updatePos_From_NX()
 
     def done(self, bRemoveFromNX = True):
         if bRemoveFromNX:
             self.nxGraph.remove_node( self.nodeID )
-        # self.removeStorages()
-        # self.removeSpecialLines()
+        self.removeStorages()
 
     # обновление позиции на сцене по атрибутам из графа
     def updatePos_From_NX(self):
         super().setPos( self.x, self.y )
-        self.__lineDirectProportionality.setLine( self.x-500, self.y+500, self.x+500, self.y-500 )
-        self.__normalToMiddleLine.setLine( self.x-250, self.y, self.x+250, self.y )
 
     def setPos(self, x, y):
         self.x = round(x)
@@ -121,7 +84,7 @@ class CNode_SGItem(QGraphicsItem):
         except KeyError:
             self.nodeType = SGT.ENodeTypes.UnknownType
 
-    def updateStorages(self):
+    def Add_Del_Storages(self):
         #добавление и удаление мест хранения
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
             self.addStorages()
@@ -146,7 +109,7 @@ class CNode_SGItem(QGraphicsItem):
             self.scene().removeItem(singleStorage)
         self.__singleStorages = []
 
-    def rotateStorages(self):
+    def updateStorages(self):
         #позиционирование и поворот мест хранения
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
             
@@ -163,12 +126,26 @@ class CNode_SGItem(QGraphicsItem):
 
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
-        # if lod < 0.1: return
-        # print( lod /  )
 
         if self.SGM.bDrawBBox == True:
             painter.setPen(Qt.blue)
             painter.drawRect( self.boundingRect() )
+
+        if self.nodeType == SGT.ENodeTypes.StorageSingle and self.SGM.bDrawSpecialLines:
+            #прямая пропорциональности
+            pen = QPen( Qt.magenta )
+            pen.setWidth( 4 )
+            painter.setPen( pen )
+            l = QLineF (-500,500,500,-500)
+            painter.drawLine(l)
+
+            #расчетная средняя линия
+            pen = QPen( Qt.black )
+            pen.setWidth( 8 )
+            painter.setPen( pen )
+            l = QLineF (-250,0, 250, 0)
+            painter.rotate(-self.middleLineAngle)
+            painter.drawLine(l)
         
         # раскраска вершины по ее типу
         fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ self.nodeType ]

@@ -16,7 +16,7 @@ class CStoragePlace_SGItem(QGraphicsItem):
         self.x = x
         self.y = y
         self.__BBoxRect = QRectF( -self.width/2, -self.height/2, self.width, self.height )
-        self.setZValue( 5 )
+        self.setZValue( 15 )
         self.ID = ID
 
     def boundingRect(self):
