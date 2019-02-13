@@ -13,7 +13,6 @@ from PyQt5.QtOpenGL import ( QGLWidget, QGLFormat, QGL )
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
-from .Rail_SGItem import CRail_SGItem
 from .StoragePlace_SGItem import CStoragePlace_SGItem
 from .GItem_EventFilter import CGItem_EventFilter
 from .GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item, EdgeDisplayName
@@ -230,7 +229,7 @@ class CStorageGraph_GScene_Manager():
             tKey = stdMItem.data( Qt.UserRole + 1 )
             nxEdge = self.nxGraph.edges[ tKey ]
             nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
-            # gItem.rebuildInfoRails()
+            gItem.decorateSGItem.updatedDecorate()
 
         self.bHasChanges = True
 
@@ -296,7 +295,6 @@ class CStorageGraph_GScene_Manager():
 
         nodeGItem.init()
         nodeGItem.installSceneEventFilter( self.gScene_evI )
-        # nodeGItem.bDrawBBox         = self.bDrawBBox
         nodeGItem.setDrawSpecialLines( self.bDrawSpecialLines )
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
         nodeGItem.SGM = self
@@ -304,16 +302,15 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges = True
 
     def addEdge( self, tKey ):
-        fsKey = frozenset( tKey )
-        if self.edgeGItems.get( fsKey ) : return False
+        fsEdgeKey = frozenset( tKey )
+        if self.edgeGItems.get( fsEdgeKey ) : return False
 
-        edgeGItem = CEdge_SGItem( self.nxGraph, fsKey )
-        # edgeGItem.bDrawBBox = self.bDrawBBox
+        edgeGItem = CEdge_SGItem( self.nxGraph, fsEdgeKey )
         self.gScene.addItem( edgeGItem )
 
         edgeGItem.updatePos_From_NX()
         edgeGItem.installSceneEventFilter( self.gScene_evI )
-        self.edgeGItems[ fsKey ] = edgeGItem
+        self.edgeGItems[ fsEdgeKey ] = edgeGItem
         edgeGItem.SGM = self
 
         edgeGItem.updateDecorateOnScene()
@@ -346,17 +343,17 @@ class CStorageGraph_GScene_Manager():
         del self.nodeGItems[ nodeID ]
         self.bHasChanges = True
 
-    def deleteEdge(self, *fsKeys : frozenset, bRemoveFromNX = True ):
-        for fsKey in fsKeys:
-            edgeGItem = self.edgeGItems.get( fsKey )
+    def deleteEdge(self, *fsEdgeKeys : frozenset, bRemoveFromNX = True ):
+        for fsEdgeKey in fsEdgeKeys:
+            edgeGItem = self.edgeGItems.get( fsEdgeKey )
             if edgeGItem is None:
                 continue
             edgeGItem.done( bRemoveFromNX = bRemoveFromNX )
             self.gScene.removeItem( edgeGItem )
-            del self.edgeGItems[ fsKey ]
+            del self.edgeGItems[ fsEdgeKey ]
 
             # перерасчет средней линии для всех нод "связанных" с удаленными гранями
-            for nodeID in fsKey:
+            for nodeID in fsEdgeKey:
                 self.calcNodeMiddleLine( self.nodeGItems[ nodeID ] )
 
             self.bHasChanges = True
@@ -367,8 +364,8 @@ class CStorageGraph_GScene_Manager():
         t12 = (edgeGItem.nodeID_1, edgeGItem.nodeID_2)
         t21 = (edgeGItem.nodeID_2, edgeGItem.nodeID_1)
 
-        b12 = self.nxGraph.has_edge( edgeGItem.nodeID_1, edgeGItem.nodeID_2 )
-        b21 = self.nxGraph.has_edge( edgeGItem.nodeID_2, edgeGItem.nodeID_1 )
+        b12 = edgeGItem.hasNxEdge_1_2()
+        b21 = edgeGItem.hasNxEdge_2_1()
 
         if b12:
             attr12 = self.nxGraph.edges[ t12 ]
@@ -385,13 +382,19 @@ class CStorageGraph_GScene_Manager():
             self.nxGraph.add_edge( *t12, **attr21 )
 
         edgeGItem.update()
+        edgeGItem.decorateSGItem.update()
         self.gScene.itemChanged.emit( edgeGItem )
+
+        self.bHasChanges = True
 
     def deleteMultiEdge(self, fsEdgeKey): #удаление кратной грани
         edgeGItem = self.edgeGItems[ fsEdgeKey ]
-        if self.nxGraph.has_edge( edgeGItem.nodeID_2, edgeGItem.nodeID_1 ):
+        if edgeGItem.hasNxEdge_2_1():
             self.nxGraph.remove_edge( edgeGItem.nodeID_2, edgeGItem.nodeID_1 )
-        edgeGItem.update()
+            self.bHasChanges = True
+            edgeGItem.update()
+            edgeGItem.decorateSGItem.update()
+
 
 class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
 
@@ -430,8 +433,8 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
 
                 if isinstance( item, CNode_SGItem ):
                     incEdges = list( self.__SGM.nxGraph.out_edges( item.nodeID ) ) +  list( self.__SGM.nxGraph.in_edges( item.nodeID ) )
-                    fsKeys = set( [ frozenset(s) for s in incEdges ] )
-                    self.__SGM.deleteEdge( *fsKeys )
+                    fsEdgeKeys = set( [ frozenset(s) for s in incEdges ] )
+                    self.__SGM.deleteEdge( *fsEdgeKeys )
                     self.__SGM.deleteNode( item.nodeID )            
 
                 if isinstance( item, CEdge_SGItem ):

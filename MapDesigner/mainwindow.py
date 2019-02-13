@@ -12,7 +12,7 @@ import Common.StrConsts as SC
 
 import sys
 import os
-from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters
+from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters, extensionsFiltersDict
 from Common.GuiUtils import windowDefSettings, gvFitToPage, time_func
 from Common.Edge_SGItem import CEdge_SGItem
 from Common.Node_SGItem import CNode_SGItem

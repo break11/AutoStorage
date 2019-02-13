@@ -23,11 +23,11 @@ class CEdge_SGItem(QGraphicsItem):
     @property
     def y2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_y )
 
-    def __init__(self, nxGraph, edgeKey ):
+    def __init__(self, nxGraph, fsEdgeKey ):
         super().__init__()
 
-        self.fsEdgeKey = edgeKey
-        t = tuple( edgeKey )
+        self.fsEdgeKey = fsEdgeKey
+        t = tuple( fsEdgeKey )
         self.nodeID_1 = t[0]
         self.nodeID_2 = t[1]
 
@@ -46,22 +46,23 @@ class CEdge_SGItem(QGraphicsItem):
 
     def done( self, bRemoveFromNX = True ):
         if bRemoveFromNX:
-            if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
+            if self.hasNxEdge_1_2():
                 self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
 
-            if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
+            if self.hasNxEdge_2_1():
                 self.nxGraph.remove_edge( self.nodeID_2, self.nodeID_1 )
 
         self.scene().removeItem( self.decorateSGItem )
 
     def updateDecorateOnScene( self ):
         bVal = self.SGM.bDrawMainRail or self.SGM.bDrawInfoRails
-
+        
         if bVal and self.decorateSGItem.scene() is None:
             self.scene().addItem( self.decorateSGItem )
-        elif self.decorateSGItem.scene() is not None:
+        elif bVal==False and self.decorateSGItem.scene() is not None:
             self.scene().removeItem( self.decorateSGItem )
-        # self.update() ???????????????????????????
+
+        self.decorateSGItem.update()
 
     def buildEdge(self):
         self.prepareGeometryChange()
@@ -93,6 +94,18 @@ class CEdge_SGItem(QGraphicsItem):
     def rotateAngle(self):
         return math.degrees(self.__rAngle)
 
+    def hasNxEdge_1_2(self) : return self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 )
+    def hasNxEdge_2_1(self) : return self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 )
+
+    def nxEdge_1_2(self)    :
+        if self.hasNxEdge_1_2():
+            return self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
+        return None
+    def nxEdge_2_1(self)    :
+        if self.hasNxEdge_2_1():
+            return self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
+        return None
+
     def paint(self, painter, option, widget):
         lod = min( self.baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
         if lod < 7:
@@ -114,22 +127,19 @@ class CEdge_SGItem(QGraphicsItem):
         edgeLines = []
 
         if lod > 50:
-            if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
-                nxEdge = self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
+            if self.hasNxEdge_1_2():
                 edgeLines.append( QLineF( self.baseLine.length() - 30, -1 + of, self.baseLine.length() - 50, -10 + of ) ) #     \
                 edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                             # -----
                 edgeLines.append( QLineF( self.baseLine.length() - 30, 1 + of, self.baseLine.length() - 50, 10 + of ) )   #     /
-
-            if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
-                nxEdge = self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
+            if self.hasNxEdge_2_1():
                 edgeLines.append( QLineF( 30, -1 - of, 50, -10 - of ) )              # /
                 edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )  # -----
                 edgeLines.append( QLineF( 30, 1  - of,  50, 10 - of ) )              # \
                 # edgeLines.append( QLineF( 50, -10 - of,  50, 10 - of ) )
         elif lod > 30:
-            if self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 ):
+            if self.hasNxEdge_1_2():
                 edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                             # -----
-            if self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 ):
+            if self.hasNxEdge_2_1():
                 edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )  # -----
         elif lod > 7:
             edgeLines.append( QLineF( 0, 0, self.baseLine.length(), 0 ) )
@@ -145,75 +155,3 @@ class CEdge_SGItem(QGraphicsItem):
         painter.setPen(pen)
 
         painter.drawLines( edgeLines )
-
-    # def rebuildInfoRails( self ):
-    #     self.clearInfoRails()
-    #     self.buildInfoRails()
-
-    # def buildInfoRails( self ):
-    #     if len(self.__InfoRails) > 0: return
-
-    #     wt = self.nxEdge().get( SGT.s_widthType )
-    #     if wt is None: return
-
-    #     w = SGT.railWidth[ wt ] / 2
-
-    #     eL     = self.nxEdge().get( SGT.s_edgeSize         )
-    #     eHFrom = self.nxEdge().get( SGT.s_highRailSizeFrom )
-    #     eHTo   = self.nxEdge().get( SGT.s_highRailSizeTo   )
-
-    #     if None in ( eL, eHFrom, eHTo ): return
-
-    #     # adjustAttrType можно будет убрать, если перевести атрибуты ниже в инты в графе
-    #     eL     = SGT.adjustAttrType( SGT.s_edgeSize,         eL )
-    #     eHFrom = SGT.adjustAttrType( SGT.s_highRailSizeFrom, eHFrom )
-    #     eHTo   = SGT.adjustAttrType( SGT.s_highRailSizeTo,   eHTo )
-
-    #     kW = self.__baseLine.length() / eL
-
-    #     def addInfoRailLine( lineGItem ):
-    #         lineGItem.setPen( pen )
-    #         lineGItem.setTransform( self.sceneTransform() )
-    #         lineGItem.setRotation( -self.rotateAngle() )
-    #         lineGItem.setZValue( 5 )
-    #         lineGItem.setVisible( self.bInfoRailsVisible )
-    #         self.__InfoRails.append( lineGItem )
-
-    #     sensorSide = self.nxEdge().get( SGT.s_sensorSide )
-    #     curvature  = self.nxEdge().get( SGT.s_curvature )
-        
-    #     color = Qt.yellow
-    #     sides = []
-    #     if curvature == SGT.ECurvature.Straight.name:
-    #         sides = [-1, 1]
-    #         if sensorSide == SGT.ESensorSide.SPassive.name:
-    #             color = Qt.green
-    #             sides = [-1, 1]
-    #     elif curvature == SGT.ECurvature.Curve.name:
-    #         if sensorSide == SGT.ESensorSide.SBoth.name:
-    #             sides = [-1, 1]
-    #         elif sensorSide == SGT.ESensorSide.SLeft.name:
-    #             sides = [-1]
-    #         elif sensorSide == SGT.ESensorSide.SRight.name:
-    #             sides = [1]
-
-    #     pen = QPen()
-    #     pen.setWidth( 20 )
-    #     pen.setCapStyle( Qt.FlatCap )
-
-    #     for sK in sides:
-    #         y = w * sK
-
-    #         if sensorSide != SGT.ESensorSide.SPassive.name:
-    #             pen.setColor( Qt.blue )
-    #             l = self.scene().addLine( eHFrom * kW, y, self.__baseLine.length() - eHTo * kW, y )
-    #             addInfoRailLine( l )
-
-    #         pen.setColor( color )
-    #         if eHFrom:
-    #             l = self.scene().addLine( 0, y, eHFrom * kW, y )
-    #             addInfoRailLine( l )
-
-    #         if eHTo:
-    #             l = self.scene().addLine( self.__baseLine.length() - eHTo * kW, y, self.__baseLine.length(), y )
-    #             addInfoRailLine( l )
