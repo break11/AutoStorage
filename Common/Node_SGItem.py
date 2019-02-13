@@ -127,10 +127,6 @@ class CNode_SGItem(QGraphicsItem):
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
 
-        if self.SGM.bDrawBBox == True:
-            painter.setPen(Qt.blue)
-            painter.drawRect( self.boundingRect() )
-
         if self.nodeType == SGT.ENodeTypes.StorageSingle and self.SGM.bDrawSpecialLines:
             #прямая пропорциональности
             pen = QPen( Qt.magenta )
@@ -146,6 +142,13 @@ class CNode_SGItem(QGraphicsItem):
             l = QLineF (-250,0, 250, 0)
             painter.rotate(-self.middleLineAngle)
             painter.drawLine(l)
+            painter.rotate(self.middleLineAngle)
+        else:
+            painter.setClipRect( option.exposedRect )
+
+        if self.SGM.bDrawBBox == True:
+            painter.setPen(Qt.blue)
+            painter.drawRect( self.boundingRect() )
         
         # раскраска вершины по ее типу
         fillColor = Qt.red if self.isSelected() else SGT.nodeColors[ self.nodeType ]

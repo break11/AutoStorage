@@ -31,10 +31,12 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
 
     def paint(self, painter, option, widget):
         
+        painter.setClipRect( option.exposedRect )
+
         if self.parentEdge.SGM.bDrawMainRail:
             pen = QPen()
             pen.setWidth( self.width )
-            pen.setColor( QColor( 150, 150, 150 ) )
+            pen.setColor( QColor( 150, 150, 150, 120 ) )
             pen.setCapStyle( Qt.RoundCap )
 
             painter.setPen( pen )

@@ -67,6 +67,7 @@ class CStorageGraph_GScene_Manager():
         # self.gScene.setMinimumRenderSize( 3 )
         self.gView  = gView
         # self.gView.setViewport( QGLWidget( QGLFormat(QGL.SampleBuffers) ) )
+        # self.gScene.setBspTreeDepth( 1 )
 
         self.__maxNodeID    = 0            
 

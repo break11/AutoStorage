@@ -108,6 +108,9 @@ class CEdge_SGItem(QGraphicsItem):
 
     def paint(self, painter, option, widget):
         lod = min( self.baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
+        
+        painter.setClipRect( option.exposedRect )
+
         if lod < 7:
             return
         
