@@ -52,6 +52,7 @@ class CNode_SGItem(QGraphicsItem):
         self.updateType()
         self.Add_Del_Storages()
         self.updatePos_From_NX()
+        self.updateStorages()
 
     def done(self, bRemoveFromNX = True):
         if bRemoveFromNX:
@@ -66,6 +67,7 @@ class CNode_SGItem(QGraphicsItem):
         self.x = round(x)
         self.y = round(y)
         self.updatePos_From_NX()
+        self.updateStorages()
 
         self.scene().itemChanged.emit( self )
     

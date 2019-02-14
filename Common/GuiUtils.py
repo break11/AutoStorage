@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import ( QGraphicsView )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (Qt, QRectF, QLineF)
+from PyQt5.QtCore import (Qt, QRectF)
 import Common.StrConsts as SC
 import math
 import time

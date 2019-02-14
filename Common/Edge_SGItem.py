@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform, QColor, QPainter )
-from PyQt5.QtCore import ( Qt, QPointF, QRectF, QLineF, QLine )
+from PyQt5.QtCore import ( Qt, QPoint, QRect, QLineF, QRectF )
 import math
 
 from . import StorageGraphTypes as SGT
@@ -75,10 +75,10 @@ class CEdge_SGItem(QGraphicsItem):
 
         # расчет BBox-а поворачиваем точки BBox-а (topLeft, bottomRight) на тот же угол
         self.setRotation( -self.rotateAngle() )
-        p1 = QPointF( 0, 0 )
-        p2 = QPointF( self.baseLine.length(), 0 )
-        self.__BBoxRect = QRectF( p1, p2 ).normalized()
-        self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD + 1, -1*self.__fBBoxD + 1, self.__fBBoxD + 1, self.__fBBoxD + 1)
+        p1 = QPoint( 0, 0 )
+        p2 = QPoint( self.baseLine.length(), 0 )
+        self.__BBoxRect = QRect( p1, p2 ).normalized()
+        self.__BBoxRect_Adj = QRectF( self.__BBoxRect.adjusted(-1*self.__fBBoxD + 1, -1*self.__fBBoxD + 1, self.__fBBoxD + 1, self.__fBBoxD + 1) )
 
         self.decorateSGItem.updatedDecorate()
         

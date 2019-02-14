@@ -1,7 +1,7 @@
 
 from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QColor )
-from PyQt5.QtCore import ( Qt, QLine, QRectF, QLineF )
+from PyQt5.QtCore import ( Qt, QLine, QRect, QLineF )
 
 from . import StorageGraphTypes as SGT
 
@@ -23,7 +23,7 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         self.width = SGT.railWidth[ nxEdge.get( SGT.s_widthType ) ] if nxEdge else 0
 
         w = self.width
-        self.__BBoxRect = QRectF( -w/2, -w/2, self.parentEdge.baseLine.length() + w, w )
+        self.__BBoxRect = QRect( -w/2, -w/2, self.parentEdge.baseLine.length() + w, w )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-30,-30, 30, 30)
 
     def boundingRect(self):
@@ -36,7 +36,10 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         if self.parentEdge.SGM.bDrawMainRail:
             pen = QPen()
             pen.setWidth( self.width )
-            pen.setColor( QColor( 150, 150, 150, 120 ) )
+            if self.parentEdge.SGM.bDrawInfoRails:
+                pen.setColor( QColor( 150, 150, 150, 120 ) )
+            else:
+                pen.setColor( QColor( 150, 150, 150 ) )
             pen.setCapStyle( Qt.RoundCap )
 
             painter.setPen( pen )

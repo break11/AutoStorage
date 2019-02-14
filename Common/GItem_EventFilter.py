@@ -8,9 +8,11 @@ class CGItem_EventFilter(QGraphicsItem):
     
     def __init__(self):
         super().__init__()
+        self.setVisible( False )
+        self.__BBox = QRectF( 0, 0, 0, 0 )
 
     def boundingRect(self):
-        return QRectF( 0, 0, 0, 0 )
+        return self.__BBox
 
     def paint(self, painter, option, widget):
         pass
