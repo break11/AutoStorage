@@ -13,7 +13,6 @@ from PyQt5.QtOpenGL import ( QGLWidget, QGLFormat, QGL )
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
-from .StoragePlace_SGItem import CStoragePlace_SGItem
 from .GItem_EventFilter import CGItem_EventFilter
 from .GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item, EdgeDisplayName
 
@@ -180,7 +179,7 @@ class CStorageGraph_GScene_Manager():
             dictDeltaAngles[ delta_angle ] = (e1, e2)
         
         if len(dictDeltaAngles) == 0:
-            nodeGItem.middleLineAngle = 0
+            nodeGItem.setMiddleLineAngle( 0 )
             return
 
         max_angle = max(dictDeltaAngles.keys())
