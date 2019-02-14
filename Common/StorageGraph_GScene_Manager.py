@@ -104,6 +104,13 @@ class CStorageGraph_GScene_Manager():
 
         self.bHasChanges = True
 
+        #test adding nodes
+        # side_count = 200
+        # step = 2200
+        # for y in range(0, side_count * 400, 400):
+        #     for x in range(0, side_count * step, step):
+        #         self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
+
     def load(self, sFName):
         self.clear()
         self.init()
