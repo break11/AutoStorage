@@ -9,7 +9,6 @@ from copy import deepcopy
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtCore import (pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt)
 from PyQt5.QtWidgets import ( QGraphicsItem )
-from PyQt5.QtOpenGL import ( QGLWidget, QGLFormat, QGL )
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
@@ -63,9 +62,11 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges    = False
 
         self.gScene = gScene
-        # self.gScene.setMinimumRenderSize( 3 )
         self.gView  = gView
+
+        # self.gScene.setMinimumRenderSize( 3 )
         # self.gView.setViewport( QGLWidget( QGLFormat(QGL.SampleBuffers) ) )
+        # self.gView.setViewport( QOpenGLWidget( ) )
         # self.gScene.setBspTreeDepth( 1 )
 
         self.__maxNodeID    = 0            
@@ -93,6 +94,9 @@ class CStorageGraph_GScene_Manager():
         self.nodeGItems = {}
         self.edgeGItems = {}
         self.gScene.clear()
+        self.gScene.update()
+        if self.nxGraph is not None:
+            self.nxGraph.clear()
         self.nxGraph = None
 
     def new(self):
@@ -104,11 +108,18 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges = True
 
         #test adding nodes
-        # side_count = 200
-        # step = 2200
-        # for y in range(0, side_count * 400, 400):
-        #     for x in range(0, side_count * step, step):
-        #         self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
+        side_count = 200
+        step = 2200
+        last_node = None
+        for x in range(0, side_count * step, step):
+            for y in range(0, side_count * 400, 400):
+                cur_node = self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
+                if last_node:
+                    tKey = (cur_node.nodeID, last_node.nodeID)
+                    self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge )
+                    self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge )
+                    self.addEdge( tKey )
+                last_node = cur_node
 
     def load(self, sFName):
         self.clear()
@@ -163,6 +174,9 @@ class CStorageGraph_GScene_Manager():
 
     #рассчет средней линии для нод
     def calcNodeMiddleLine(self, nodeGItem):        
+        if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
+            return
+
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
         for key in incEdges:
@@ -304,6 +318,7 @@ class CStorageGraph_GScene_Manager():
         nodeGItem.SGM = self
 
         self.bHasChanges = True
+        return nodeGItem
 
     def addEdge( self, tKey ):
         fsEdgeKey = frozenset( tKey )
@@ -341,18 +356,18 @@ class CStorageGraph_GScene_Manager():
         for nodeGItem in nodeGItems:
             self.calcNodeMiddleLine(nodeGItem)
 
-    def deleteNode(self, nodeID, bRemoveFromNX = True):
-        self.nodeGItems[ nodeID ].done( bRemoveFromNX = bRemoveFromNX )
+    def deleteNode(self, nodeID):
+        self.nodeGItems[ nodeID ].done()
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
         self.bHasChanges = True
 
-    def deleteEdge(self, *fsEdgeKeys : frozenset, bRemoveFromNX = True ):
+    def deleteEdge(self, *fsEdgeKeys : frozenset ):
         for fsEdgeKey in fsEdgeKeys:
             edgeGItem = self.edgeGItems.get( fsEdgeKey )
             if edgeGItem is None:
                 continue
-            edgeGItem.done( bRemoveFromNX = bRemoveFromNX )
+            edgeGItem.done()
             self.gScene.removeItem( edgeGItem )
             del self.edgeGItems[ fsEdgeKey ]
 

@@ -40,7 +40,8 @@ class CGraphNode_NO( CNetObj ):
                     edgeObj.localDestroy()
 
         # при удалении NetObj объекта ноды удаляем соответствующую ноду из графа
-        self.nxGraph().remove_node( self.name )
+        if self.__has_nxNode():
+            self.nxGraph().remove_node( self.name )
 
     def propsDict(self): return self.nxNode() if self.graphNode() else {}
 
@@ -51,8 +52,9 @@ class CGraphNode_NO( CNetObj ):
         if self.graphNode():
             self.nxGraph().add_node( self.name, **self.props )
 
-    def nxGraph(self)  : return self.graphNode().nxGraph if self.graphNode() else None
-    def nxNode(self)   : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else {}
+    def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
+    def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else {}
+    def __has_nxNode(self): return self.nxGraph().has_node( self.name ) if self.nxGraph() else None
 
 ###################################################################################
 

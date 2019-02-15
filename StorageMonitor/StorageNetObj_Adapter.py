@@ -21,9 +21,9 @@ class CStorageNetObj_Adapter:
         elif isinstance( netObj, CGraphNode_NO ):
             SGM.addNode( netObj.name )
         elif isinstance( netObj, CGraphEdge_NO ):
-            SGM.addEdge( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
-            # for nodeGItem in [ SGM.nodeGItems[nodeID] for nodeID in [netObj.nxNodeID_1(), netObj.nxNodeID_2()] ]:
-            #     SGM.calcNodeMiddleLine(nodeGItem)
+            SGM.addEdge( frozenset( (netObj.nxNodeID_1(), netObj.nxNodeID_2()) ) )
+            SGM.calcNodeMiddleLine( SGM.nodeGItems[ netObj.nxNodeID_1() ] )
+            SGM.calcNodeMiddleLine( SGM.nodeGItems[ netObj.nxNodeID_2() ] )
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
@@ -32,14 +32,17 @@ class CStorageNetObj_Adapter:
         if isinstance( netObj, CGraphRoot_NO ):
             SGM.clear()
             SGM.nxGraph = None
-        # elif isinstance( netObj, CGraphNode_NO ):
-        #     if SGM.nxGraph:
-        #         SGM.deleteNode( netObj.name, bRemoveFromNX = False )
-        # elif isinstance( netObj, CGraphEdge_NO ):
-        #     groupKey = frozenset( (netObj.nxNodeID_1(), netObj.nxNodeID_2()) )
-            
-        #     SGM.deleteEdge( netObj.nxNodeID_1(), netObj.nxNodeID_2(), bRemoveFromNX = False )
-        #     if not len( SGM.groupsByEdge[ groupKey ].childItems() ):
-        #         SGM.deleteEdgeGroup( groupKey )
-
+        elif isinstance( netObj, CGraphNode_NO ):
+            print( bool(SGM.nxGraph), SGM.nxGraph )
+            if SGM.nxGraph is not None:
+                SGM.deleteNode( netObj.name )
+        elif isinstance( netObj, CGraphEdge_NO ):
+            if SGM.nxGraph is not None:
+                # грань удалится из nxGraph в netObj
+                # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
+                fsEdgeKey = frozenset( ( netObj.nxNodeID_1(), netObj.nxNodeID_2() ) )
+                if not SGM.nxGraph.has_edge( netObj.nxNodeID_2(), netObj.nxNodeID_1() ):
+                    SGM.deleteEdge( fsEdgeKey )
+                else:
+                    SGM.edgeGItems[ fsEdgeKey ].update()
             

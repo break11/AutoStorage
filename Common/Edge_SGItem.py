@@ -44,15 +44,15 @@ class CEdge_SGItem(QGraphicsItem):
 
         self.buildEdge()
 
-    def done( self, bRemoveFromNX = True ):
-        if bRemoveFromNX:
-            if self.hasNxEdge_1_2():
-                self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
+    def done( self ):
+        if self.hasNxEdge_1_2():
+            self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
 
-            if self.hasNxEdge_2_1():
-                self.nxGraph.remove_edge( self.nodeID_2, self.nodeID_1 )
+        if self.hasNxEdge_2_1():
+            self.nxGraph.remove_edge( self.nodeID_2, self.nodeID_1 )
 
-        self.scene().removeItem( self.decorateSGItem )
+        if self.decorateSGItem.scene():
+            self.scene().removeItem( self.decorateSGItem )
 
     def updateDecorateOnScene( self ):
         bVal = self.SGM.bDrawMainRail or self.SGM.bDrawInfoRails

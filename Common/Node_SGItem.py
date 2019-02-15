@@ -70,12 +70,12 @@ class CNode_SGItem(QGraphicsItem):
     
     # инициализация после добавления в сцену
     def init(self):
-        self.calcBBox()
         self.updateType()
+        self.calcBBox()
         self.updatePos_From_NX()
 
-    def done(self, bRemoveFromNX = True):
-        if bRemoveFromNX:
+    def done(self):
+        if self.nxGraph.has_node( self.nodeID ):
             self.nxGraph.remove_node( self.nodeID )
 
     # обновление позиции на сцене по атрибутам из графа
