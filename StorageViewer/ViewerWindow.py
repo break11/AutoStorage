@@ -4,7 +4,7 @@ import os
 
 from PyQt5.QtCore import pyqtSlot, QByteArray, QTimer, Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
 from StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CreateDelete_EF, EGManagerMode, EGManagerEditMode
@@ -41,6 +41,7 @@ class EWorkMode( IntEnum ):
 # Storage Map Designer / Storage Net Monitor  Main Window
 class CViewerWindow(QMainWindow):
     global CSM
+    __sWorkedArea = "Worked area: "
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()
@@ -124,6 +125,16 @@ class CViewerWindow(QMainWindow):
             self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
         if self.workMode == EWorkMode.NetMonitorMode:
             self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode & ~EGManagerMode.EditScene )
+
+        self.lbWorkedArea = QLabel()
+        self.statusbar.addWidget( self.lbWorkedArea )
+
+        self.StorageMap_View.horizontalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
+        self.StorageMap_View.verticalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
+
+    def viewPortAreaChanged(self, value):
+        rectf = self.StorageMap_View.mapToScene(self.StorageMap_View.viewport().geometry()).boundingRect()
+        self.lbWorkedArea.setText( f"{self.__sWorkedArea} X={round(rectf.left())} Y={round(rectf.top())} W={round(rectf.width())} H={round(rectf.height())}" )
 
     def unhideDocWidgets(self):
         for doc in self.DocWidgetsHiddenStates:
