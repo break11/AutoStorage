@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
-from . import StorageGraphTypes as SGT
+from Common import StorageGraphTypes as SGT
 
 class CNode_SGItem(QGraphicsItem):
     __R = 25

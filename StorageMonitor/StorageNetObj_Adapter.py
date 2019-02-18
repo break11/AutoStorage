@@ -33,7 +33,6 @@ class CStorageNetObj_Adapter:
             SGM.clear()
             SGM.nxGraph = None
         elif isinstance( netObj, CGraphNode_NO ):
-            print( bool(SGM.nxGraph), SGM.nxGraph )
             if SGM.nxGraph is not None:
                 SGM.deleteNode( netObj.name )
         elif isinstance( netObj, CGraphEdge_NO ):

@@ -4,8 +4,7 @@ from PyQt5.QtWidgets import (QApplication, QProxyStyle, QStyle )
 
 from Common.SettingsManager import CSettingsManager as CSM
 
-from .images_rc import *
-from .mainwindow import CSMD_MainWindow
+from StorageViewer.ViewerWindow import CViewerWindow, EWorkMode
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
 class CNoAltMenu_Style( QProxyStyle ):
@@ -20,7 +19,7 @@ def main():
     app = QApplication(sys.argv)
     app.setStyle( CNoAltMenu_Style() )
 
-    window = CSMD_MainWindow()
+    window = CViewerWindow( windowTitle = "Storage Map Designer : ", workMode = EWorkMode.MapDesignerMode )
     window.show()
 
     app.exec_()

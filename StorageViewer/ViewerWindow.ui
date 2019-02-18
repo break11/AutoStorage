@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CSMD_MainWindow</class>
- <widget class="QMainWindow" name="CSMD_MainWindow">
+ <class>CViewerWindow</class>
+ <widget class="QMainWindow" name="CViewerWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -310,7 +310,7 @@ selection-background-color: red;*/
   <action name="acFitToPage">
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/zoom_fit.png</normaloff>:/Common/images/zoom_fit.png</iconset>
+     <normaloff>:/images/zoom_fit.png</normaloff>:/images/zoom_fit.png</iconset>
    </property>
    <property name="text">
     <string>Fit To Page</string>
@@ -325,7 +325,7 @@ selection-background-color: red;*/
   <action name="acZoomIn">
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/zoom_in.png</normaloff>:/Common/images/zoom_in.png</iconset>
+     <normaloff>:/images/zoom_in.png</normaloff>:/images/zoom_in.png</iconset>
    </property>
    <property name="text">
     <string>Zoom In</string>
@@ -340,7 +340,7 @@ selection-background-color: red;*/
   <action name="acZoomOut">
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/zoom_out.png</normaloff>:/Common/images/zoom_out.png</iconset>
+     <normaloff>:/images/zoom_out.png</normaloff>:/images/zoom_out.png</iconset>
    </property>
    <property name="text">
     <string>Zoom Out</string>
@@ -358,7 +358,7 @@ selection-background-color: red;*/
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/grid.png</normaloff>:/Common/images/grid.png</iconset>
+     <normaloff>:/images/grid.png</normaloff>:/images/grid.png</iconset>
    </property>
    <property name="text">
     <string>Grid</string>
@@ -376,7 +376,7 @@ selection-background-color: red;*/
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/bbox.png</normaloff>:/Common/images/bbox.png</iconset>
+     <normaloff>:/images/bbox.png</normaloff>:/images/bbox.png</iconset>
    </property>
    <property name="text">
     <string>BBox</string>
@@ -511,7 +511,7 @@ selection-background-color: red;*/
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/info_rails.png</normaloff>:/Common/images/info_rails.png</iconset>
+     <normaloff>:/images/info_rails.png</normaloff>:/images/info_rails.png</iconset>
    </property>
    <property name="text">
     <string>Show/hide info rails</string>
@@ -526,7 +526,7 @@ selection-background-color: red;*/
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/main_rail.png</normaloff>:/Common/images/main_rail.png</iconset>
+     <normaloff>:/images/main_rail.png</normaloff>:/images/main_rail.png</iconset>
    </property>
    <property name="text">
     <string>Show/hide main rail</string>
@@ -590,7 +590,7 @@ selection-background-color: red;*/
    </property>
    <property name="icon">
     <iconset resource="images.qrc">
-     <normaloff>:/Common/images/special_lines.png</normaloff>:/Common/images/special_lines.png</iconset>
+     <normaloff>:/images/special_lines.png</normaloff>:/images/special_lines.png</iconset>
    </property>
    <property name="text">
     <string>Storages rotate lines</string>

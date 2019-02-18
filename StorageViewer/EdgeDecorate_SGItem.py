@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from PyQt5.QtGui import ( QPen, QColor )
 from PyQt5.QtCore import ( Qt, QLine, QRectF, QLineF )
 
-from . import StorageGraphTypes as SGT
+from Common import StorageGraphTypes as SGT
 
 class CEdgeDecorate_SGItem(QGraphicsItem):
     def __init__(self, parentEdge = None ):

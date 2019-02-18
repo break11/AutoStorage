@@ -1,21 +1,25 @@
 
-from PyQt5.QtCore import (pyqtSlot, QByteArray, QTimer, Qt)
-from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget)
+import sys
+import os
+
+from PyQt5.QtCore import pyqtSlot, QByteArray, QTimer, Qt
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget
 from PyQt5 import uic
 
-from Common.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CreateDelete_EF, EGManagerMode, EGManagerEditMode
+from StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CreateDelete_EF, EGManagerMode, EGManagerEditMode
 from Common.GridGraphicsScene import CGridGraphicsScene
 from Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Common.SettingsManager import CSettingsManager as CSM
 import Common.StrConsts as SC
 
-import sys
-import os
 from Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters, extensionsFiltersDict
 from Common.GuiUtils import windowDefSettings, gvFitToPage, time_func
-from Common.Edge_SGItem import CEdge_SGItem
-from Common.Node_SGItem import CNode_SGItem
+from .Edge_SGItem import CEdge_SGItem
+from .Node_SGItem import CNode_SGItem
+
+from .images_rc import *
+from enum import IntEnum, auto
 
 ###########################################
 sceneDefSettings = {
@@ -30,15 +34,21 @@ sceneDefSettings = {
 ###########################################
 
 
-# Storage Map Designer Main Window
-class CSMD_MainWindow(QMainWindow):
-    __sWindowTitle = "Storage Map Designer : "
+class EWorkMode( IntEnum ):
+    MapDesignerMode = auto()
+    NetMonitorMode  = auto()
+
+# Storage Map Designer / Storage Net Monitor  Main Window
+class CViewerWindow(QMainWindow):
     global CSM
 
-    def __init__(self):
+    def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()
 
-        uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
+        self.workMode = workMode
+        self.__sWindowTitle = windowTitle
+
+        uic.loadUi( os.path.dirname( __file__ ) + '/ViewerWindow.ui', self )
         self.setWindowTitle( self.__sWindowTitle )
 
         self.timer = QTimer()
@@ -61,9 +71,10 @@ class CSMD_MainWindow(QMainWindow):
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGraph_Manager = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
+        self.SGraph_Manager.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
 
-        self.GV_EventFilter = CGV_Wheel_Zoom_EF(self.StorageMap_View)
-        self.CD_EventFilter = CGItem_CreateDelete_EF (self.SGraph_Manager )
+        self.GV_Wheel_Zoom_EF = CGV_Wheel_Zoom_EF(self.StorageMap_View)
+        self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGraph_Manager )
         
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
@@ -89,11 +100,30 @@ class CSMD_MainWindow(QMainWindow):
         self.acGrid.setChecked         ( self.StorageMap_Scene.bDrawGrid )
         self.acMainRail.setChecked     ( self.SGraph_Manager.bDrawMainRail )
         self.acInfoRails.setChecked    ( self.SGraph_Manager.bDrawInfoRails )
-        self.acSnapToGrid.setChecked   ( self.StorageMap_Scene.bSnapToGrid )
         self.acBBox.setChecked         ( self.SGraph_Manager.bDrawBBox )
         self.acSpecialLines.setChecked ( self.SGraph_Manager.bDrawSpecialLines )
+        self.acSnapToGrid.setChecked   ( self.StorageMap_Scene.bSnapToGrid )
 
-        self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
+        ## hide some options when not in designer mode
+        b = self.workMode == EWorkMode.MapDesignerMode
+        self.acSnapToGrid.setVisible( b )
+        self.acLockEditing.setVisible( b )
+        self.acAddNode.setVisible( b )
+        self.acDelMultiEdge.setVisible( b )
+        self.acReverseEdges.setVisible( b )
+        self.acAddEdge.setVisible( b )
+        self.acNewGraphML.setVisible( b )
+        self.acLoadGraphML.setVisible( b )
+        self.acSaveGraphMLAs.setVisible( b )
+        self.acSaveGraphML.setVisible( b )
+        self.acAddEdge_direct.setVisible( b )
+        self.acAddEdge_reverse.setVisible( b )
+        self.menuGraph_Edit.setEnabled( b )
+
+        if self.workMode == EWorkMode.MapDesignerMode:
+            self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
+        if self.workMode == EWorkMode.NetMonitorMode:
+            self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode & ~EGManagerMode.EditScene )
 
     def unhideDocWidgets(self):
         for doc in self.DocWidgetsHiddenStates:
@@ -107,6 +137,11 @@ class CSMD_MainWindow(QMainWindow):
             doc.hide()
 
     def tick(self):
+        #форма курсора
+        self.updateCursor()
+
+        if self.workMode != EWorkMode.MapDesignerMode: return
+
         #добавляем '*' в заголовок окна если есть изменения
         sign = "" if not self.SGraph_Manager.bHasChanges else "*"
         self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
@@ -114,25 +149,23 @@ class CSMD_MainWindow(QMainWindow):
         #в зависимости от режима активируем/деактивируем панель
         self.toolEdit.setEnabled( bool (self.SGraph_Manager.Mode & EGManagerMode.EditScene) )
 
-        #форма курсора
-        self.updateCursor()
-
         #ui
         self.acAddNode.setChecked     ( bool (self.SGraph_Manager.EditMode & EGManagerEditMode.AddNode ) )
         self.acLockEditing.setChecked ( not  (self.SGraph_Manager.Mode     & EGManagerMode.EditScene   ) )
 
     def updateCursor(self):
-        if self.GV_EventFilter.actionCursor != Qt.ArrowCursor:
-            self.StorageMap_View.setCursor( self.GV_EventFilter.actionCursor )
+        if self.GV_Wheel_Zoom_EF.actionCursor != Qt.ArrowCursor:
+            self.StorageMap_View.setCursor( self.GV_Wheel_Zoom_EF.actionCursor )
         elif bool(self.SGraph_Manager.EditMode & EGManagerEditMode.AddNode):
             self.StorageMap_View.setCursor( Qt.CrossCursor )
         else:
             self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
     def closeEvent( self, event ):
-        if not self.unsavedChangesDialog():
-            event.ignore()
-            return
+        if self.workMode == EWorkMode.MapDesignerMode:
+            if not self.unsavedChangesDialog():
+                event.ignore()
+                return
         
         CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
                                              SC.s_state    : self.saveState().toHex().data().decode() }
@@ -145,7 +178,6 @@ class CSMD_MainWindow(QMainWindow):
                                         SC.s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
                                         SC.s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
                                     }
-
 
     def unsavedChangesDialog(self):
         if self.SGraph_Manager.bHasChanges:
@@ -213,11 +245,11 @@ class CSMD_MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acZoomIn_triggered(self, bChecked):
-        self.GV_EventFilter.zoomIn()
+        self.GV_Wheel_Zoom_EF.zoomIn()
 
     @pyqtSlot(bool)
     def on_acZoomOut_triggered(self, bChecked):
-        self.GV_EventFilter.zoomOut()
+        self.GV_Wheel_Zoom_EF.zoomOut()
 
     @pyqtSlot()
     def on_acFullScreen_triggered(self):
@@ -255,7 +287,6 @@ class CSMD_MainWindow(QMainWindow):
     def on_acSpecialLines_triggered(self, bChecked):
         self.SGraph_Manager.setDrawSpecialLines( bChecked )
 
-    @pyqtSlot(bool)
     def on_acLockEditing_triggered(self):
         self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode ^ EGManagerMode.EditScene )
 

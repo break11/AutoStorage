@@ -12,11 +12,11 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
-from .GItem_EventFilter import CGItem_EventFilter
-from .GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item, EdgeDisplayName
+from Common.GItem_EventFilter import CGItem_EventFilter
+from Common.GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item, EdgeDisplayName
 
-from . import StrConsts as SC
-from . import StorageGraphTypes as SGT
+from Common import StrConsts as SC
+from Common import StorageGraphTypes as SGT
 
 class EGManagerMode (Flag):
     View      = auto()

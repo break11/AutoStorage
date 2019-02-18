@@ -2,8 +2,8 @@ import sys
 
 from Common.BaseApplication import CBaseApplication, registerNetObjTypes
 from .def_settings import SM_DefSet
-from .mainwindow import CSM_MainWindow
-from .images_rc import *
+
+from StorageViewer.ViewerWindow import CViewerWindow, EWorkMode
 
 from .StorageNetObj_Adapter import CStorageNetObj_Adapter
 
@@ -17,7 +17,7 @@ def main():
 
     CSM.loadSettings( default = SM_DefSet )
 
-    window = CSM_MainWindow()
+    window = CViewerWindow( windowTitle = "Storage Monitor", workMode = EWorkMode.NetMonitorMode )
     window.show()
 
     app.StorageNetObj_Adapter.SGraph_Manager = window.SGraph_Manager

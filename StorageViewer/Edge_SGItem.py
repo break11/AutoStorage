@@ -4,10 +4,10 @@ from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform, QColor, QPa
 from PyQt5.QtCore import ( Qt, QPoint, QRect, QLineF, QRectF )
 import math
 
-from . import StorageGraphTypes as SGT
-from .GuiUtils import getLineAngle
+from Common import StorageGraphTypes as SGT
+from Common.GuiUtils import getLineAngle
 
-from Common.EdgeDecorate_SGItem import CEdgeDecorate_SGItem
+from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
