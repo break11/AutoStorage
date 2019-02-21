@@ -47,16 +47,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="btnUpdateTest">
-        <property name="text">
-         <string>UpdateTest</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -162,8 +152,6 @@
    <addaction name="menuFile"/>
   </widget>
  </widget>
- <resources>
-  <include location="images.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
