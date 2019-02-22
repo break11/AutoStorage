@@ -232,17 +232,26 @@ class CStorageGraph_GScene_Manager():
         for nodeGItem in nodeGItemsNeighbors:
             self.calcNodeMiddleLine(nodeGItem)
 
+    def updateNodeProp( self, gItem, propName, propValue ):
+        gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
+        gItem.init()
+        gItem.updatePos_From_NX()
+        gItem.updateType()
+        self.updateNodeIncEdges( gItem )
+
     #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
     def updateGItemFromProps( self, gItem, stdMItem ):
         propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
         propValue = stdMItem.data( Qt.EditRole )
 
         if isinstance( gItem, CNode_SGItem ):
-            gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
-            gItem.init()
-            gItem.updatePos_From_NX()
-            gItem.updateType()
-            self.updateNodeIncEdges( gItem )
+            self.updateNodeProp( gItem, propName, propValue )
+            ##remove## and make updateEdgeProp !!!!!!!!!!!!!!!!!!1
+            # gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
+            # gItem.init()
+            # gItem.updatePos_From_NX()
+            # gItem.updateType()
+            # self.updateNodeIncEdges( gItem )
 
         if isinstance( gItem, CEdge_SGItem ):
             tKey = stdMItem.data( Qt.UserRole + 1 )

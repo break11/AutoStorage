@@ -38,9 +38,14 @@ def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 def Std_Model_Item( val, bReadOnly = False, userData = None ):
     item = QStandardItem()
     item.setData( val, Qt.EditRole )
-    if userData: item.setData( userData ) # Qt.UserRole + 1
+    if userData: item.setData( userData, role = Qt.UserRole + 1 ) # Qt.UserRole + 1 - значение по умолчанию для именованого параметра role
     item.setEditable( not bReadOnly )
     return item
+    
+def Std_Model_FindItem( pattern, model, col=0, searchParams=Qt.MatchFixedString | Qt.MatchCaseSensitive ):
+    l = model.findItems( pattern, searchParams, col )
+    if len( l ) == 0: return None
+    return l[0]
 
 def gvFitToPage( gView ):
     if not gView.scene(): return

@@ -1,13 +1,14 @@
 import sys
 
-from  Lib.Common.BaseApplication import CBaseApplication, registerNetObjTypes
+from PyQt5.QtWidgets import QDockWidget
+from PyQt5.QtCore import Qt
+
 from .def_settings import SM_DefSet
-
-from Lib.StorageViewer.ViewerWindow import CViewerWindow, EWorkMode
-
 from .StorageNetObj_Adapter import CStorageNetObj_Adapter
-
-from  Lib.Common.SettingsManager import CSettingsManager as CSM
+from Lib.StorageViewer.ViewerWindow import CViewerWindow, EWorkMode
+from Lib.Common.BaseApplication import CBaseApplication, registerNetObjTypes
+from Lib.Common.SettingsManager import CSettingsManager as CSM
+from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 
 def main():    
     registerNetObjTypes()
@@ -21,11 +22,16 @@ def main():
     window.show()
 
     app.StorageNetObj_Adapter.SGraph_Manager = window.SGraph_Manager
+    app.StorageNetObj_Adapter.ViewerWindow   = window
 
     if not app.init( default_settings = SM_DefSet ): return -1
 
-    # app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
-    app.init_NetObj_Monitor()
+    # добавление QDockWidget в MainWindow, в котором будет монитор объектов (когда его опция разрешена)
+    if CNetObj_Monitor.enabledInOptions():
+        window.dkNetObj_Monitor = QDockWidget( parent = window )
+        window.dkNetObj_Monitor.setObjectName( "dkNetObj_Monitor" )
+        window.addDockWidget( Qt.RightDockWidgetArea, window.dkNetObj_Monitor )
+        app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
 
     app.exec_() # главный цикл сообщений Qt
 

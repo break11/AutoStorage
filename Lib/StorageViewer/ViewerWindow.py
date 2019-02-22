@@ -48,6 +48,7 @@ class CViewerWindow(QMainWindow):
 
         self.workMode = workMode
         self.__sWindowTitle = windowTitle
+        self.selectedGItem = None
 
         uic.loadUi( os.path.dirname( __file__ ) + '/ViewerWindow.ui', self )
         self.setWindowTitle( self.__sWindowTitle )
@@ -227,8 +228,11 @@ class CViewerWindow(QMainWindow):
         self.objProps.clear()
 
         selItems = self.StorageMap_Scene.selectedItems()
-        if ( len( selItems ) != 1 ): return
+        if ( len( selItems ) != 1 ):
+            self.selectedGItem = None
+            return
         gItem = selItems[ 0 ]
+        self.selectedGItem = gItem
 
         self.SGraph_Manager.fillPropsForGItem( gItem, self.objProps )
 
