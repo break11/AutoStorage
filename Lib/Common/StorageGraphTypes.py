@@ -82,11 +82,18 @@ class EWidthType( Enum ):
     Narrow = auto()
     Wide   = auto()
 
-railWidth = {
-    EWidthType.Narrow.name : 690,
-    EWidthType.Wide.name   : 1140,
-    None                   : 690,
+__defRailWidth = 690
+
+__railWidth = {
+    EWidthType.Narrow.name : __defRailWidth,
+    EWidthType.Wide.name   : 1140
 }
+
+def railWidth( sWidthType ):
+    try:
+        return __railWidth[ sWidthType ]
+    except KeyError:
+        return __defRailWidth
 
 class ECurvature( Enum ):
     Curve    = auto()

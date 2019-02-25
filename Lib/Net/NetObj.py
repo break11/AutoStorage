@@ -83,6 +83,12 @@ class CNetObj( CTreeNode ):
 ###################################################################################
     # Интерфейс для работы с кастомными пропертями реализован через []
 
+    def get( self, key ):
+        try:
+            return self.__getitem__( key )
+        except KeyError:
+            return None
+
     def __getitem__( self, key ):
         return self.propsDict()[ key ]
 

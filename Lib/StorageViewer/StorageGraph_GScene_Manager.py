@@ -239,27 +239,25 @@ class CStorageGraph_GScene_Manager():
         gItem.updateType()
         self.updateNodeIncEdges( gItem )
 
-    #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
-    def updateGItemFromProps( self, gItem, stdMItem ):
-        propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
-        propValue = stdMItem.data( Qt.EditRole )
+    def updateEdgeProp( self, gItem, tKey, propName, propValue ):
+        nxEdge = self.nxGraph.edges[ tKey ]
+        nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
+        gItem.decorateSGItem.updatedDecorate()
 
-        if isinstance( gItem, CNode_SGItem ):
-            self.updateNodeProp( gItem, propName, propValue )
-            ##remove## and make updateEdgeProp !!!!!!!!!!!!!!!!!!1
-            # gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
-            # gItem.init()
-            # gItem.updatePos_From_NX()
-            # gItem.updateType()
-            # self.updateNodeIncEdges( gItem )
+    ##remove##
+    # #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
+    # def updateGItemFromProps( self, gItem, stdMItem ):
+    #     propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
+    #     propValue = stdMItem.data( Qt.EditRole )
 
-        if isinstance( gItem, CEdge_SGItem ):
-            tKey = stdMItem.data( Qt.UserRole + 1 )
-            nxEdge = self.nxGraph.edges[ tKey ]
-            nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
-            gItem.decorateSGItem.updatedDecorate()
+    #     if isinstance( gItem, CNode_SGItem ):
+    #         self.updateNodeProp( gItem, propName, propValue )
 
-        self.bHasChanges = True
+    #     if isinstance( gItem, CEdge_SGItem ):
+    #         tKey = stdMItem.data( Qt.UserRole + 1 )
+    #         self.updateEdgeProp( gItem, tKey, propName, propValue )
+
+    #     self.bHasChanges = True
 
     #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
     def fillPropsForGItem( self, gItem, objProps ):
@@ -426,11 +424,11 @@ class CStorageGraph_GScene_Manager():
 
 class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
 
-    def __init__(self, SGraph_Manager):
-        super().__init__(SGraph_Manager.gView)
-        self.__SGM = SGraph_Manager
-        self.__gView  = SGraph_Manager.gView
-        self.__gScene = SGraph_Manager.gScene
+    def __init__(self, SGM):
+        super().__init__(SGM.gView)
+        self.__SGM = SGM
+        self.__gView  = SGM.gView
+        self.__gScene = SGM.gScene
 
         self.__gView.installEventFilter(self)
         self.__gView.viewport().installEventFilter(self)

@@ -21,8 +21,7 @@ def main():
     window = CViewerWindow( windowTitle = "Storage Monitor", workMode = EWorkMode.NetMonitorMode )
     window.show()
 
-    app.StorageNetObj_Adapter.SGraph_Manager = window.SGraph_Manager
-    app.StorageNetObj_Adapter.ViewerWindow   = window
+    app.StorageNetObj_Adapter.init( window )
 
     if not app.init( default_settings = SM_DefSet ): return -1
 

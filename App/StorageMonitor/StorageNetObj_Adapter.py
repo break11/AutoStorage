@@ -1,11 +1,12 @@
 
 from PyQt5.QtCore import Qt
 
+from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetCmd import CNetCmd
-from  Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
-from  Lib.Common.GuiUtils import time_func, Std_Model_FindItem
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
+from Lib.Common.GuiUtils import time_func, Std_Model_FindItem, EdgeDisplayName
 
 class CStorageNetObj_Adapter:
     def __init__(self):
@@ -13,10 +14,28 @@ class CStorageNetObj_Adapter:
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.ObjPropUpdated )
 
+    def init( self, ViewerWindow ):
+        self.SGM = ViewerWindow.SGM
+        self.ViewerWindow = ViewerWindow
+        self.ViewerWindow.nodePropChanged_From_TableProps = self.nodePropChanged_From_GScene_TableProps
+        self.ViewerWindow.edgePropChanged_From_TableProps = self.edgePropChanged_From_GScene_TableProps
+
+
+    def nodePropChanged_From_GScene_TableProps( self, nodeID, propName, propValue ):
+        self.__updateObjProp( "Graph/Nodes/" + nodeID, propName, propValue )
+
+    def edgePropChanged_From_GScene_TableProps( self, tKey, propName, propValue ):
+        self.__updateObjProp( "Graph/Edges/" + EdgeDisplayName( *tKey ), propName, propValue )
+
+    def __updateObjProp( self, sObjPath, propName, propValue ):
+        netObj = CNetObj.resolvePath( CNetObj_Manager.rootObj, sObjPath )
+        assert netObj
+        netObj[ propName ] = propValue
+
     @time_func( sMsg="Create scene items time", threshold=10 )
     def ObjCreated(self, netCmd=None):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        SGM = self.SGraph_Manager
+        SGM = self.SGM
 
         if isinstance( netObj, CGraphRoot_NO ):
             SGM.nxGraph = netObj.nxGraph
@@ -30,7 +49,7 @@ class CStorageNetObj_Adapter:
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        SGM = self.SGraph_Manager
+        SGM = self.SGM
 
         if isinstance( netObj, CGraphRoot_NO ):
             SGM.clear()
@@ -51,7 +70,7 @@ class CStorageNetObj_Adapter:
     
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        SGM = self.SGraph_Manager
+        SGM = self.SGM
         propName  = netCmd.sPropName
         propValue = netObj[ netCmd.sPropName ]
         gItem = None
@@ -73,6 +92,7 @@ class CStorageNetObj_Adapter:
             tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
             fsEdgeKey = frozenset( tKey )
             gItem = SGM.edgeGItems[ fsEdgeKey ]
+            SGM.updateEdgeProp( gItem, tKey, propName, propValue )
 
             # обновление модели свойств в окне вьювера
             if gItem == self.ViewerWindow.selectedGItem:
@@ -81,11 +101,11 @@ class CStorageNetObj_Adapter:
 
                 row = stdItem_PropName.row()
 
-                def updateEdgeProp( col, tKey, val ):
+                def __updateEdgeProp( col, tKey, val ):
                     stdItem_PropValue = self.ViewerWindow.objProps.item( row, col )
                     if stdItem_PropValue is not None:
                         if stdItem_PropValue.data( Qt.UserRole + 1 ) == tKey:
                             stdItem_PropValue.setData( val, Qt.EditRole )
 
-                updateEdgeProp( 1, tKey, propValue )
-                updateEdgeProp( 2, tKey, propValue )
+                __updateEdgeProp( 1, tKey, propValue )
+                __updateEdgeProp( 2, tKey, propValue )
