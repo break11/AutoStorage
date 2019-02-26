@@ -108,18 +108,18 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges = True
 
         #test adding nodes
-        side_count = 200
-        step = 2200
-        last_node = None
-        for x in range(0, side_count * step, step):
-            for y in range(0, side_count * 400, 400):
-                cur_node = self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
-                if last_node:
-                    tKey = (cur_node.nodeID, last_node.nodeID)
-                    self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge )
-                    self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge )
-                    self.addEdge( tKey )
-                last_node = cur_node
+        # side_count = 200
+        # step = 2200
+        # last_node = None
+        # for x in range(0, side_count * step, step):
+        #     for y in range(0, side_count * 400, 400):
+        #         cur_node = self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
+        #         if last_node:
+        #             tKey = (cur_node.nodeID, last_node.nodeID)
+        #             self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge )
+        #             self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge )
+        #             self.addEdge( tKey )
+        #         last_node = cur_node
 
     def load(self, sFName):
         self.clear()
@@ -231,71 +231,6 @@ class CStorageGraph_GScene_Manager():
 
         for nodeGItem in nodeGItemsNeighbors:
             self.calcNodeMiddleLine(nodeGItem)
-
-    def updateNodeProp( self, gItem, propName, propValue ):
-        gItem.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
-        gItem.init()
-        gItem.updatePos_From_NX()
-        gItem.updateType()
-        self.updateNodeIncEdges( gItem )
-
-    def updateEdgeProp( self, gItem, tKey, propName, propValue ):
-        nxEdge = self.nxGraph.edges[ tKey ]
-        nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
-        gItem.decorateSGItem.updatedDecorate()
-
-    ##remove##
-    # #  Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
-    # def updateGItemFromProps( self, gItem, stdMItem ):
-    #     propName  = stdMItem.model().item( stdMItem.row(), 0 ).data( Qt.EditRole )
-    #     propValue = stdMItem.data( Qt.EditRole )
-
-    #     if isinstance( gItem, CNode_SGItem ):
-    #         self.updateNodeProp( gItem, propName, propValue )
-
-    #     if isinstance( gItem, CEdge_SGItem ):
-    #         tKey = stdMItem.data( Qt.UserRole + 1 )
-    #         self.updateEdgeProp( gItem, tKey, propName, propValue )
-
-    #     self.bHasChanges = True
-
-    #  Заполнение свойств выделенного объекта ( вершины или грани ) в QStandardItemModel
-    def fillPropsForGItem( self, gItem, objProps ):
-        if isinstance( gItem, CNode_SGItem ):
-            objProps.setColumnCount( 2 )
-            objProps.setHorizontalHeaderLabels( [ "nodeID", gItem.nodeID ] )
-
-            for key, val in sorted( gItem.nxNode().items() ):
-                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
-                objProps.appendRow( rowItems )
-
-        if isinstance( gItem, CEdge_SGItem ):
-            def addNxEdgeIfExists( nodeID_1, nodeID_2, nxEdges ):
-                if self.nxGraph.has_edge( nodeID_1, nodeID_2 ):
-                    tE_Name = (nodeID_1, nodeID_2)
-                    nxEdges[ tE_Name ] = self.nxGraph.edges[ tE_Name ]
-
-            objProps.setColumnCount( len( gItem.childItems() ) )
-            header = [ "edgeID" ]
-            uniqAttrSet = set()
-
-            nxEdges = {}
-            addNxEdgeIfExists( gItem.nodeID_1, gItem.nodeID_2, nxEdges )
-            addNxEdgeIfExists( gItem.nodeID_2, gItem.nodeID_1, nxEdges )
-
-            for k,v in nxEdges.items():
-                header.append( EdgeDisplayName( *k ) )
-                uniqAttrSet = uniqAttrSet.union( v.keys() )
-
-            objProps.setHorizontalHeaderLabels( header )
-
-            for key in sorted( uniqAttrSet ):
-                rowItems = []
-                rowItems.append( Std_Model_Item( key, True ) )
-                for k, v in nxEdges.items():
-                    val = v.get( key )
-                    rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ), userData=k ) ) ## k - ключ тапл-имя грани в графе nx
-                objProps.appendRow( rowItems )
 
     def updateMaxNodeID(self):
         maxNodeID = 0

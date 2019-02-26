@@ -231,33 +231,23 @@ class CViewerWindow(QMainWindow):
         if ( len( selItems ) != 1 ):
             self.selectedGItem = None
             return
+
         gItem = selItems[ 0 ]
         self.selectedGItem = gItem
 
-        self.SGM.fillPropsForGItem( gItem, self.objProps )
+        gItem.fillPropsTable( self.objProps )
 
         self.tvObjectProps.resizeColumnToContents( 0 )
 
     # событие изменения ячейки таблицы свойств объекта
-    # Обновление свойств графа и QGraphicsItem после редактирования полей в таблице свойств
-    def objProps_itemChanged( self, item ):
-        selItems = self.StorageMap_Scene.selectedItems()
-        if ( len( selItems ) != 1 ): return
-        gItem = selItems[ 0 ]
+    def objProps_itemChanged( self, stdModelItem ):
+        assert self.selectedGItem
+        GItem = self.selectedGItem
 
-        propName  = item.model().item( item.row(), 0 ).data( Qt.EditRole )
-        propValue = item.data( Qt.EditRole )
+        GItem.updatePropsTable( stdModelItem )
 
-        if isinstance( gItem, CNode_SGItem ):
-            self.SGM.updateNodeProp( gItem, propName, propValue )
-            if self.workMode == EWorkMode.NetMonitorMode:
-                self.nodePropChanged_From_TableProps( gItem.nodeID, propName, propValue ) # метод должен быть определены снаружи
-
-        if isinstance( gItem, CEdge_SGItem ):
-            tKey = item.data( Qt.UserRole + 1 )
-            self.SGM.updateEdgeProp( gItem, tKey, propName, propValue )
-            if self.workMode == EWorkMode.NetMonitorMode:
-                self.edgePropChanged_From_TableProps( tKey, propName, propValue ) # метод должен быть определены снаружи
+        if isinstance( GItem, CNode_SGItem ):
+            self.SGM.updateNodeIncEdges( GItem )
 
         self.SGM.bHasChanges = True
 
@@ -266,8 +256,7 @@ class CViewerWindow(QMainWindow):
         if isinstance( GItem, CNode_SGItem ):
             self.SGM.updateNodeIncEdges( GItem )
         
-        self.objProps.clear()
-        self.SGM.fillPropsForGItem( GItem, self.objProps )
+        GItem.fillPropsTable( self.objProps )
 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):

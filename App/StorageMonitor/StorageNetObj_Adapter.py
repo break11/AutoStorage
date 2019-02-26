@@ -7,6 +7,8 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetCmd import CNetCmd
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.GuiUtils import time_func, Std_Model_FindItem, EdgeDisplayName
+from Lib.StorageViewer.Edge_SGItem import CEdge_SGItem
+from Lib.StorageViewer.Node_SGItem import CNode_SGItem
 
 class CStorageNetObj_Adapter:
     def __init__(self):
@@ -17,9 +19,9 @@ class CStorageNetObj_Adapter:
     def init( self, ViewerWindow ):
         self.SGM = ViewerWindow.SGM
         self.ViewerWindow = ViewerWindow
-        self.ViewerWindow.nodePropChanged_From_TableProps = self.nodePropChanged_From_GScene_TableProps
-        self.ViewerWindow.edgePropChanged_From_TableProps = self.edgePropChanged_From_GScene_TableProps
 
+        CEdge_SGItem.updateNetObj = self.edgePropChanged_From_GScene_TableProps
+        CNode_SGItem.updateNetObj = self.nodePropChanged_From_GScene_TableProps
 
     def nodePropChanged_From_GScene_TableProps( self, nodeID, propName, propValue ):
         self.__updateObjProp( "Graph/Nodes/" + nodeID, propName, propValue )
@@ -79,33 +81,19 @@ class CStorageNetObj_Adapter:
 
         if isinstance( netObj, CGraphNode_NO ):
             gItem = SGM.nodeGItems[ netObj.name ]
-            SGM.updateNodeProp( gItem, propName, propValue )
+            gItem.updateProp( propName, propValue )
 
             # обновление модели свойств в окне вьювера
-            if gItem == self.ViewerWindow.selectedGItem:
-                stdItem_PropName = Std_Model_FindItem( pattern=propName, model=self.ViewerWindow.objProps, col=0 )
-                if stdItem_PropName is not None:
-                    stdItem_PropValue = self.ViewerWindow.objProps.item( stdItem_PropName.row(), 1 )
-                    stdItem_PropValue.setData( propValue, Qt.EditRole )
+            if gItem != self.ViewerWindow.selectedGItem:
+                SGM.updateNodeIncEdges( gItem )
 
         elif isinstance( netObj, CGraphEdge_NO ):
             tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
             fsEdgeKey = frozenset( tKey )
+
             gItem = SGM.edgeGItems[ fsEdgeKey ]
-            SGM.updateEdgeProp( gItem, tKey, propName, propValue )
+            gItem.updateProp( tKey, propName, propValue )
 
-            # обновление модели свойств в окне вьювера
-            if gItem == self.ViewerWindow.selectedGItem:
-                stdItem_PropName = Std_Model_FindItem( pattern=propName, model=self.ViewerWindow.objProps, col=0 )
-                if stdItem_PropName is None: return
-
-                row = stdItem_PropName.row()
-
-                def __updateEdgeProp( col, tKey, val ):
-                    stdItem_PropValue = self.ViewerWindow.objProps.item( row, col )
-                    if stdItem_PropValue is not None:
-                        if stdItem_PropValue.data( Qt.UserRole + 1 ) == tKey:
-                            stdItem_PropValue.setData( val, Qt.EditRole )
-
-                __updateEdgeProp( 1, tKey, propValue )
-                __updateEdgeProp( 2, tKey, propValue )
+        # обновление модели свойств в окне вьювера
+        if gItem == self.ViewerWindow.selectedGItem:
+            gItem.fillPropsTable( self.ViewerWindow.objProps ) # вызовет updateNodeIncEdges для ноды внутри - из-за setData модели

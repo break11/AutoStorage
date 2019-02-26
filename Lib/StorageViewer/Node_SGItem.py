@@ -4,6 +4,7 @@ from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 
 class CNode_SGItem(QGraphicsItem):
     __R = 25
@@ -41,6 +42,37 @@ class CNode_SGItem(QGraphicsItem):
 
         self.updateType()
         self.calcBBox()
+
+    ############################################
+
+    def fillPropsTable( self, mdlObjProps ):
+        mdlObjProps.setHorizontalHeaderLabels( [ "nodeID", self.nodeID ] )
+
+        for key, val in sorted( self.nxNode().items() ):
+            stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
+            if stdItem_PropName is None:
+                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
+                mdlObjProps.appendRow( rowItems )
+            else:
+                stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), 1 )
+                stdItem_PropValue.setData( val, Qt.EditRole )
+
+    def updatePropsTable( self, stdModelItem ):
+        propName  = stdModelItem.model().item( stdModelItem.row(), 0 ).data( Qt.EditRole )
+        propValue = stdModelItem.data( Qt.EditRole )
+
+        if hasattr( self, "updateNetObj" ):
+            self.updateNetObj( self.nodeID, propName, propValue )
+            
+        self.updateProp( propName, propValue )
+
+    def updateProp( self, propName, propValue ):
+        self.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
+        self.init()
+        self.updatePos_From_NX()
+        self.updateType()
+        
+    ############################################
 
     def calcBBox(self):
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
