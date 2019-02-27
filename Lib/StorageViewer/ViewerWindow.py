@@ -48,6 +48,7 @@ class CViewerWindow(QMainWindow):
 
         self.workMode = workMode
         self.__sWindowTitle = windowTitle
+        self.selectedGItem = None
 
         uic.loadUi( os.path.dirname( __file__ ) + '/ViewerWindow.ui', self )
         self.setWindowTitle( self.__sWindowTitle )
@@ -71,11 +72,11 @@ class CViewerWindow(QMainWindow):
         self.StorageMap_Scene.itemChanged.connect( self.itemChangedOnScene )
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
-        self.SGraph_Manager = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
-        self.SGraph_Manager.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
+        self.SGM = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
+        self.SGM.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
 
         self.GV_Wheel_Zoom_EF = CGV_Wheel_Zoom_EF(self.StorageMap_View)
-        self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGraph_Manager )
+        self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGM )
         
         #load settings
         winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
@@ -91,18 +92,18 @@ class CViewerWindow(QMainWindow):
         self.StorageMap_Scene.gridSize     =      CSM.dictOpt( sceneSettings, SC.s_grid_size,          default = self.StorageMap_Scene.gridSize )
         self.StorageMap_Scene.bDrawGrid    =      CSM.dictOpt( sceneSettings, SC.s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
         self.StorageMap_Scene.bSnapToGrid  =      CSM.dictOpt( sceneSettings, SC.s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
-        self.SGraph_Manager.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGraph_Manager.bDrawMainRail ) )
-        self.SGraph_Manager.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGraph_Manager.bDrawInfoRails ) )
-        self.SGraph_Manager.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGraph_Manager.bDrawBBox ) )
-        self.SGraph_Manager.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGraph_Manager.bDrawSpecialLines ) )
+        self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGM.bDrawMainRail ) )
+        self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
+        self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGM.bDrawBBox ) )
+        self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
 
         #setup ui
         self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
         self.acGrid.setChecked         ( self.StorageMap_Scene.bDrawGrid )
-        self.acMainRail.setChecked     ( self.SGraph_Manager.bDrawMainRail )
-        self.acInfoRails.setChecked    ( self.SGraph_Manager.bDrawInfoRails )
-        self.acBBox.setChecked         ( self.SGraph_Manager.bDrawBBox )
-        self.acSpecialLines.setChecked ( self.SGraph_Manager.bDrawSpecialLines )
+        self.acMainRail.setChecked     ( self.SGM.bDrawMainRail )
+        self.acInfoRails.setChecked    ( self.SGM.bDrawInfoRails )
+        self.acBBox.setChecked         ( self.SGM.bDrawBBox )
+        self.acSpecialLines.setChecked ( self.SGM.bDrawSpecialLines )
         self.acSnapToGrid.setChecked   ( self.StorageMap_Scene.bSnapToGrid )
 
         ## hide some options when not in designer mode
@@ -124,7 +125,7 @@ class CViewerWindow(QMainWindow):
         if self.workMode == EWorkMode.MapDesignerMode:
             self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
         if self.workMode == EWorkMode.NetMonitorMode:
-            self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode & ~EGManagerMode.EditScene )
+            self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )
 
         self.lbWorkedArea = QLabel()
         self.statusbar.addWidget( self.lbWorkedArea )
@@ -154,20 +155,20 @@ class CViewerWindow(QMainWindow):
         if self.workMode != EWorkMode.MapDesignerMode: return
 
         #добавляем '*' в заголовок окна если есть изменения
-        sign = "" if not self.SGraph_Manager.bHasChanges else "*"
+        sign = "" if not self.SGM.bHasChanges else "*"
         self.setWindowTitle( f"{self.__sWindowTitle}{self.graphML_fname}{sign}" )
 
         #в зависимости от режима активируем/деактивируем панель
-        self.toolEdit.setEnabled( bool (self.SGraph_Manager.Mode & EGManagerMode.EditScene) )
+        self.toolEdit.setEnabled( bool (self.SGM.Mode & EGManagerMode.EditScene) )
 
         #ui
-        self.acAddNode.setChecked     ( bool (self.SGraph_Manager.EditMode & EGManagerEditMode.AddNode ) )
-        self.acLockEditing.setChecked ( not  (self.SGraph_Manager.Mode     & EGManagerMode.EditScene   ) )
+        self.acAddNode.setChecked     ( bool (self.SGM.EditMode & EGManagerEditMode.AddNode ) )
+        self.acLockEditing.setChecked ( not  (self.SGM.Mode     & EGManagerMode.EditScene   ) )
 
     def updateCursor(self):
         if self.GV_Wheel_Zoom_EF.actionCursor != Qt.ArrowCursor:
             self.StorageMap_View.setCursor( self.GV_Wheel_Zoom_EF.actionCursor )
-        elif bool(self.SGraph_Manager.EditMode & EGManagerEditMode.AddNode):
+        elif bool(self.SGM.EditMode & EGManagerEditMode.AddNode):
             self.StorageMap_View.setCursor( Qt.CrossCursor )
         else:
             self.StorageMap_View.setCursor( Qt.ArrowCursor )
@@ -184,14 +185,14 @@ class CViewerWindow(QMainWindow):
                                         SC.s_grid_size           : self.StorageMap_Scene.gridSize,
                                         SC.s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
                                         SC.s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
-                                        SC.s_draw_info_rails     : self.SGraph_Manager.bDrawInfoRails,
-                                        SC.s_draw_main_rail      : self.SGraph_Manager.bDrawMainRail,
-                                        SC.s_draw_bbox           : self.SGraph_Manager.bDrawBBox,
-                                        SC.s_draw_special_lines  : self.SGraph_Manager.bDrawSpecialLines,
+                                        SC.s_draw_info_rails     : self.SGM.bDrawInfoRails,
+                                        SC.s_draw_main_rail      : self.SGM.bDrawMainRail,
+                                        SC.s_draw_bbox           : self.SGM.bDrawBBox,
+                                        SC.s_draw_special_lines  : self.SGM.bDrawSpecialLines,
                                     }
 
     def unsavedChangesDialog(self):
-        if self.SGraph_Manager.bHasChanges:
+        if self.SGM.bHasChanges:
             mb =  QMessageBox(0,'', "Save changes to document before closing?", QMessageBox.Cancel | QMessageBox.Save)
             mb.addButton("Close without saving", QMessageBox.RejectRole )
             res = mb.exec()
@@ -209,7 +210,7 @@ class CViewerWindow(QMainWindow):
         if not self.unsavedChangesDialog(): return
         
         sFName = correctFNameToProjectDir( sFName )
-        if self.SGraph_Manager.load( sFName ):
+        if self.SGM.load( sFName ):
             self.graphML_fname = sFName
             self.setWindowTitle( self.__sWindowTitle + sFName )
             CSM.options[ SC.s_last_opened_file ] = sFName
@@ -217,38 +218,45 @@ class CViewerWindow(QMainWindow):
     def saveGraphML( self, sFName ):
         sFName = correctFNameToProjectDir( sFName )
         self.graphML_fname = sFName
-        self.SGraph_Manager.save( sFName )
+        self.SGM.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
         CSM.options[ SC.s_last_opened_file ] = sFName
-        self.SGraph_Manager.bHasChanges = False
+        self.SGM.bHasChanges = False
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
         self.objProps.clear()
 
         selItems = self.StorageMap_Scene.selectedItems()
-        if ( len( selItems ) != 1 ): return
-        gItem = selItems[ 0 ]
+        if ( len( selItems ) != 1 ):
+            self.selectedGItem = None
+            return
 
-        self.SGraph_Manager.fillPropsForGItem( gItem, self.objProps )
+        gItem = selItems[ 0 ]
+        self.selectedGItem = gItem
+
+        gItem.fillPropsTable( self.objProps )
 
         self.tvObjectProps.resizeColumnToContents( 0 )
 
     # событие изменения ячейки таблицы свойств объекта
-    def objProps_itemChanged( self, item ):
-        selItems = self.StorageMap_Scene.selectedItems()
-        if ( len( selItems ) != 1 ): return
-        gItem = selItems[ 0 ]
+    def objProps_itemChanged( self, stdModelItem ):
+        assert self.selectedGItem
+        GItem = self.selectedGItem
 
-        self.SGraph_Manager.updateGItemFromProps( gItem, item )
+        GItem.updatePropsTable( stdModelItem )
+
+        if isinstance( GItem, CNode_SGItem ):
+            self.SGM.updateNodeIncEdges( GItem )
+
+        self.SGM.bHasChanges = True
 
     # событие изменения итема (ноды вызывают при перемещении)
     def itemChangedOnScene(self, GItem):
         if isinstance( GItem, CNode_SGItem ):
-            self.SGraph_Manager.updateNodeIncEdges( GItem )
+            self.SGM.updateNodeIncEdges( GItem )
         
-        self.objProps.clear()
-        self.SGraph_Manager.fillPropsForGItem( GItem, self.objProps )
+        GItem.fillPropsTable( self.objProps )
 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
@@ -284,42 +292,42 @@ class CViewerWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acBBox_triggered(self, bChecked):
-        self.SGraph_Manager.setDrawBBox(bChecked)
+        self.SGM.setDrawBBox(bChecked)
 
     @pyqtSlot(bool)
     def on_acInfoRails_triggered(self, bChecked):
-        self.SGraph_Manager.setDrawInfoRails(bChecked)
+        self.SGM.setDrawInfoRails(bChecked)
 
     @pyqtSlot(bool)
     def on_acMainRail_triggered(self, bChecked):
-        self.SGraph_Manager.setDrawMainRail(bChecked)
+        self.SGM.setDrawMainRail(bChecked)
 
     @pyqtSlot(bool)
     def on_acSpecialLines_triggered(self, bChecked):
-        self.SGraph_Manager.setDrawSpecialLines( bChecked )
+        self.SGM.setDrawSpecialLines( bChecked )
 
     def on_acLockEditing_triggered(self):
-        self.SGraph_Manager.setModeFlags( self.SGraph_Manager.Mode ^ EGManagerMode.EditScene )
+        self.SGM.setModeFlags( self.SGM.Mode ^ EGManagerMode.EditScene )
 
     @pyqtSlot(bool)
     def on_acAddNode_triggered(self):
-        self.SGraph_Manager.EditMode ^= EGManagerEditMode.AddNode
+        self.SGM.EditMode ^= EGManagerEditMode.AddNode
 
     @pyqtSlot(bool)
     def on_acDelMultiEdge_triggered (self, bChecked):
         edgeSGItems = [ e for e in self.StorageMap_Scene.selectedItems() if isinstance(e, CEdge_SGItem) ]
         for edgeSGItem in edgeSGItems:
-            self.SGraph_Manager.deleteMultiEdge( edgeSGItem.fsEdgeKey )
+            self.SGM.deleteMultiEdge( edgeSGItem.fsEdgeKey )
 
     @pyqtSlot(bool)
     def on_acReverseEdges_triggered (self, bChecked):
         edgeSGItems = [ e for e in self.StorageMap_Scene.selectedItems() if isinstance(e, CEdge_SGItem) ]
         for edgeSGItem in edgeSGItems:
-            self.SGraph_Manager.reverseEdge( edgeSGItem.fsEdgeKey )
+            self.SGM.reverseEdge( edgeSGItem.fsEdgeKey )
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):
-        self.SGraph_Manager.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
+        self.SGM.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
 
     @pyqtSlot()
     def on_acSelectAll_triggered(self):
@@ -335,7 +343,7 @@ class CViewerWindow(QMainWindow):
     def on_acNewGraphML_triggered(self, bChecked):
         self.unsavedChangesDialog()
         self.graphML_fname = SC.s_storage_graph_file__default
-        self.SGraph_Manager.new()
+        self.SGM.new()
         self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
 
     @pyqtSlot(bool)

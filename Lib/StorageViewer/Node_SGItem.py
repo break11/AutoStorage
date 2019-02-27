@@ -4,11 +4,12 @@ from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 
 class CNode_SGItem(QGraphicsItem):
     __R = 25
-    __fBBoxD  =  2 # 20   # расширение BBox для удобства выделения
-    __st_offset = SGT.railWidth[SGT.EWidthType.Narrow.name] # storage offset
+    __fBBoxD  =  2 # расширение BBox для удобства выделения
+    __st_offset = SGT.railWidth( SGT.EWidthType.Narrow.name ) # storage offset
     __st_height = 360
     __st_width = 640
 
@@ -21,12 +22,19 @@ class CNode_SGItem(QGraphicsItem):
     @property
     def x(self): return self.__readGraphAttr( SGT.s_x )
     @x.setter
-    def x(self, value): self.__writeGraphAttr( SGT.s_x, value )
+    def x(self, value):
+        self.updateProp( SGT.s_x, value )
+        self.__writeGraphAttr( SGT.s_x, value )
 
     @property
     def y(self): return self.__readGraphAttr( SGT.s_y )
     @y.setter
-    def y(self, value): self.__writeGraphAttr( SGT.s_y, value )
+    def y(self, value):
+        self.updateProp( SGT.s_y, value )
+        self.__writeGraphAttr( SGT.s_y, value )
+
+    # params: ( nodeID, propName, propValue )
+    propUpdate_CallBacks = [] # type:ignore
 
     def __init__(self, nxGraph, nodeID, scene):
         super().__init__()
@@ -41,6 +49,37 @@ class CNode_SGItem(QGraphicsItem):
 
         self.updateType()
         self.calcBBox()
+
+    ############################################
+
+    def fillPropsTable( self, mdlObjProps ):
+        mdlObjProps.setHorizontalHeaderLabels( [ "nodeID", self.nodeID ] )
+
+        for key, val in sorted( self.nxNode().items() ):
+            stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
+            if stdItem_PropName is None:
+                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
+                mdlObjProps.appendRow( rowItems )
+            else:
+                stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), 1 )
+                stdItem_PropValue.setData( val, Qt.EditRole )
+
+    def updatePropsTable( self, stdModelItem ):
+        propName  = stdModelItem.model().item( stdModelItem.row(), 0 ).data( Qt.EditRole )
+        propValue = stdModelItem.data( Qt.EditRole )
+        
+        self.updateProp( propName, propValue )
+
+    def updateProp( self, propName, propValue ):
+        for cb in self.propUpdate_CallBacks:
+            cb( self.nodeID, propName, propValue )
+
+        self.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
+        self.init()
+        self.updatePos_From_NX()
+        self.updateType()
+        
+    ############################################
 
     def calcBBox(self):
         if self.nodeType == SGT.ENodeTypes.StorageSingle:

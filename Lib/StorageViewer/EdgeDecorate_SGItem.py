@@ -20,7 +20,7 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         assert nxEdge is not None
 
         self.setRotation( -self.parentEdge.rotateAngle() )
-        self.width = SGT.railWidth[ nxEdge.get( SGT.s_widthType ) ] if nxEdge else 0
+        self.width = SGT.railWidth( nxEdge.get( SGT.s_widthType ) ) if nxEdge else 0
 
         w = self.width
         self.__BBoxRect = QRectF( -w/2, -w/2, self.parentEdge.baseLine.length() + w, w )

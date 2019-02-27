@@ -8,7 +8,7 @@ from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import CNetObj_Widget
 from .Net_Events import ENet_Event as EV
-from  Lib.Common.GuiUtils import ( Std_Model_Item )
+from  Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 
 class CDictProps_Widget( CNetObj_Widget ):
 
@@ -55,14 +55,10 @@ class CDictProps_Widget( CNetObj_Widget ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if self.netObj != netObj: return
 
-        l = self.__model.findItems( netCmd.sPropName, Qt.MatchFixedString | Qt.MatchCaseSensitive, 0 )
+        stdItem_PropName = Std_Model_FindItem( pattern=netCmd.sPropName, model=self.__model, col=0 )
+        if stdItem_PropName is None: return
 
-        if not len( l ): return
-
-        stdItem_PropName = l[0]
-        row = stdItem_PropName.row()
-
-        stdItem_PropValue = self.__model.item( row, 1 )
+        stdItem_PropValue = self.__model.item( stdItem_PropName.row(), 1 )
         val = netObj.propsDict()[ netCmd.sPropName ]
         self.bBlockOnChangeEvent = True
         stdItem_PropValue.setData( val, role=Qt.EditRole )
@@ -83,14 +79,10 @@ class CDictProps_Widget( CNetObj_Widget ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if self.netObj != netObj: return
 
-        l = self.__model.findItems( netCmd.sPropName, Qt.MatchFixedString | Qt.MatchCaseSensitive, 0 )
+        stdItem_PropName = Std_Model_FindItem( pattern=netCmd.sPropName, model=self.__model, col=0 )
+        if stdItem_PropName is None: return
 
-        if not len( l ): return
-
-        stdItem_PropName = l[0]
-        row = stdItem_PropName.row()
-
-        self.__model.removeRows( row, 1 )
+        self.__model.removeRows( stdItem_PropName.row(), 1 )
 
 ###################################################################################
 

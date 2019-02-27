@@ -5,7 +5,7 @@ from PyQt5.QtCore import ( Qt, QPoint, QRect, QLineF, QRectF )
 import math
 
 from Lib.Common import StorageGraphTypes as SGT
-from  Lib.Common.GuiUtils import getLineAngle
+from Lib.Common.GuiUtils import getLineAngle, EdgeDisplayName, Std_Model_Item, Std_Model_FindItem
 
 from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 
@@ -22,6 +22,9 @@ class CEdge_SGItem(QGraphicsItem):
     def x2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_x )
     @property
     def y2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_y )
+
+    ## params: ( tKey, propName, propValue )
+    propUpdate_CallBacks = [] # type:ignore
 
     def __init__(self, nxGraph, fsEdgeKey ):
         super().__init__()
@@ -43,6 +46,67 @@ class CEdge_SGItem(QGraphicsItem):
         self.decorateSGItem = CEdgeDecorate_SGItem( parentEdge = self )
 
         self.buildEdge()
+
+    ############################################
+
+    def fillPropsTable( self, mdlObjProps ):
+        def addNxEdgeIfExists( nodeID_1, nodeID_2, nxEdges ):
+            if self.nxGraph.has_edge( nodeID_1, nodeID_2 ):
+                tE_Name = (nodeID_1, nodeID_2)
+                nxEdges[ tE_Name ] = self.nxGraph.edges[ tE_Name ]
+
+        header = [ "edgeID" ]
+        uniqAttrSet = set()
+
+        nxEdges = {}
+        addNxEdgeIfExists( self.nodeID_1, self.nodeID_2, nxEdges )
+        addNxEdgeIfExists( self.nodeID_2, self.nodeID_1, nxEdges )
+
+        for k,v in nxEdges.items():
+            header.append( EdgeDisplayName( *k ) )
+            uniqAttrSet = uniqAttrSet.union( v.keys() )
+
+        mdlObjProps.setHorizontalHeaderLabels( header )
+
+        for key in sorted( uniqAttrSet ):
+            stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
+            if stdItem_PropName is None:
+                rowItems = []
+                rowItems.append( Std_Model_Item( key, True ) )
+                for k, v in nxEdges.items():
+                    val = v.get( key )
+                    rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ), userData=k ) ) ## k - ключ тапл-имя грани в графе nx
+
+                mdlObjProps.appendRow( rowItems )
+            else:
+                # проход по колонкам надежен, т.к. дикты начиная с версии питона 3.7 возвращают элементы в порядке вставки
+                col = 1
+                for k, v in nxEdges.items():
+                    val = v.get( key )
+
+                    stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), col )
+                    assert stdItem_PropValue.data( Qt.UserRole + 1 ) == k 
+                    stdItem_PropValue.setData( val, Qt.EditRole )
+
+                    col += 1
+
+    def updatePropsTable( self, stdModelItem ):
+        propName  = stdModelItem.model().item( stdModelItem.row(), 0 ).data( Qt.EditRole )
+        propValue = stdModelItem.data( Qt.EditRole )
+
+        tKey = stdModelItem.data( Qt.UserRole + 1 )
+            
+        self.updateProp( tKey, propName, propValue )
+
+    def updateProp( self, tKey, propName, propValue ):
+        for cb in self.propUpdate_CallBacks:
+            cb( tKey, propName, propValue )
+            
+        nxEdge = self.nxGraph.edges[ tKey ]
+        nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
+        self.decorateSGItem.updatedDecorate()
+
+    ############################################
 
     def done( self ):
         if self.hasNxEdge_1_2():
