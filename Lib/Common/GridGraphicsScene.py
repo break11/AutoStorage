@@ -60,10 +60,15 @@ class CGridGraphicsScene(QGraphicsScene):
         painter.drawLine( 0, -300, 0, 300 )
     
     def updateOrderedSelection(self):
-        setOrderedSelection = set(self.orderedSelection)
-        itemsToPop = setOrderedSelection - set( self.selectedItems() ) #находим элементы, которые удалены из selectedItems сцены
-        for item in itemsToPop:
-            self.orderedSelection.pop( self.orderedSelection.index(item) )
-        
-        itemsToAdd = [ item for item in self.selectedItems() if item in setOrderedSelection ]
-        self.orderedSelection += itemsToAdd
+        listSelectedItems = self.selectedItems()
+
+        if len (listSelectedItems) == 0:
+            self.orderedSelection = []
+        else:
+            setOrderedSelection = set(self.orderedSelection)
+            itemsToPop = setOrderedSelection - set( listSelectedItems ) #находим элементы, которых нет в selectedItems, но есть в setOrderedSelection
+            for item in itemsToPop:
+                self.orderedSelection.pop( self.orderedSelection.index(item) )
+
+            itemsToAdd = [ item for item in listSelectedItems if item not in setOrderedSelection ]
+            self.orderedSelection += itemsToAdd

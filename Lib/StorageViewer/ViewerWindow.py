@@ -3,7 +3,7 @@ import sys
 import os
 
 from PyQt5.QtCore import pyqtSlot, QByteArray, QTimer, Qt
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
@@ -323,8 +323,9 @@ class CViewerWindow(QMainWindow):
 
     @pyqtSlot()
     def on_acSelectAll_triggered(self):
-        for gItem in self.StorageMap_Scene.items():
-            gItem.setSelected(True)
+        selectionPath = QPainterPath()
+        selectionPath.addRect( self.StorageMap_Scene.itemsBoundingRect() )
+        self.StorageMap_Scene.setSelectionArea( selectionPath )
 
     @pyqtSlot()
     def on_sbGridSize_editingFinished(self):
