@@ -23,6 +23,9 @@ class CEdge_SGItem(QGraphicsItem):
     @property
     def y2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_y )
 
+    ## params: ( tKey, propName, propValue )
+    propUpdate_CallBacks = [] # type:ignore
+
     def __init__(self, nxGraph, fsEdgeKey ):
         super().__init__()
 
@@ -92,13 +95,13 @@ class CEdge_SGItem(QGraphicsItem):
         propValue = stdModelItem.data( Qt.EditRole )
 
         tKey = stdModelItem.data( Qt.UserRole + 1 )
-        
-        if hasattr( self, "updateNetObj" ):
-            self.updateNetObj( tKey, propName, propValue )
-
+            
         self.updateProp( tKey, propName, propValue )
 
     def updateProp( self, tKey, propName, propValue ):
+        for cb in self.propUpdate_CallBacks:
+            cb( tKey, propName, propValue )
+            
         nxEdge = self.nxGraph.edges[ tKey ]
         nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.decorateSGItem.updatedDecorate()

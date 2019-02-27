@@ -43,6 +43,10 @@ class CBaseApplication( QApplication ):
         CSM.loadSettings( default=default_settings )
 
         if not CNetObj_Manager.connect(): return False
+        
+        self.AgentsNode = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Agents" )
+        if self.AgentsNode is None:
+            self.AgentsNode  = CNetObj( name="Agents", parent=CNetObj_Manager.rootObj )
 
         self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
         self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )

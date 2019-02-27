@@ -20,13 +20,13 @@ class CStorageNetObj_Adapter:
         self.SGM = ViewerWindow.SGM
         self.ViewerWindow = ViewerWindow
 
-        CEdge_SGItem.updateNetObj = self.edgePropChanged_From_GScene_TableProps
-        CNode_SGItem.updateNetObj = self.nodePropChanged_From_GScene_TableProps
+        CNode_SGItem.propUpdate_CallBacks.append( self.nodePropChanged_From_GScene )
+        CEdge_SGItem.propUpdate_CallBacks.append( self.edgePropChanged_From_GScene )
 
-    def nodePropChanged_From_GScene_TableProps( self, nodeID, propName, propValue ):
+    def nodePropChanged_From_GScene( self, nodeID, propName, propValue ):
         self.__updateObjProp( "Graph/Nodes/" + nodeID, propName, propValue )
 
-    def edgePropChanged_From_GScene_TableProps( self, tKey, propName, propValue ):
+    def edgePropChanged_From_GScene( self, tKey, propName, propValue ):
         self.__updateObjProp( "Graph/Edges/" + EdgeDisplayName( *tKey ), propName, propValue )
 
     def __updateObjProp( self, sObjPath, propName, propValue ):
