@@ -34,8 +34,9 @@ class CNetObj( CTreeNode ):
 ###################################################################################
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
+        self.UID  = id if id else CNetObj_Manager.genNetObj_UID()
+        name = name if name else str(self.UID)
         super().__init__( name = name, parent = parent )
-        self.UID     = id if id else CNetObj_Manager.genNetObj_UID()
 
         hd = self.__modelHeaderData
         weakSelf = weakref.ref(self)

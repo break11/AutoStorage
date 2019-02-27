@@ -35,6 +35,9 @@ class CTreeNode:
     ##########################
 
     def __init__( self, parent=None, name=None ):
+        if parent is not None:
+            assert parent.childByName( name ) is None, f"Can not create tree element with duplicate name='{name}'"
+
         self.name = name
 
         self.__parent = None

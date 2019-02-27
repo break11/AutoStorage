@@ -16,7 +16,7 @@ _strList = [
             "scene",
             "snap_to_grid",
             "draw_bbox",
-            "draw_special_lines"
+            "draw_special_lines",
           ]
           
 # Экспортируем "короткие" алиасы строковых констант
@@ -24,4 +24,4 @@ for str_item in _strList:
     locals()[ "s_" + str_item ] = str_item
 
 s_storage_graph_file__default = "GraphML/test.graphml"
-
+s_mainwindow_ui = "/mainwindow.ui"

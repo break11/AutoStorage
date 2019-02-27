@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
+from .Agent_SGItem import CAgent_SGItem
 from  Lib.Common.GItem_EventFilter import CGItem_EventFilter
 from  Lib.Common.GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item, EdgeDisplayName
 
@@ -47,6 +48,7 @@ class CStorageGraph_GScene_Manager():
                     }
 
     def __init__(self, gScene, gView):
+        self.agentGItems    = {}
         self.nodeGItems     = {}
         self.edgeGItems     = {}
         self.gScene_evI     = None
@@ -91,6 +93,7 @@ class CStorageGraph_GScene_Manager():
         self.gScene.addItem( self.gScene_evI )
 
     def clear(self):
+        self.agentGItems = {}
         self.nodeGItems = {}
         self.edgeGItems = {}
         self.gScene.clear()
@@ -245,6 +248,19 @@ class CStorageGraph_GScene_Manager():
         self.__maxNodeID += 1
         return str(self.__maxNodeID)
         
+    def addAgent( self, agentNetObj ):
+        if self.agentGItems.get ( agentNetObj.name ): return
+
+        agentGItem = CAgent_SGItem ( agentNetObj = agentNetObj )
+        self.gScene.addItem( agentGItem )
+        self.agentGItems[ agentNetObj.name ] = agentGItem
+
+        agentGItem.init()
+        agentGItem.installSceneEventFilter( self.gScene_evI )
+        agentGItem.SGM = self
+
+        return agentGItem
+
     def addNode( self, nodeID, **attr ):
         if self.nodeGItems.get (nodeID): return
         if not self.nxGraph.has_node(nodeID):

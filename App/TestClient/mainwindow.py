@@ -5,13 +5,13 @@ from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDi
 from PyQt5 import uic
 
 from Lib.Common import GuiUtils
-from Lib.StorageViewer.StorageGraph_GScene_Manager import ( CStorageGraph_GScene_Manager, windowDefSettings )
+from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager
 from Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
 from Lib.Common import FileUtils
-from Lib.Common.GuiUtils import time_func
+from Lib.Common.GuiUtils import time_func, windowDefSettings
 import Lib.Common.StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
 
@@ -29,7 +29,7 @@ class CTC_MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
+        uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
 
         self.updateNodesXYTest_Timer = QTimer( self )
         self.updateNodesXYTest_Timer.setInterval(100)

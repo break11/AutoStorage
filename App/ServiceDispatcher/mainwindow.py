@@ -28,7 +28,7 @@ class CSSD_MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + '/mainwindow.ui', self )
+        uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
 
         self.timer = QTimer()
         self.timer.setInterval(1500)

@@ -18,7 +18,7 @@ c2_Node   = CTreeNode( parent = rootNode, name = "c2" )
 c2_1_Node = CTreeNode( parent = c2_Node,  name = "c2_1" )
 c2_2_Node = CTreeNode( parent = c2_Node,  name = "c2_2" )
 
-class TestTreeNode(unittest.TestCase):
+class TestTreeNode(unittest.TestCase):        
     def test_parent(self):
         self.assertEqual( c1_1_Node.parent , c1_Node )
 

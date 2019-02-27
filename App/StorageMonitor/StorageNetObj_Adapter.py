@@ -6,6 +6,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetCmd import CNetCmd
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
+from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.Common.GuiUtils import time_func, Std_Model_FindItem, EdgeDisplayName
 from Lib.StorageViewer.Edge_SGItem import CEdge_SGItem
 from Lib.StorageViewer.Node_SGItem import CNode_SGItem
@@ -48,6 +49,9 @@ class CStorageNetObj_Adapter:
             SGM.addEdge( frozenset( (netObj.nxNodeID_1(), netObj.nxNodeID_2()) ) )
             SGM.calcNodeMiddleLine( SGM.nodeGItems[ netObj.nxNodeID_1() ] )
             SGM.calcNodeMiddleLine( SGM.nodeGItems[ netObj.nxNodeID_2() ] )
+
+        elif isinstance( netObj, CAgent_NO ):
+            SGM.addAgent( agentNetObj = netObj )
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
@@ -93,6 +97,10 @@ class CStorageNetObj_Adapter:
 
             gItem = SGM.edgeGItems[ fsEdgeKey ]
             gItem.updateProp( tKey, propName, propValue )
+
+        elif isinstance( netObj, CAgent_NO ):
+            gItem = SGM.agentGItems[ netObj.name ]
+            gItem.updateProp( propName, propValue )
 
         # обновление модели свойств в окне вьювера
         if gItem == self.ViewerWindow.selectedGItem:
