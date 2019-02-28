@@ -263,10 +263,11 @@ class CStorageGraph_GScene_Manager():
 
     def addNode( self, nodeID, **attr ):
         if self.nodeGItems.get (nodeID): return
+
         if not self.nxGraph.has_node(nodeID):
             self.nxGraph.add_node ( nodeID, **attr )
 
-        nodeGItem = CNode_SGItem ( nxGraph = self.nxGraph, nodeID = nodeID, scene = self.gScene )
+        nodeGItem = CNode_SGItem ( nxGraph = self.nxGraph, nodeID = nodeID )
         self.gScene.addItem( nodeGItem )
         self.nodeGItems[ nodeID ] = nodeGItem
 
@@ -395,6 +396,8 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
                 attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.__gView.mapToScene(event.pos()).x() )
                 attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
                 self.__SGM.addNode( self.__SGM.genStrNodeID(), **attr )
+
+                
 
                 ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю
                 # self.__gScene.setSceneRect( self.__gScene.itemsBoundingRect() )

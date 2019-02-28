@@ -47,6 +47,15 @@ s_ObjectsSet = "objects_set"
 from time import sleep
 
 class CNetObj_Manager( object ):
+    redisConn = None
+    serviceConn = None
+    ClientID  = None
+    objModel = None # модель представление для дерева требует специфической обработки
+    bNetCmd_Log = False
+    bEvent_Log = False
+
+    #####################################################
+
     callbacksDict = {} # type: ignore # Dict of List by ECallbackType
     for e in EV:
         callbacksDict[ e ] = [] 
@@ -78,18 +87,7 @@ class CNetObj_Manager( object ):
 
     ########################################################
 
-    redisConn = None
-    serviceConn = None
-    ClientID  = None
-
     __netObj_Types = {} # type: ignore
-    __objects      = weakref.WeakValueDictionary() # type: ignore
-    objModel = None # модель представление для дерева требует специфической обработки
-
-    bNetCmd_Log = False
-    bEvent_Log = False
-
-    #####################################################
 
     @classmethod
     def registerType(cls, netObjClass):
@@ -227,15 +225,26 @@ class CNetObj_Manager( object ):
         if i: print( f"NetCmd count in tick = {i}" )
 
     #####################################################
+    
+    __objects = weakref.WeakValueDictionary() # type: ignore
+
+    @classmethod
+    def initRoot(cls):
+        # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
+        cls.rootObj = CNetObj(name="root", id=-1)
+        cls.__objects[ cls.rootObj.UID ] = cls.rootObj
+
+    __genLocal_UID = -1000 #
 
     @classmethod
     def genNetObj_UID( cls ):
-        if not cls.isConnected():
-            raise redis.exceptions.ConnectionError("{SC.sError} Can't get generator value from redis! No connection!")
+        if cls.isConnected():
+            uid = cls.serviceConn.incr( s_NetObj_UID, 1 )
+        else:
+            cls.__genLocal_UID -= 1
+            uid = cls.__genLocal_UID
 
-        cls.__genNetObj_UID = cls.serviceConn.incr( s_NetObj_UID, 1 )
-
-        return cls.__genNetObj_UID
+        return uid
 
     @classmethod
     def registerObj( cls, netObj, saveToRedis ):
@@ -280,12 +289,6 @@ class CNetObj_Manager( object ):
         return netObj
 
     #####################################################
-
-    @classmethod
-    def initRoot(cls):
-        # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
-        cls.rootObj = CNetObj(name="root", id=-1)
-        cls.__objects[ cls.rootObj.UID ] = cls.rootObj
 
     @classmethod
     def connect( cls ):

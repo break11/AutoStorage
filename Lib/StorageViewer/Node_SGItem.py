@@ -6,6 +6,9 @@ from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 
+from Lib.Net.NetObj import CNetObj
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+
 class CNode_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  =  2 # расширение BBox для удобства выделения
@@ -36,10 +39,10 @@ class CNode_SGItem(QGraphicsItem):
     # params: ( nodeID, propName, propValue )
     propUpdate_CallBacks = [] # type:ignore
 
-    def __init__(self, nxGraph, nodeID, scene):
+    def __init__(self, nxGraph, nodeID):
         super().__init__()
 
-        self.nxGraph  = nxGraph
+        self.nxGraph = nxGraph
         self.nodeID = nodeID
         self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( QGraphicsItem.ItemIsSelectable )

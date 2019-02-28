@@ -135,9 +135,11 @@ class CSSD_MainWindow(QMainWindow):
             node = CGraphNode_NO( name=nodeID, parent=Nodes )
 
         for edgeID in nxGraph.edges():
-            n1 = edgeID[0]
-            n2 = edgeID[1]
-            edge = CGraphEdge_NO( name = GuiUtils.EdgeDisplayName( n1, n2 ), nxNodeID_1 = n1, nxNodeID_2 = n2, parent = Edges )
+            ext_fields = {
+                            CGraphEdge_NO.s_NodeID_1 : edgeID[0],
+                            CGraphEdge_NO.s_NodeID_2 : edgeID[1]
+                         }
+            edge = CGraphEdge_NO( name = GuiUtils.EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphML()

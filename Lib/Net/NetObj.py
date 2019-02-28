@@ -21,20 +21,12 @@ class CNetObj( CTreeNode ):
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
-    # размещаем данные поля здесь - в классе - это будет служить заглушкой для всех вызовов self.props
-    # будет возвращен этот пустой dict и не будет ошибки, между тем, если в наследнике будет присвоение в self.props
-    # то данный пустой dict уже использоваться не будет
-    # еще один способ реализации кастомных полей в наследнике - переопределение метода propsDict()
-    # для ext_fields это так же имеет смысл для возможности вызова кода заполнения ext_fields до вызова базового конструктора в наследниках
-    # ведь если бы ext_fields инициализировался в нем (в базовом конструкторе), то вызов инициализации в наследнике до него не имел бы смысла и 
-    # информация о дополнительных полях не попала бы в редис при отправке в registerObject(...) по завершению конрструктора
-    props      = {} #type:ignore
-    ext_fields = {} #type:ignore
-    
 ###################################################################################
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
         self.UID  = id if id else CNetObj_Manager.genNetObj_UID()
+        self.props = props
+        self.ext_fields = ext_fields
         name = name if name else str(self.UID)
         super().__init__( name = name, parent = parent )
 
@@ -170,9 +162,6 @@ class CNetObj( CTreeNode ):
         if len( self.ext_fields ):
             pipe.hmset( self.redisKey_ExtFields(), CStrTypeConverter.DictToStr( self.ext_fields ) )
 
-        # вызов дополнительных действий по сохранению наследника
-        self.onSaveToRedis()
-
     @classmethod
     def load_PipeData_FromRedis( cls, pipe, UID ):
         netObj = CNetObj_Manager.accessObj( UID )
@@ -207,13 +196,10 @@ class CNetObj( CTreeNode ):
 
         name     = nameField.decode()
         objClass = CNetObj_Manager.netObj_Type( typeUID )
+        props      = CStrTypeConverter.DictFromBytes( pProps )
+        ext_fields = CStrTypeConverter.DictFromBytes( extFields )
 
-        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False )
-
-        netObj.props      = CStrTypeConverter.DictFromBytes( pProps )
-        netObj.ext_fields = CStrTypeConverter.DictFromBytes( extFields )
-
-        netObj.onLoadFromRedis()
+        netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False, props=props, ext_fields=ext_fields )
 
         cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
         CNetObj_Manager.doCallbacks( cmd )
@@ -222,10 +208,6 @@ class CNetObj( CTreeNode ):
 
     def delFromRedis( self, pipe ):
         pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_TypeUID(), self.redisKey_Props(), self.redisKey_ExtFields() )
-
-    # методы для переопределения дополнительного поведения в наследниках
-    def onSaveToRedis( self ): pass
-    def onLoadFromRedis( self ): pass
 
     # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
     # если соответствующий метод есть в объекте он будет вызван до глобальных, только для конкретного объекта

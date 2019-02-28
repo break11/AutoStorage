@@ -5,25 +5,31 @@ from  Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GuiUtils import EdgeDisplayName
 
 class CGraphRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxGraph=None ):
-        self.nxGraph = nxGraph
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={},
+                  nxGraph=None ):
+
+        if nxGraph is not None:
+            self.nxGraph = nxGraph
+        else:
+            self.nxGraph = nx.DiGraph( props )
+
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
         self.edgesNode = CTreeNodeCache( baseNode = self, path = "Edges" )
-        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
 
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
-
-    def onLoadFromRedis( self ):
-        super().onLoadFromRedis()
-
-        # при загрузке из сети self.props уже загрузится в коде предка
-        self.nxGraph = nx.DiGraph( **self.props )
 
 ###################################################################################
 
 class CGraphNode_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
+
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
-        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
+
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
+        if self.graphNode():
+            self.nxGraph().add_node( self.name, **self.props )
 
     def ObjPrepareDelete( self, netCmd ):
         incEdges = []
@@ -45,13 +51,6 @@ class CGraphNode_NO( CNetObj ):
 
     def propsDict(self): return self.nxNode() if self.graphNode() else {}
 
-    def onLoadFromRedis( self ):
-        super().onLoadFromRedis()
-
-        # попытка создать объект, которого уже нет в редис
-        if self.graphNode():
-            self.nxGraph().add_node( self.name, **self.props )
-
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
     def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else {}
     def __has_nxNode(self): return self.nxGraph().has_node( self.name ) if self.nxGraph() else None
@@ -59,16 +58,17 @@ class CGraphNode_NO( CNetObj ):
 ###################################################################################
 
 class CGraphEdge_NO( CNetObj ):
-    __s_NodeID_1 = "NodeID_1"
-    __s_NodeID_2 = "NodeID_2"
+    s_NodeID_1 = "NodeID_1"
+    s_NodeID_2 = "NodeID_2"
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, nxNodeID_1=None, nxNodeID_2=None ):
-        self.ext_fields = {}
-        self.ext_fields[ self.__s_NodeID_1 ] = nxNodeID_1
-        self.ext_fields[ self.__s_NodeID_2 ] = nxNodeID_2
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
+
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
-        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis )
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
+        if self.graphNode():
+            self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
 
     def ObjPrepareDelete( self, netCmd ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
@@ -78,14 +78,8 @@ class CGraphEdge_NO( CNetObj ):
 
     def propsDict(self): return self.nxEdge() if self.graphNode() else {}
 
-    def onLoadFromRedis( self ):
-        super().onLoadFromRedis()
-
-        if self.graphNode():
-            self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
-
-    def nxNodeID_1(self)  : return self.ext_fields[ self.__s_NodeID_1 ]
-    def nxNodeID_2(self)  : return self.ext_fields[ self.__s_NodeID_2 ]
+    def nxNodeID_1(self)  : return self.ext_fields[ self.s_NodeID_1 ]
+    def nxNodeID_2(self)  : return self.ext_fields[ self.s_NodeID_2 ]
     def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1(), self.nxNodeID_2() ) if self.nxGraph() else None
     def __nxEdgeName(self): return ( self.nxNodeID_1(), self.nxNodeID_2() )
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
