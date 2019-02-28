@@ -15,6 +15,7 @@ class CGraphRoot_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
+        self.nodesNode = CTreeNodeCache( baseNode = self, path = "Nodes" )
         self.edgesNode = CTreeNodeCache( baseNode = self, path = "Edges" )
 
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
@@ -28,7 +29,7 @@ class CGraphNode_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-        if self.graphNode():
+        if not self.__has_nxNode():
             self.nxGraph().add_node( self.name, **self.props )
 
     def ObjPrepareDelete( self, netCmd ):
@@ -67,7 +68,7 @@ class CGraphEdge_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-        if self.graphNode():
+        if not self.__has_nxEdge():
             self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
 
     def ObjPrepareDelete( self, netCmd ):
