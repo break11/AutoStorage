@@ -13,8 +13,9 @@ from PyQt5.QtWidgets import ( QGraphicsItem )
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Agent_SGItem import CAgent_SGItem
-from  Lib.Common.GItem_EventFilter import CGItem_EventFilter
-from  Lib.Common.GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item, EdgeDisplayName
+from Lib.Common.GItem_EventFilter import CGItem_EventFilter
+from Lib.Common.GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item
+from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
 
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
@@ -128,12 +129,9 @@ class CStorageGraph_GScene_Manager():
         self.clear()
         self.init()
 
-        if not os.path.exists( sFName ):
-            print( f"{SC.sWarning} GraphML file not found '{sFName}'!" )
-            self.new()
+        self.nxGraph = loadGraphML_File( sFName )
+        if not self.nxGraph:
             return False
-        
-        self.nxGraph  = nx.read_graphml( sFName )
 
         for n in self.nxGraph.nodes():
             self.addNode(n)
@@ -397,7 +395,7 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
                 attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
                 self.__SGM.addNode( self.__SGM.genStrNodeID(), **attr )
 
-                
+
 
                 ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю
                 # self.__gScene.setSceneRect( self.__gScene.itemsBoundingRect() )

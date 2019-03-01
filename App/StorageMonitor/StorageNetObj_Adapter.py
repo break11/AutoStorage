@@ -7,7 +7,8 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetCmd import CNetCmd
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO
-from Lib.Common.GuiUtils import time_func, Std_Model_FindItem, EdgeDisplayName
+from Lib.Common.GuiUtils import time_func, Std_Model_FindItem
+from Lib.Common.GraphUtils import EdgeDisplayName
 from Lib.StorageViewer.Edge_SGItem import CEdge_SGItem
 from Lib.StorageViewer.Node_SGItem import CNode_SGItem
 

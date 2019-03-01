@@ -13,8 +13,9 @@ from  Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
 import  Lib.Common.StrConsts as SC
 
-from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path, sGraphML_file_filters, extensionsFiltersDict
+from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
 from  Lib.Common.GuiUtils import windowDefSettings, gvFitToPage, time_func
+from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
 
@@ -354,7 +355,7 @@ class CViewerWindow(QMainWindow):
     def on_acSaveGraphMLAs_triggered(self, bChecked):
         path, extension = QFileDialog.getSaveFileName(self, "Save GraphML file", self.graphML_fname, sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
         if path:
-            path = path if path.endswith( extensionsFiltersDict[extension] ) else ( path + "." + extensionsFiltersDict[extension] )
+            path = path if path.endswith( GraphML_ext_filters[extension] ) else ( path + "." + GraphML_ext_filters[extension] )
             self.saveGraphML( path )
 
     @pyqtSlot(bool)

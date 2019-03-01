@@ -5,7 +5,8 @@ from PyQt5.QtCore import ( Qt, QPoint, QRect, QLineF, QRectF )
 import math
 
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.GuiUtils import getLineAngle, EdgeDisplayName, Std_Model_Item, Std_Model_FindItem
+from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
+from Lib.Common.GraphUtils import getLineAngle, EdgeDisplayName
 
 from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 

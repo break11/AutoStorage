@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import ( QGraphicsView )
 from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
 from PyQt5.QtCore import (Qt, QRectF)
-import  Lib.Common.StrConsts as SC
+import Lib.Common.StrConsts as SC
 import math
 import time
 
@@ -31,9 +31,6 @@ windowDefSettings = {
                         SC.s_state: ""     # type: ignore
                     }
 
-
-def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
-
 # хелперная функция создание итема стандартной модели с дополнительными параметрами
 def Std_Model_Item( val, bReadOnly = False, userData = None ):
     item = QStandardItem()
@@ -61,9 +58,3 @@ def gvFitToPage( gView ):
     gView.setSceneRect( QRectF( tl, br ) )
 
     gView.fitInView( gView.scene().sceneRect(), Qt.KeepAspectRatio )
-
-    # рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
-def getLineAngle( line ):
-    rAngle = math.acos( line.dx() / ( line.length() or 1) )
-    if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
-    return rAngle

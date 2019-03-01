@@ -2,7 +2,7 @@
 import networkx as nx
 from Lib.Net.NetObj import CNetObj
 from  Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
-from .GuiUtils import EdgeDisplayName
+from .GraphUtils import EdgeDisplayName
 
 class CGraphRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={},

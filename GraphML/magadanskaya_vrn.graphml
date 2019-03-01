@@ -3,16 +3,16 @@
   <key attr.name="curvature" attr.type="string" for="edge" id="d13" />
   <key attr.name="widthType" attr.type="string" for="edge" id="d12" />
   <key attr.name="sensorSide" attr.type="string" for="edge" id="d11" />
-  <key attr.name="highRailSizeTo" attr.type="int" for="edge" id="d10" />
-  <key attr.name="highRailSizeFrom" attr.type="int" for="edge" id="d9" />
-  <key attr.name="edgeSize" attr.type="int" for="edge" id="d8" />
+  <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d10" />
+  <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d9" />
+  <key attr.name="edgeSize" attr.type="long" for="edge" id="d8" />
   <key attr.name="edgeType" attr.type="string" for="edge" id="d7" />
   <key attr.name="chargeSide" attr.type="string" for="node" id="d6" />
-  <key attr.name="floor_num" attr.type="int" for="node" id="d5" />
-  <key attr.name="containsAgent" attr.type="int" for="node" id="d4" />
+  <key attr.name="floor_num" attr.type="long" for="node" id="d5" />
+  <key attr.name="containsAgent" attr.type="long" for="node" id="d4" />
   <key attr.name="nodeType" attr.type="string" for="node" id="d3" />
-  <key attr.name="y" attr.type="int" for="node" id="d2" />
-  <key attr.name="x" attr.type="int" for="node" id="d1" />
+  <key attr.name="y" attr.type="long" for="node" id="d2" />
+  <key attr.name="x" attr.type="long" for="node" id="d1" />
   <key attr.name="name" attr.type="string" for="graph" id="d0" />
   <graph edgedefault="directed">
     <node id="0">

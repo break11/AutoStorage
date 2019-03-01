@@ -11,7 +11,8 @@ from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
 from Lib.Common import FileUtils
-from Lib.Common.GuiUtils import time_func
+from Lib.Common.GuiUtils import time_func, Std_Model_Item
+from Lib.Common.GraphUtils import EdgeDisplayName, sGraphML_file_filters, loadGraphML_File
 import Lib.Common.StrConsts as SC
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -80,9 +81,9 @@ class CSSD_MainWindow(QMainWindow):
             if not ( ClientID and ClientIPAddress ):
                 continue
 
-            rowItems = [ GuiUtils.Std_Model_Item( ClientID, bReadOnly = True ),
-                         GuiUtils.Std_Model_Item( ClientName.decode(), bReadOnly = True ),
-                         GuiUtils.Std_Model_Item( ClientIPAddress.decode(), bReadOnly = True ) ]
+            rowItems = [ Std_Model_Item( ClientID, bReadOnly = True ),
+                         Std_Model_Item( ClientName.decode(), bReadOnly = True ),
+                         Std_Model_Item( ClientIPAddress.decode(), bReadOnly = True ) ]
             m.appendRow( rowItems )
         
         # проход по модели - сравнение с найденными ключами в редис - обнаружение отключенных клиентов
@@ -103,7 +104,6 @@ class CSSD_MainWindow(QMainWindow):
                                              SC.s_state    : self.saveState().toHex().data().decode() }
 
     def loadGraphML( self, bReload=False ):
-        # self.btnReloadGraphML.setEnabled( False )
         graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
         if graphObj:
             if bReload:
@@ -115,17 +115,9 @@ class CSSD_MainWindow(QMainWindow):
         sFName = self.leGraphML.text()
         sFName = FileUtils.correctFNameToProjectDir( sFName )
 
-        # загрузка графа и создание его объектов для сетевой синхронизации
-        if not os.path.exists( sFName ):
-            print( f"{SC.sWarning} GraphML file not found '{sFName}'!" )
+        nxGraph = loadGraphML_File( sFName )
+        if not nxGraph:
             return
-
-        nxGraph  = nx.read_graphml( sFName )
-        # не используем атрибуты для значений по умолчанию для вершин и граней, поэтому сносим их из свойств графа
-        # как и следует из документации новые ноды не получают этот список атрибутов, это просто кеш
-        # при создании графа через загрузку они появляются, при создании чистого графа ( nx.Graph() ) нет
-        del nxGraph.graph["node_default"]
-        del nxGraph.graph["edge_default"]
 
         Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
         Nodes = CNetObj(name="Nodes", parent=Graph)
@@ -139,7 +131,7 @@ class CSSD_MainWindow(QMainWindow):
                             CGraphEdge_NO.s_NodeID_1 : edgeID[0],
                             CGraphEdge_NO.s_NodeID_2 : edgeID[1]
                          }
-            edge = CGraphEdge_NO( name = GuiUtils.EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
+            edge = CGraphEdge_NO( name = EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphML()
@@ -148,7 +140,7 @@ class CSSD_MainWindow(QMainWindow):
         self.loadGraphML( bReload=True )
 
     def on_btnSelectGraphML_released( self ):
-        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", FileUtils.graphML_Path(), FileUtils.sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
+        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", FileUtils.graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
         if path:
             path = FileUtils.correctFNameToProjectDir( path )
             self.leGraphML.setText( path )
