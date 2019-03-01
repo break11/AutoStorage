@@ -16,6 +16,7 @@ from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
 from Lib.Common.GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
+from Lib.Common.Graph_NetObjects import createNetObjectsForGraph
 
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
@@ -133,13 +134,15 @@ class CStorageGraph_GScene_Manager():
         if not self.nxGraph:
             return False
 
+        createNetObjectsForGraph( self.nxGraph )
+
         for n in self.nxGraph.nodes():
             self.addNode(n)
 
-        self.updateMaxNodeID()
-
         for e in self.nxGraph.edges():
             self.addEdge( e )
+
+        self.updateMaxNodeID()
 
         #после создания граней перерасчитываем линии расположения мест хранения
         for nodeID, nodeGItem in self.nodeGItems.items():
@@ -148,7 +151,7 @@ class CStorageGraph_GScene_Manager():
         gvFitToPage( self.gView )
         self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
 
-        print( f"GraphicsItems on scene = {len(self.gScene.items())}" )
+        print( f"GraphicsItems in scene = {len(self.gScene.items())}" )
 
         return True
 

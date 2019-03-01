@@ -9,7 +9,7 @@ from Lib.StorageViewer.StorageGraph_GScene_Manager import ( CStorageGraph_GScene
 from Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Lib.Common.SettingsManager import CSettingsManager as CSM
-from Lib.Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createNetObjectsForGraph
 from Lib.Common import FileUtils
 from Lib.Common.GuiUtils import time_func, Std_Model_Item
 from Lib.Common.GraphUtils import EdgeDisplayName, sGraphML_file_filters, loadGraphML_File
@@ -119,19 +119,20 @@ class CSSD_MainWindow(QMainWindow):
         if not nxGraph:
             return
 
-        Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
-        Nodes = CNetObj(name="Nodes", parent=Graph)
-        Edges = CNetObj(name="Edges", parent=Graph)
+        # Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
+        # Nodes = CNetObj(name="Nodes", parent=Graph)
+        # Edges = CNetObj(name="Edges", parent=Graph)
 
-        for nodeID in nxGraph.nodes():
-            node = CGraphNode_NO( name=nodeID, parent=Nodes )
+        # for nodeID in nxGraph.nodes():
+        #     node = CGraphNode_NO( name=nodeID, parent=Nodes )
 
-        for edgeID in nxGraph.edges():
-            ext_fields = {
-                            CGraphEdge_NO.s_NodeID_1 : edgeID[0],
-                            CGraphEdge_NO.s_NodeID_2 : edgeID[1]
-                         }
-            edge = CGraphEdge_NO( name = EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
+        # for edgeID in nxGraph.edges():
+        #     ext_fields = {
+        #                     CGraphEdge_NO.s_NodeID_1 : edgeID[0],
+        #                     CGraphEdge_NO.s_NodeID_2 : edgeID[1]
+        #                  }
+        #     edge = CGraphEdge_NO( name = EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
+        createNetObjectsForGraph( nxGraph )
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphML()

@@ -1,7 +1,8 @@
 
 import networkx as nx
 from Lib.Net.NetObj import CNetObj
-from  Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName
 
 class CGraphRoot_NO( CNetObj ):
@@ -85,3 +86,20 @@ class CGraphEdge_NO( CNetObj ):
     def __nxEdgeName(self): return ( self.nxNodeID_1(), self.nxNodeID_2() )
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
     def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
+
+
+def createNetObjectsForGraph( nxGraph ):
+    Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
+    Nodes = CNetObj(name="Nodes", parent=Graph)
+    Edges = CNetObj(name="Edges", parent=Graph)
+
+    for nodeID in nxGraph.nodes():
+        node = CGraphNode_NO( name=nodeID, parent=Nodes )
+
+    for edgeID in nxGraph.edges():
+        ext_fields = {
+                        CGraphEdge_NO.s_NodeID_1 : edgeID[0],
+                        CGraphEdge_NO.s_NodeID_2 : edgeID[1]
+                        }
+        edge = CGraphEdge_NO( name = EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
+

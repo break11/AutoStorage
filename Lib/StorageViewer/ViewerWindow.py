@@ -18,6 +18,7 @@ from  Lib.Common.GuiUtils import windowDefSettings, gvFitToPage, time_func
 from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
+from App.StorageMonitor.StorageNetObj_Adapter import CStorageNetObj_Adapter
 
 from .images_rc import *
 from enum import IntEnum, auto
@@ -133,6 +134,9 @@ class CViewerWindow(QMainWindow):
 
         self.StorageMap_View.horizontalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
         self.StorageMap_View.verticalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
+
+        self.adapter = CStorageNetObj_Adapter()
+        self.adapter.init( self )
 
     def viewPortAreaChanged(self, value):
         rectf = self.StorageMap_View.mapToScene(self.StorageMap_View.viewport().geometry()).boundingRect()

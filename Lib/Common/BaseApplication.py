@@ -1,5 +1,6 @@
+import sys
 
-from PyQt5.QtWidgets import ( QApplication, QDockWidget, QWidget )
+from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget, QProxyStyle, QStyle
 from PyQt5.QtCore import QTimer
 
 from .SettingsManager import CSettingsManager as CSM
@@ -11,6 +12,12 @@ from Lib.Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO
 
+# Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
+class CNoAltMenu_Style( QProxyStyle ):
+    def styleHint( self, stylehint, opt, widget, returnData):
+        if (stylehint == QStyle.SH_MenuBar_AltKeyNavigation):
+            return 0
+        return QProxyStyle.styleHint( self, stylehint, opt, widget, returnData)
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -29,30 +36,39 @@ def registerNetNodeWidgets( parent ):
     reg( CAgent_NO,     CDictProps_Widget, parent )
 
 class CBaseApplication( QApplication ):
-    def __init__(self, argv ):
+    def __init__(self, argv, bNetworkMode ):
         super().__init__( argv )
 
-        self.tickTimer = QTimer()
-        self.tickTimer.setInterval(100)
-        self.tickTimer.start()
+        self.bNetworkMode = bNetworkMode
 
-        self.ttlTimer = QTimer()
-        self.ttlTimer.setInterval( 1500 )
-        self.ttlTimer.start()
+        self.setStyle( CNoAltMenu_Style() )
+
+        registerNetObjTypes()
+
+        if self.bNetworkMode:
+            self.tickTimer = QTimer()
+            self.tickTimer.setInterval(100)
+            self.tickTimer.start()
+
+            self.ttlTimer = QTimer()
+            self.ttlTimer.setInterval( 1500 )
+            self.ttlTimer.start()
         
         CNetObj_Manager.initRoot()
 
     def init(self, default_settings={}, parent=None ):
         CSM.loadSettings( default=default_settings )
 
-        if not CNetObj_Manager.connect(): return False
+        if self.bNetworkMode:
+            if not CNetObj_Manager.connect(): return False
         
         self.AgentsNode = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Agents" )
         if self.AgentsNode is None:
             self.AgentsNode  = CNetObj( name="Agents", parent=CNetObj_Manager.rootObj )
 
-        self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
-        self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
+        if self.bNetworkMode:
+            self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
+            self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
 
         self.objMonitor = None
 
@@ -78,7 +94,24 @@ class CBaseApplication( QApplication ):
 
     def done(self):
         # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
-        CNetObj_Manager.disconnect()
+        if self.bNetworkMode:
+            CNetObj_Manager.disconnect()
         CNetObj_Manager.rootObj.localDestroyChildren()
 
         CSM.saveSettings()
+
+##########################################################################
+
+def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParams={} ):
+    app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode )
+
+    window = mainWindowClass( **mainWindowParams )
+    if not app.init( default_settings = default_settings ): return -1
+    
+    window.show()
+
+    app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
+    app.exec_() # главный цикл сообщений Qt
+ 
+    app.done()
+    return 0

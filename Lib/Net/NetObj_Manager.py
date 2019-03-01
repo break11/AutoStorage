@@ -49,7 +49,7 @@ from time import sleep
 class CNetObj_Manager( object ):
     redisConn = None
     serviceConn = None
-    ClientID  = None
+    ClientID  = -1
     objModel = None # модель представление для дерева требует специфической обработки
     bNetCmd_Log = False
     bEvent_Log = False
@@ -320,7 +320,7 @@ class CNetObj_Manager( object ):
             print( f"{SC.sError} Can not connect to REDIS: {e}" )
             return False
 
-        if cls.ClientID is None:
+        if cls.ClientID == -1:
             cls.ClientID = cls.serviceConn.incr( s_Client_UID, 1 )
         cmd = CNetCmd( Event=EV.ClientConnected )
         CNetObj_Manager.sendNetCMD( cmd )
