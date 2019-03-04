@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QGraphicsView, QGraphicsScene, QMainWindow, QFileDi
 from PyQt5 import uic
 
 from Lib.Common import GuiUtils
-from Lib.StorageViewer.StorageGraph_GScene_Manager import ( CStorageGraph_GScene_Manager, windowDefSettings )
+from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager
 from Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Lib.Common.SettingsManager import CSettingsManager as CSM

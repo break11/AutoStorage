@@ -6,6 +6,18 @@ from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Manager import CNetObj_Manager
 
+
+l = {}
+
+class CIntWrapper:
+    # d:dict = {}
+    def __init__( self, val ):
+        self.val = val
+        global l
+        print( self.val )
+        l[ self.val ] = self
+        # self.d[ val ] = self
+
 class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
         super().__init__( parent=parent)
@@ -44,7 +56,7 @@ class CNetObj_Model( QAbstractItemModel ):
         child  = parent.children[ row ]
 
         if child:
-            return self.createIndex( row, column, child.UID )
+            return self.createIndex( row, column, CIntWrapper( child.UID ) )
         else:
             return QModelIndex()
 
@@ -70,7 +82,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
     def columnCount( self, parentIndex ): return CNetObj.modelDataColCount()
     
-    def netObj_From_Index( self, index ): return CNetObj_Manager.accessObj( index.internalId() )
+    def netObj_From_Index( self, index ): return CNetObj_Manager.accessObj( index.internalPointer().val )
     
     def netObj_To_Index( self, netObj ):
         if netObj is self.__rootNetObj: return QModelIndex()
@@ -81,11 +93,11 @@ class CNetObj_Model( QAbstractItemModel ):
         
         indexInParent = parentNetObj.children.index( netObj )
 
-        return self.createIndex( indexInParent, 0, netObj.UID )
+        return self.createIndex( indexInParent, 0, CIntWrapper( netObj.UID ) )
 
     def getNetObj_or_Root( self, index ):
         if index.isValid():
-            return CNetObj_Manager.accessObj( index.internalId() )
+            return CNetObj_Manager.accessObj( index.internalPointer().val )
         else:
             return self.__rootNetObj
 

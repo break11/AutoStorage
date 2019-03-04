@@ -15,7 +15,7 @@ from  Lib.Common.BaseApplication import EAppStartPhase
 import  Lib.Common.StrConsts as SC
 
 from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
-from  Lib.Common.GuiUtils import windowDefSettings, gvFitToPage, time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
+from  Lib.Common.GuiUtils import gvFitToPage, time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem

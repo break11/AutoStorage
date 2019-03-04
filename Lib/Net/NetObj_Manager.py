@@ -235,6 +235,7 @@ class CNetObj_Manager( object ):
         cls.__objects[ cls.rootObj.UID ] = cls.rootObj
 
     __genLocal_UID = -1000 #
+    # __genLocal_UID = sys.maxsize
 
     @classmethod
     def genNetObj_UID( cls ):

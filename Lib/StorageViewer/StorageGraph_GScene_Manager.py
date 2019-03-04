@@ -14,7 +14,7 @@ from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
-from Lib.Common.GuiUtils import gvFitToPage, windowDefSettings, Std_Model_Item
+from Lib.Common.GuiUtils import gvFitToPage, Std_Model_Item
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
 from Lib.Common.Graph_NetObjects import createNetObjectsForGraph
 

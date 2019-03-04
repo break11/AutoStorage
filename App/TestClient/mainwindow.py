@@ -9,9 +9,9 @@ from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_M
 from Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Lib.Common.SettingsManager import CSettingsManager as CSM
-from Lib.Common.Graph_NetObjects import ( CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO )
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common import FileUtils
-from Lib.Common.GuiUtils import time_func, windowDefSettings
+from Lib.Common.GuiUtils import time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 import Lib.Common.StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
 
@@ -37,20 +37,13 @@ class CTC_MainWindow(QMainWindow):
         self.updateEdgesWidthTest_Timer.setInterval(1000)
         self.updateEdgesWidthTest_Timer.timeout.connect( self.updateEdgesWidthTest )
         
-        #load settings
-        winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
+        load_Window_State_And_Geometry( self )
 
-        #if winSettings:
-        geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry ) ) )
-
-        state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
-        self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
-
+    def init( self, initPhase ):
+        pass
 
     def closeEvent( self, event ):
-        CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
-                                             SC.s_state    : self.saveState().toHex().data().decode() }
+        save_Window_State_And_Geometry( self )
 
     ###################################################
     @pyqtSlot("bool")
