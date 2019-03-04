@@ -1,10 +1,13 @@
 
-from PyQt5.QtWidgets import ( QGraphicsView )
-from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (Qt, QRectF)
-import Lib.Common.StrConsts as SC
 import math
 import time
+
+from PyQt5.QtWidgets import QGraphicsView 
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtCore import Qt, QRectF, QByteArray
+
+import Lib.Common.StrConsts as SC
+from  Lib.Common.SettingsManager import CSettingsManager as CSM
 
 def time_func( sMsg=None, threshold=0 ):
     def wrapper(f):
@@ -30,6 +33,20 @@ windowDefSettings = {
                         SC.s_geometry: "", # type: ignore
                         SC.s_state: ""     # type: ignore
                     }
+def load_Window_State_And_Geometry( window ):
+    #load settings
+    winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
+
+    #if winSettings:
+    geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
+    window.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry ) ) )
+
+    state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
+    window.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
+    
+def save_Window_State_And_Geometry( window ):
+    CSM.options[ SC.s_main_window ]  = { SC.s_geometry : window.saveGeometry().toHex().data().decode(),
+                                         SC.s_state    : window.saveState().toHex().data().decode() }
 
 # хелперная функция создание итема стандартной модели с дополнительными параметрами
 def Std_Model_Item( val, bReadOnly = False, userData = None ):

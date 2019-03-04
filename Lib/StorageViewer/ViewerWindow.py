@@ -11,10 +11,11 @@ from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_M
 from  Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from  Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
+from  Lib.Common.BaseApplication import EAppStartPhase
 import  Lib.Common.StrConsts as SC
 
 from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
-from  Lib.Common.GuiUtils import windowDefSettings, gvFitToPage, time_func
+from  Lib.Common.GuiUtils import windowDefSettings, gvFitToPage, time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
@@ -42,7 +43,6 @@ class EWorkMode( IntEnum ):
 
 # Storage Map Designer / Storage Net Monitor  Main Window
 class CViewerWindow(QMainWindow):
-    global CSM
     __sWorkedArea = "Worked area: "
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
@@ -75,29 +75,11 @@ class CViewerWindow(QMainWindow):
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGM = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
-        self.SGM.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
 
         self.GV_Wheel_Zoom_EF = CGV_Wheel_Zoom_EF(self.StorageMap_View)
         self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGM )
         
-        #load settings
-        winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
-        sceneSettings = CSM.rootOpt( SC.s_scene, default=sceneDefSettings )
-
-        #if winSettings:
-        geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry ) ) )
-
-        state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
-        self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
-
-        self.StorageMap_Scene.gridSize     =      CSM.dictOpt( sceneSettings, SC.s_grid_size,          default = self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    =      CSM.dictOpt( sceneSettings, SC.s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
-        self.StorageMap_Scene.bSnapToGrid  =      CSM.dictOpt( sceneSettings, SC.s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
-        self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGM.bDrawMainRail ) )
-        self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
-        self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGM.bDrawBBox ) )
-        self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
+        self.loadSettings()
 
         #setup ui
         self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
@@ -124,19 +106,52 @@ class CViewerWindow(QMainWindow):
         self.acAddEdge_reverse.setVisible( b )
         self.menuGraph_Edit.setEnabled( b )
 
-        if self.workMode == EWorkMode.MapDesignerMode:
-            self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
-        if self.workMode == EWorkMode.NetMonitorMode:
-            self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )
-
         self.lbWorkedArea = QLabel()
         self.statusbar.addWidget( self.lbWorkedArea )
 
         self.StorageMap_View.horizontalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
         self.StorageMap_View.verticalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
 
-        self.adapter = CStorageNetObj_Adapter()
-        self.adapter.init( self )
+    def init( self, initPhase ):
+        if initPhase == EAppStartPhase.BeforeRedisConnect:
+            if self.workMode == EWorkMode.NetMonitorMode:
+                self.adapter = CStorageNetObj_Adapter()
+                self.adapter.init( self )
+
+        elif initPhase == EAppStartPhase.AfterRedisConnect:
+            if self.workMode == EWorkMode.MapDesignerMode:
+                self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
+            if self.workMode == EWorkMode.NetMonitorMode:
+                self.SGM.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
+                self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )
+
+    #############################################################################
+    def loadSettings( self ):
+        load_Window_State_And_Geometry( self )
+
+        sceneSettings = CSM.rootOpt( SC.s_scene, default=sceneDefSettings )
+
+        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, SC.s_grid_size,          default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, SC.s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, SC.s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
+        self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGM.bDrawMainRail ) )
+        self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
+        self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGM.bDrawBBox ) )
+        self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
+
+    def saveSettings( self ):
+        save_Window_State_And_Geometry( self )
+
+        CSM.options[SC.s_scene] =   {
+                                        SC.s_grid_size           : self.StorageMap_Scene.gridSize,
+                                        SC.s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
+                                        SC.s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
+                                        SC.s_draw_info_rails     : self.SGM.bDrawInfoRails,
+                                        SC.s_draw_main_rail      : self.SGM.bDrawMainRail,
+                                        SC.s_draw_bbox           : self.SGM.bDrawBBox,
+                                        SC.s_draw_special_lines  : self.SGM.bDrawSpecialLines,
+                                    }
+    #############################################################################
 
     def viewPortAreaChanged(self, value):
         rectf = self.StorageMap_View.mapToScene(self.StorageMap_View.viewport().geometry()).boundingRect()
@@ -183,18 +198,8 @@ class CViewerWindow(QMainWindow):
             if not self.unsavedChangesDialog():
                 event.ignore()
                 return
-        
-        CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
-                                             SC.s_state    : self.saveState().toHex().data().decode() }
-        CSM.options[SC.s_scene] =   {
-                                        SC.s_grid_size           : self.StorageMap_Scene.gridSize,
-                                        SC.s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
-                                        SC.s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
-                                        SC.s_draw_info_rails     : self.SGM.bDrawInfoRails,
-                                        SC.s_draw_main_rail      : self.SGM.bDrawMainRail,
-                                        SC.s_draw_bbox           : self.SGM.bDrawBBox,
-                                        SC.s_draw_special_lines  : self.SGM.bDrawSpecialLines,
-                                    }
+
+        self.saveSettings()
 
     def unsavedChangesDialog(self):
         if self.SGM.bHasChanges:

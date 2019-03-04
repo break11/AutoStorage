@@ -11,8 +11,9 @@ from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createNetObjectsForGraph
 from Lib.Common import FileUtils
-from Lib.Common.GuiUtils import time_func, Std_Model_Item
+from Lib.Common.GuiUtils import time_func, Std_Model_Item, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.GraphUtils import EdgeDisplayName, sGraphML_file_filters, loadGraphML_File
+from Lib.Common.BaseApplication import EAppStartPhase
 import Lib.Common.StrConsts as SC
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -23,9 +24,7 @@ import os
 import networkx as nx
 import time
 
-# Storage Map Designer Main Window
 class CSSD_MainWindow(QMainWindow):
-    global CSM
 
     def __init__(self):
         super().__init__()
@@ -37,7 +36,6 @@ class CSSD_MainWindow(QMainWindow):
         self.timer.start()
         
         self.leGraphML.setText( CSM.rootOpt( SC.s_storage_graph_file, default=SC.s_storage_graph_file__default ) )
-        self.loadGraphML()
 
         # модель со списком сервисов
         self.clientList_Model = QStandardItemModel( self )
@@ -45,14 +43,11 @@ class CSSD_MainWindow(QMainWindow):
         self.tvClientList.setModel( self.clientList_Model )
 
         #load settings
-        winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
+        load_Window_State_And_Geometry( self )
 
-        #if winSettings:
-        geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
-        self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry ) ) )
-
-        state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
-        self.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
+    def init( self, initPhase ):
+        if initPhase == EAppStartPhase.AfterRedisConnect:
+            self.loadGraphML()
 
     def updateClientList( self ):
         net = CNetObj_Manager.serviceConn
@@ -100,8 +95,7 @@ class CSSD_MainWindow(QMainWindow):
         self.updateClientList()
 
     def closeEvent( self, event ):
-        CSM.options[ SC.s_main_window ]  = { SC.s_geometry : self.saveGeometry().toHex().data().decode(),
-                                             SC.s_state    : self.saveState().toHex().data().decode() }
+        save_Window_State_And_Geometry( self )
 
     def loadGraphML( self, bReload=False ):
         graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
@@ -119,19 +113,6 @@ class CSSD_MainWindow(QMainWindow):
         if not nxGraph:
             return
 
-        # Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
-        # Nodes = CNetObj(name="Nodes", parent=Graph)
-        # Edges = CNetObj(name="Edges", parent=Graph)
-
-        # for nodeID in nxGraph.nodes():
-        #     node = CGraphNode_NO( name=nodeID, parent=Nodes )
-
-        # for edgeID in nxGraph.edges():
-        #     ext_fields = {
-        #                     CGraphEdge_NO.s_NodeID_1 : edgeID[0],
-        #                     CGraphEdge_NO.s_NodeID_2 : edgeID[1]
-        #                  }
-        #     edge = CGraphEdge_NO( name = EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
         createNetObjectsForGraph( nxGraph )
 
     def on_btnLoadGraphML_released( self ):

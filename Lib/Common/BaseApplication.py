@@ -56,24 +56,6 @@ class CBaseApplication( QApplication ):
         
         CNetObj_Manager.initRoot()
 
-    def init(self, default_settings={}, parent=None ):
-        CSM.loadSettings( default=default_settings )
-
-        if self.bNetworkMode:
-            if not CNetObj_Manager.connect(): return False
-        
-        self.AgentsNode = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Agents" )
-        if self.AgentsNode is None:
-            self.AgentsNode  = CNetObj( name="Agents", parent=CNetObj_Manager.rootObj )
-
-        if self.bNetworkMode:
-            self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
-            self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
-
-        self.objMonitor = None
-
-        return True
-
     def init_NetObj_Monitor(self, parent=None ):
         if CNetObj_Monitor.enabledInOptions():
             self.objMonitor = CNetObj_Monitor( parent=parent )
@@ -92,26 +74,48 @@ class CBaseApplication( QApplication ):
             registerNetNodeWidgets( self.objMonitor.saNetObj_WidgetContents )
             self.objMonitor.show()
 
-    def done(self):
+    def initConnection(self, default_settings={}, parent=None ):
+        if self.bNetworkMode:
+            if not CNetObj_Manager.connect(): return False
+
+        self.AgentsNode = CNetObj_Manager.rootObj.queryObj( "Agents", CNetObj )
+
+        if self.bNetworkMode:
+            self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
+            self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
+
+        return True
+
+    def doneConnection(self):
         # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
         if self.bNetworkMode:
             CNetObj_Manager.disconnect()
         CNetObj_Manager.rootObj.localDestroyChildren()
 
-        CSM.saveSettings()
 
 ##########################################################################
+from enum import IntEnum, auto
+
+class EAppStartPhase( IntEnum ):
+    BeforeRedisConnect = auto()
+    AfterRedisConnect  = auto()
 
 def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParams={} ):
-    app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode )
+    CSM.loadSettings( default=default_settings )
 
-    window = mainWindowClass( **mainWindowParams )
-    if not app.init( default_settings = default_settings ): return -1
+    app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode )
     
+    window = mainWindowClass( **mainWindowParams )
+    window.init( EAppStartPhase.BeforeRedisConnect )
+    if not app.initConnection( default_settings = default_settings ): return -1
+    window.init( EAppStartPhase.AfterRedisConnect )
+
     window.show()
 
     app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
     app.exec_() # главный цикл сообщений Qt
  
-    app.done()
+    app.doneConnection()
+
+    CSM.saveSettings()
     return 0

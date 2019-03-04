@@ -18,10 +18,7 @@ import os
 import networkx as nx
 import time
 
-# Storage Map Designer Main Window
 class CAM_MainWindow(QMainWindow):
-    global CSM
-
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )

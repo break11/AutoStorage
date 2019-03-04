@@ -25,8 +25,6 @@ import time
 
 # Storage Map Designer Main Window
 class CTC_MainWindow(QMainWindow):
-    global CSM
-
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )

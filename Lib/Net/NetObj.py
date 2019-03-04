@@ -49,7 +49,11 @@ class CNetObj( CTreeNode ):
     def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
 
 ###################################################################################
-
+    def queryObj( self, sName, ObjClass, **kwargs ):
+        netObj = CNetObj.resolvePath( self, sName )
+        if netObj is None:
+            netObj  = ObjClass( name=sName, parent=self, **kwargs )
+###################################################################################
     # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
     def sendDeleted_NetCmd( self ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
