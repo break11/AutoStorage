@@ -5,23 +5,7 @@ from PyQt5.QtCore import ( Qt, QAbstractItemModel, QModelIndex )
 from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Manager import CNetObj_Manager
-from Lib.Common.GuiUtils import time_func
-
-# class CIntWrapper:
-#     d_storage: dict = {}    
-#     def __init__( self, val ):
-#         self.val = val
-#         CIntWrapper.d_storage[val] = self
-    
-#     @classmethod
-#     def query(self, val):
-#         i = CIntWrapper.d_storage.get(val)
-#         return i if i else CIntWrapper(val)
-    
-#     @property
-#     def get_val(self):
-#         return self.val
-        
+from Lib.Common.GuiUtils import time_func        
 
 class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
@@ -29,19 +13,12 @@ class CNetObj_Model( QAbstractItemModel ):
         self.__rootNetObj = None
 
         CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
-        # CNetObj_Manager.addCallback( EV.ObjDeleted, self.onObjDeleted )
 
     def onObjCreated( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
 
-    # def onObjDeleted( self, netCmd ):
-    #     try:
-    #         del CIntWrapper.d_storage[ netCmd.Obj_UID ]
-    #     except:
-    #         pass
-                
     #####################################################
     # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove
     # т.к. Qt модель устроена таким образом, что всегда является перманентной по отношению к данным
@@ -67,8 +44,6 @@ class CNetObj_Model( QAbstractItemModel ):
         child  = parent.children[ row ]
 
         if child:
-            # return self.createIndex( row, column, CIntWrapper.query( child.UID ) )
-            # return self.createIndex( row, column, child )
             return self.createIndex( row, column, child.UID )
         else:
             return QModelIndex()
@@ -97,8 +72,6 @@ class CNetObj_Model( QAbstractItemModel ):
     def columnCount( self, parentIndex ): return CNetObj.modelDataColCount()
     
     def netObj_From_Index( self, index ):
-        # return CNetObj_Manager.accessObj( index.internalPointer().get_val )
-        # return index.internalPointer()
         return CNetObj_Manager.accessObj( index.internalId() )
     
     def netObj_To_Index( self, netObj ):
@@ -110,14 +83,10 @@ class CNetObj_Model( QAbstractItemModel ):
         
         indexInParent = parentNetObj.children.index( netObj )
 
-        # return self.createIndex( indexInParent, 0, CIntWrapper.query( netObj.UID ) )
-        # return self.createIndex( indexInParent, 0, netObj )
         return self.createIndex( indexInParent, 0, netObj.UID )
 
     def getNetObj_or_Root( self, index ):
         if index.isValid():
-            # return CNetObj_Manager.accessObj( index.internalPointer().get_val )
-            # return index.internalPointer()
             return CNetObj_Manager.accessObj( index.internalId() )
         else:
             return self.__rootNetObj
