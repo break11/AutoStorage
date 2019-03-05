@@ -60,7 +60,7 @@ class CNetObj( CTreeNode ):
         CNetObj_Manager.sendNetCMD( cmd )
 
 
-    def __localDestroy( self ):                
+    def __localDestroy( self ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.doCallbacks( cmd )
 
@@ -68,6 +68,9 @@ class CNetObj( CTreeNode ):
             child.__localDestroy()
 
         self.clearChildren()
+
+        cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
+        CNetObj_Manager.doCallbacks( cmd )
 
     def localDestroy( self ):
         self.__localDestroy()

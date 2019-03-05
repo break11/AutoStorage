@@ -231,11 +231,11 @@ class CNetObj_Manager( object ):
     @classmethod
     def initRoot(cls):
         # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
-        cls.rootObj = CNetObj(name="root", id=-1)
+        cls.rootObj = CNetObj(name="root", id = sys.maxsize )
         cls.__objects[ cls.rootObj.UID ] = cls.rootObj
 
-    __genLocal_UID = -1000 #
-    # __genLocal_UID = sys.maxsize
+    # __genLocal_UID = -1000 #
+    __genLocal_UID = sys.maxsize
 
     @classmethod
     def genNetObj_UID( cls ):
@@ -271,7 +271,7 @@ class CNetObj_Manager( object ):
             netObj.delFromRedis( cls.pipe )
 
             # CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
-            # Команда сигнал "объект удален" в деструкторе объекта не нужна, т.к. при локальном удалении объектов на всех клиентах
+            # Команда сигнал "объект удален" в деструкторе объекта не нужна (посылка по сети), т.к. при локальном удалении объектов на всех клиентах
             # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
 
     @classmethod

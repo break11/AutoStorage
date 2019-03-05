@@ -7,7 +7,7 @@ class ENet_Event( IntEnum ):
 
     ObjCreated         = auto()
     ObjPrepareDelete   = auto()
-    # ObjDeleted         = auto() # причина вывода команды описана в CNetObj_Manager.unregisterObj - забивание канала лишними командами
+    ObjDeleted         = auto() # по сети не отправляется - только для callback-ов
 
     ObjPropCreated     = auto()
     ObjPropDeleted     = auto()
