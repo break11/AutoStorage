@@ -5,18 +5,21 @@ from PyQt5.QtCore import ( Qt, QAbstractItemModel, QModelIndex )
 from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Manager import CNetObj_Manager
-
-
-l = {}
+from Lib.Common.GuiUtils import time_func
 
 class CIntWrapper:
-    # d:dict = {}
+    d: dict = {}
+    
     def __init__( self, val ):
         self.val = val
-        global l
-        print( self.val )
-        l[ self.val ] = self
-        # self.d[ val ] = self
+        self.d[val] = self
+    
+    @classmethod
+    @time_func( sMsg="CIntWrapper.query", threshold = 0.1 )
+    def query(self, val):
+        i = self.d.get(val)
+        return i if i else CIntWrapper(val)
+        
 
 class CNetObj_Model( QAbstractItemModel ):
     def __init__( self, parent ):
@@ -56,7 +59,7 @@ class CNetObj_Model( QAbstractItemModel ):
         child  = parent.children[ row ]
 
         if child:
-            return self.createIndex( row, column, CIntWrapper( child.UID ) )
+            return self.createIndex( row, column, CIntWrapper.query( child.UID ) )
         else:
             return QModelIndex()
 
@@ -93,7 +96,7 @@ class CNetObj_Model( QAbstractItemModel ):
         
         indexInParent = parentNetObj.children.index( netObj )
 
-        return self.createIndex( indexInParent, 0, CIntWrapper( netObj.UID ) )
+        return self.createIndex( indexInParent, 0, CIntWrapper.query( netObj.UID ) )
 
     def getNetObj_or_Root( self, index ):
         if index.isValid():
