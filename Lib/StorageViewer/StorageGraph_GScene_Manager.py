@@ -136,17 +136,19 @@ class CStorageGraph_GScene_Manager():
 
         createNetObjectsForGraph( self.nxGraph )
 
-        for n in self.nxGraph.nodes():
-            self.addNode(n)
+        ##remove##
+        # for n in self.nxGraph.nodes():
+        #     self.addNode(n)
 
-        for e in self.nxGraph.edges():
-            self.addEdge( e )
+        # for e in self.nxGraph.edges():
+        #     self.addEdge( e )
 
         self.updateMaxNodeID()
 
+        ##remove##
         #после создания граней перерасчитываем линии расположения мест хранения
-        for nodeID, nodeGItem in self.nodeGItems.items():
-            self.calcNodeMiddleLine( nodeGItem )
+        # for nodeID, nodeGItem in self.nodeGItems.items():
+        #     self.calcNodeMiddleLine( nodeGItem )
         
         gvFitToPage( self.gView )
         self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
@@ -180,12 +182,13 @@ class CStorageGraph_GScene_Manager():
     def calcNodeMiddleLine(self, nodeGItem):        
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
             return
-
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
         dictEdges = {}
         for key in incEdges:
             fsEdgeKey = frozenset( key )
-            dictEdges[ fsEdgeKey ] = self.edgeGItems[ fsEdgeKey ] # оставляем только некратные грани
+            edgeGItem = self.edgeGItems.get( fsEdgeKey )
+            if edgeGItem is not None:
+                dictEdges[ fsEdgeKey ] = edgeGItem # оставляем только некратные грани
         
         listEdges = dictEdges.values()
         AllPairEdges = [ (e1, e2) for e1 in listEdges for e2 in listEdges ]
@@ -261,6 +264,10 @@ class CStorageGraph_GScene_Manager():
         agentGItem.SGM = self
 
         return agentGItem
+
+    def deleteAgent(self, agentNetObj):
+        self.gScene.removeItem ( self.agentGItems[ agentNetObj.name ] )
+        del self.agentGItems[ agentNetObj.name ]
 
     def addNode( self, nodeID, **attr ):
         if self.nodeGItems.get (nodeID): return

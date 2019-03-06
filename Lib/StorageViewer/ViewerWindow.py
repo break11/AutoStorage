@@ -104,13 +104,14 @@ class CViewerWindow(QMainWindow):
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
             self.loadSettings()
-            if self.workMode == EWorkMode.NetMonitorMode:
-                self.adapter = CStorageNetObj_Adapter()
-                self.adapter.init( self )
+            # if self.workMode == EWorkMode.NetMonitorMode:
+            self.adapter = CStorageNetObj_Adapter()
+            self.adapter.init( self )
 
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             if self.workMode == EWorkMode.MapDesignerMode:
                 self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
+                
             if self.workMode == EWorkMode.NetMonitorMode:
                 self.SGM.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
                 self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )

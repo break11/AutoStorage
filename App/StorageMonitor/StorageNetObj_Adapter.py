@@ -74,6 +74,8 @@ class CStorageNetObj_Adapter:
                 else:
                     SGM.edgeGItems[ fsEdgeKey ].update()
                     self.ViewerWindow.StorageMap_Scene_SelectionChanged()
+        elif isinstance( netObj, CAgent_NO ):
+           SGM.deleteAgent( agentNetObj = netObj )
     
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )

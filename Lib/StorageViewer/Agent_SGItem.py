@@ -1,3 +1,4 @@
+import weakref
 
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont )
@@ -18,12 +19,16 @@ class CAgent_SGItem(QGraphicsItem):
     def __init__(self, agentNetObj ):
         super().__init__()
 
-        self.agentNetObj = agentNetObj ## weakRef ?????????? !!!!!!!!!!!!!!
+        self.__agentNetObj = weakref.ref( agentNetObj ) ## weakRef ?????????? !!!!!!!!!!!!!!
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
 
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+
+    @property
+    def agentNetObj(self):
+        return self.__agentNetObj()
 
     def init( self ):
         pass
