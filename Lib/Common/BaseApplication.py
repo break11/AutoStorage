@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget, QProxyStyle, QStyle
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, Qt
 
 from .SettingsManager import CSettingsManager as CSM
 from Lib.Net.NetObj import CNetObj
@@ -106,13 +106,20 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParam
     app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode )
     
     window = mainWindowClass( **mainWindowParams )
+
+    # добавление QDockWidget в MainWindow, в котором будет монитор объектов (когда его опция разрешена)
+    if CNetObj_Monitor.enabledInOptions():
+        window.dkNetObj_Monitor = QDockWidget( parent = window )
+        window.dkNetObj_Monitor.setObjectName( "dkNetObj_Monitor" )
+        window.addDockWidget( Qt.RightDockWidgetArea, window.dkNetObj_Monitor )
+        app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
+
     window.init( EAppStartPhase.BeforeRedisConnect )
     if not app.initConnection( default_settings = default_settings ): return -1
     window.init( EAppStartPhase.AfterRedisConnect )
 
     window.show()
 
-    app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
     app.exec_() # главный цикл сообщений Qt
  
     app.doneConnection()

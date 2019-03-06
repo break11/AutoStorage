@@ -14,6 +14,7 @@ from Lib.Common import FileUtils
 from Lib.Common.GuiUtils import time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 import Lib.Common.StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.BaseApplication import EAppStartPhase
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj, CTreeNode
@@ -40,7 +41,8 @@ class CTC_MainWindow(QMainWindow):
         load_Window_State_And_Geometry( self )
 
     def init( self, initPhase ):
-        pass
+        if initPhase == EAppStartPhase.AfterRedisConnect:
+            load_Window_State_And_Geometry( self )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )

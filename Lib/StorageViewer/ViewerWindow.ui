@@ -307,12 +307,6 @@ selection-background-color: red;*/
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dkNetObj_Monitor">
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dkNetObj_Monitor_Contents"/>
-  </widget>
   <action name="acFitToPage">
    <property name="icon">
     <iconset resource="images.qrc">

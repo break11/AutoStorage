@@ -79,17 +79,6 @@ class CViewerWindow(QMainWindow):
         self.GV_Wheel_Zoom_EF = CGV_Wheel_Zoom_EF(self.StorageMap_View)
         self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGM )
         
-        self.loadSettings()
-
-        #setup ui
-        self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
-        self.acGrid.setChecked         ( self.StorageMap_Scene.bDrawGrid )
-        self.acMainRail.setChecked     ( self.SGM.bDrawMainRail )
-        self.acInfoRails.setChecked    ( self.SGM.bDrawInfoRails )
-        self.acBBox.setChecked         ( self.SGM.bDrawBBox )
-        self.acSpecialLines.setChecked ( self.SGM.bDrawSpecialLines )
-        self.acSnapToGrid.setChecked   ( self.StorageMap_Scene.bSnapToGrid )
-
         ## hide some options when not in designer mode
         b = self.workMode == EWorkMode.MapDesignerMode
         self.acSnapToGrid.setVisible( b )
@@ -114,6 +103,7 @@ class CViewerWindow(QMainWindow):
 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
+            self.loadSettings()
             if self.workMode == EWorkMode.NetMonitorMode:
                 self.adapter = CStorageNetObj_Adapter()
                 self.adapter.init( self )
@@ -131,13 +121,22 @@ class CViewerWindow(QMainWindow):
 
         sceneSettings = CSM.rootOpt( SC.s_scene, default=sceneDefSettings )
 
-        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, SC.s_grid_size,          default = self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, SC.s_draw_grid,          default = self.StorageMap_Scene.bDrawGrid )
-        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, SC.s_snap_to_grid,       default = self.StorageMap_Scene.bSnapToGrid)
+        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, SC.s_grid_size,    default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, SC.s_draw_grid,    default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, SC.s_snap_to_grid, default = self.StorageMap_Scene.bSnapToGrid)
         self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGM.bDrawMainRail ) )
         self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
         self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGM.bDrawBBox ) )
         self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
+
+        #setup ui
+        self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
+        self.acGrid.setChecked         ( self.StorageMap_Scene.bDrawGrid )
+        self.acMainRail.setChecked     ( self.SGM.bDrawMainRail )
+        self.acInfoRails.setChecked    ( self.SGM.bDrawInfoRails )
+        self.acBBox.setChecked         ( self.SGM.bDrawBBox )
+        self.acSpecialLines.setChecked ( self.SGM.bDrawSpecialLines )
+        self.acSnapToGrid.setChecked   ( self.StorageMap_Scene.bSnapToGrid )
 
     def saveSettings( self ):
         save_Window_State_And_Geometry( self )

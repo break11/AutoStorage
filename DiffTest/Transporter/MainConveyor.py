@@ -17,7 +17,7 @@ instrument1 = None
 instrument2 = None
 gModbusInitOk = 0
 
-SERVER_IP = "192.168.0.254"
+SERVER_IP = "10.39.0.172"
 SERVER_PORT = 8889
 
 TICKS_PER_SECOND = 50
@@ -562,8 +562,8 @@ class MainWindow(QtWidgets.QMainWindow):
             # print ("gServerConnection.GetPings()=%d" % gServerConnection.GetPings())
 
             gServerConnection.DecreasePing()
-            if gServerConnection.GetPings() == 0:
-                gServerConnection.reconnect()
+            # if gServerConnection.GetPings() == 0:
+            #     gServerConnection.reconnect()
 
 
 

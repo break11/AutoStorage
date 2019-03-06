@@ -34,8 +34,8 @@ class WorkerThread(QThread):
         self.serialport.clear()
         while self.isRunning():
             sleep(0.01)
-            # self.serialport.waitForReadyRead(1)
-            # self.CheckAndSendData()
+            self.serialport.waitForReadyRead(1)
+            self.CheckAndSendData()
 
             """
             try:

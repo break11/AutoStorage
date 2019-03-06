@@ -12,6 +12,7 @@ import Lib.Common.StrConsts as SC
 from Lib.Common.GuiUtils import time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Common.BaseApplication import EAppStartPhase
 
 import sys
 import os
@@ -22,11 +23,10 @@ class CAM_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
-        
-        load_Window_State_And_Geometry( self )
-        
+                
     def init( self, initPhase ):
-        pass
+        if initPhase == EAppStartPhase.BeforeRedisConnect:
+            load_Window_State_And_Geometry( self )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )

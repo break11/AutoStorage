@@ -42,11 +42,10 @@ class CSSD_MainWindow(QMainWindow):
         self.clientList_Model.setHorizontalHeaderLabels( [ "Client UID", "App", "Ip Address" ] )
         self.tvClientList.setModel( self.clientList_Model )
 
-        #load settings
-        load_Window_State_And_Geometry( self )
-
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.AfterRedisConnect:
+            #load settings
+            load_Window_State_And_Geometry( self )
             self.loadGraphML()
 
     def updateClientList( self ):
