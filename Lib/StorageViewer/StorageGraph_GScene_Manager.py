@@ -15,8 +15,10 @@ from .Edge_SGItem import CEdge_SGItem
 from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
 from Lib.Common.GuiUtils import gvFitToPage, Std_Model_Item
-from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
-from Lib.Common.Graph_NetObjects import createNetObjectsForGraph
+from Lib.Common.GraphUtils import EdgeDisplayName
+from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj
+from Lib.Net.NetObj import CNetObj, CTreeNode
+from Lib.Net.NetObj_Manager import CNetObj_Manager
 
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
@@ -50,6 +52,7 @@ class CStorageGraph_GScene_Manager():
                     }
 
     def __init__(self, gScene, gView):
+        self.bGraphLoading = False
         self.agentGItems    = {}
         self.nodeGItems     = {}
         self.edgeGItems     = {}
@@ -130,28 +133,22 @@ class CStorageGraph_GScene_Manager():
         self.clear()
         self.init()
 
-        self.nxGraph = loadGraphML_File( sFName )
-        if not self.nxGraph:
+        self.bGraphLoading = True # For block "calcNodeMiddleLine()" on Edge creating while loading ( 5 sec overhead on "40 000 with edges" )
+
+        if not loadGraphML_to_NetObj( sFName, bReload=True ):
+            self.bGraphLoading = False
             return False
-
-        createNetObjectsForGraph( self.nxGraph )
-
-        ##remove##
-        # for n in self.nxGraph.nodes():
-        #     self.addNode(n)
-
-        # for e in self.nxGraph.edges():
-        #     self.addEdge( e )
 
         self.updateMaxNodeID()
 
-        ##remove##
-        #после создания граней перерасчитываем линии расположения мест хранения
-        # for nodeID, nodeGItem in self.nodeGItems.items():
-        #     self.calcNodeMiddleLine( nodeGItem )
+        # после создания граней перерасчитываем линии расположения мест хранения
+        for nodeID, nodeGItem in self.nodeGItems.items():
+            self.calcNodeMiddleLine( nodeGItem )
         
         gvFitToPage( self.gView )
-        self.bHasChanges = False #сбрасываем признак изменения сцены после загрузки
+        self.bHasChanges = False  # сбрасываем признак изменения сцены после загрузки
+
+        self.bGraphLoading = False
 
         print( f"GraphicsItems in scene = {len(self.gScene.items())}" )
 

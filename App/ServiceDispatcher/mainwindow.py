@@ -9,10 +9,10 @@ from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_M
 from Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from Lib.Common.SettingsManager import CSettingsManager as CSM
-from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createNetObjectsForGraph
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, loadGraphML_to_NetObj
 from Lib.Common import FileUtils
 from Lib.Common.GuiUtils import time_func, Std_Model_Item, load_Window_State_And_Geometry, save_Window_State_And_Geometry
-from Lib.Common.GraphUtils import EdgeDisplayName, sGraphML_file_filters, loadGraphML_File
+from Lib.Common.GraphUtils import EdgeDisplayName, sGraphML_file_filters
 from Lib.Common.BaseApplication import EAppStartPhase
 import Lib.Common.StrConsts as SC
 
@@ -97,22 +97,8 @@ class CSSD_MainWindow(QMainWindow):
         save_Window_State_And_Geometry( self )
 
     def loadGraphML( self, bReload=False ):
-        graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
-        if graphObj:
-            if bReload:
-                graphObj.sendDeleted_NetCmd()
-                graphObj.parent = None
-            else:
-                return
-
-        sFName = self.leGraphML.text()
-        sFName = FileUtils.correctFNameToProjectDir( sFName )
-
-        nxGraph = loadGraphML_File( sFName )
-        if not nxGraph:
-            return
-
-        createNetObjectsForGraph( nxGraph )
+        sFName = FileUtils.correctFNameToProjectDir( self.leGraphML.text() )
+        loadGraphML_to_NetObj( sFName, bReload )
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphML()

@@ -119,5 +119,14 @@ class CNetObj_Model( QAbstractItemModel ):
         # они будут вызваны при обработке команды в тике CNetObj_Manager-а
 
         netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
-        netObj.sendDeleted_NetCmd()
+
+        if CNetObj_Manager.isConnected():
+            netObj.sendDeleted_NetCmd()
+        else:
+            # при локальном режиме работы необходимо реализовать возможность удаления объектов из монитора
+            self.beginRemove( netObj )
+            netObj.localDestroy()
+            del netObj
+            self.endRemove()
+
         return True

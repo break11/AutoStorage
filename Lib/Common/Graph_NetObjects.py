@@ -3,7 +3,7 @@ import networkx as nx
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
-from .GraphUtils import EdgeDisplayName
+from .GraphUtils import EdgeDisplayName, loadGraphML_File
 
 class CGraphRoot_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={},
@@ -102,4 +102,21 @@ def createNetObjectsForGraph( nxGraph ):
                         CGraphEdge_NO.s_NodeID_2 : edgeID[1]
                         }
         edge = CGraphEdge_NO( name = EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
+
+def loadGraphML_to_NetObj( sFName, bReload ):
+    graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
+    if graphObj:
+        if bReload:
+            graphObj.sendDeleted_NetCmd()
+            graphObj.parent = None
+        else:
+            return False
+
+    nxGraph = loadGraphML_File( sFName )
+    if not nxGraph:
+        return False
+
+    createNetObjectsForGraph( nxGraph )
+    return True
+
 
