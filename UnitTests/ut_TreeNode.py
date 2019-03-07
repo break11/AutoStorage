@@ -41,8 +41,22 @@ class TestTreeNode(unittest.TestCase):
         c1_1_cache = CTreeNodeCache( baseNode = c2_2_Node, path = "../../c1/c1_1" )
         self.assertEqual( c1_1_cache(), c1_1_Node )
 
+        # не несуществующий объект кеш должен вернуть None
         none_cache = CTreeNodeCache( baseNode = c2_2_Node, path = "../../c1/c1_1/Non_Exist_Obj" )
         self.assertEqual( none_cache(), None )
+
+        # после того как объект которого не было был создан - кеш должен вернуть его
+        Non_Exist_Obj = CTreeNode( parent = c1_1_Node,  name = "Non_Exist_Obj" )
+        self.assertEqual( none_cache(), Non_Exist_Obj )
+
+        # если объект был удален - кеш снова должен вернуть None
+        Non_Exist_Obj.parent = None
+        del Non_Exist_Obj
+        self.assertEqual( none_cache(), None )
+
+        # если объект создан вновь - кеш снова возвращает его (новосозданный объект по заданному пути)
+        Non_Exist_Obj = CTreeNode( parent = c1_1_Node,  name = "Non_Exist_Obj" )
+        self.assertEqual( none_cache(), Non_Exist_Obj )
 
 if __name__ == '__main__':
     unittest.main()

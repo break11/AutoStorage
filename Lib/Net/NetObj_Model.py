@@ -13,24 +13,52 @@ class CNetObj_Model( QAbstractItemModel ):
         self.__rootNetObj = None
 
         CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
+        CNetObj_Manager.addCallback( EV.ObjDeletedStart, self.onObjPrepareDelete )
+        CNetObj_Manager.addCallback( EV.ObjDeleted, self.onObjDeleted )
 
     def onObjCreated( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         parentIDX = self.netObj_To_Index( netObj.parent )
         self.rowsInserted.emit( parentIDX, 1, 1 )
 
-    #####################################################
     # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove
     # т.к. Qt модель устроена таким образом, что всегда является перманентной по отношению к данным
-
-    def beginRemove( self, netObj ):
+    def onObjPrepareDelete( self, netCmd ):
+        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
+        # objIDX = self.netObj_To_Index( netObj )
+        # self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+        print( "11111111111111111111" )
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
         objIDX = self.netObj_To_Index( netObj )
         self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.endRemoveRows()
+        # self.rowsAboutToBeRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        pass
 
-    def endRemove( self ):
+    def onObjDeleted( self, netCmd ):
+        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
+        # objIDX = self.netObj_To_Index( netObj )
+        # self.rowsAboutToBeRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+        pass
+        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
+        # objIDX = self.netObj_To_Index( netObj )
+        # self.rowsRemoved.emit( objIDX.parent(), objIDX.row(), objIDX.row() )
+
+        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
+        # print( netObj.parent, netObj )
+
+        # objIDX = self.netObj_To_Index( netObj )
+        # self.endRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+        # self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
         self.endRemoveRows()
-    
-    #####################################################
+
+    # def removeRows ( self, row, count, parent ):
+    #     self.beginRemoveRows( objIDX.parent(), objIDX.row(), objIDX.row() )
+    #     self.endRemoveRows()
+    #     return True
 
     def setRootNetObj( self, rootNetObj ):
         self.__rootNetObj = rootNetObj
@@ -110,23 +138,3 @@ class CNetObj_Model( QAbstractItemModel ):
                 
     def flags( self, index ):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
-
-    def removeRows ( self, row, count, parent ):
-        # Здесь не происходит реального удаления данных, поэтому нет необходимости вызывать следующие методы-оповещения модели:
-        # self.beginRemoveRows( parent, row, row )
-        # self.endRemoveRows()
-        # self.dataChanged.emit( parent, parent )
-        # они будут вызваны при обработке команды в тике CNetObj_Manager-а
-
-        netObj = self.getNetObj_or_Root( self.index( row, 0, parent ) )
-
-        if CNetObj_Manager.isConnected():
-            netObj.sendDeleted_NetCmd()
-        else:
-            # при локальном режиме работы необходимо реализовать возможность удаления объектов из монитора
-            self.beginRemove( netObj )
-            netObj.localDestroy()
-            del netObj
-            self.endRemove()
-
-        return True

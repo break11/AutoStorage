@@ -16,8 +16,9 @@ from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
 from Lib.Common.GuiUtils import gvFitToPage, Std_Model_Item
 from Lib.Common.GraphUtils import EdgeDisplayName
-from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj
-from Lib.Net.NetObj import CNetObj, CTreeNode
+from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches
+from Lib.Net.NetObj import CNetObj
+from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 
 from Lib.Common import StrConsts as SC
@@ -76,7 +77,8 @@ class CStorageGraph_GScene_Manager():
         # self.gView.setViewport( QOpenGLWidget( ) )
         # self.gScene.setBspTreeDepth( 1 )
 
-        self.__maxNodeID    = 0            
+        self.__maxNodeID    = 0
+        self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
 
     def setModeFlags(self, flags):
         self.Mode = flags
@@ -108,26 +110,31 @@ class CStorageGraph_GScene_Manager():
         self.nxGraph = None
 
     def new(self):
-        self.clear()
-        self.init()
+        # self.clear() - не вызываем здесь, т.к. вызовется при реакции на удаление корневого элемента графа
+        if self.graphRootNode():
+            self.graphRootNode().localDestroy()
+
+        # self.init()  - не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
+        createGraph_NO_Branches( nxGraph = nx.DiGraph() )
         
-        self.nxGraph = nx.DiGraph()
+        # self.nxGraph = nx.DiGraph()
 
         self.bHasChanges = True
 
+    def genTestGraph(self):
         #test adding nodes
-        # side_count = 200
-        # step = 2200
-        # last_node = None
-        # for x in range(0, side_count * step, step):
-        #     for y in range(0, side_count * 400, 400):
-        #         cur_node = self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
-        #         if last_node:
-        #             tKey = (cur_node.nodeID, last_node.nodeID)
-        #             self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge )
-        #             self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge )
-        #             self.addEdge( tKey )
-        #         last_node = cur_node
+        side_count = 200
+        step = 2200
+        last_node = None
+        for x in range(0, side_count * step, step):
+            for y in range(0, side_count * 400, 400):
+                cur_node = self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
+                if last_node:
+                    tKey = (cur_node.nodeID, last_node.nodeID)
+                    self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge )
+                    self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge )
+                    self.addEdge( tKey )
+                last_node = cur_node
 
     def load(self, sFName):
         self.clear()
@@ -267,6 +274,8 @@ class CStorageGraph_GScene_Manager():
         del self.agentGItems[ agentNetObj.name ]
 
     def addNode( self, nodeID, **attr ):
+
+
         if self.nodeGItems.get (nodeID): return
 
         if not self.nxGraph.has_node(nodeID):

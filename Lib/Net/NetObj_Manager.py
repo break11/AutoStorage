@@ -50,7 +50,6 @@ class CNetObj_Manager( object ):
     redisConn = None
     serviceConn = None
     ClientID  = -1
-    objModel = None # модель представление для дерева требует специфической обработки
     bNetCmd_Log = False
     bEvent_Log = False
 
@@ -159,16 +158,13 @@ class CNetObj_Manager( object ):
                 elif netCmd.Event == EV.ObjPrepareDelete:
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
 
-                    if netObj:
-                        # приходится давать сигнал на обновление модели здесь, чтобы завернуть внутрь них все эвенты и удаление объектов
-                        # иначе получим ошибку InvalidIndex, т.к. объект еще не будет удален к моменту вызова endRemoveRows() - он вызовет rowCount()
-                        # и построит индекс, который уже числится в модели Qt как удаленный
-                        if cls.objModel: cls.objModel.beginRemove( netObj )
+                    if netObj:                        
+                        CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeletedStart, Obj_UID = netCmd.Obj_UID ) )
 
                         netObj.localDestroy()
                         del netObj
 
-                        if cls.objModel: cls.objModel.endRemove()
+                        CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeleted, Obj_UID = netCmd.Obj_UID ) )
                     else:
                         print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
@@ -269,10 +265,6 @@ class CNetObj_Manager( object ):
             cls.pipe.srem( s_ObjectsSet, netObj.UID )
             netObj.delFromRedis( cls.pipe )
 
-            # CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
-            # Команда сигнал "объект удален" в деструкторе объекта не нужна (посылка по сети), т.к. при локальном удалении объектов на всех клиентах
-            # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
-
     @classmethod
     def accessObj( cls, UID, genAssert=False, genWarning=False ):
         netObj = cls.__objects.get( UID )
@@ -287,6 +279,13 @@ class CNetObj_Manager( object ):
             assert netObj, f"{SC.sAssert} {sMsg}"
 
         return netObj
+
+    # @classmethod
+    # def accessObjRef( cls, UID, genAssert=False, genWarning=False ):
+    #     obj = cls.accessObj( UID, genAssert=genAssert, genWarning=genWarning )
+    #     if obj is not None:
+    #         obj = weakref.ref( obj )
+    #     return obj
 
     #####################################################
 

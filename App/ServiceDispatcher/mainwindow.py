@@ -112,4 +112,3 @@ class CSSD_MainWindow(QMainWindow):
             path = FileUtils.correctFNameToProjectDir( path )
             self.leGraphML.setText( path )
             CSM.options[ SC.s_storage_graph_file ] = path
-

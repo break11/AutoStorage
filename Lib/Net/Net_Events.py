@@ -7,6 +7,7 @@ class ENet_Event( IntEnum ):
 
     ObjCreated         = auto()
     ObjPrepareDelete   = auto()
+    ObjDeletedStart    = auto()
     ObjDeleted         = auto() # по сети не отправляется - только для callback-ов
 
     ObjPropCreated     = auto()

@@ -74,7 +74,7 @@ class CTreeNodeCache:
         self.__cache = None
 
     def __call__( self ):
-        if self.__cache is None:
+        if (self.__cache is None) or (self.__cache() is None):
             self.__cache = CTreeNode.resolvePath( self.baseNode(), self.path )
             if self.__cache: self.__cache = weakref.ref( self.__cache )
         return self.__cache() if self.__cache else None

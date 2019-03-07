@@ -61,8 +61,6 @@ class CNetObj_Monitor(QWidget):
 
         self.setWindowTitle( f"{self.windowTitle()}   app = {baseFName.rsplit(os.sep, 1)[1]}   ClientID = {CNetObj_Manager.ClientID}" )
 
-        CNetObj_Manager.objModel = self.netObjModel
-
         # подготовка контролов сетевых команд
         self.sbClientID.setValue( CNetObj_Manager.ClientID )
         for ev in EV:
@@ -123,7 +121,6 @@ class CNetObj_Monitor(QWidget):
         text, ok = QInputDialog.getText(self, 'New NetObj Name', 'Enter object name:')
         if not ok: return
 
-
         netObj = CNetObj(name=text, parent=parent)
         # if ok: self.netObj[ text ] = text
 
@@ -131,7 +128,5 @@ class CNetObj_Monitor(QWidget):
         ci = self.tvNetObj.selectionModel().currentIndex()
         if not ci.isValid(): return
 
-        row = ci.row()
-        parent = ci.parent()
-        
-        self.tvNetObj.model().removeRow( row, parent )
+        netObj = self.netObjModel.netObj_From_Index( ci )
+        netObj.sendDeleted_NetCmd()

@@ -45,6 +45,13 @@ class CNetObj( CTreeNode ):
     def __del__(self):
         # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
+        
+        # cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
+        # CNetObj_Manager.doCallbacks( cmd )
+
+        # CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
+        # Команда сигнал "объект удален" в деструкторе объекта не нужна (посылка по сети), т.к. при локальном удалении объектов на всех клиентах
+        # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
 
     def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
 
@@ -53,12 +60,20 @@ class CNetObj( CTreeNode ):
         netObj = CNetObj.resolvePath( self, sName )
         if netObj is None:
             netObj  = ObjClass( name=sName, parent=self, **kwargs )
-###################################################################################
-    # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
-    def sendDeleted_NetCmd( self ):
-        cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
-        CNetObj_Manager.sendNetCMD( cmd )
 
+###################################################################################
+    def sendDeleted_NetCmd( self ):
+        if CNetObj_Manager.isConnected():
+            # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
+            cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
+            CNetObj_Manager.sendNetCMD( cmd )
+        else:
+            CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeletedStart, Obj_UID = self.UID ) )
+
+            # в оффлайн режиме удаляем объект, т.к. до парсера сетевых команд не дойдет
+            self.localDestroy()            
+
+            CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID ) )
 
     def __localDestroy( self ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
@@ -68,9 +83,6 @@ class CNetObj( CTreeNode ):
             child.__localDestroy()
 
         self.clearChildren()
-
-        cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
-        CNetObj_Manager.doCallbacks( cmd )
 
     def localDestroy( self ):
         self.__localDestroy()
@@ -82,7 +94,6 @@ class CNetObj( CTreeNode ):
 
 ###################################################################################
     # Интерфейс для работы с кастомными пропертями реализован через []
-
     def get( self, key ):
         try:
             return self.__getitem__( key )
