@@ -46,9 +46,8 @@ class CNetObj( CTreeNode ):
         # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
         
-        # cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
-        # CNetObj_Manager.doCallbacks( cmd )
-
+        cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
+        CNetObj_Manager.doCallbacks( cmd )
         # CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
         # Команда сигнал "объект удален" в деструкторе объекта не нужна (посылка по сети), т.к. при локальном удалении объектов на всех клиентах
         # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
@@ -68,12 +67,8 @@ class CNetObj( CTreeNode ):
             cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
             CNetObj_Manager.sendNetCMD( cmd )
         else:
-            CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeletedStart, Obj_UID = self.UID ) )
-
             # в оффлайн режиме удаляем объект, т.к. до парсера сетевых команд не дойдет
             self.localDestroy()            
-
-            CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID ) )
 
     def __localDestroy( self ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )

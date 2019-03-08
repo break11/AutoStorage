@@ -21,6 +21,7 @@ class CNetObj_Proxy:
     def __init__( self, netObj ):
         print( "proxy init", netObj )
         self.netObj = weakref.ref( netObj )
+        self.UID = netObj.UID
 
         parent = netObj.parent
         self.parentProxy = weakref.ref( gProxys.get( parent.UID ) ) if parent else None
@@ -46,7 +47,7 @@ class CNetObj_Proxy:
         return gProxys.get( self.__childProxy[ indexInParent ] )
     
     def appendChildProxy( self, proxy ):
-        self.__childProxy.append( proxy.netObj().UID )
+        self.__childProxy.append( proxy.UID )
 
     def __removeChildProxy( self, UID ):
         # if UID in self.__childProxy:
@@ -54,7 +55,7 @@ class CNetObj_Proxy:
         del gProxys[ UID ]
 
     def removeChildProxy( self, proxy ):
-        UID = proxy.netObj().UID
+        UID = proxy.UID
         self.__removeChildProxy( UID )
 
     def getChildProxyCount( self ):
@@ -62,14 +63,14 @@ class CNetObj_Proxy:
         return len( self.__childProxy )
 
     def getChildProxyIndex( self, proxy ):
-        return self.__childProxy.index( proxy.netObj().UID )
+        return self.__childProxy.index( proxy.UID )
 
     #################################################################
 
     def checkChildren(self):
         if not self.bChildExpanded:
             for child in self.netObj().children:
-                self.__childProxy.append( CNetObj_Proxy.queryProxy_from_NetObj( child ).netObj().UID )
+                self.__childProxy.append( CNetObj_Proxy.queryProxy_from_NetObj( child ).UID )
             self.bChildExpanded = True
 
     

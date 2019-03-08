@@ -9,7 +9,7 @@ from PyQt5.Qt import QInputDialog
 from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Model import CNetObj_Model
-from .NetObj_Model_1 import CNetObj_Model_1
+from .NetObj_Model import CNetObj_Model
 from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import ( CNetObj_WidgetsManager )
 from .NetCmd import CNetCmd
@@ -46,7 +46,7 @@ class CNetObj_Monitor(QWidget):
         self.tvNetObj.installEventFilter( ev )
         self.tvNetObj.viewport().installEventFilter( ev )
 
-        self.netObjModel = CNetObj_Model_1( self )
+        self.netObjModel = CNetObj_Model( self )
         self.tvNetObj.setModel( self.netObjModel )
         # сигнал currentChanged - не испускается Qt моделью если в клиенте есть выделенный в глубине элемент, а в другом клиенте удалить рут,
         # то этот сигнал не испускается, что не позволит корректно очищать виджеты
