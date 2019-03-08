@@ -9,6 +9,7 @@ from PyQt5.Qt import QInputDialog
 from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Model import CNetObj_Model
+from .NetObj_Model_1 import CNetObj_Model_1
 from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import ( CNetObj_WidgetsManager )
 from .NetCmd import CNetCmd
@@ -45,7 +46,7 @@ class CNetObj_Monitor(QWidget):
         self.tvNetObj.installEventFilter( ev )
         self.tvNetObj.viewport().installEventFilter( ev )
 
-        self.netObjModel = CNetObj_Model( self )
+        self.netObjModel = CNetObj_Model_1( self )
         self.tvNetObj.setModel( self.netObjModel )
         # сигнал currentChanged - не испускается Qt моделью если в клиенте есть выделенный в глубине элемент, а в другом клиенте удалить рут,
         # то этот сигнал не испускается, что не позволит корректно очищать виджеты
@@ -116,12 +117,12 @@ class CNetObj_Monitor(QWidget):
     def on_btnAdd_NetObj_released( self ):
         ci = self.tvNetObj.selectionModel().currentIndex()
         # if ci.isValid():
-        parent = self.netObjModel.getNetObj_or_Root( ci )
+        parent = self.netObjModel.getProxy_or_Root( ci )
 
         text, ok = QInputDialog.getText(self, 'New NetObj Name', 'Enter object name:')
         if not ok: return
 
-        netObj = CNetObj(name=text, parent=parent)
+        netObj = CNetObj(name=text, parent=parent.netObj())
         # if ok: self.netObj[ text ] = text
 
     def on_btnDel_NetObj_released( self ):

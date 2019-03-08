@@ -160,7 +160,7 @@ class CNetObj_Manager( object ):
 
                     if netObj:                        
                         CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeletedStart, Obj_UID = netCmd.Obj_UID ) )
-
+                        
                         netObj.localDestroy()
                         del netObj
 
