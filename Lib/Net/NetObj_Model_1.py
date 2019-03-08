@@ -17,6 +17,11 @@ class CNetObj_Model_1( QAbstractItemModel ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
     #     CNetObj_Manager.addCallback( EV.ObjDeleted, self.onObjDeleted )
 
+    def __del__( self ):
+        if self.__rootProxy:
+            from .NetObj_Proxy import gProxys
+            del gProxys[ self.__rootProxy.netObj().UID ]
+
     def setRootNetObj( self, rootNetObj ):
         self.__rootProxy = CNetObj_Proxy( rootNetObj )
         self.modelReset.emit()
@@ -32,10 +37,10 @@ class CNetObj_Model_1( QAbstractItemModel ):
 
             proxy = CNetObj_Proxy( netObj )
             
-            indexInParent = parentProxy.getChildCount()
+            indexInParent = parentProxy.getChildProxyCount()
 
             self.beginInsertRows( parentIDX, indexInParent, indexInParent )
-            parentProxy.childProxy.append( proxy )
+            parentProxy.appendChildProxy( proxy )
             self.endInsertRows()
 
         self.layoutChanged.emit()
@@ -55,11 +60,10 @@ class CNetObj_Model_1( QAbstractItemModel ):
             if parentIDX:
                 proxy = CNetObj_Proxy.queryProxy_from_NetObj( netObj )
                 
-                indexInParent = parentProxy.childProxy.index( proxy )
+                indexInParent = parentProxy.getChildProxyIndex( proxy )
 
                 self.beginRemoveRows( parentIDX, indexInParent, indexInParent )
-                parentProxy.childProxy.remove( proxy )
-                CNetObj_Proxy.removeProxy( netCmd.Obj_UID )
+                parentProxy.removeChildProxy( proxy )
                 self.endRemoveRows()
 
         self.layoutChanged.emit()
@@ -101,7 +105,7 @@ class CNetObj_Model_1( QAbstractItemModel ):
         proxy = self.getProxy_or_Root( parentIndex )
 
         if proxy:
-            return proxy.getChildCount()
+            return proxy.getChildProxyCount()
         else:
             return 0
 
@@ -122,7 +126,7 @@ class CNetObj_Model_1( QAbstractItemModel ):
         parentProxy = proxy.parentProxy()
         if parentProxy is None: return QModelIndex()
         
-        indexInParent = parentProxy.childProxy.index( proxy )
+        indexInParent = parentProxy.getChildProxyIndex( proxy )
 
         return self.createIndex( indexInParent, 0, proxy )
 
@@ -149,7 +153,10 @@ class CNetObj_Model_1( QAbstractItemModel ):
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
             if proxy:
-                return proxy.netObj().modelData( index.column() )
+                if proxy.netObj():
+                    return proxy.netObj().modelData( index.column() )
+                else:
+                    return None
                 
     def flags( self, index ):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled

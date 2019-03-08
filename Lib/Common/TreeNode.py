@@ -6,10 +6,9 @@ class CTreeNode:
 
     @property
     def children( self ):
-        return self.__children
+        return self.__children_dict.values()
 
     def clearChildren( self ):
-        self.__children.clear()
         self.__children_dict.clear()
 
     ##########################
@@ -24,26 +23,23 @@ class CTreeNode:
             return
         
         self.__parent = value
-        self.__parent.__children.append( self )
         self.__parent.__children_dict[ self.name ] = self
 
     def clearParent( self ):
         if self.__parent is None: return
-        self.__parent.__children.remove( self )
         del self.__parent.__children_dict[ self.name ]
         self.__parent = None
     ##########################
 
     def __init__( self, parent=None, name=None ):
-        if parent is not None:
-            assert parent.childByName( name ) is None, f"Can not create tree element with duplicate name='{name}'"
+        # if parent is not None:
+        #     assert parent.childByName( name ) is None, f"Can not create tree element with duplicate name='{name}'"
 
         self.name = name
 
         self.__parent = None
         self.parent = parent
 
-        self.__children = []
         self.__children_dict = {}
 
     def childByName( self, name ):

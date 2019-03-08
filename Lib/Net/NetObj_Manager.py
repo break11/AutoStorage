@@ -159,12 +159,12 @@ class CNetObj_Manager( object ):
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
 
                     if netObj:                        
-                        CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeletedStart, Obj_UID = netCmd.Obj_UID ) )
+                        # CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeletedStart, Obj_UID = netCmd.Obj_UID ) )
                         
                         netObj.localDestroy()
                         del netObj
 
-                        CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeleted, Obj_UID = netCmd.Obj_UID ) )
+                        # CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeleted, Obj_UID = netCmd.Obj_UID ) )
                     else:
                         print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 

@@ -89,7 +89,7 @@ class CNetObj( CTreeNode ):
         self.parent = None
 
     def localDestroyChildren( self ):
-        for child in self.children:
+        for child in list(self.children):
             child.localDestroy()
 
 ###################################################################################

@@ -111,8 +111,8 @@ def loadGraphML_to_NetObj( sFName, bReload ):
     if graphObj:
         if bReload:
             graphObj.localDestroy()
-            graphObj.parent = None
             graphObj.sendDeleted_NetCmd()
+            # graphObj.parent = None # новый вариант модели не может работать при обнулении парента
         else:
             return False
 
