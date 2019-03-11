@@ -80,7 +80,7 @@ class CNode_SGItem(QGraphicsItem):
         for cb in self.propUpdate_CallBacks:
             cb( self.nodeID, propName, propValue )
 
-        self.nxNode[ propName ] = SGT.adjustAttrType( propName, propValue )
+        self.netObj()[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.init()
         self.updatePos_From_NX()
         self.updateType()
