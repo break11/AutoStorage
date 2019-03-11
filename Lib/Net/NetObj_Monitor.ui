@@ -176,7 +176,7 @@ NetCmd</string>
               <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
             </property>
             <property name="shortcut">
-             <string>Ins</string>
+             <string>Ctrl+Ins</string>
             </property>
            </widget>
           </item>
@@ -190,7 +190,7 @@ NetCmd</string>
               <normaloff>:/images/del.png</normaloff>:/images/del.png</iconset>
             </property>
             <property name="shortcut">
-             <string>Del</string>
+             <string>Ctrl+Del</string>
             </property>
            </widget>
           </item>

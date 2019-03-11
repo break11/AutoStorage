@@ -22,11 +22,13 @@ class CStorageNetObj_Adapter:
         self.SGM = ViewerWindow.SGM
         self.ViewerWindow = ViewerWindow
 
-        CNode_SGItem.propUpdate_CallBacks.append( self.nodePropChanged_From_GScene )
+        ###############################################
+
+        # CNode_SGItem.propUpdate_CallBacks.append( self.nodePropChanged_From_GScene )
         CEdge_SGItem.propUpdate_CallBacks.append( self.edgePropChanged_From_GScene )
 
-    def nodePropChanged_From_GScene( self, nodeID, propName, propValue ):
-        self.__updateObjProp( "Graph/Nodes/" + nodeID, propName, propValue )
+    # def nodePropChanged_From_GScene( self, nodeID, propName, propValue ):
+    #     self.__updateObjProp( "Graph/Nodes/" + nodeID, propName, propValue )
 
     def edgePropChanged_From_GScene( self, tKey, propName, propValue ):
         self.__updateObjProp( "Graph/Edges/" + EdgeDisplayName( *tKey ), propName, propValue )
@@ -35,6 +37,8 @@ class CStorageNetObj_Adapter:
         netObj = CNetObj.resolvePath( CNetObj_Manager.rootObj, sObjPath )
         assert netObj
         netObj[ propName ] = propValue
+
+    ###############################################
 
     @time_func( sMsg="Create scene items time", threshold=10 )
     def ObjCreated(self, netCmd=None):
@@ -45,7 +49,7 @@ class CStorageNetObj_Adapter:
             SGM.nxGraph = netObj.nxGraph
             SGM.init()
         elif isinstance( netObj, CGraphNode_NO ):
-            SGM.addNode( netObj.name )
+            SGM.addNode( nodeNetObj = netObj )
         elif isinstance( netObj, CGraphEdge_NO ):
             SGM.addEdge( frozenset( (netObj.nxNodeID_1(), netObj.nxNodeID_2()) ) )
             if not SGM.bGraphLoading:
@@ -63,8 +67,7 @@ class CStorageNetObj_Adapter:
             SGM.clear()
             SGM.nxGraph = None
         elif isinstance( netObj, CGraphNode_NO ):
-            if SGM.nxGraph is not None:
-                SGM.deleteNode( netObj.name )
+            SGM.deleteNode( nodeNetObj = netObj )
         elif isinstance( netObj, CGraphEdge_NO ):
             if SGM.nxGraph is not None:
                 # грань удалится из nxGraph в netObj

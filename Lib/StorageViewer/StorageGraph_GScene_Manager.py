@@ -117,8 +117,6 @@ class CStorageGraph_GScene_Manager():
         # self.init()  - не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
         createGraph_NO_Branches( nxGraph = nx.DiGraph() )
         
-        # self.nxGraph = nx.DiGraph()
-
         self.bHasChanges = True
 
     def genTestGraph(self):
@@ -273,13 +271,11 @@ class CStorageGraph_GScene_Manager():
         self.gScene.removeItem ( self.agentGItems[ agentNetObj.name ] )
         del self.agentGItems[ agentNetObj.name ]
 
-    def addNode( self, nodeID, **attr ):
-        if self.nodeGItems.get (nodeID): return
+    def addNode( self, nodeNetObj ):
+        nodeID = nodeNetObj.name
+        if self.nodeGItems.get ( nodeID ): return
 
-        if not self.nxGraph.has_node(nodeID):
-            self.nxGraph.add_node ( nodeID, **attr )
-
-        nodeGItem = CNode_SGItem ( nxGraph = self.nxGraph, nodeID = nodeID )
+        nodeGItem = CNode_SGItem ( nodeNetObj = nodeNetObj )
         self.gScene.addItem( nodeGItem )
         self.nodeGItems[ nodeID ] = nodeGItem
 
@@ -290,6 +286,14 @@ class CStorageGraph_GScene_Manager():
 
         self.bHasChanges = True
         return nodeGItem
+
+    def deleteNode(self, nodeNetObj):
+        nodeID = nodeNetObj.name
+        if self.nodeGItems.get ( nodeID ) is None: return
+
+        self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
+        del self.nodeGItems[ nodeID ]
+        self.bHasChanges = True
 
     def addEdge( self, tKey ):
         fsEdgeKey = frozenset( tKey )
@@ -326,12 +330,6 @@ class CStorageGraph_GScene_Manager():
     
         for nodeGItem in nodeGItems:
             self.calcNodeMiddleLine(nodeGItem)
-
-    def deleteNode(self, nodeID):
-        self.nodeGItems[ nodeID ].done()
-        self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
-        del self.nodeGItems[ nodeID ]
-        self.bHasChanges = True
 
     def deleteEdge(self, *fsEdgeKeys : frozenset ):
         for fsEdgeKey in fsEdgeKeys:
@@ -407,11 +405,8 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
                 attr = deepcopy (self.__SGM.default_Node)
                 attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.__gView.mapToScene(event.pos()).x() )
                 attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
-                # self.__SGM.addNode( self.__SGM.genStrNodeID(), **attr )
 
                 CGraphNode_NO( name=self.__SGM.genStrNodeID(), parent=self.__SGM.graphRootNode().nodesNode(), props=attr )
-
-
 
                 ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю
                 # self.__gScene.setSceneRect( self.__gScene.itemsBoundingRect() )
@@ -426,10 +421,7 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
             for item in self.__gScene.selectedItems():
 
                 if isinstance( item, CNode_SGItem ):
-                    incEdges = list( self.__SGM.nxGraph.out_edges( item.nodeID ) ) +  list( self.__SGM.nxGraph.in_edges( item.nodeID ) )
-                    fsEdgeKeys = set( [ frozenset(s) for s in incEdges ] )
-                    self.__SGM.deleteEdge( *fsEdgeKeys )
-                    self.__SGM.deleteNode( item.nodeID )            
+                    item.netObj().sendDeleted_NetCmd()
 
                 if isinstance( item, CEdge_SGItem ):
                     self.__SGM.deleteEdge( item.fsEdgeKey )

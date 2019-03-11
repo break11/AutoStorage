@@ -1,3 +1,4 @@
+import weakref
 
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont )
@@ -19,31 +20,33 @@ class CNode_SGItem(QGraphicsItem):
     stRectL = QRectF( -__st_width/2 -__st_offset, -__st_height/2, __st_width, __st_height)
     stRectR = QRectF( __st_offset - __st_width/2, -__st_height/2, __st_width, __st_height)
 
-    def __readGraphAttr( self, sAttrName ): return self.nxGraph.node[ self.nodeID ][ sAttrName ]
-    def __writeGraphAttr( self, sAttrName, value ): self.nxGraph.node[ self.nodeID ][ sAttrName ] = SGT.adjustAttrType(sAttrName, value)
-
     @property
-    def x(self): return self.__readGraphAttr( SGT.s_x )
+    def x(self): return self.netObj()[ SGT.s_x ]
     @x.setter
-    def x(self, value):
-        self.updateProp( SGT.s_x, value )
-        self.__writeGraphAttr( SGT.s_x, value )
+    def x(self, value): self.netObj()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, value )
 
     @property
-    def y(self): return self.__readGraphAttr( SGT.s_y )
+    def y(self): return self.netObj()[ SGT.s_y ]
     @y.setter
-    def y(self, value):
-        self.updateProp( SGT.s_y, value )
-        self.__writeGraphAttr( SGT.s_y, value )
+    def y(self, value): self.netObj()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, value )
+
+    @property
+    def nodeID( self ): return self.netObj().name
+
+    @property
+    def nxGraph( self ): return self.netObj().nxGraph()
+
+    @property
+    def nxNode( self ): return self.netObj().nxNode()
+
 
     # params: ( nodeID, propName, propValue )
     propUpdate_CallBacks = [] # type:ignore
 
-    def __init__(self, nxGraph, nodeID):
+    def __init__(self, nodeNetObj ):
         super().__init__()
 
-        self.nxGraph = nxGraph
-        self.nodeID = nodeID
+        self.netObj = weakref.ref( nodeNetObj )
         self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
@@ -58,7 +61,7 @@ class CNode_SGItem(QGraphicsItem):
     def fillPropsTable( self, mdlObjProps ):
         mdlObjProps.setHorizontalHeaderLabels( [ "nodeID", self.nodeID ] )
 
-        for key, val in sorted( self.nxNode().items() ):
+        for key, val in sorted( self.nxNode.items() ):
             stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
             if stdItem_PropName is None:
                 rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
@@ -77,7 +80,7 @@ class CNode_SGItem(QGraphicsItem):
         for cb in self.propUpdate_CallBacks:
             cb( self.nodeID, propName, propValue )
 
-        self.nxNode()[ propName ] = SGT.adjustAttrType( propName, propValue )
+        self.nxNode[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.init()
         self.updatePos_From_NX()
         self.updateType()
@@ -104,9 +107,6 @@ class CNode_SGItem(QGraphicsItem):
         
         self.setRotation(-storagesAngle)
 
-    def nxNode(self):
-        return self.nxGraph.node[ self.nodeID ]
-
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
@@ -115,10 +115,6 @@ class CNode_SGItem(QGraphicsItem):
         self.updateType()
         self.calcBBox()
         self.updatePos_From_NX()
-
-    def done(self):
-        if self.nxGraph.has_node( self.nodeID ):
-            self.nxGraph.remove_node( self.nodeID )
 
     # обновление позиции на сцене по атрибутам из графа
     def updatePos_From_NX(self):
