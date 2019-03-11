@@ -40,14 +40,18 @@ class CNetObj( CTreeNode ):
                             hd.index( self.__s_TypeUID  )   : lambda: weakSelf().typeUID,
                             }
 
+        if hasattr( self, "_CNetObj__beforeObjCreatedCallback" ):
+            self.__beforeObjCreatedCallback()
+
         CNetObj_Manager.registerObj( self, saveToRedis=saveToRedis )
+
+        CNetObj_Manager.doCallbacks( CNetCmd( Event = EV.ObjCreated, Obj_UID = self.UID ) )
 
     def __del__(self):
         # print("CNetObj destructor", self)
         CNetObj_Manager.unregisterObj( self )
         
-        cmd = CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID )
-        CNetObj_Manager.doCallbacks( cmd )
+        CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID ) )
         # CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
         # Команда сигнал "объект удален" в деструкторе объекта не нужна (посылка по сети), т.к. при локальном удалении объектов на всех клиентах
         # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
@@ -215,9 +219,6 @@ class CNetObj( CTreeNode ):
         ext_fields = CStrTypeConverter.DictFromBytes( extFields )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False, props=props, ext_fields=ext_fields )
-
-        cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID = netObj.UID )
-        CNetObj_Manager.doCallbacks( cmd )
 
         return netObj, nextIDX
 

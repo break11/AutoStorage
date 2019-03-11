@@ -12,9 +12,9 @@ class CGraphRoot_NO( CNetObj ):
         if nxGraph is not None:
             self.nxGraph = nxGraph
         else:
-            self.nxGraph = nx.DiGraph( props )
+            self.nxGraph = nx.DiGraph( **props )
 
-        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )        
 
         self.nodesNode = CTreeNodeCache( baseNode = self, path = "Nodes" )
         self.edgesNode = CTreeNodeCache( baseNode = self, path = "Edges" )
@@ -24,14 +24,19 @@ class CGraphRoot_NO( CNetObj ):
 ###################################################################################
 
 class CGraphNode_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
 
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
+
+        # функция для вызова в конструкторе предка, так как нода nx-графа должна быть заполнена до ObjCreated
+        def addNxNode():
+            if not self.__has_nxNode():
+                self.nxGraph().add_node( self.name, **self.props )
+
+        self._CNetObj__beforeObjCreatedCallback = addNxNode
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-        if not self.__has_nxNode():
-            self.nxGraph().add_node( self.name, **self.props )
 
     def ObjPrepareDelete( self, netCmd ):
         incEdges = []
@@ -67,10 +72,13 @@ class CGraphEdge_NO( CNetObj ):
 
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
-        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+        def addNxEdge():
+            if not self.__has_nxEdge():
+                self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
 
-        if not self.__has_nxEdge():
-            self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
+        self._CNetObj__beforeObjCreatedCallback = addNxEdge
+
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     def ObjPrepareDelete( self, netCmd ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа

@@ -44,8 +44,6 @@ class CNetObj_Model( QAbstractItemModel ):
 
         self.layoutChanged.emit()
 
-    # # для отладочной модели в мониторе объектов необходимо удалить объект внутри методов beginRemove, endRemove
-    # # т.к. Qt модель устроена таким образом, что всегда является перманентной по отношению к данным
     def onObjPrepareDelete( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         parentProxy = CNetObj_Proxy.proxy_from_NetObjID( netObj.parent.UID ) if netObj.parent else None
@@ -152,10 +150,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
             if proxy:
-                if proxy.netObj():
-                    return proxy.netObj().modelData( index.column() )
-                else:
-                    return None
+                return proxy.netObj().modelData( index.column() )
                 
     def flags( self, index ):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled

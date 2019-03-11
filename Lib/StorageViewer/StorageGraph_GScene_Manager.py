@@ -17,12 +17,12 @@ from Lib.Common.GItem_EventFilter import CGItem_EventFilter
 from Lib.Common.GuiUtils import gvFitToPage, Std_Model_Item
 from Lib.Common.GraphUtils import EdgeDisplayName
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches
-from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNodeCache
-from Lib.Net.NetObj_Manager import CNetObj_Manager
-
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.Graph_NetObjects import CGraphNode_NO
+from Lib.Net.NetObj import CNetObj
+from Lib.Net.NetObj_Manager import CNetObj_Manager
 
 class EGManagerMode (Flag):
     View      = auto()
@@ -274,8 +274,6 @@ class CStorageGraph_GScene_Manager():
         del self.agentGItems[ agentNetObj.name ]
 
     def addNode( self, nodeID, **attr ):
-
-
         if self.nodeGItems.get (nodeID): return
 
         if not self.nxGraph.has_node(nodeID):
@@ -409,7 +407,9 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
                 attr = deepcopy (self.__SGM.default_Node)
                 attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.__gView.mapToScene(event.pos()).x() )
                 attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
-                self.__SGM.addNode( self.__SGM.genStrNodeID(), **attr )
+                # self.__SGM.addNode( self.__SGM.genStrNodeID(), **attr )
+
+                CGraphNode_NO( name=self.__SGM.genStrNodeID(), parent=self.__SGM.graphRootNode().nodesNode(), props=attr )
 
 
 

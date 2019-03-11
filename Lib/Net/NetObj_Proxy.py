@@ -5,8 +5,6 @@ import weakref
 gProxys = {} # type:ignore 
 
 class CNetObj_Proxy:
-    bChildExpanded = False
-
     @classmethod
     def queryProxy_from_NetObj( cls, netObj ):
         proxy = cls.proxy_from_NetObjID( netObj.UID )
@@ -19,7 +17,7 @@ class CNetObj_Proxy:
         return gProxys.get( UID )
 
     def __init__( self, netObj ):
-        print( "proxy init", netObj )
+        # print( "proxy init", netObj )
         self.netObj = weakref.ref( netObj )
         self.UID = netObj.UID
 
@@ -32,7 +30,7 @@ class CNetObj_Proxy:
         self.bChildExpanded = False
 
     def __del__( self ):
-        print( "proxy done", self.netObj() )
+        # print( "proxy done", self.netObj() )
         for UID in list(self.__childProxy):
             self.__removeChildProxy( UID )
         self.__childProxy.clear()

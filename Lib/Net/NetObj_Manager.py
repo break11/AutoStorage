@@ -248,10 +248,7 @@ class CNetObj_Manager( object ):
                 cls.pipe.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( cls.pipe )
                 CNetObj_Manager.sendNetCMD( cmd )
-                
-        if saveToRedis:
-            CNetObj_Manager.doCallbacks( cmd )
-    
+                    
     @classmethod
     def unregisterObj( cls, netObj ):
         # del cls.__objects[ netObj.UID ] # удаление элемента из хеша зарегистрированных не требуется, т.к. WeakValueDictionary это делает
