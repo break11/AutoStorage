@@ -51,11 +51,7 @@ class CStorageNetObj_Adapter:
         elif isinstance( netObj, CGraphNode_NO ):
             SGM.addNode( nodeNetObj = netObj )
         elif isinstance( netObj, CGraphEdge_NO ):
-            SGM.addEdge( frozenset( (netObj.nxNodeID_1(), netObj.nxNodeID_2()) ) )
-            if not SGM.bGraphLoading:
-                SGM.calcNodeMiddleLine( SGM.nodeGItems[ netObj.nxNodeID_1() ] )
-                SGM.calcNodeMiddleLine( SGM.nodeGItems[ netObj.nxNodeID_2() ] )
-
+            SGM.addEdge( edgeNetObj = netObj )
         elif isinstance( netObj, CAgent_NO ):
             SGM.addAgent( agentNetObj = netObj )
 

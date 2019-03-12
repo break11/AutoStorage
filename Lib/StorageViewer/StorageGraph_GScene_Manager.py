@@ -295,8 +295,8 @@ class CStorageGraph_GScene_Manager():
         del self.nodeGItems[ nodeID ]
         self.bHasChanges = True
 
-    def addEdge( self, tKey ):
-        fsEdgeKey = frozenset( tKey )
+    def addEdge( self, edgeNetObj ):
+        fsEdgeKey = frozenset( ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() ) )
         if self.edgeGItems.get( fsEdgeKey ) : return False
 
         edgeGItem = CEdge_SGItem( self.nxGraph, fsEdgeKey )
@@ -310,41 +310,42 @@ class CStorageGraph_GScene_Manager():
         edgeGItem.updateDecorateOnScene()
 
         self.bHasChanges = True
+
+        if not self.bGraphLoading:
+            self.calcNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_1() ] )
+            self.calcNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_2() ] )
+
         return True
     
     def addEdgesForSelection(self, direct = True, reverse = True):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ] # выбираем из selectedItems ноды
         nodePairCount = len(nodeGItems) - 1
         
-        if direct: #создание граней в прямом направлении
-            for i in range(nodePairCount):
-                tKey = ( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
-                self.nxGraph.add_edge( *tKey, **self.default_Edge )
-                self.addEdge( tKey  )
+        # if direct: #создание граней в прямом направлении
+        #     for i in range(nodePairCount):
+        #         tKey = ( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
+        #         self.nxGraph.add_edge( *tKey, **self.default_Edge )
+        #         self.addEdge( tKey  )
 
-        if reverse: #создание граней в обратном направлении
-            for i in range(nodePairCount):
-                tKey = ( nodeGItems[i+1].nodeID, nodeGItems[i].nodeID )
-                self.nxGraph.add_edge( *tKey, **self.default_Edge )
-                self.addEdge( tKey  )
+        # if reverse: #создание граней в обратном направлении
+        #     for i in range(nodePairCount):
+        #         tKey = ( nodeGItems[i+1].nodeID, nodeGItems[i].nodeID )
+        #         self.nxGraph.add_edge( *tKey, **self.default_Edge )
+        #         self.addEdge( tKey  )
     
-        for nodeGItem in nodeGItems:
-            self.calcNodeMiddleLine(nodeGItem)
+    def deleteEdge(self, fsEdgeKey : frozenset ):
+        edgeGItem = self.edgeGItems.get( fsEdgeKey )
+        if edgeGItem is None: return
 
-    def deleteEdge(self, *fsEdgeKeys : frozenset ):
-        for fsEdgeKey in fsEdgeKeys:
-            edgeGItem = self.edgeGItems.get( fsEdgeKey )
-            if edgeGItem is None:
-                continue
-            edgeGItem.done()
-            self.gScene.removeItem( edgeGItem )
-            del self.edgeGItems[ fsEdgeKey ]
+        edgeGItem.done()
+        self.gScene.removeItem( edgeGItem )
+        del self.edgeGItems[ fsEdgeKey ]
 
-            # перерасчет средней линии для всех нод "связанных" с удаленными гранями
-            for nodeID in fsEdgeKey:
-                self.calcNodeMiddleLine( self.nodeGItems[ nodeID ] )
+        # перерасчет средней линии для всех нод "связанных" с удаленными гранями
+        for nodeID in fsEdgeKey:
+            self.calcNodeMiddleLine( self.nodeGItems[ nodeID ] )
 
-            self.bHasChanges = True
+        self.bHasChanges = True
 
 
     def reverseEdge(self, fsEdgeKey):
