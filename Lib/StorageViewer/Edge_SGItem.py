@@ -7,40 +7,45 @@ import math
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import getLineAngle, EdgeDisplayName
+from Lib.Common.TreeNode import CTreeNodeCache
 
 from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
     
-    def __readGraphAttrNode( self, sNodeID, sAttrName ): return self.nxGraph.node[ sNodeID ][ sAttrName ]
+    @property
+    def x1(self): return self.node_1()[ SGT.s_x ]
+    @property
+    def y1(self): return self.node_1()[ SGT.s_y ]
+    @property
+    def x2(self): return self.node_2()[ SGT.s_x ]
+    @property
+    def y2(self): return self.node_2()[ SGT.s_y ]
 
-    @property
-    def x1(self): return self.__readGraphAttrNode( self.nodeID_1, SGT.s_x )
-    @property
-    def y1(self): return self.__readGraphAttrNode( self.nodeID_1, SGT.s_y )
-    @property
-    def x2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_x )
-    @property
-    def y2(self): return self.__readGraphAttrNode( self.nodeID_2, SGT.s_y )
-
-    ## params: ( tKey, propName, propValue )
-    propUpdate_CallBacks = [] # type:ignore
-
-    def __init__(self, nxGraph, fsEdgeKey ):
+    def __init__(self, fsEdgeKey, graphRootNode ):
         super().__init__()
 
         self.fsEdgeKey = fsEdgeKey
         t = tuple( fsEdgeKey )
+
         self.nodeID_1 = t[0]
         self.nodeID_2 = t[1]
+
+        self.node_1 = CTreeNodeCache( baseNode = graphRootNode().nodesNode(), path = self.nodeID_1 )
+        self.node_2 = CTreeNodeCache( baseNode = graphRootNode().nodesNode(), path = self.nodeID_2 )
+
+        self.edge1_2 = CTreeNodeCache( baseNode = graphRootNode().edgesNode(), path = EdgeDisplayName( self.nodeID_1, self.nodeID_2 ) )
+        self.edge2_1 = CTreeNodeCache( baseNode = graphRootNode().edgesNode(), path = EdgeDisplayName( self.nodeID_2, self.nodeID_1 ) )
+
+        self.edgesNetObj_by_TKey = {}
+        self.edgesNetObj_by_TKey[ ( self.nodeID_1, self.nodeID_2 ) ] = self.edge1_2
+        self.edgesNetObj_by_TKey[ ( self.nodeID_2, self.nodeID_1 ) ] = self.edge2_1
 
         self.__rAngle   = 0
         self.__BBoxRect = None     
         self.baseLine   = QLineF()
         
-        self.nxGraph = nxGraph
-
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 10 )
 
@@ -48,20 +53,30 @@ class CEdge_SGItem(QGraphicsItem):
 
         self.buildEdge()
 
+    def destroy_NetObj( self ):
+        self.edge1_2().sendDeleted_NetCmd()
+        self.edge2_1().sendDeleted_NetCmd()
+
     ############################################
 
     def fillPropsTable( self, mdlObjProps ):
-        def addNxEdgeIfExists( nodeID_1, nodeID_2, nxEdges ):
-            if self.nxGraph.has_edge( nodeID_1, nodeID_2 ):
-                tE_Name = (nodeID_1, nodeID_2)
-                nxEdges[ tE_Name ] = self.nxGraph.edges[ tE_Name ]
+        ##remove##
+        # def addNxEdgeIfExists( nodeID_1, nodeID_2, nxEdges ):
+        #     if self.nxGraph.has_edge( nodeID_1, nodeID_2 ):
+        #         tE_Name = (nodeID_1, nodeID_2)
+        #         nxEdges[ tE_Name ] = self.nxGraph.edges[ tE_Name ]
+
+        def addNxEdgeIfExists( edgeNetObj, nxEdges ):
+            if edgeNetObj:
+                tE_Name = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
+                nxEdges[ tE_Name ] = edgeNetObj.propsDict()
 
         header = [ "edgeID" ]
         uniqAttrSet = set()
 
         nxEdges = {}
-        addNxEdgeIfExists( self.nodeID_1, self.nodeID_2, nxEdges )
-        addNxEdgeIfExists( self.nodeID_2, self.nodeID_1, nxEdges )
+        addNxEdgeIfExists( self.edge1_2(), nxEdges )
+        addNxEdgeIfExists( self.edge2_1(), nxEdges )
 
         for k,v in nxEdges.items():
             header.append( EdgeDisplayName( *k ) )
@@ -100,21 +115,23 @@ class CEdge_SGItem(QGraphicsItem):
         self.updateProp( tKey, propName, propValue )
 
     def updateProp( self, tKey, propName, propValue ):
-        for cb in self.propUpdate_CallBacks:
-            cb( tKey, propName, propValue )
+        ##remove##
+        # for cb in self.propUpdate_CallBacks:
+        #     cb( tKey, propName, propValue )
             
-        nxEdge = self.nxGraph.edges[ tKey ]
-        nxEdge[ propName ] = SGT.adjustAttrType( propName, propValue )
+        edgeNetObj = self.edgesNetObj_by_TKey[ tKey ]()
+        edgeNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.decorateSGItem.updatedDecorate()
 
     ############################################
 
     def done( self ):
-        if self.hasNxEdge_1_2():
-            self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
+        ##remove##
+        # if self.hasNxEdge_1_2():
+        #     self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
 
-        if self.hasNxEdge_2_1():
-            self.nxGraph.remove_edge( self.nodeID_2, self.nodeID_1 )
+        # if self.hasNxEdge_2_1():
+        #     self.nxGraph.remove_edge( self.nodeID_2, self.nodeID_1 )
 
         if self.decorateSGItem.scene():
             self.scene().removeItem( self.decorateSGItem )
@@ -159,17 +176,18 @@ class CEdge_SGItem(QGraphicsItem):
     def rotateAngle(self):
         return math.degrees(self.__rAngle)
 
-    def hasNxEdge_1_2(self) : return self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 )
-    def hasNxEdge_2_1(self) : return self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 )
+    ##remove##
+    # def hasNxEdge_1_2(self) : return self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 )
+    # def hasNxEdge_2_1(self) : return self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 )
 
-    def nxEdge_1_2(self)    :
-        if self.hasNxEdge_1_2():
-            return self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
-        return None
-    def nxEdge_2_1(self)    :
-        if self.hasNxEdge_2_1():
-            return self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
-        return None
+    # def nxEdge_1_2(self)    :
+    #     if self.hasNxEdge_1_2():
+    #         return self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
+    #     return None
+    # def nxEdge_2_1(self)    :
+    #     if self.hasNxEdge_2_1():
+    #         return self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
+    #     return None
 
     def paint(self, painter, option, widget):
         lod = min( self.baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
@@ -195,19 +213,19 @@ class CEdge_SGItem(QGraphicsItem):
         edgeLines = []
 
         if lod > 50:
-            if self.hasNxEdge_1_2():
+            if self.edge1_2() is not None:
                 edgeLines.append( QLineF( self.baseLine.length() - 30, -1 + of, self.baseLine.length() - 50, -10 + of ) ) #     \
                 edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                             # -----
                 edgeLines.append( QLineF( self.baseLine.length() - 30, 1 + of, self.baseLine.length() - 50, 10 + of ) )   #     /
-            if self.hasNxEdge_2_1():
+            if self.edge2_1() is not None:
                 edgeLines.append( QLineF( 30, -1 - of, 50, -10 - of ) )              # /
                 edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )  # -----
                 edgeLines.append( QLineF( 30, 1  - of,  50, 10 - of ) )              # \
                 # edgeLines.append( QLineF( 50, -10 - of,  50, 10 - of ) )
         elif lod > 30:
-            if self.hasNxEdge_1_2():
+            if self.edge1_2() is not None:
                 edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                             # -----
-            if self.hasNxEdge_2_1():
+            if self.edge2_1() is not None:
                 edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )  # -----
         elif lod > 7:
             edgeLines.append( QLineF( 0, 0, self.baseLine.length(), 0 ) )

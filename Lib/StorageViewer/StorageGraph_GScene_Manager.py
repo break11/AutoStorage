@@ -52,13 +52,15 @@ class CStorageGraph_GScene_Manager():
                         SGT.s_floor_num: 0                             # type: ignore
                     }
 
+    @property
+    def nxGraph(self): return self.graphRootNode().nxGraph
+
     def __init__(self, gScene, gView):
         self.bGraphLoading = False
         self.agentGItems    = {}
         self.nodeGItems     = {}
         self.edgeGItems     = {}
         self.gScene_evI     = None
-        self.nxGraph        = None
 
         self.bDrawBBox         = False
         self.bDrawInfoRails    = False
@@ -105,16 +107,15 @@ class CStorageGraph_GScene_Manager():
         self.edgeGItems = {}
         self.gScene.clear()
         self.gScene.update()
-        if self.nxGraph is not None:
-            self.nxGraph.clear()
-        self.nxGraph = None
-
+        
     def new(self):
-        # self.clear() - не вызываем здесь, т.к. вызовется при реакции на удаление корневого элемента графа
+        # self.clear()
+        # self.init()
+        # не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
+
         if self.graphRootNode():
             self.graphRootNode().localDestroy()
 
-        # self.init()  - не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
         createGraph_NO_Branches( nxGraph = nx.DiGraph() )
         
         self.bHasChanges = True
@@ -135,8 +136,9 @@ class CStorageGraph_GScene_Manager():
                 last_node = cur_node
 
     def load(self, sFName):
-        self.clear()
-        self.init()
+        # self.clear()
+        # self.init()
+        # не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
 
         self.bGraphLoading = True # For block "calcNodeMiddleLine()" on Edge creating while loading ( 5 sec overhead on "40 000 with edges" )
 
@@ -299,7 +301,7 @@ class CStorageGraph_GScene_Manager():
         fsEdgeKey = frozenset( ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() ) )
         if self.edgeGItems.get( fsEdgeKey ) : return False
 
-        edgeGItem = CEdge_SGItem( self.nxGraph, fsEdgeKey )
+        edgeGItem = CEdge_SGItem( fsEdgeKey=fsEdgeKey, graphRootNode=self.graphRootNode )
         self.gScene.addItem( edgeGItem )
 
         edgeGItem.updatePos_From_NX()
@@ -333,6 +335,23 @@ class CStorageGraph_GScene_Manager():
         #         self.nxGraph.add_edge( *tKey, **self.default_Edge )
         #         self.addEdge( tKey  )
     
+    def freeEdge(self, edgeNetObj):
+        # if SGM.nxGraph is not None:
+
+        # грань удалится из nxGraph в netObj
+        # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
+        fsEdgeKey = frozenset( ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() ) )
+        edgeGItem = self.edgeGItems.get( fsEdgeKey )
+        if edgeGItem is None: return
+
+        if edgeGItem.edge1_2 
+        # if not SGM.nxGraph.has_edge( netObj.nxNodeID_2(), netObj.nxNodeID_1() ):
+        #     SGM.deleteEdge( fsEdgeKey )
+        # else:
+        #     print( SGM.edgeGItems )
+        #     SGM.edgeGItems[ fsEdgeKey ].update()
+        #     self.ViewerWindow.StorageMap_Scene_SelectionChanged()
+
     def deleteEdge(self, fsEdgeKey : frozenset ):
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
         if edgeGItem is None: return
@@ -347,7 +366,6 @@ class CStorageGraph_GScene_Manager():
 
         self.bHasChanges = True
 
-
     def reverseEdge(self, fsEdgeKey):
         edgeGItem = self.edgeGItems[ fsEdgeKey ]
         t12 = (edgeGItem.nodeID_1, edgeGItem.nodeID_2)
@@ -356,19 +374,19 @@ class CStorageGraph_GScene_Manager():
         b12 = edgeGItem.hasNxEdge_1_2()
         b21 = edgeGItem.hasNxEdge_2_1()
 
-        if b12:
-            attr12 = self.nxGraph.edges[ t12 ]
-            self.nxGraph.remove_edge( *t12 )
+        # if b12:
+        #     attr12 = self.nxGraph.edges[ t12 ]
+        #     self.nxGraph.remove_edge( *t12 )
 
-        if b21:
-            attr21 = self.nxGraph.edges[ t21 ]
-            self.nxGraph.remove_edge( *t21 )
+        # if b21:
+        #     attr21 = self.nxGraph.edges[ t21 ]
+        #     self.nxGraph.remove_edge( *t21 )
 
-        if b12:
-            self.nxGraph.add_edge( *t21, **attr12 )
+        # if b12:
+        #     self.nxGraph.add_edge( *t21, **attr12 )
         
-        if b21:
-            self.nxGraph.add_edge( *t12, **attr21 )
+        # if b21:
+        #     self.nxGraph.add_edge( *t12, **attr21 )
 
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
@@ -378,11 +396,11 @@ class CStorageGraph_GScene_Manager():
 
     def deleteMultiEdge(self, fsEdgeKey): #удаление кратной грани
         edgeGItem = self.edgeGItems[ fsEdgeKey ]
-        if edgeGItem.hasNxEdge_2_1():
-            self.nxGraph.remove_edge( edgeGItem.nodeID_2, edgeGItem.nodeID_1 )
-            self.bHasChanges = True
-            edgeGItem.update()
-            edgeGItem.decorateSGItem.update()
+        # if edgeGItem.hasNxEdge_2_1():
+        #     self.nxGraph.remove_edge( edgeGItem.nodeID_2, edgeGItem.nodeID_1 )
+        #     self.bHasChanges = True
+        #     edgeGItem.update()
+        #     edgeGItem.decorateSGItem.update()
 
 
 class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
@@ -418,16 +436,8 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
 
         #удаление итемов
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:
-
             for item in self.__gScene.selectedItems():
-
-                if isinstance( item, CNode_SGItem ):
-                    item.netObj().sendDeleted_NetCmd()
-
-                if isinstance( item, CEdge_SGItem ):
-                    self.__SGM.deleteEdge( item.fsEdgeKey )
-
-            
+                item.destroy_NetObj()
             event.accept()
             return True
         

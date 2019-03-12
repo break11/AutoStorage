@@ -40,8 +40,9 @@ class CNode_SGItem(QGraphicsItem):
     def nxNode( self ): return self.netObj().nxNode()
 
 
+    ##remove##
     # params: ( nodeID, propName, propValue )
-    propUpdate_CallBacks = [] # type:ignore
+    ##propUpdate_CallBacks = [] # type:ignore
 
     def __init__(self, nodeNetObj ):
         super().__init__()
@@ -55,6 +56,9 @@ class CNode_SGItem(QGraphicsItem):
 
         self.updateType()
         self.calcBBox()
+
+    def destroy_NetObj( self ):
+        self.netObj().sendDeleted_NetCmd()
 
     ############################################
 
@@ -77,8 +81,9 @@ class CNode_SGItem(QGraphicsItem):
         self.updateProp( propName, propValue )
 
     def updateProp( self, propName, propValue ):
-        for cb in self.propUpdate_CallBacks:
-            cb( self.nodeID, propName, propValue )
+    ##remove##
+    #     for cb in self.propUpdate_CallBacks:
+    #         cb( self.nodeID, propName, propValue )
 
         self.netObj()[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.init()

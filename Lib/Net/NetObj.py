@@ -41,7 +41,7 @@ class CNetObj( CTreeNode ):
                             }
 
         if hasattr( self, "_CNetObj__beforeObjCreatedCallback" ):
-            self.__beforeObjCreatedCallback()
+            self.__beforeObjCreatedCallback(self)
 
         CNetObj_Manager.registerObj( self, saveToRedis=saveToRedis )
 
@@ -72,7 +72,7 @@ class CNetObj( CTreeNode ):
             CNetObj_Manager.sendNetCMD( cmd )
         else:
             # в оффлайн режиме удаляем объект, т.к. до парсера сетевых команд не дойдет
-            self.localDestroy()            
+            self.localDestroy()
 
     def __localDestroy( self ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )

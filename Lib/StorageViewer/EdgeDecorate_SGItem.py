@@ -14,13 +14,13 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
     def updatedDecorate( self ):
         self.prepareGeometryChange()
 
-        nxEdge = self.parentEdge.nxEdge_1_2()
-        if nxEdge is None:
-            nxEdge = self.parentEdge.nxEdge_2_1()
-        assert nxEdge is not None
+        edgeNetObj = self.parentEdge.edge1_2()
+        if edgeNetObj is None:
+            edgeNetObj = self.parentEdge.edge2_1()
+        assert edgeNetObj is not None
 
         self.setRotation( -self.parentEdge.rotateAngle() )
-        self.width = SGT.railWidth( nxEdge.get( SGT.s_widthType ) ) if nxEdge else 0
+        self.width = SGT.railWidth( edgeNetObj.get( SGT.s_widthType ) ) if edgeNetObj else 0
 
         w = self.width
         self.__BBoxRect = QRectF( -w/2, -w/2, self.parentEdge.baseLine.length() + w, w )

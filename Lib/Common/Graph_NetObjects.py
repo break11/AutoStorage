@@ -18,7 +18,7 @@ class CGraphRoot_NO( CNetObj ):
 
         self.nodesNode = CTreeNodeCache( baseNode = self, path = "Nodes" )
         self.edgesNode = CTreeNodeCache( baseNode = self, path = "Edges" )
-
+    
     def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
 
 ###################################################################################
@@ -29,14 +29,13 @@ class CGraphNode_NO( CNetObj ):
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
         # функция для вызова в конструкторе предка, так как нода nx-графа должна быть заполнена до ObjCreated
-        def addNxNode():
-            if not self.__has_nxNode():
-                self.nxGraph().add_node( self.name, **self.props )
+        def addNxNode(netObj):
+            if not netObj.__has_nxNode():
+                netObj.nxGraph().add_node( netObj.name, **netObj.props )
 
         self._CNetObj__beforeObjCreatedCallback = addNxNode
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
-
 
     def ObjPrepareDelete( self, netCmd ):
         incEdges = []
@@ -72,9 +71,9 @@ class CGraphEdge_NO( CNetObj ):
 
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
-        def addNxEdge():
-            if not self.__has_nxEdge():
-                self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
+        def addNxEdge(netObj):
+            if not netObj.__has_nxEdge():
+                netObj.nxGraph().add_edge( netObj.nxNodeID_1(), netObj.nxNodeID_2(), **netObj.props )
 
         self._CNetObj__beforeObjCreatedCallback = addNxEdge
 
@@ -120,9 +119,10 @@ def loadGraphML_to_NetObj( sFName, bReload ):
         if bReload:
             graphObj.localDestroy()
             graphObj.sendDeleted_NetCmd()
-            # graphObj.parent = None # новый вариант модели не может работать при обнулении парента
         else:
             return False
+
+    del graphObj
 
     nxGraph = loadGraphML_File( sFName )
     if not nxGraph:
