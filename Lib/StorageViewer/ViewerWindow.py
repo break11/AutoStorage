@@ -75,6 +75,7 @@ class CViewerWindow(QMainWindow):
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGM = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
+        self.SGM.ViewerWindow = self
 
         self.GV_Wheel_Zoom_EF = CGV_Wheel_Zoom_EF(self.StorageMap_View)
         self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGM )
@@ -251,7 +252,8 @@ class CViewerWindow(QMainWindow):
 
     # событие изменения ячейки таблицы свойств объекта
     def objProps_itemChanged( self, stdModelItem ):
-        assert self.selectedGItem
+        if self.selectedGItem is None: return
+
         GItem = self.selectedGItem
 
         GItem.updatePropsTable( stdModelItem )
@@ -266,8 +268,6 @@ class CViewerWindow(QMainWindow):
         if isinstance( GItem, CNode_SGItem ):
             self.SGM.updateNodeIncEdges( GItem )
         
-        GItem.fillPropsTable( self.objProps )
-
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
         gvFitToPage( self.StorageMap_View )
@@ -337,7 +337,7 @@ class CViewerWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):
-        self.SGM.addEdgesForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
+        self.SGM.addEdges_NetObj_ForSelection( self.acAddEdge_direct.isChecked(), self.acAddEdge_reverse.isChecked() )
 
     @pyqtSlot()
     def on_acSelectAll_triggered(self):

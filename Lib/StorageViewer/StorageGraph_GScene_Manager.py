@@ -20,7 +20,7 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Br
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Graph_NetObjects import CGraphNode_NO
+from Lib.Common.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO, createEdge_NetObj
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 
@@ -34,28 +34,29 @@ class EGManagerEditMode (Flag):
     AddNode = auto()
 
 class CStorageGraph_GScene_Manager():
-    default_Edge = {
-                        SGT.s_edgeType:         'Normal',                    # type: ignore
-                        SGT.s_edgeSize:         500,                         # type: ignore
-                        SGT.s_highRailSizeFrom: 0,                           # type: ignore
-                        SGT.s_highRailSizeTo:   0,                           # type: ignore
-                        SGT.s_sensorSide:       SGT.ESensorSide.SBoth.name,  # type: ignore
-                        SGT.s_widthType:        SGT.EWidthType.Narrow.name,  # type: ignore
-                        SGT.s_curvature:        SGT.ECurvature.Straight.name # type: ignore
-                    }
+    default_Edge_Props = {
+                            SGT.s_edgeType:         'Normal',                    # type: ignore
+                            SGT.s_edgeSize:         500,                         # type: ignore
+                            SGT.s_highRailSizeFrom: 0,                           # type: ignore
+                            SGT.s_highRailSizeTo:   0,                           # type: ignore
+                            SGT.s_sensorSide:       SGT.ESensorSide.SBoth.name,  # type: ignore
+                            SGT.s_widthType:        SGT.EWidthType.Narrow.name,  # type: ignore
+                            SGT.s_curvature:        SGT.ECurvature.Straight.name # type: ignore
+                        }
 
-    default_Node = {  
-                        SGT.s_x: 0,                                    # type: ignore
-                        SGT.s_y: 0,                                    # type: ignore
-                        SGT.s_nodeType: SGT.ENodeTypes.DummyNode.name, # type: ignore
-                        SGT.s_containsAgent: -1,                       # type: ignore
-                        SGT.s_floor_num: 0                             # type: ignore
-                    }
+    default_Node_Props = {  
+                            SGT.s_x: 0,                                    # type: ignore
+                            SGT.s_y: 0,                                    # type: ignore
+                            SGT.s_nodeType: SGT.ENodeTypes.DummyNode.name, # type: ignore
+                            SGT.s_containsAgent: -1,                       # type: ignore
+                            SGT.s_floor_num: 0                             # type: ignore
+                        }
 
     @property
     def nxGraph(self): return self.graphRootNode().nxGraph
 
     def __init__(self, gScene, gView):
+        self.bEdgeReversing = False
         self.bGraphLoading = False
         self.agentGItems    = {}
         self.nodeGItems     = {}
@@ -130,8 +131,8 @@ class CStorageGraph_GScene_Manager():
                 cur_node = self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
                 if last_node:
                     tKey = (cur_node.nodeID, last_node.nodeID)
-                    self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge )
-                    self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge )
+                    self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge_Props )
+                    self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge_Props )
                     self.addEdge( tKey )
                 last_node = cur_node
 
@@ -319,38 +320,42 @@ class CStorageGraph_GScene_Manager():
 
         return True
     
-    def addEdgesForSelection(self, direct = True, reverse = True):
+    def addEdges_NetObj_ForSelection(self, direct = True, reverse = True):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ] # выбираем из selectedItems ноды
         nodePairCount = len(nodeGItems) - 1
         
-        # if direct: #создание граней в прямом направлении
-        #     for i in range(nodePairCount):
-        #         tKey = ( nodeGItems[i].nodeID, nodeGItems[i+1].nodeID )
-        #         self.nxGraph.add_edge( *tKey, **self.default_Edge )
-        #         self.addEdge( tKey  )
+        for i in range(nodePairCount):
+            nodeID_1 = nodeGItems[i].nodeID
+            nodeID_2 = nodeGItems[i+1].nodeID
+            if direct: #создание граней в прямом направлении
+                createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
 
-        # if reverse: #создание граней в обратном направлении
-        #     for i in range(nodePairCount):
-        #         tKey = ( nodeGItems[i+1].nodeID, nodeGItems[i].nodeID )
-        #         self.nxGraph.add_edge( *tKey, **self.default_Edge )
-        #         self.addEdge( tKey  )
-    
-    def freeEdge(self, edgeNetObj):
-        # if SGM.nxGraph is not None:
+            if reverse: #создание граней в обратном направлении
+                createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
 
-        # грань удалится из nxGraph в netObj
-        # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
-        fsEdgeKey = frozenset( ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() ) )
+        fsEdgeKey = frozenset( ( nodeID_1, nodeID_2 ) )
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
         if edgeGItem is None: return
 
-        if edgeGItem.edge1_2 
-        # if not SGM.nxGraph.has_edge( netObj.nxNodeID_2(), netObj.nxNodeID_1() ):
-        #     SGM.deleteEdge( fsEdgeKey )
-        # else:
-        #     print( SGM.edgeGItems )
-        #     SGM.edgeGItems[ fsEdgeKey ].update()
-        #     self.ViewerWindow.StorageMap_Scene_SelectionChanged()
+        edgeGItem.update()
+        edgeGItem.decorateSGItem.update()
+
+    
+    # удаление NetObj объектов определяющих грань
+    def deleteEdge_NetObj(self, edgeNetObj):
+        # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
+        tKey = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
+        fsEdgeKey = frozenset( tKey )
+        edgeGItem = self.edgeGItems.get( fsEdgeKey )
+        if edgeGItem is None: return
+
+        if edgeGItem.edgesNetObj_by_TKey[ tuple(reversed( tKey )) ]() is None:
+            # в процессе операции разворачивания граней - не нужно удалять график итем грани
+            if not self.bEdgeReversing:
+                self.deleteEdge( fsEdgeKey )
+        else:
+            self.edgeGItems[ fsEdgeKey ].update()
+            self.ViewerWindow.StorageMap_Scene_SelectionChanged()
 
     def deleteEdge(self, fsEdgeKey : frozenset ):
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
@@ -367,31 +372,32 @@ class CStorageGraph_GScene_Manager():
         self.bHasChanges = True
 
     def reverseEdge(self, fsEdgeKey):
+        self.bEdgeReversing = True
+
         edgeGItem = self.edgeGItems[ fsEdgeKey ]
-        t12 = (edgeGItem.nodeID_1, edgeGItem.nodeID_2)
-        t21 = (edgeGItem.nodeID_2, edgeGItem.nodeID_1)
 
-        b12 = edgeGItem.hasNxEdge_1_2()
-        b21 = edgeGItem.hasNxEdge_2_1()
+        b12 = edgeGItem.edge1_2() is not None
+        b21 = edgeGItem.edge2_1() is not None
 
-        # if b12:
-        #     attr12 = self.nxGraph.edges[ t12 ]
-        #     self.nxGraph.remove_edge( *t12 )
+        if b12:
+            attr12 = edgeGItem.edge1_2().propsDict()
+            edgeGItem.edge1_2().sendDeleted_NetCmd()
 
-        # if b21:
-        #     attr21 = self.nxGraph.edges[ t21 ]
-        #     self.nxGraph.remove_edge( *t21 )
+        if b21:
+            attr21 = edgeGItem.edge2_1().propsDict()
+            edgeGItem.edge2_1().sendDeleted_NetCmd()
 
-        # if b12:
-        #     self.nxGraph.add_edge( *t21, **attr12 )
+        if b12:
+            createEdge_NetObj( edgeGItem.nodeID_2, edgeGItem.nodeID_1, parent = self.graphRootNode().edgesNode(), props=attr12 )
         
-        # if b21:
-        #     self.nxGraph.add_edge( *t12, **attr21 )
+        if b21:
+            createEdge_NetObj( edgeGItem.nodeID_1, edgeGItem.nodeID_2, parent = self.graphRootNode().edgesNode(), props=attr21 )
 
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
-        self.gScene.itemChanged.emit( edgeGItem )
+        edgeGItem.fillPropsTable( self.ViewerWindow.objProps )
 
+        self.bEdgeReversing = False
         self.bHasChanges = True
 
     def deleteMultiEdge(self, fsEdgeKey): #удаление кратной грани
@@ -421,7 +427,7 @@ class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.__SGM.EditMode & EGManagerEditMode.AddNode) :
-                attr = deepcopy (self.__SGM.default_Node)
+                attr = deepcopy (self.__SGM.default_Node_Props)
                 attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.__gView.mapToScene(event.pos()).x() )
                 attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
 

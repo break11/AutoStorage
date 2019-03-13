@@ -54,18 +54,12 @@ class CEdge_SGItem(QGraphicsItem):
         self.buildEdge()
 
     def destroy_NetObj( self ):
-        self.edge1_2().sendDeleted_NetCmd()
-        self.edge2_1().sendDeleted_NetCmd()
+        if self.edge1_2(): self.edge1_2().sendDeleted_NetCmd()
+        if self.edge2_1(): self.edge2_1().sendDeleted_NetCmd()
 
     ############################################
 
     def fillPropsTable( self, mdlObjProps ):
-        ##remove##
-        # def addNxEdgeIfExists( nodeID_1, nodeID_2, nxEdges ):
-        #     if self.nxGraph.has_edge( nodeID_1, nodeID_2 ):
-        #         tE_Name = (nodeID_1, nodeID_2)
-        #         nxEdges[ tE_Name ] = self.nxGraph.edges[ tE_Name ]
-
         def addNxEdgeIfExists( edgeNetObj, nxEdges ):
             if edgeNetObj:
                 tE_Name = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
@@ -101,7 +95,7 @@ class CEdge_SGItem(QGraphicsItem):
                     val = v.get( key )
 
                     stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), col )
-                    assert stdItem_PropValue.data( Qt.UserRole + 1 ) == k 
+                    # assert stdItem_PropValue.data( Qt.UserRole + 1 ) == k
                     stdItem_PropValue.setData( val, Qt.EditRole )
 
                     col += 1
@@ -114,11 +108,7 @@ class CEdge_SGItem(QGraphicsItem):
             
         self.updateProp( tKey, propName, propValue )
 
-    def updateProp( self, tKey, propName, propValue ):
-        ##remove##
-        # for cb in self.propUpdate_CallBacks:
-        #     cb( tKey, propName, propValue )
-            
+    def updateProp( self, tKey, propName, propValue ):            
         edgeNetObj = self.edgesNetObj_by_TKey[ tKey ]()
         edgeNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.decorateSGItem.updatedDecorate()
@@ -126,13 +116,6 @@ class CEdge_SGItem(QGraphicsItem):
     ############################################
 
     def done( self ):
-        ##remove##
-        # if self.hasNxEdge_1_2():
-        #     self.nxGraph.remove_edge( self.nodeID_1, self.nodeID_2 )
-
-        # if self.hasNxEdge_2_1():
-        #     self.nxGraph.remove_edge( self.nodeID_2, self.nodeID_1 )
-
         if self.decorateSGItem.scene():
             self.scene().removeItem( self.decorateSGItem )
 
@@ -175,19 +158,6 @@ class CEdge_SGItem(QGraphicsItem):
     # угол поворта в градусах
     def rotateAngle(self):
         return math.degrees(self.__rAngle)
-
-    ##remove##
-    # def hasNxEdge_1_2(self) : return self.nxGraph.has_edge( self.nodeID_1, self.nodeID_2 )
-    # def hasNxEdge_2_1(self) : return self.nxGraph.has_edge( self.nodeID_2, self.nodeID_1 )
-
-    # def nxEdge_1_2(self)    :
-    #     if self.hasNxEdge_1_2():
-    #         return self.nxGraph.edges[ (self.nodeID_1, self.nodeID_2) ]
-    #     return None
-    # def nxEdge_2_1(self)    :
-    #     if self.hasNxEdge_2_1():
-    #         return self.nxGraph.edges[ (self.nodeID_2, self.nodeID_1) ]
-    #     return None
 
     def paint(self, painter, option, widget):
         lod = min( self.baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )
@@ -241,3 +211,4 @@ class CEdge_SGItem(QGraphicsItem):
         painter.setPen(pen)
 
         painter.drawLines( edgeLines )
+    

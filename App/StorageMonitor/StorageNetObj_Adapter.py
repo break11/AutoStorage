@@ -22,32 +22,12 @@ class CStorageNetObj_Adapter:
         self.SGM = ViewerWindow.SGM
         self.ViewerWindow = ViewerWindow
 
-        ###############################################
-
-        ##remove##
-        # CNode_SGItem.propUpdate_CallBacks.append( self.nodePropChanged_From_GScene )
-        # CEdge_SGItem.propUpdate_CallBacks.append( self.edgePropChanged_From_GScene )
-
-    # def nodePropChanged_From_GScene( self, nodeID, propName, propValue ):
-    #     self.__updateObjProp( "Graph/Nodes/" + nodeID, propName, propValue )
-
-    # def edgePropChanged_From_GScene( self, tKey, propName, propValue ):
-    #     self.__updateObjProp( "Graph/Edges/" + EdgeDisplayName( *tKey ), propName, propValue )
-
-    # def __updateObjProp( self, sObjPath, propName, propValue ):
-    #     netObj = CNetObj.resolvePath( CNetObj_Manager.rootObj, sObjPath )
-    #     assert netObj
-    #     netObj[ propName ] = propValue
-
-    ###############################################
-
     @time_func( sMsg="Create scene items time", threshold=10 )
     def ObjCreated(self, netCmd=None):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
         SGM = self.SGM
 
         if isinstance( netObj, CGraphRoot_NO ):
-            ##remove##SGM.nxGraph = netObj.nxGraph
             SGM.init()
         elif isinstance( netObj, CGraphNode_NO ):
             SGM.addNode( nodeNetObj = netObj )
@@ -62,11 +42,10 @@ class CStorageNetObj_Adapter:
 
         if isinstance( netObj, CGraphRoot_NO ):
             SGM.clear()
-            ##remove##SGM.nxGraph = None
         elif isinstance( netObj, CGraphNode_NO ):
             SGM.deleteNode( nodeNetObj = netObj )
         elif isinstance( netObj, CGraphEdge_NO ):
-            SGM.freeEdge( edgeNetObj = netObj )
+            SGM.deleteEdge_NetObj( edgeNetObj = netObj )
         elif isinstance( netObj, CAgent_NO ):
            SGM.deleteAgent( agentNetObj = netObj )
     

@@ -150,7 +150,10 @@ class CNetObj_Model( QAbstractItemModel ):
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
             if proxy:
-                return proxy.netObj().modelData( index.column() )
+                if proxy.netObj():
+                    return proxy.netObj().modelData( index.column() )
+                else:
+                    return None
                 
     def flags( self, index ):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled

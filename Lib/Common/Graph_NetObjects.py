@@ -100,6 +100,13 @@ def createGraph_NO_Branches( nxGraph ):
     Edges = CNetObj(name="Edges", parent=Graph)
     return Graph, Nodes, Edges
 
+def createEdge_NetObj( nodeID_1, nodeID_2, parent, props={} ):
+    ext_fields = {
+                    CGraphEdge_NO.s_NodeID_1 : nodeID_1,
+                    CGraphEdge_NO.s_NodeID_2 : nodeID_2
+                    }
+    edge = parent.queryObj( EdgeDisplayName( nodeID_1, nodeID_2 ), CGraphEdge_NO, props=props, ext_fields=ext_fields )
+
 def createNetObjectsForGraph( nxGraph ):
     Graph, Nodes, Edges = createGraph_NO_Branches( nxGraph )
 
@@ -107,11 +114,7 @@ def createNetObjectsForGraph( nxGraph ):
         node = CGraphNode_NO( name=nodeID, parent=Nodes )
 
     for edgeID in nxGraph.edges():
-        ext_fields = {
-                       CGraphEdge_NO.s_NodeID_1 : edgeID[0],
-                       CGraphEdge_NO.s_NodeID_2 : edgeID[1]
-                     }
-        edge = CGraphEdge_NO( name = EdgeDisplayName( edgeID[0], edgeID[1] ), parent = Edges, ext_fields=ext_fields )
+        createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges )
 
 def loadGraphML_to_NetObj( sFName, bReload ):
     graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
