@@ -67,17 +67,17 @@ class CAgent_SGItem(QGraphicsItem):
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
-    def setPos(self, x, y):
-        self.x = round(x)
-        self.y = round(y)
+    # def setPos(self, x, y):
+    #     self.x = round(x)
+    #     self.y = round(y)
 
-        self.scene().itemChanged.emit( self )
+    #     self.scene().itemChanged.emit( self )
     
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
         font = QFont()
 
-        pen = QPen( Qt.magenta )
+        pen = QPen( Qt.red if self.isSelected() else Qt.blue )
         pen.setWidth( 4 )
         painter.setPen( pen )
         painter.drawEllipse( QPointF(0, 0), self.__R, self.__R  )

@@ -35,7 +35,7 @@ class CNetObj( CTreeNode ):
         
         self.__modelData = {
                             hd.index( self.__s_Name     )   : lambda: weakSelf().name,
-                            hd.index( self.__s_ChildCount ) : lambda: len( weakSelf().children ),
+                            hd.index( self.__s_ChildCount ) : lambda: weakSelf().childCount(),
                             hd.index( self.__s_UID      )   : lambda: weakSelf().UID,
                             hd.index( self.__s_TypeUID  )   : lambda: weakSelf().typeUID,
                             }

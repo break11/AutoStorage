@@ -104,7 +104,7 @@ class CNetObj_Monitor(QWidget):
 
     def setRootNetObj( self, root ):
         self.netObjModel.setRootNetObj( root )
-        # if len(root.children) < 10:
+        # if len(root.childCount()) < 10:
         #     self.clearView()
 
 

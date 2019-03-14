@@ -11,6 +11,9 @@ class CTreeNode:
     def clearChildren( self ):
         self.__children_dict.clear()
 
+    def childCount( self ):
+        return len( self.__children_dict )
+
     ##########################
     @property
     def parent( self ):
