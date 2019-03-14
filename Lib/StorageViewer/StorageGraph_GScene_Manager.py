@@ -132,19 +132,17 @@ class CStorageGraph_GScene_Manager( QObject ):
         
         self.bHasChanges = True
 
-    def genTestGraph(self):
+    def genTestGraph(self, nodes_side_count = 200, step = 2200):
         #test adding nodes
-        side_count = 200
-        step = 2200
         last_node = None
-        for x in range(0, side_count * step, step):
-            for y in range(0, side_count * 400, 400):
-                cur_node = self.addNode( self.genStrNodeID(), x = x, y = y, nodeType = "StorageSingle" )
+        for x in range(0, nodes_side_count * step, step):
+            for y in range(0, nodes_side_count * 400, 400):
+                props = {"x": x, "y": y, "nodeType":"StorageSingle"}
+                cur_node = CGraphNode_NO( name = self.genStrNodeID(), parent = self.graphRootNode().nodesNode(),
+                        saveToRedis = True, props = props, ext_fields = {} )
                 if last_node:
-                    tKey = (cur_node.nodeID, last_node.nodeID)
-                    self.nxGraph.add_edge( cur_node.nodeID, last_node.nodeID, **self.default_Edge_Props )
-                    self.nxGraph.add_edge( last_node.nodeID, cur_node.nodeID, **self.default_Edge_Props )
-                    self.addEdge( tKey )
+                    createEdge_NetObj( nodeID_1 = cur_node.name, nodeID_2 = last_node.name, parent = self.graphRootNode().edgesNode() )
+
                 last_node = cur_node
 
     def load(self, sFName):

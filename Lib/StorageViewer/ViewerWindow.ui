@@ -72,6 +72,7 @@
     <addaction name="acSaveGraphML"/>
     <addaction name="acSaveGraphMLAs"/>
     <addaction name="acFullScreen"/>
+    <addaction name="acGenTestGraph"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -608,6 +609,14 @@ selection-background-color: red;*/
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="acGenTestGraph">
+   <property name="text">
+    <string>Generate test graph</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate test graph</string>
    </property>
   </action>
  </widget>

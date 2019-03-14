@@ -368,3 +368,9 @@ class CViewerWindow(QMainWindow):
             self.on_acSaveGraphMLAs_triggered(True)
         else:
             self.saveGraphML( self.graphML_fname )
+
+    @pyqtSlot(bool)
+    def on_acGenTestGraph_triggered(self):
+        self.SGM.new()
+        self.SGM.genTestGraph(nodes_side_count = 10)
+        
