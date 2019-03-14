@@ -103,11 +103,10 @@ class CNetObj( CTreeNode ):
         return self.propsDict()[ key ]
 
     def __setitem__( self, key, value ):
-        bPropExist = not self.propsDict().get( key ) is None
+        bPropExist = self.propsDict().get( key ) is not None
 
-        if bPropExist is not None:
-            if self.propsDict()[ key ] == value:
-                return
+        if bPropExist and self.propsDict()[ key ] == value:
+            return
 
         if CNetObj_Manager.isConnected():
             CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )

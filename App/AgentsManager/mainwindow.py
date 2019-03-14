@@ -6,7 +6,6 @@ from PyQt5 import uic
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import FileUtils
-from Lib.Common.GuiUtils import time_func
 from Lib.Common.Agent_NetObject import CAgent_NO
 import Lib.Common.StrConsts as SC
 from Lib.Common.GuiUtils import time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry

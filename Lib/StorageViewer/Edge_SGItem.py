@@ -110,6 +110,7 @@ class CEdge_SGItem(QGraphicsItem):
 
     def updateProp( self, tKey, propName, propValue ):            
         edgeNetObj = self.edgesNetObj_by_TKey[ tKey ]()
+        if edgeNetObj is None: return
         edgeNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.decorateSGItem.updatedDecorate()
 

@@ -14,14 +14,16 @@ from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
-from Lib.Common.GuiUtils import gvFitToPage, Std_Model_Item
+from Lib.Common.GuiUtils import gvFitToPage, Std_Model_Item, time_func
 from Lib.Common.GraphUtils import EdgeDisplayName
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO, createEdge_NetObj
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createEdge_NetObj
+from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.Net.NetObj import CNetObj
+from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 
 class EGManagerMode (Flag):
@@ -33,7 +35,7 @@ class EGManagerEditMode (Flag):
     Default = auto()
     AddNode = auto()
 
-class CStorageGraph_GScene_Manager():
+class CStorageGraph_GScene_Manager( QObject ):
     default_Edge_Props = {
                             SGT.s_edgeType:         'Normal',                    # type: ignore
                             SGT.s_edgeSize:         500,                         # type: ignore
@@ -56,6 +58,8 @@ class CStorageGraph_GScene_Manager():
     def nxGraph(self): return self.graphRootNode().nxGraph
 
     def __init__(self, gScene, gView):
+        super().__init__()
+
         self.bEdgeReversing = False
         self.bGraphLoading = False
         self.agentGItems    = {}
@@ -75,6 +79,9 @@ class CStorageGraph_GScene_Manager():
         self.gScene = gScene
         self.gView  = gView
 
+        gView.installEventFilter(self)
+        gView.viewport().installEventFilter(self)
+
         # self.gScene.setMinimumRenderSize( 3 )
         # self.gView.setViewport( QGLWidget( QGLFormat(QGL.SampleBuffers) ) )
         # self.gView.setViewport( QOpenGLWidget( ) )
@@ -82,6 +89,10 @@ class CStorageGraph_GScene_Manager():
 
         self.__maxNodeID    = 0
         self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
+
+        CNetObj_Manager.addCallback( EV.ObjCreated,       self.ObjCreated )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.ObjPropUpdated )
 
     def setModeFlags(self, flags):
         self.Mode = flags
@@ -333,12 +344,13 @@ class CStorageGraph_GScene_Manager():
             if reverse: #создание граней в обратном направлении
                 createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
 
-        fsEdgeKey = frozenset( ( nodeID_1, nodeID_2 ) )
-        edgeGItem = self.edgeGItems.get( fsEdgeKey )
-        if edgeGItem is None: return
+            if direct == False and reverse == False: continue
 
-        edgeGItem.update()
-        edgeGItem.decorateSGItem.update()
+            fsEdgeKey = frozenset( ( nodeID_1, nodeID_2 ) )
+            edgeGItem = self.edgeGItems.get( fsEdgeKey )
+
+            edgeGItem.update()
+            edgeGItem.decorateSGItem.update()
 
     
     # удаление NetObj объектов определяющих грань
@@ -350,12 +362,15 @@ class CStorageGraph_GScene_Manager():
         if edgeGItem is None: return
 
         if edgeGItem.edgesNetObj_by_TKey[ tuple(reversed( tKey )) ]() is None:
-            # в процессе операции разворачивания граней - не нужно удалять график итем грани
+            # в процессе операции разворачивания граней - не нужно удалять "графикc итем" грани
             if not self.bEdgeReversing:
                 self.deleteEdge( fsEdgeKey )
         else:
-            self.edgeGItems[ fsEdgeKey ].update()
-            self.ViewerWindow.StorageMap_Scene_SelectionChanged()
+            edgeGItem.update()
+            if not self.bEdgeReversing:
+                # здесь fillPropsTable вызывается для обновления таблицы свойств при реакции по сети
+                edgeGItem.fillPropsTable( self.ViewerWindow.objProps )
+
 
     def deleteEdge(self, fsEdgeKey : frozenset ):
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
@@ -402,49 +417,100 @@ class CStorageGraph_GScene_Manager():
 
     def deleteMultiEdge(self, fsEdgeKey): #удаление кратной грани
         edgeGItem = self.edgeGItems[ fsEdgeKey ]
-        # if edgeGItem.hasNxEdge_2_1():
-        #     self.nxGraph.remove_edge( edgeGItem.nodeID_2, edgeGItem.nodeID_1 )
-        #     self.bHasChanges = True
-        #     edgeGItem.update()
-        #     edgeGItem.decorateSGItem.update()
 
+        if (edgeGItem.edge1_2() is None) or (edgeGItem.edge2_1() is None):
+            return
 
-class CGItem_CreateDelete_EF(QObject): # Creation/Destruction GItems
+        # пока удаляем вторую подгрань грани, возможно потребуется более продвинутые способы
+        edgeGItem.edge2_1().sendDeleted_NetCmd()
+        self.bHasChanges = True
+        edgeGItem.update()
+        edgeGItem.decorateSGItem.update()
 
-    def __init__(self, SGM):
-        super().__init__(SGM.gView)
-        self.__SGM = SGM
-        self.__gView  = SGM.gView
-        self.__gScene = SGM.gScene
-
-        self.__gView.installEventFilter(self)
-        self.__gView.viewport().installEventFilter(self)
+    #############################################################
 
     def eventFilter(self, object, event):
-        if not (self.__SGM.Mode & EGManagerMode.EditScene):
+        if not (self.Mode & EGManagerMode.EditScene):
             return False
 
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
-            if event.button() == Qt.LeftButton and (self.__SGM.EditMode & EGManagerEditMode.AddNode) :
-                attr = deepcopy (self.__SGM.default_Node_Props)
-                attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.__gView.mapToScene(event.pos()).x() )
-                attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.__gView.mapToScene(event.pos()).y() )
+            if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
+                attr = deepcopy (self.default_Node_Props)
+                attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.gView.mapToScene(event.pos()).x() )
+                attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.gView.mapToScene(event.pos()).y() )
 
-                CGraphNode_NO( name=self.__SGM.genStrNodeID(), parent=self.__SGM.graphRootNode().nodesNode(), props=attr )
+                CGraphNode_NO( name=self.genStrNodeID(), parent=self.graphRootNode().nodesNode(), props=attr )
 
                 ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю
-                # self.__gScene.setSceneRect( self.__gScene.itemsBoundingRect() )
-                # self.__gView.setSceneRect( self.__gView.scene().sceneRect() )
+                # self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )
+                # self.gView.setSceneRect( self.gView.scene().sceneRect() )
 
                 event.accept()
                 return True
 
         #удаление итемов
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:
-            for item in self.__gScene.selectedItems():
+            self.ViewerWindow.objProps.clear()
+            for item in self.gScene.selectedItems():
                 item.destroy_NetObj()
             event.accept()
             return True
         
         return False
+
+    #############################################################
+
+    @time_func( sMsg="Create scene items time", threshold=10 )
+    def ObjCreated(self, netCmd=None):
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+
+        if isinstance( netObj, CGraphRoot_NO ):
+            self.init()
+        elif isinstance( netObj, CGraphNode_NO ):
+            self.addNode( nodeNetObj = netObj )
+        elif isinstance( netObj, CGraphEdge_NO ):
+            self.addEdge( edgeNetObj = netObj )
+        elif isinstance( netObj, CAgent_NO ):
+            self.addAgent( agentNetObj = netObj )
+
+    def ObjPrepareDelete(self, netCmd):
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+
+        if isinstance( netObj, CGraphRoot_NO ):
+            self.clear()
+        elif isinstance( netObj, CGraphNode_NO ):
+            self.deleteNode( nodeNetObj = netObj )
+        elif isinstance( netObj, CGraphEdge_NO ):
+            self.deleteEdge_NetObj( edgeNetObj = netObj )
+        elif isinstance( netObj, CAgent_NO ):
+            self.deleteAgent( agentNetObj = netObj )
+    
+    def ObjPropUpdated(self, netCmd):
+        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        propName  = netCmd.sPropName
+        propValue = netObj[ netCmd.sPropName ]
+        gItem = None
+
+        if isinstance( netObj, CGraphNode_NO ):
+            gItem = self.nodeGItems[ netObj.name ]
+            gItem.updateProp( propName, propValue )
+
+            # обновление модели свойств в окне вьювера
+            if gItem != self.ViewerWindow.selectedGItem:
+                self.updateNodeIncEdges( gItem )
+
+        elif isinstance( netObj, CGraphEdge_NO ):
+            tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
+            fsEdgeKey = frozenset( tKey )
+
+            gItem = self.edgeGItems[ fsEdgeKey ]
+            gItem.updateProp( tKey, propName, propValue )
+
+        elif isinstance( netObj, CAgent_NO ):
+            gItem = self.agentGItems[ netObj.name ]
+            gItem.updateProp( propName, propValue )
+
+        # обновление модели свойств в окне вьювера
+        if gItem == self.ViewerWindow.selectedGItem:
+            gItem.fillPropsTable( self.ViewerWindow.objProps ) # вызовет updateNodeIncEdges для ноды внутри - из-за setData модели

@@ -7,7 +7,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
-from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, CGItem_CreateDelete_EF, EGManagerMode, EGManagerEditMode
+from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode
 from  Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from  Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -19,7 +19,6 @@ from  Lib.Common.GuiUtils import gvFitToPage, time_func, load_Window_State_And_G
 from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
-from App.StorageMonitor.StorageNetObj_Adapter import CStorageNetObj_Adapter
 
 from .images_rc import *
 from enum import IntEnum, auto
@@ -78,7 +77,6 @@ class CViewerWindow(QMainWindow):
         self.SGM.ViewerWindow = self
 
         self.GV_Wheel_Zoom_EF = CGV_Wheel_Zoom_EF(self.StorageMap_View)
-        self.GItem_CreateDelete_EF = CGItem_CreateDelete_EF (self.SGM )
         
         ## hide some options when not in designer mode
         b = self.workMode == EWorkMode.MapDesignerMode
@@ -105,9 +103,6 @@ class CViewerWindow(QMainWindow):
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
             self.loadSettings()
-            # if self.workMode == EWorkMode.NetMonitorMode:
-            self.adapter = CStorageNetObj_Adapter()
-            self.adapter.init( self )
 
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             if self.workMode == EWorkMode.MapDesignerMode:
