@@ -1,11 +1,80 @@
 
-from PyQt5.QtCore import ( Qt, QAbstractTableModel, QModelIndex )
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
+
+from .NetObj_Manager import CNetObj_Manager
 
 class CNetObj_Props_Model( QAbstractTableModel ):
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.propList = []
+        self.propCounter = {}
         self.objList = []
+
+    ####################################
+
+    def updateObj_Set( self, objSet ):
+        for UID in objSet:
+            if UID not in self.objList:
+                self.appendObj( UID )
+        
+        for UID in list(self.objList):
+            if UID not in objSet:
+                self.removeObj( UID )
+
+    def appendObj( self, UID ):
+        netObj = CNetObj_Manager.accessObj( UID )
+        if netObj is None: return
+
+        for propName in netObj.propsDict().keys():
+            if propName not in self.propList:
+                self.appendProp( propName )
+            else:
+                self.propCounter[ propName ] += 1
+
+        i = len(self.objList)
+        self.beginInsertColumns( QModelIndex(), i, i )
+        self.objList.append( UID )
+        self.endInsertColumns()
+
+    def removeObj( self, UID ):
+        netObj = CNetObj_Manager.accessObj( UID )
+        if netObj is None: return
+
+        for propName in netObj.propsDict().keys():
+            self.removePropCounter( propName )
+
+        i = self.objList.index( UID )
+        self.beginRemoveColumns( QModelIndex(), i, i )
+        self.objList.remove( UID )
+        self.endRemoveColumns()
+
+        self.clearNotUsedProps()
+
+    def appendProp( self, propName ):
+        i = len( self.propList )
+        self.beginInsertRows( QModelIndex(), i, i )
+        self.propList.append( propName )
+        self.endInsertRows()
+        self.propCounter[ propName ] = 1
+
+    def removePropCounter( self, propName ):
+        self.propCounter[ propName ] -= 1
+
+    def clearNotUsedProps( self ):
+        delList = []
+        for i in range( len(self.propList) ):
+            propName = self.propList[ i ]
+            if self.propCounter[ propName ] == 0:
+                delList.append( propName )
+
+        for propName in delList:
+            i = self.propList.index( propName )
+            self.beginRemoveRows( QModelIndex(), i, i )
+            self.propList.remove( propName )
+            self.endRemoveRows()
+            del self.propCounter[ propName ]
+
+    ####################################
     
     def rowCount( self, parentIndex ):
         return len( self.propList )
@@ -14,24 +83,25 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         return len( self.objList )
 
     def data( self, index, role ):
-        
         if not index.isValid(): return None
 
-        proxy = self.proxy_From_Index( index )
+        UID = self.objList[ index.column() ]
+        netObj = CNetObj_Manager.accessObj( UID )
+        propName = self.propList[ index.row() ]
 
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            if proxy:
-                if proxy.netObj():
-                    return proxy.netObj().modelData( index.column() )
-                else:
-                    return None
-                
+        if role == Qt.DisplayRole or role == Qt.EditRole:            
+            return netObj.get( propName ) if netObj else None
+
+    def headerData( self, section, orientation, role ):
+        if role != Qt.DisplayRole: return
+
+        if orientation == Qt.Horizontal:
+            UID = self.objList[ section ]
+            netObj = CNetObj_Manager.accessObj( UID )
+            return netObj.name if netObj else None
+        elif orientation == Qt.Vertical:
+            return self.propList[ section ]
+
+
     # def flags( self, index ):
     #     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
-
-    # def headerData( self, section, orientation, role ):
-    #     if( orientation != Qt.Horizontal ):
-    #         return None
-
-    #     if role == Qt.DisplayRole:
-    #         return CNetObj.modelHeaderData( section )

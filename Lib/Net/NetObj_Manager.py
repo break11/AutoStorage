@@ -70,16 +70,16 @@ class CNetObj_Manager( object ):
         cl = cls.callbacksDict[ netCmd.Event ]
         cl = [ x for x in cl if x() is not None ]
         cls.callbacksDict[ netCmd.Event ] = cl
-
+            
         # local object callbacks
         if netCmd.Obj_UID:
             netObj = cls.accessObj( netCmd.Obj_UID )
             if netObj: netObj.doSelfCallBack( netCmd )
-
+                
         # global callbacks
         for callback in cl:
             callback()( netCmd )
-
+            
     @classmethod
     def eventLogCallBack( cls, netCmd ):
         print( f"[EventLog]:{netCmd}" )

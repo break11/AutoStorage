@@ -385,7 +385,9 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         # перерасчет средней линии для всех нод "связанных" с удаленными гранями
         for nodeID in fsEdgeKey:
-            self.calcNodeMiddleLine( self.nodeGItems[ nodeID ] )
+            nodeGItem = self.nodeGItems.get( nodeID )
+            if nodeGItem is not None:
+                self.calcNodeMiddleLine( nodeGItem )
 
         self.bHasChanges = True
 

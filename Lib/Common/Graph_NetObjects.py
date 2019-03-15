@@ -58,7 +58,7 @@ class CGraphNode_NO( CNetObj ):
     def propsDict(self): return self.nxNode() if self.graphNode() else {}
 
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
-    def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else {}
+    def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.__has_nxNode() else {}
     def __has_nxNode(self): return self.nxGraph().has_node( self.name ) if self.nxGraph() else None
 
 ###################################################################################

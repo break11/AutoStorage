@@ -239,7 +239,7 @@ class CViewerWindow(QMainWindow):
         for gItem in self.StorageMap_Scene.selectedItems():
             s = s.union( gItem.getNetObj_UIDs() )
         
-        self.objPropsModel.updateObj
+        self.objPropsModel.updateObj_Set( s )
         ################################################
         self.objProps.clear()
 
