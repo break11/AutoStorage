@@ -20,9 +20,10 @@ class CAgent_SGItem(QGraphicsItem):
     def __init__(self, agentNetObj ):
         super().__init__()
 
-        self.__agentNetObj = weakref.ref( agentNetObj ) ## weakRef ?????????? !!!!!!!!!!!!!!
+        self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
+        self.status = "N/A"
         
         self.createGraphicElements()
 
@@ -34,7 +35,7 @@ class CAgent_SGItem(QGraphicsItem):
         sy = -h / 2 # start y - верхний леый угол
         c  = 80    # срез правого верхнего угла (катет)
         ln = 80    # длина линий
-        k  = 0.2   # k для расчета отступа линий
+        k  = 0.15   # k для расчета отступа линий
 
         of_sx = w * k
         of_sy = h * k
@@ -42,8 +43,8 @@ class CAgent_SGItem(QGraphicsItem):
         self.__BBoxRect = QRectF( sx, sy, w, h )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
 
-        # points = [ QPoint(-sx, -sy), QPoint(sx-c, -sy), QPoint(sx, -sy+c), QPoint(sx, sy), QPoint (-sx, sy) ]
         points = [ QPoint(sx, sy), QPoint(-sx-c, sy), QPoint(-sx, sy+c), QPoint(-sx, -sy), QPoint (sx, -sy) ]
+        self.polygon = QPolygon ( points )
 
         self.lines  = []
 
@@ -60,7 +61,8 @@ class CAgent_SGItem(QGraphicsItem):
         self.lines.append ( v_line.translated ( w - 2*of_sx, 0 ) )
         self.lines.append ( v_line.translated ( w - 2*of_sx, h - ln ) )
 
-        self.polygon = QPolygon ( points )
+        self.textRect =  QRectF( sx + of_sx, sy + of_sy, w - 2*of_sx, h - 2*of_sy )
+
 
         # для отрисовки svg надо закомментировать метод paint
         # self.renderer = QSvgRenderer("/home/easyrid3r/temp/a.svg")
@@ -116,28 +118,29 @@ class CAgent_SGItem(QGraphicsItem):
     
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
-        font = QFont()
 
-        pen = QPen( Qt.black )
-        pen.setWidth( 10 )
+        color = Qt.red if self.isSelected() else Qt.darkGreen
 
-        fillColor = Qt.red if self.isSelected() else Qt.darkGreen
-        painter.setPen( pen )
-        painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
+        if lod < 0.03:
+            painter.fillRect ( self.__BBoxRect, color )
+        else:
+            pen = QPen( Qt.black )
+            pen.setWidth( 10 )
 
-        path = QPainterPath()
+            fillColor = QColor(color) if self.isSelected() else QColor(color)
+            fillColor.setAlpha( 200 )
 
-        ######################
+            font = QFont()
+            font.setPointSize( 72 )
 
-        painter.drawPolygon(self.polygon)
-        painter.drawLines( self.lines )
-        
-        # painter.setBrush( QBrush() )
-        # painter.drawRect( self.__BBoxRect_Adj )
-        painter.drawEllipse( QPointF(0, 0), 10, 10  )
+            painter.setPen( pen )
+            painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
+            painter.setFont( font )
 
-        font = QFont()
+            alignFlags = Qt.AlignLeft | Qt.AlignTop
+            text = f"ID: {self.__agentNetObj().name}\n{self.status}"
 
-        font.setPointSize(40)
-        painter.setFont( font )
-        painter.drawText( 0, 0, str(self.__agentNetObj().name) )
+            painter.drawPolygon( self.polygon )
+            painter.drawLines( self.lines )
+            painter.fillRect(-10, -10, 20, 20, Qt.black)
+            painter.drawText( self.textRect, alignFlags , text )
