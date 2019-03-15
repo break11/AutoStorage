@@ -59,6 +59,14 @@ class CEdge_SGItem(QGraphicsItem):
 
     ############################################
 
+    def getNetObj_UIDs( self ):
+        s = set()
+        if self.edge1_2():
+            s.add( self.edge1_2().UID )
+        if self.edge2_1():
+            s.add( self.edge2_1().UID )
+        return s
+
     def fillPropsTable( self, mdlObjProps ):
         def addNxEdgeIfExists( edgeNetObj, nxEdges ):
             if edgeNetObj:

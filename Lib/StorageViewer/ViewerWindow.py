@@ -7,16 +7,17 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
-from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode
-from  Lib.Common.GridGraphicsScene import CGridGraphicsScene
-from  Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
-from  Lib.Common.SettingsManager import CSettingsManager as CSM
-from  Lib.Common.BaseApplication import EAppStartPhase
-import  Lib.Common.StrConsts as SC
+from   Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode
+from   Lib.Common.GridGraphicsScene import CGridGraphicsScene
+from   Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
+from   Lib.Common.SettingsManager import CSettingsManager as CSM
+from   Lib.Common.BaseApplication import EAppStartPhase
+import Lib.Common.StrConsts as SC
 
 from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
 from  Lib.Common.GuiUtils import gvFitToPage, time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
+from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
 
@@ -61,11 +62,14 @@ class CViewerWindow(QMainWindow):
 
         self.bFullScreen = False
         self.DocWidgetsHiddenStates = {}
-        self.geometry = ""
 
         self.graphML_fname = SC.s_storage_graph_file__default
+
         self.objProps = QStandardItemModel( self )
         self.tvObjectProps.setModel( self.objProps )
+
+        self.objPropsModel = CNetObj_Props_Model( self )
+        self.tvObjProps.setModel( self.objPropsModel )
 
         self.StorageMap_Scene = CGridGraphicsScene( self )
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
@@ -231,6 +235,12 @@ class CViewerWindow(QMainWindow):
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
+        s = set()
+        for gItem in self.StorageMap_Scene.selectedItems():
+            s = s.union( gItem.getNetObj_UIDs() )
+        
+        self.objPropsModel.updateObj
+        ################################################
         self.objProps.clear()
 
         selItems = self.StorageMap_Scene.selectedItems()

@@ -52,10 +52,14 @@ class CNode_SGItem(QGraphicsItem):
         self.updateType()
         self.calcBBox()
 
+
     def destroy_NetObj( self ):
         self.netObj().sendDeleted_NetCmd()
 
     ############################################
+
+    def getNetObj_UIDs( self ):
+        return { self.netObj().UID }
 
     def fillPropsTable( self, mdlObjProps ):
         mdlObjProps.setHorizontalHeaderLabels( [ "nodeID", self.nodeID ] )
