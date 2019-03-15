@@ -115,10 +115,11 @@ class CAgent_SGItem(QGraphicsItem):
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
-    def setEdgePos(self, tEdgeKey = (10, 11), pos = 0.5):
+    def setEdgePos(self, tEdgeKey, pos = 0, direction = 1):
         nxGraph = self.SGM.graphRootNode().nxGraph
-        nodeID_1 = str(tEdgeKey[0])
-        nodeID_2 = str(tEdgeKey[1])
+        if not nxGraph.has_edge( *tEdgeKey ): return
+        nodeID_1 = tEdgeKey[0]
+        nodeID_2 = tEdgeKey[1]
 
         x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
         y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
@@ -131,11 +132,21 @@ class CAgent_SGItem(QGraphicsItem):
         rAngle = math.acos( line.dx() / ( line.length() or 1) )
         if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
 
-        # rAngle = math.degrees( rAngle )
-        # print ( x, y )
+        d_x = line.length() * pos * math.cos( rAngle )
+        d_y = line.length() * pos * math.sin( rAngle )
 
-        # self.x = round(x)
-        # self.y = round(y)
+        # print ( d_x, d_y )
+        # print ( x1, y1, x2, y2 )
+        # print ( math.degrees (rAngle) )
+
+        x = round(x1 + d_x)
+        y = round(y1 - d_y)
+
+        super().setPos(x, y)
+
+        edgeType = nxGraph.edges()[tEdgeKey][ SGT.s_widthType ]
+        dAngle = - math.degrees( rAngle ) if edgeType == SGT.EWidthType.Narrow.name else - math.degrees( rAngle ) + 90
+        self.setRotation( dAngle + (1 - direction)/2 * 180 )
 
         # self.scene().itemChanged.emit( self )
     

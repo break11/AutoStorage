@@ -170,7 +170,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bGraphLoading = False
 
         print( f"GraphicsItems in scene = {len(self.gScene.items())}" )
-
         return True
 
     def save( self, sFName ):
@@ -281,8 +280,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         agentGItem.init()
         agentGItem.installSceneEventFilter( self.gScene_evI )
         agentGItem.SGM = self
-
-        # agentGItem.setEdgePos()
 
         return agentGItem
 
