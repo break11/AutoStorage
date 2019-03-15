@@ -282,6 +282,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         agentGItem.installSceneEventFilter( self.gScene_evI )
         agentGItem.SGM = self
 
+        # agentGItem.setEdgePos()
+
         return agentGItem
 
     def deleteAgent(self, agentNetObj):

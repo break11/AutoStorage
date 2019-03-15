@@ -1,4 +1,5 @@
 import weakref
+import math
 
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 # from PyQt5.QtSvg import  QGraphicsSvgItem, QSvgRenderer
@@ -23,6 +24,10 @@ class CAgent_SGItem(QGraphicsItem):
         self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
+
+        self.edgeTKey = None
+        self.edgePos = 0
+
         self.status = "N/A"
         
         self.createGraphicElements()
@@ -110,11 +115,29 @@ class CAgent_SGItem(QGraphicsItem):
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
-    # def setPos(self, x, y):
-    #     self.x = round(x)
-    #     self.y = round(y)
+    def setEdgePos(self, tEdgeKey = (10, 11), pos = 0.5):
+        nxGraph = self.SGM.graphRootNode().nxGraph
+        nodeID_1 = str(tEdgeKey[0])
+        nodeID_2 = str(tEdgeKey[1])
 
-    #     self.scene().itemChanged.emit( self )
+        x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
+        y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
+        
+        x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
+        y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
+
+        line = QLineF(x1, y1, x2, y2)
+
+        rAngle = math.acos( line.dx() / ( line.length() or 1) )
+        if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
+
+        # rAngle = math.degrees( rAngle )
+        # print ( x, y )
+
+        # self.x = round(x)
+        # self.y = round(y)
+
+        # self.scene().itemChanged.emit( self )
     
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
