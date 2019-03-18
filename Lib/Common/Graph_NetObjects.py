@@ -120,7 +120,8 @@ def loadGraphML_to_NetObj( sFName, bReload ):
     graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
     if graphObj:
         if bReload:
-            graphObj.localDestroy()
+            # graphObj.localDestroy()
+            # graphObj.rename( graphObj.name + f"__del__{graphObj.UID}" )
             graphObj.sendDeleted_NetCmd()
         else:
             return False

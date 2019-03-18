@@ -18,6 +18,9 @@ c2_Node   = CTreeNode( parent = rootNode, name = "c2" )
 c2_1_Node = CTreeNode( parent = c2_Node,  name = "c2_1" )
 c2_2_Node = CTreeNode( parent = c2_Node,  name = "c2_2" )
 
+c3_Node   = CTreeNode( parent = rootNode, name = "c3" )
+c3_1_Node = CTreeNode( parent = c3_Node,  name = "c3_1" )
+
 class TestTreeNode(unittest.TestCase):        
     def test_parent(self):
         self.assertEqual( c1_1_Node.parent , c1_Node )
@@ -57,6 +60,15 @@ class TestTreeNode(unittest.TestCase):
         # если объект создан вновь - кеш снова возвращает его (новосозданный объект по заданному пути)
         Non_Exist_Obj = CTreeNode( parent = c1_1_Node,  name = "Non_Exist_Obj" )
         self.assertEqual( none_cache(), Non_Exist_Obj )
+
+    def test_rename( self ):
+        self.assertEqual( CTreeNode.resolvePath( obj = rootNode, path = "/c3" ) , c3_Node )
+        self.assertEqual( CTreeNode.resolvePath( obj = c3_Node, path = "/c3_1" ) , c3_1_Node )
+        self.assertEqual( "c3", c3_Node.name )
+        c3_Node.rename( "c3_new" )
+        self.assertEqual( CTreeNode.resolvePath( obj = rootNode, path = "/c3_new" ) , c3_Node )
+        self.assertEqual( CTreeNode.resolvePath( obj = c3_Node, path = "/c3_1" ) , c3_1_Node )
+        self.assertEqual( "c3_new", c3_Node.name )
 
 if __name__ == '__main__':
     unittest.main()

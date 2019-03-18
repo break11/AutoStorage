@@ -23,9 +23,10 @@ class CEdge_SGItem(QGraphicsItem):
     @property
     def y2(self): return self.node_2()[ SGT.s_y ]
 
-    def __init__(self, fsEdgeKey, graphRootNode ):
-        super().__init__()
+    def __init__(self, SGM, fsEdgeKey, graphRootNode, parent ):
+        super().__init__( parent=parent )
 
+        self.SGM = SGM
         self.fsEdgeKey = fsEdgeKey
         t = tuple( fsEdgeKey )
 
@@ -49,7 +50,7 @@ class CEdge_SGItem(QGraphicsItem):
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 10 )
 
-        self.decorateSGItem = CEdgeDecorate_SGItem( parentEdge = self )
+        self.decorateSGItem = CEdgeDecorate_SGItem( parentEdge = self,  parentItem=SGM.EdgeDecorates_ParentGItem )
 
         self.buildEdge()
 
@@ -127,16 +128,6 @@ class CEdge_SGItem(QGraphicsItem):
     def done( self ):
         if self.decorateSGItem.scene():
             self.scene().removeItem( self.decorateSGItem )
-
-    def updateDecorateOnScene( self ):
-        bVal = self.SGM.bDrawMainRail or self.SGM.bDrawInfoRails
-        
-        if bVal and self.decorateSGItem.scene() is None:
-            self.scene().addItem( self.decorateSGItem )
-        elif bVal==False and self.decorateSGItem.scene() is not None:
-            self.scene().removeItem( self.decorateSGItem )
-
-        self.decorateSGItem.update()
 
     def buildEdge(self):
         self.prepareGeometryChange()

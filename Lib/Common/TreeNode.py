@@ -47,6 +47,15 @@ class CTreeNode:
 
     def childByName( self, name ):
         return self.__children_dict.get( name )
+    
+    def rename( self, newName ):
+        oldName = self.name
+        self.name = newName
+
+        if self.parent is None: return
+
+        self.parent.__children_dict[ newName ] = self
+        del self.parent.__children_dict[ oldName ]
 
     @classmethod
     def resolvePath( cls, obj, path ):

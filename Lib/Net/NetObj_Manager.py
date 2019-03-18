@@ -75,7 +75,7 @@ class CNetObj_Manager( object ):
         if netCmd.Obj_UID:
             netObj = cls.accessObj( netCmd.Obj_UID )
             if netObj: netObj.doSelfCallBack( netCmd )
-                
+
         # global callbacks
         for callback in cl:
             callback()( netCmd )

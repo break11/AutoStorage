@@ -6,8 +6,8 @@ from PyQt5.QtCore import ( Qt, QLine, QRectF, QLineF )
 from Lib.Common import StorageGraphTypes as SGT
 
 class CEdgeDecorate_SGItem(QGraphicsItem):
-    def __init__(self, parentEdge = None ):
-        super().__init__()
+    def __init__(self, parentEdge, parentItem ):
+        super().__init__( parent = parentItem )
         self.parentEdge = parentEdge
         self.setZValue( 5 )
     
@@ -46,8 +46,8 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
             painter.drawLine( 0,0, self.parentEdge.baseLine.length(),0 )
 
         if self.parentEdge.SGM.bDrawInfoRails:
-            self.paintInfoLineForEdge( painter, self.parentEdge.nxEdge_1_2() )
-            self.paintInfoLineForEdge( painter, self.parentEdge.nxEdge_2_1(), reverse_edge = True )
+            self.paintInfoLineForEdge( painter, self.parentEdge.edge1_2() )
+            self.paintInfoLineForEdge( painter, self.parentEdge.edge2_1(), reverse_edge = True )
 
         ## draw BBOX for debug
         # pen = QPen()
@@ -56,15 +56,15 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         # painter.setPen( pen )
         # painter.drawRect( self.__BBoxRect_Adj )
 
-    def paintInfoLineForEdge( self, painter, nxEdge, reverse_edge = False ):
-        if not nxEdge: return
+    def paintInfoLineForEdge( self, painter, edgeNetObj, reverse_edge = False ):
+        if not edgeNetObj: return
 
         w = self.width / 2
         bline_length = self.parentEdge.baseLine.length()
 
-        eL     = nxEdge.get( SGT.s_edgeSize         )
-        eHFrom = nxEdge.get( SGT.s_highRailSizeFrom )
-        eHTo   = nxEdge.get( SGT.s_highRailSizeTo   )
+        eL     = edgeNetObj.get( SGT.s_edgeSize         )
+        eHFrom = edgeNetObj.get( SGT.s_highRailSizeFrom )
+        eHTo   = edgeNetObj.get( SGT.s_highRailSizeTo   )
 
         if None in ( eL, eHFrom, eHTo ): return
 
@@ -75,8 +75,8 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
 
         kW = bline_length / eL
 
-        sensorSide = nxEdge.get( SGT.s_sensorSide )
-        curvature  = nxEdge.get( SGT.s_curvature )
+        sensorSide = edgeNetObj.get( SGT.s_sensorSide )
+        curvature  = edgeNetObj.get( SGT.s_curvature )
         
         color = Qt.yellow
         sides = []

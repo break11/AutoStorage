@@ -67,6 +67,7 @@ class CNetObj( CTreeNode ):
 ###################################################################################
     def sendDeleted_NetCmd( self ):
         if CNetObj_Manager.isConnected():
+            self.localDestroy()
             # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
             cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
             CNetObj_Manager.sendNetCMD( cmd )
@@ -84,6 +85,7 @@ class CNetObj( CTreeNode ):
         self.clearChildren()
 
     def localDestroy( self ):
+        # self.rename( self.name + f"__del__{self.UID}" )
         self.__localDestroy()
         self.parent = None
 

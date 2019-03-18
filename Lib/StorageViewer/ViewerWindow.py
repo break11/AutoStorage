@@ -104,18 +104,17 @@ class CViewerWindow(QMainWindow):
         self.StorageMap_View.horizontalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
         self.StorageMap_View.verticalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
 
-    def init( self, initPhase ):
+    def init( self, initPhase ):            
         if initPhase == EAppStartPhase.BeforeRedisConnect:
+            if self.workMode == EWorkMode.NetMonitorMode:
+                self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )
+
             self.loadSettings()
 
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             if self.workMode == EWorkMode.MapDesignerMode:
                 self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
                 
-            if self.workMode == EWorkMode.NetMonitorMode:
-                self.SGM.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
-                self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )
-
     #############################################################################
     def loadSettings( self ):
         load_Window_State_And_Geometry( self )
