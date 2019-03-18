@@ -18,15 +18,24 @@ class CAgent_SGItem(QGraphicsItem):
     # params: ( nodeID, propName, propValue )
     propUpdate_CallBacks = [] # type:ignore
 
+    @property
+    def edge(self):
+        return self.__agentNetObj()[ "edge" ]
+    
+    @property
+    def position(self):
+        return self.__agentNetObj()[ "position" ]
+
+    @property
+    def direction(self):
+        return self.__agentNetObj()[ "direction" ]
+
     def __init__(self, agentNetObj ):
         super().__init__()
 
         self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
-
-        self.edgeTKey = None
-        self.edgePos = 0
 
         self.status = "N/A"
         
@@ -107,6 +116,8 @@ class CAgent_SGItem(QGraphicsItem):
 
         self.agentNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.init()
+
+        self.updateEdgePos ()
         # self.updatePos_From_NX()
         # self.updateType()
         
@@ -115,11 +126,14 @@ class CAgent_SGItem(QGraphicsItem):
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
-    def setEdgePos(self, tEdgeKey, pos = 0, direction = 1):
+    def updateEdgePos(self):
         nxGraph = self.SGM.graphRootNode().nxGraph
-        if not nxGraph.has_edge( *tEdgeKey ): return
-        nodeID_1 = tEdgeKey[0]
-        nodeID_2 = tEdgeKey[1]
+        tEdgeKey = eval( self.edge )
+        nodeID_1 = str(tEdgeKey[0])
+        nodeID_2 = str(tEdgeKey[1])
+
+        if not nxGraph.has_edge( nodeID_1, nodeID_2 ): return
+        
 
         x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
         y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
@@ -132,8 +146,8 @@ class CAgent_SGItem(QGraphicsItem):
         rAngle = math.acos( line.dx() / ( line.length() or 1) )
         if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
 
-        d_x = line.length() * pos * math.cos( rAngle )
-        d_y = line.length() * pos * math.sin( rAngle )
+        d_x = line.length() * self.position / 100 * math.cos( rAngle )
+        d_y = line.length() * self.position / 100 * math.sin( rAngle )
 
         # print ( d_x, d_y )
         # print ( x1, y1, x2, y2 )
@@ -144,9 +158,9 @@ class CAgent_SGItem(QGraphicsItem):
 
         super().setPos(x, y)
 
-        edgeType = nxGraph.edges()[tEdgeKey][ SGT.s_widthType ]
+        edgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ][ SGT.s_widthType ]
         dAngle = - math.degrees( rAngle ) if edgeType == SGT.EWidthType.Narrow.name else - math.degrees( rAngle ) + 90
-        self.setRotation( dAngle + (1 - direction)/2 * 180 )
+        self.setRotation( dAngle + (1 - self.direction)/2 * 180 )
 
         # self.scene().itemChanged.emit( self )
     
