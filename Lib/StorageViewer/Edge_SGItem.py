@@ -55,8 +55,8 @@ class CEdge_SGItem(QGraphicsItem):
         self.buildEdge()
 
     def destroy_NetObj( self ):
-        if self.edge1_2(): self.edge1_2().sendDeleted_NetCmd()
-        if self.edge2_1(): self.edge2_1().sendDeleted_NetCmd()
+        if self.edge1_2(): self.edge1_2().destroy()
+        if self.edge2_1(): self.edge2_1().destroy()
 
     ############################################
 

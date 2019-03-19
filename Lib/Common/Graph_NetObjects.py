@@ -36,7 +36,7 @@ class CGraphNode_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-    def ObjPrepareDelete( self, netCmd ):
+    def ObjDeleted( self, netCmd ):
         incEdges = []
         if self.nxGraph():
             incEdges = list( self.nxGraph().out_edges( self.name ) ) +  list( self.nxGraph().in_edges( self.name ) )
@@ -78,7 +78,7 @@ class CGraphEdge_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-    def ObjPrepareDelete( self, netCmd ):
+    def ObjDeleted( self, netCmd ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
         # такой грани уже может не быть в графе, если изначально удалялась нода, она сама внутри графа удалит инцидентную грань
         if self.__has_nxEdge():
@@ -119,9 +119,7 @@ def loadGraphML_to_NetObj( sFName, bReload ):
     graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
     if graphObj:
         if bReload:
-            # graphObj.localDestroy()
-            # graphObj.rename( graphObj.name + f"__del__{graphObj.UID}" )
-            graphObj.sendDeleted_NetCmd()
+            graphObj.destroy()
         else:
             return False
 

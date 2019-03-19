@@ -154,7 +154,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         # не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
 
         if self.graphRootNode():
-            self.graphRootNode().localDestroy()
+            self.graphRootNode().destroy()
 
         createGraph_NO_Branches( nxGraph = nx.DiGraph() )
         
@@ -430,11 +430,11 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         if b12:
             attr12 = edgeGItem.edge1_2().propsDict()
-            edgeGItem.edge1_2().sendDeleted_NetCmd()
+            edgeGItem.edge1_2().destroy()
 
         if b21:
             attr21 = edgeGItem.edge2_1().propsDict()
-            edgeGItem.edge2_1().sendDeleted_NetCmd()
+            edgeGItem.edge2_1().destroy()
 
         if b12:
             createEdge_NetObj( edgeGItem.nodeID_2, edgeGItem.nodeID_1, parent = self.graphRootNode().edgesNode(), props=attr12 )
@@ -444,7 +444,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
-        edgeGItem.fillPropsTable( self.ViewerWindow.objProps )
+        edgeGItem.fillPropsTable( self.ViewerWindow.objProps )##remove##
 
         self.bEdgeReversing = False
         self.bHasChanges = True
@@ -456,7 +456,7 @@ class CStorageGraph_GScene_Manager( QObject ):
             return
 
         # пока удаляем вторую подгрань грани, возможно потребуется более продвинутые способы
-        edgeGItem.edge2_1().sendDeleted_NetCmd()
+        edgeGItem.edge2_1().destroy()
         self.bHasChanges = True
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()

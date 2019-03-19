@@ -2,6 +2,7 @@
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
 
 from .NetObj_Manager import CNetObj_Manager
+from .Net_Events import ENet_Event as EV
 
 class CNetObj_Props_Model( QAbstractTableModel ):
     def __init__( self, parent ):
@@ -9,8 +10,24 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.propList = []
         self.propCounter = {}
         self.objList = []
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
     ####################################
+    def onObjPrepareDelete( self, cmd ):
+        self.removeObj( cmd.Obj_UID )
+
+    def onObjPropUpdated( self, cmd ):
+        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+        # propName  = netCmd.sPropName
+        # propValue = netObj[ netCmd.sPropName ]
+        if cmd.Obj_UID not in self.objList:
+            return
+
+        col = self.objList.index( cmd.Obj_UID )
+        row = self.propList.index( cmd.sPropName )
+        idx = self.index( row, col, QModelIndex() )
+        self.dataChanged.emit( idx, idx )
 
     def updateObj_Set( self, objSet ):
         for UID in objSet:
@@ -21,6 +38,8 @@ class CNetObj_Props_Model( QAbstractTableModel ):
             if UID not in objSet:
                 self.removeObj( UID )
 
+    ####################################
+    
     def appendObj( self, UID ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj is None: return
@@ -39,6 +58,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
     def removeObj( self, UID ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj is None: return
+        if UID not in self.objList: return
 
         for propName in netObj.propsDict().keys():
             self.removePropCounter( propName )

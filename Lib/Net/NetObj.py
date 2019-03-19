@@ -65,15 +65,16 @@ class CNetObj( CTreeNode ):
             netObj  = ObjClass( name=sName, parent=self, **kwargs )
 
 ###################################################################################
-    def sendDeleted_NetCmd( self ):
-        if CNetObj_Manager.isConnected():
-            self.localDestroy()
-            # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
-            cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
-            CNetObj_Manager.sendNetCMD( cmd )
-        else:
-            # в оффлайн режиме удаляем объект, т.к. до парсера сетевых команд не дойдет
-            self.localDestroy()
+##remove##
+    # def sendDeleted_NetCmd( self ):
+    #     if CNetObj_Manager.isConnected():
+    #         self.localDestroy()
+    #         # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
+    #         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
+    #         CNetObj_Manager.sendNetCMD( cmd )
+    #     else:
+    #         # в оффлайн режиме удаляем объект, т.к. до парсера сетевых команд не дойдет
+    #         self.localDestroy()
 
     def __localDestroy( self ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
@@ -85,9 +86,19 @@ class CNetObj( CTreeNode ):
         self.clearChildren()
 
     def localDestroy( self ):
-        # self.rename( self.name + f"__del__{self.UID}" )
         self.__localDestroy()
         self.parent = None
+
+    def destroy( self ):
+        CNetObj_Manager.sendNetCMD( CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID ) )
+
+        self.localDestroy()
+
+##remove##
+    # def localDestroy( self ):
+    #     # self.rename( self.name + f"__del__{self.UID}" )
+    #     self.__localDestroy()
+    #     self.parent = None
 
     def localDestroyChildren( self ):
         for child in list(self.children):

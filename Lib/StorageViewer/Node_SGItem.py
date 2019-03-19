@@ -55,7 +55,7 @@ class CNode_SGItem(QGraphicsItem):
 
 
     def destroy_NetObj( self ):
-        self.netObj().sendDeleted_NetCmd()
+        self.netObj().destroy()
 
     ############################################
 

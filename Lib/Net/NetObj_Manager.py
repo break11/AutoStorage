@@ -129,7 +129,6 @@ class CNetObj_Manager( object ):
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
         NetUpdatedObj = [] # контейнер хранящий [ [netObj, netCmd], ... ] объектов по которым прошли обновления полей
 
-        # принимаем сообщения от всех клиентов - в том числе от себя самого
         msg = cls.receiver.get_message( ignore_subscribe_messages=False )
 
         i = 0
@@ -140,6 +139,8 @@ class CNetObj_Manager( object ):
             packetClientID = int( cmdList[0] )
 
             for cmdItem in cmdList[1::]:
+                # принимаем сообщения от всех клиентов кроме себя самого
+                if packetClientID == cls.ClientID: continue
 
                 netCmd = CNetCmd.fromString( cmdItem )
 
@@ -157,30 +158,26 @@ class CNetObj_Manager( object ):
 
                 elif netCmd.Event == EV.ObjPrepareDelete:
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
-
-                    if netObj:                                                
+                    if netObj is not None:
                         netObj.localDestroy()
                         del netObj
                     else:
                         print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
 
                 elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                    if packetClientID != cls.ClientID:
-                        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-                        if not netObj is None:
-                            NetUpdatedObj.append( [ netObj, netCmd ] )
-
-                            cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
+                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
+                    if netObj is not None:
+                        NetUpdatedObj.append( [ netObj, netCmd ] )
+                        cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
         
                 elif netCmd.Event == EV.ObjPropDeleted:
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-
-                    if netObj:
+                    if netObj is not None:
                         propExist = netObj.propsDict().get( netCmd.sPropName )
-                        if not propExist is None:
+                        if propExist is not None:
                             cls.doCallbacks( netCmd )
                             del netObj.propsDict()[ netCmd.sPropName ]
-                            del propExist
+
                 ###################################################################################################
 
         # выполнение общего пакета редис команд (в том числе удаление объектов)

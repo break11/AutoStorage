@@ -339,6 +339,7 @@ class CViewerWindow(QMainWindow):
         edgeSGItems = [ e for e in self.StorageMap_Scene.selectedItems() if isinstance(e, CEdge_SGItem) ]
         for edgeSGItem in edgeSGItems:
             self.SGM.reverseEdge( edgeSGItem.fsEdgeKey )
+        self.StorageMap_Scene_SelectionChanged()
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):
