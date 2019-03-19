@@ -15,9 +15,6 @@ class CAgent_SGItem(QGraphicsItem):
     # __height = SGT.narrow_Rail_Width
     # __width = SGT.wide_Rail_Width
 
-    def __init__(self, agentNetObj, parent ):
-        super().__init__( parent = parent )
-
     @property
     def edge(self):
         return self.__agentNetObj()[ "edge" ]
@@ -30,8 +27,8 @@ class CAgent_SGItem(QGraphicsItem):
     def direction(self):
         return self.__agentNetObj()[ "direction" ]
 
-    def __init__(self, agentNetObj ):
-        super().__init__()
+    def __init__(self, agentNetObj, parent ):
+        super().__init__( parent = parent )
 
         self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
