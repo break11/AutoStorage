@@ -13,18 +13,18 @@ class CAgent_SGItem(QGraphicsItem):
     __st_height = 360
     __st_width = 640
 
-    # params: ( nodeID, propName, propValue )
-    propUpdate_CallBacks = [] # type:ignore
+    def __init__(self, agentNetObj, parent ):
+        super().__init__( parent = parent )
 
-    def __init__(self, agentNetObj ):
-        super().__init__()
-
-        self.__agentNetObj = weakref.ref( agentNetObj ) ## weakRef ?????????? !!!!!!!!!!!!!!
+        self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
 
         self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
+
+    def getNetObj_UIDs( self ):
+        return { self.agentNetObj.UID }
 
     @property
     def agentNetObj(self):
@@ -54,13 +54,8 @@ class CAgent_SGItem(QGraphicsItem):
         self.updateProp( propName, propValue )
 
     def updateProp( self, propName, propValue ):
-        # for cb in self.propUpdate_CallBacks:
-        #     cb( self.ID, propName, propValue )
-
         self.agentNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.init()
-        # self.updatePos_From_NX()
-        # self.updateType()
         
     ############################################
 

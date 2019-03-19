@@ -6,8 +6,7 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
 
 class CGraphRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={},
-                  nxGraph=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={}, nxGraph=None ):
 
         if nxGraph is not None:
             self.nxGraph = nxGraph

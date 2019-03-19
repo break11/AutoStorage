@@ -25,7 +25,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj is None: return
 
-        for propName in netObj.propsDict().keys():
+        for propName in sorted( netObj.propsDict().keys() ):
             if propName not in self.propList:
                 self.appendProp( propName )
             else:

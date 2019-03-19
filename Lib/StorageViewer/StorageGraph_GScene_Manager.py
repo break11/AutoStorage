@@ -6,9 +6,9 @@ import math
 from enum import Enum, Flag, auto
 from copy import deepcopy
 
-from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt)
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem, QGraphicsScene
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
@@ -99,6 +99,10 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.gScene_evI = CGItem_EventFilter()
         self.gScene.addItem( self.gScene_evI )
 
+        self.Agents_ParentGItem = CDummy_GItem()
+        self.Agents_ParentGItem.setZValue( 40 )
+        self.gScene.addItem( self.Agents_ParentGItem )
+
         self.GraphRoot_ParentGItem     = None
         self.EdgeDecorates_ParentGItem = None
 
@@ -121,18 +125,24 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.GraphRoot_ParentGItem     = CDummy_GItem()
         self.EdgeDecorates_ParentGItem = CDummy_GItem( parent=None )
 
-        # self.gScene.addItem( self.gScene_evI )
-        self.gScene.addItem( self.GraphRoot_ParentGItem )
+        if self.gScene_evI.scene() is None:
+            self.gScene.addItem( self.gScene_evI )
 
+        self.gScene.addItem( self.GraphRoot_ParentGItem )
         self.updateDecorateOnScene()
 
+        if self.Agents_ParentGItem.scene() is None:
+            self.gScene.addItem( self.Agents_ParentGItem )
+
+    @time_func( sMsg="Scene clear time =" )
     def clear(self):
-        # self.agentGItems = {}
         self.nodeGItems = {}
         self.edgeGItems = {}
 
-        # self.gScene.removeItem( self.gScene_evI )
-        self.gScene.removeItem( self.GraphRoot_ParentGItem )
+        self.gScene.removeItem( self.gScene_evI )
+        self.gScene.removeItem( self.Agents_ParentGItem )
+        self.gScene.clear()
+
         self.GraphRoot_ParentGItem     = None
         self.EdgeDecorates_ParentGItem = None
 
@@ -298,9 +308,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         if self.agentGItems.get ( agentNetObj.name ): return
 
         xPos = (self.agentsNode().childCount()-1) * ( wide_Rail_Width + wide_Rail_Width / 2)
-        agentGItem = CAgent_SGItem ( agentNetObj = agentNetObj )
+        agentGItem = CAgent_SGItem ( agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
         
-        self.gScene.addItem( agentGItem )
         agentGItem.setPos( xPos, 0 )
         self.agentGItems[ agentNetObj.name ] = agentGItem
 

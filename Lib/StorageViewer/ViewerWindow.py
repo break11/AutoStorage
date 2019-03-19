@@ -96,6 +96,7 @@ class CViewerWindow(QMainWindow):
         self.acSaveGraphML.setVisible( b )
         self.acAddEdge_direct.setVisible( b )
         self.acAddEdge_reverse.setVisible( b )
+        self.acGenTestGraph.setVisible( b )
         self.menuGraph_Edit.setEnabled( b )
 
         self.lbWorkedArea = QLabel()
