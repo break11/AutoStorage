@@ -130,4 +130,4 @@ class CNetObj_Monitor(QWidget):
         if not ci.isValid(): return
 
         netObj = self.netObjModel.netObj_From_Index( ci )
-        netObj.sendDeleted_NetCmd()
+        netObj.destroy()

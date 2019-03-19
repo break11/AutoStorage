@@ -39,9 +39,10 @@ class CNode_SGItem(QGraphicsItem):
     @property
     def nxNode( self ): return self.netObj().nxNode()
 
-    def __init__(self, nodeNetObj ):
-        super().__init__()
+    def __init__(self, SGM, nodeNetObj, parent ):
+        super().__init__( parent=parent )
 
+        self.SGM = SGM
         self.netObj = weakref.ref( nodeNetObj )
         self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( QGraphicsItem.ItemIsSelectable )
@@ -52,10 +53,14 @@ class CNode_SGItem(QGraphicsItem):
         self.updateType()
         self.calcBBox()
 
+
     def destroy_NetObj( self ):
-        self.netObj().sendDeleted_NetCmd()
+        self.netObj().destroy()
 
     ############################################
+
+    def getNetObj_UIDs( self ):
+        return { self.netObj().UID }
 
     def fillPropsTable( self, mdlObjProps ):
         mdlObjProps.setHorizontalHeaderLabels( [ "nodeID", self.nodeID ] )

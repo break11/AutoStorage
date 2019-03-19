@@ -6,9 +6,9 @@ import math
 from enum import Enum, Flag, auto
 from copy import deepcopy
 
-from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
-from PyQt5.QtCore import (pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt)
-from PyQt5.QtWidgets import ( QGraphicsItem )
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem, QGraphicsScene
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
@@ -23,6 +23,7 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createEdge_NetObj
 from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.Common.StorageGraphTypes import wide_Rail_Width
+from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -66,7 +67,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.agentGItems    = {}
         self.nodeGItems     = {}
         self.edgeGItems     = {}
-        self.gScene_evI     = None
 
         self.bDrawBBox         = False
         self.bDrawInfoRails    = False
@@ -96,6 +96,16 @@ class CStorageGraph_GScene_Manager( QObject ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.ObjPropUpdated )
 
+        self.gScene_evI = CGItem_EventFilter()
+        self.gScene.addItem( self.gScene_evI )
+
+        self.Agents_ParentGItem = CDummy_GItem()
+        self.Agents_ParentGItem.setZValue( 40 )
+        self.gScene.addItem( self.Agents_ParentGItem )
+
+        self.GraphRoot_ParentGItem     = None
+        self.EdgeDecorates_ParentGItem = None
+
     def setModeFlags(self, flags):
         self.Mode = flags
         if not (self.Mode & EGManagerMode.EditScene):
@@ -112,14 +122,30 @@ class CStorageGraph_GScene_Manager( QObject ):
                 nodeGItem.setFlags( nodeGItem.flags() & ~QGraphicsItem.ItemIsMovable )
 
     def init(self):
-        self.gScene_evI = CGItem_EventFilter()
-        self.gScene.addItem( self.gScene_evI )
+        self.GraphRoot_ParentGItem     = CDummy_GItem()
+        self.EdgeDecorates_ParentGItem = CDummy_GItem( parent=None )
 
+        if self.gScene_evI.scene() is None:
+            self.gScene.addItem( self.gScene_evI )
+
+        self.gScene.addItem( self.GraphRoot_ParentGItem )
+        self.updateDecorateOnScene()
+
+        if self.Agents_ParentGItem.scene() is None:
+            self.gScene.addItem( self.Agents_ParentGItem )
+
+    @time_func( sMsg="Scene clear time =" )
     def clear(self):
-        self.agentGItems = {}
         self.nodeGItems = {}
         self.edgeGItems = {}
+
+        self.gScene.removeItem( self.gScene_evI )
+        self.gScene.removeItem( self.Agents_ParentGItem )
         self.gScene.clear()
+
+        self.GraphRoot_ParentGItem     = None
+        self.EdgeDecorates_ParentGItem = None
+
         self.gScene.update()
         
     def new(self):
@@ -128,7 +154,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         # не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
 
         if self.graphRootNode():
-            self.graphRootNode().localDestroy()
+            self.graphRootNode().destroy()
 
         createGraph_NO_Branches( nxGraph = nx.DiGraph() )
         
@@ -177,13 +203,23 @@ class CStorageGraph_GScene_Manager( QObject ):
 
     def setDrawInfoRails( self, bVal ):
         self.bDrawInfoRails = bVal
-        for k, v in self.edgeGItems.items():
-            v.updateDecorateOnScene()
+        self.updateDecorateOnScene()
 
     def setDrawMainRail( self, bVal ):
         self.bDrawMainRail = bVal
-        for k, v in self.edgeGItems.items():
-            v.updateDecorateOnScene()
+        self.updateDecorateOnScene()
+
+    def updateDecorateOnScene(self):
+        if ( self.GraphRoot_ParentGItem is None ) or ( self.EdgeDecorates_ParentGItem is None ):
+            return
+
+        bVal = self.bDrawMainRail or self.bDrawInfoRails
+        if bVal:
+            self.EdgeDecorates_ParentGItem.setParentItem( self.GraphRoot_ParentGItem )
+        elif self.EdgeDecorates_ParentGItem.scene():
+            self.gScene.removeItem( self.EdgeDecorates_ParentGItem )
+
+        self.gScene.update()
 
     def setDrawBBox( self, bVal ):
         self.bDrawBBox = bVal
@@ -271,9 +307,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         if self.agentGItems.get ( agentNetObj.name ): return
 
         xPos = (self.agentsNode().childCount()-1) * ( wide_Rail_Width + wide_Rail_Width / 2)
-        agentGItem = CAgent_SGItem ( agentNetObj = agentNetObj )
+        agentGItem = CAgent_SGItem ( agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
         
-        self.gScene.addItem( agentGItem )
         agentGItem.setPos( xPos, 0 )
         self.agentGItems[ agentNetObj.name ] = agentGItem
 
@@ -291,14 +326,12 @@ class CStorageGraph_GScene_Manager( QObject ):
         nodeID = nodeNetObj.name
         if self.nodeGItems.get ( nodeID ): return
 
-        nodeGItem = CNode_SGItem ( nodeNetObj = nodeNetObj )
-        self.gScene.addItem( nodeGItem )
+        nodeGItem = CNode_SGItem ( self, nodeNetObj = nodeNetObj, parent=self.GraphRoot_ParentGItem )
         self.nodeGItems[ nodeID ] = nodeGItem
 
         nodeGItem.init()
         nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
-        nodeGItem.SGM = self
 
         self.bHasChanges = True
         return nodeGItem
@@ -315,15 +348,11 @@ class CStorageGraph_GScene_Manager( QObject ):
         fsEdgeKey = frozenset( ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() ) )
         if self.edgeGItems.get( fsEdgeKey ) : return False
 
-        edgeGItem = CEdge_SGItem( fsEdgeKey=fsEdgeKey, graphRootNode=self.graphRootNode )
-        self.gScene.addItem( edgeGItem )
+        edgeGItem = CEdge_SGItem( self, fsEdgeKey=fsEdgeKey, graphRootNode=self.graphRootNode, parent=self.GraphRoot_ParentGItem )
 
         edgeGItem.updatePos_From_NX()
         edgeGItem.installSceneEventFilter( self.gScene_evI )
         self.edgeGItems[ fsEdgeKey ] = edgeGItem
-        edgeGItem.SGM = self
-
-        edgeGItem.updateDecorateOnScene()
 
         self.bHasChanges = True
 
@@ -384,7 +413,9 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         # перерасчет средней линии для всех нод "связанных" с удаленными гранями
         for nodeID in fsEdgeKey:
-            self.calcNodeMiddleLine( self.nodeGItems[ nodeID ] )
+            nodeGItem = self.nodeGItems.get( nodeID )
+            if nodeGItem is not None:
+                self.calcNodeMiddleLine( nodeGItem )
 
         self.bHasChanges = True
 
@@ -398,11 +429,11 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         if b12:
             attr12 = edgeGItem.edge1_2().propsDict()
-            edgeGItem.edge1_2().sendDeleted_NetCmd()
+            edgeGItem.edge1_2().destroy()
 
         if b21:
             attr21 = edgeGItem.edge2_1().propsDict()
-            edgeGItem.edge2_1().sendDeleted_NetCmd()
+            edgeGItem.edge2_1().destroy()
 
         if b12:
             createEdge_NetObj( edgeGItem.nodeID_2, edgeGItem.nodeID_1, parent = self.graphRootNode().edgesNode(), props=attr12 )
@@ -412,7 +443,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
-        edgeGItem.fillPropsTable( self.ViewerWindow.objProps )
+        edgeGItem.fillPropsTable( self.ViewerWindow.objProps )##remove##
 
         self.bEdgeReversing = False
         self.bHasChanges = True
@@ -424,7 +455,7 @@ class CStorageGraph_GScene_Manager( QObject ):
             return
 
         # пока удаляем вторую подгрань грани, возможно потребуется более продвинутые способы
-        edgeGItem.edge2_1().sendDeleted_NetCmd()
+        edgeGItem.edge2_1().destroy()
         self.bHasChanges = True
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()

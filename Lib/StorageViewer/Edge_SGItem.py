@@ -23,9 +23,10 @@ class CEdge_SGItem(QGraphicsItem):
     @property
     def y2(self): return self.node_2()[ SGT.s_y ]
 
-    def __init__(self, fsEdgeKey, graphRootNode ):
-        super().__init__()
+    def __init__(self, SGM, fsEdgeKey, graphRootNode, parent ):
+        super().__init__( parent=parent )
 
+        self.SGM = SGM
         self.fsEdgeKey = fsEdgeKey
         t = tuple( fsEdgeKey )
 
@@ -49,15 +50,23 @@ class CEdge_SGItem(QGraphicsItem):
         self.setFlags( self.flags() | QGraphicsItem.ItemIsSelectable )
         self.setZValue( 10 )
 
-        self.decorateSGItem = CEdgeDecorate_SGItem( parentEdge = self )
+        self.decorateSGItem = CEdgeDecorate_SGItem( parentEdge = self,  parentItem=SGM.EdgeDecorates_ParentGItem )
 
         self.buildEdge()
 
     def destroy_NetObj( self ):
-        if self.edge1_2(): self.edge1_2().sendDeleted_NetCmd()
-        if self.edge2_1(): self.edge2_1().sendDeleted_NetCmd()
+        if self.edge1_2(): self.edge1_2().destroy()
+        if self.edge2_1(): self.edge2_1().destroy()
 
     ############################################
+
+    def getNetObj_UIDs( self ):
+        s = set()
+        if self.edge1_2():
+            s.add( self.edge1_2().UID )
+        if self.edge2_1():
+            s.add( self.edge2_1().UID )
+        return s
 
     def fillPropsTable( self, mdlObjProps ):
         def addNxEdgeIfExists( edgeNetObj, nxEdges ):
@@ -119,16 +128,6 @@ class CEdge_SGItem(QGraphicsItem):
     def done( self ):
         if self.decorateSGItem.scene():
             self.scene().removeItem( self.decorateSGItem )
-
-    def updateDecorateOnScene( self ):
-        bVal = self.SGM.bDrawMainRail or self.SGM.bDrawInfoRails
-        
-        if bVal and self.decorateSGItem.scene() is None:
-            self.scene().addItem( self.decorateSGItem )
-        elif bVal==False and self.decorateSGItem.scene() is not None:
-            self.scene().removeItem( self.decorateSGItem )
-
-        self.decorateSGItem.update()
 
     def buildEdge(self):
         self.prepareGeometryChange()

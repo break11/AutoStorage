@@ -15,8 +15,8 @@ class CAgent_SGItem(QGraphicsItem):
     # __height = SGT.narrow_Rail_Width
     # __width = SGT.wide_Rail_Width
 
-    # params: ( nodeID, propName, propValue )
-    propUpdate_CallBacks = [] # type:ignore
+    def __init__(self, agentNetObj, parent ):
+        super().__init__( parent = parent )
 
     @property
     def edge(self):
@@ -82,6 +82,9 @@ class CAgent_SGItem(QGraphicsItem):
         # self.renderer = QSvgRenderer("/home/easyrid3r/temp/a.svg")
         # self.setSharedRenderer ( self.renderer )
         # self.setElementId( "rect3713" )
+        
+    def getNetObj_UIDs( self ):
+        return { self.agentNetObj.UID }
 
     @property
     def agentNetObj(self):
@@ -111,15 +114,8 @@ class CAgent_SGItem(QGraphicsItem):
         self.updateProp( propName, propValue )
 
     def updateProp( self, propName, propValue ):
-        # for cb in self.propUpdate_CallBacks:
-        #     cb( self.ID, propName, propValue )
-
         self.agentNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
         self.init()
-
-        self.updateEdgePos ()
-        # self.updatePos_From_NX()
-        # self.updateType()
         
     ############################################
 

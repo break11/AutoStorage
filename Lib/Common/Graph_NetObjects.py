@@ -6,8 +6,7 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
 
 class CGraphRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={},
-                  nxGraph=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={}, nxGraph=None ):
 
         if nxGraph is not None:
             self.nxGraph = nxGraph
@@ -37,7 +36,7 @@ class CGraphNode_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-    def ObjPrepareDelete( self, netCmd ):
+    def ObjDeleted( self, netCmd ):
         incEdges = []
         if self.nxGraph():
             incEdges = list( self.nxGraph().out_edges( self.name ) ) +  list( self.nxGraph().in_edges( self.name ) )
@@ -58,7 +57,7 @@ class CGraphNode_NO( CNetObj ):
     def propsDict(self): return self.nxNode() if self.graphNode() else {}
 
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
-    def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.nxGraph() else {}
+    def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.__has_nxNode() else {}
     def __has_nxNode(self): return self.nxGraph().has_node( self.name ) if self.nxGraph() else None
 
 ###################################################################################
@@ -79,7 +78,7 @@ class CGraphEdge_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-    def ObjPrepareDelete( self, netCmd ):
+    def ObjDeleted( self, netCmd ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
         # такой грани уже может не быть в графе, если изначально удалялась нода, она сама внутри графа удалит инцидентную грань
         if self.__has_nxEdge():
@@ -120,8 +119,7 @@ def loadGraphML_to_NetObj( sFName, bReload ):
     graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
     if graphObj:
         if bReload:
-            graphObj.localDestroy()
-            graphObj.sendDeleted_NetCmd()
+            graphObj.destroy()
         else:
             return False
 

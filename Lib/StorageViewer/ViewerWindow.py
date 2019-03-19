@@ -7,16 +7,17 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
-from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode
-from  Lib.Common.GridGraphicsScene import CGridGraphicsScene
-from  Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
-from  Lib.Common.SettingsManager import CSettingsManager as CSM
-from  Lib.Common.BaseApplication import EAppStartPhase
-import  Lib.Common.StrConsts as SC
+from   Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode
+from   Lib.Common.GridGraphicsScene import CGridGraphicsScene
+from   Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
+from   Lib.Common.SettingsManager import CSettingsManager as CSM
+from   Lib.Common.BaseApplication import EAppStartPhase
+import Lib.Common.StrConsts as SC
 
 from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
 from  Lib.Common.GuiUtils import gvFitToPage, time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
+from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
 
@@ -61,11 +62,14 @@ class CViewerWindow(QMainWindow):
 
         self.bFullScreen = False
         self.DocWidgetsHiddenStates = {}
-        self.geometry = ""
 
         self.graphML_fname = SC.s_storage_graph_file__default
+
         self.objProps = QStandardItemModel( self )
         self.tvObjectProps.setModel( self.objProps )
+
+        self.objPropsModel = CNetObj_Props_Model( self )
+        self.tvObjProps.setModel( self.objPropsModel )
 
         self.StorageMap_Scene = CGridGraphicsScene( self )
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
@@ -92,6 +96,7 @@ class CViewerWindow(QMainWindow):
         self.acSaveGraphML.setVisible( b )
         self.acAddEdge_direct.setVisible( b )
         self.acAddEdge_reverse.setVisible( b )
+        self.acGenTestGraph.setVisible( b )
         self.menuGraph_Edit.setEnabled( b )
 
         self.lbWorkedArea = QLabel()
@@ -100,18 +105,17 @@ class CViewerWindow(QMainWindow):
         self.StorageMap_View.horizontalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
         self.StorageMap_View.verticalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
 
-    def init( self, initPhase ):
+    def init( self, initPhase ):            
         if initPhase == EAppStartPhase.BeforeRedisConnect:
+            if self.workMode == EWorkMode.NetMonitorMode:
+                self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )
+
             self.loadSettings()
 
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             if self.workMode == EWorkMode.MapDesignerMode:
                 self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
                 
-            if self.workMode == EWorkMode.NetMonitorMode:
-                self.SGM.init() # нужно для работы монитора, т.к. редактор при загрузке и создании нового файла это сделает там
-                self.SGM.setModeFlags( self.SGM.Mode & ~EGManagerMode.EditScene )
-
     #############################################################################
     def loadSettings( self ):
         load_Window_State_And_Geometry( self )
@@ -231,6 +235,12 @@ class CViewerWindow(QMainWindow):
 
     # событие изменения выделения на сцене
     def StorageMap_Scene_SelectionChanged( self ):
+        s = set()
+        for gItem in self.StorageMap_Scene.selectedItems():
+            s = s.union( gItem.getNetObj_UIDs() )
+        
+        self.objPropsModel.updateObj_Set( s )
+        ################################################
         self.objProps.clear()
 
         selItems = self.StorageMap_Scene.selectedItems()
@@ -329,6 +339,7 @@ class CViewerWindow(QMainWindow):
         edgeSGItems = [ e for e in self.StorageMap_Scene.selectedItems() if isinstance(e, CEdge_SGItem) ]
         for edgeSGItem in edgeSGItems:
             self.SGM.reverseEdge( edgeSGItem.fsEdgeKey )
+        self.StorageMap_Scene_SelectionChanged()
 
     @pyqtSlot(bool)
     def on_acAddEdge_triggered(self):
