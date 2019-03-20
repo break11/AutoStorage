@@ -71,7 +71,6 @@ class CAgent_SGItem(QGraphicsItem):
 
         self.textRect =  QRectF( sx + of_sx, sy + of_sy, w - 2*of_sx, h - 2*of_sy )
 
-
         # для отрисовки svg надо закомментировать метод paint
         # self.renderer = QSvgRenderer("/home/easyrid3r/temp/a.svg")
         # self.setSharedRenderer ( self.renderer )
@@ -90,7 +89,7 @@ class CAgent_SGItem(QGraphicsItem):
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
-    def updateEdgePos(self):
+    def updatePos(self):
         nxGraph = self.SGM.graphRootNode().nxGraph
         tEdgeKey = eval( self.edge )
         nodeID_1 = str(tEdgeKey[0])
@@ -98,7 +97,6 @@ class CAgent_SGItem(QGraphicsItem):
 
         if not nxGraph.has_edge( nodeID_1, nodeID_2 ): return
         
-
         x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
         y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
         

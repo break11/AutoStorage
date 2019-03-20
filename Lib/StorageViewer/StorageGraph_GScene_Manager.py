@@ -533,3 +533,4 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         elif isinstance( netObj, CAgent_NO ):
             gItem = self.agentGItems[ netObj.name ]
+            gItem.updatePos()
