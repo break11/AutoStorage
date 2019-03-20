@@ -279,7 +279,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         for edgeGItem in dictEdges.values():
             edgeGItem.buildEdge()
-            edgeGItem.updatePos_From_NX()
+            edgeGItem.updatePos()
         
         self.bHasChanges = True
 
@@ -350,7 +350,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         edgeGItem = CEdge_SGItem( self, fsEdgeKey=fsEdgeKey, graphRootNode=self.graphRootNode, parent=self.GraphRoot_ParentGItem )
 
-        edgeGItem.updatePos_From_NX()
+        edgeGItem.updatePos()
         edgeGItem.installSceneEventFilter( self.gScene_evI )
         self.edgeGItems[ fsEdgeKey ] = edgeGItem
 
@@ -398,10 +398,6 @@ class CStorageGraph_GScene_Manager( QObject ):
                 self.deleteEdge( fsEdgeKey )
         else:
             edgeGItem.update()
-            if not self.bEdgeReversing:
-                # здесь fillPropsTable вызывается для обновления таблицы свойств при реакции по сети
-                edgeGItem.fillPropsTable( self.ViewerWindow.objProps )
-
 
     def deleteEdge(self, fsEdgeKey : frozenset ):
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
@@ -443,7 +439,6 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
-        edgeGItem.fillPropsTable( self.ViewerWindow.objProps )##remove##
 
         self.bEdgeReversing = False
         self.bHasChanges = True
@@ -484,7 +479,6 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         #удаление итемов
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Delete:
-            self.ViewerWindow.objProps.clear()
             for item in self.gScene.selectedItems():
                 item.destroy_NetObj()
             event.accept()
@@ -521,29 +515,21 @@ class CStorageGraph_GScene_Manager( QObject ):
     
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        propName  = netCmd.sPropName
-        propValue = netObj[ netCmd.sPropName ]
+        # propName  = netCmd.sPropName
+        # propValue = netObj[ netCmd.sPropName ]
         gItem = None
 
         if isinstance( netObj, CGraphNode_NO ):
             gItem = self.nodeGItems[ netObj.name ]
-            gItem.updateProp( propName, propValue )
-
-            # обновление модели свойств в окне вьювера
-            if gItem != self.ViewerWindow.selectedGItem:
-                self.updateNodeIncEdges( gItem )
+            gItem.init()
+            self.updateNodeIncEdges( gItem )
 
         elif isinstance( netObj, CGraphEdge_NO ):
             tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
             fsEdgeKey = frozenset( tKey )
 
             gItem = self.edgeGItems[ fsEdgeKey ]
-            gItem.updateProp( tKey, propName, propValue )
+            gItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
             gItem = self.agentGItems[ netObj.name ]
-            gItem.updateProp( propName, propValue )
-
-        # обновление модели свойств в окне вьювера
-        if gItem == self.ViewerWindow.selectedGItem:
-            gItem.fillPropsTable( self.ViewerWindow.objProps ) # вызовет updateNodeIncEdges для ноды внутри - из-за setData модели

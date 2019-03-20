@@ -16,16 +16,13 @@ class CAgent_SGItem(QGraphicsItem):
     # __width = SGT.wide_Rail_Width
 
     @property
-    def edge(self):
-        return self.__agentNetObj()[ "edge" ]
+    def edge(self): return self.__agentNetObj()[ "edge" ]
     
     @property
-    def position(self):
-        return self.__agentNetObj()[ "position" ]
+    def position(self): return self.__agentNetObj()[ "position" ]
 
     @property
-    def direction(self):
-        return self.__agentNetObj()[ "direction" ]
+    def direction(self): return self.__agentNetObj()[ "direction" ]
 
     def __init__(self, agentNetObj, parent ):
         super().__init__( parent = parent )
@@ -89,32 +86,6 @@ class CAgent_SGItem(QGraphicsItem):
 
     def init( self ):
         pass
-
-    ############################################
-
-    def fillPropsTable( self, mdlObjProps ):
-        mdlObjProps.setHorizontalHeaderLabels( [ "agentID", self.agentNetObj.name ] )
-
-        for key, val in sorted( self.agentNetObj.propsDict().items() ):
-            stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
-            if stdItem_PropName is None:
-                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
-                mdlObjProps.appendRow( rowItems )
-            else:
-                stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), 1 )
-                stdItem_PropValue.setData( val, Qt.EditRole )
-
-    def updatePropsTable( self, stdModelItem ):
-        propName  = stdModelItem.model().item( stdModelItem.row(), 0 ).data( Qt.EditRole )
-        propValue = stdModelItem.data( Qt.EditRole )
-        
-        self.updateProp( propName, propValue )
-
-    def updateProp( self, propName, propValue ):
-        self.agentNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
-        self.init()
-        
-    ############################################
 
     def boundingRect(self):
         return self.__BBoxRect_Adj

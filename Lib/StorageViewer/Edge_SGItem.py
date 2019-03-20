@@ -58,8 +58,6 @@ class CEdge_SGItem(QGraphicsItem):
         if self.edge1_2(): self.edge1_2().destroy()
         if self.edge2_1(): self.edge2_1().destroy()
 
-    ############################################
-
     def getNetObj_UIDs( self ):
         s = set()
         if self.edge1_2():
@@ -67,63 +65,6 @@ class CEdge_SGItem(QGraphicsItem):
         if self.edge2_1():
             s.add( self.edge2_1().UID )
         return s
-
-    def fillPropsTable( self, mdlObjProps ):
-        def addNxEdgeIfExists( edgeNetObj, nxEdges ):
-            if edgeNetObj:
-                tE_Name = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
-                nxEdges[ tE_Name ] = edgeNetObj.propsDict()
-
-        header = [ "edgeID" ]
-        uniqAttrSet = set()
-
-        nxEdges = {}
-        addNxEdgeIfExists( self.edge1_2(), nxEdges )
-        addNxEdgeIfExists( self.edge2_1(), nxEdges )
-
-        for k,v in nxEdges.items():
-            header.append( EdgeDisplayName( *k ) )
-            uniqAttrSet = uniqAttrSet.union( v.keys() )
-
-        mdlObjProps.setHorizontalHeaderLabels( header )
-
-        for key in sorted( uniqAttrSet ):
-            stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
-            if stdItem_PropName is None:
-                rowItems = []
-                rowItems.append( Std_Model_Item( key, True ) )
-                for k, v in nxEdges.items():
-                    val = v.get( key )
-                    rowItems.append( Std_Model_Item( SGT.adjustAttrType( key, val ), userData=k ) ) ## k - ключ тапл-имя грани в графе nx
-
-                mdlObjProps.appendRow( rowItems )
-            else:
-                # проход по колонкам надежен, т.к. дикты начиная с версии питона 3.7 возвращают элементы в порядке вставки
-                col = 1
-                for k, v in nxEdges.items():
-                    val = v.get( key )
-
-                    stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), col )
-                    # assert stdItem_PropValue.data( Qt.UserRole + 1 ) == k
-                    stdItem_PropValue.setData( val, Qt.EditRole )
-
-                    col += 1
-
-    def updatePropsTable( self, stdModelItem ):
-        propName  = stdModelItem.model().item( stdModelItem.row(), 0 ).data( Qt.EditRole )
-        propValue = stdModelItem.data( Qt.EditRole )
-
-        tKey = stdModelItem.data( Qt.UserRole + 1 )
-            
-        self.updateProp( tKey, propName, propValue )
-
-    def updateProp( self, tKey, propName, propValue ):            
-        edgeNetObj = self.edgesNetObj_by_TKey[ tKey ]()
-        if edgeNetObj is None: return
-        edgeNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
-        self.decorateSGItem.updatedDecorate()
-
-    ############################################
 
     def done( self ):
         if self.decorateSGItem.scene():
@@ -151,7 +92,7 @@ class CEdge_SGItem(QGraphicsItem):
         return self.__BBoxRect_Adj
 
     # обновление позиции на сцене по атрибутам из графа
-    def updatePos_From_NX(self):
+    def updatePos(self):
         self.setPos( self.x1, self.y1 )
         self.decorateSGItem.setPos( self.x1, self.y1 )
 

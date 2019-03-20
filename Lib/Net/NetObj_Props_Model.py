@@ -18,15 +18,13 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.removeObj( cmd.Obj_UID )
 
     def onObjPropUpdated( self, cmd ):
-        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        # propName  = netCmd.sPropName
-        # propValue = netObj[ netCmd.sPropName ]
         if cmd.Obj_UID not in self.objList:
             return
 
         col = self.objList.index( cmd.Obj_UID )
         row = self.propList.index( cmd.sPropName )
         idx = self.index( row, col, QModelIndex() )
+
         self.dataChanged.emit( idx, idx )
 
     def updateObj_Set( self, objSet ):
@@ -39,7 +37,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
                 self.removeObj( UID )
 
     ####################################
-    
+
     def appendObj( self, UID ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj is None: return

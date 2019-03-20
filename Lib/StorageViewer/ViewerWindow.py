@@ -65,16 +65,11 @@ class CViewerWindow(QMainWindow):
 
         self.graphML_fname = SC.s_storage_graph_file__default
 
-        self.objProps = QStandardItemModel( self )
-        self.tvObjectProps.setModel( self.objProps )
-
         self.objPropsModel = CNetObj_Props_Model( self )
         self.tvObjProps.setModel( self.objPropsModel )
 
         self.StorageMap_Scene = CGridGraphicsScene( self )
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
-        self.objProps.itemChanged.connect( self.objProps_itemChanged )
-        self.StorageMap_Scene.itemChanged.connect( self.itemChangedOnScene )
 
         self.StorageMap_View.setScene( self.StorageMap_Scene )
         self.SGM = CStorageGraph_GScene_Manager( self.StorageMap_Scene, self.StorageMap_View )
@@ -240,39 +235,7 @@ class CViewerWindow(QMainWindow):
             s = s.union( gItem.getNetObj_UIDs() )
         
         self.objPropsModel.updateObj_Set( s )
-        ################################################
-        self.objProps.clear()
-
-        selItems = self.StorageMap_Scene.selectedItems()
-        if ( len( selItems ) != 1 ):
-            self.selectedGItem = None
-            return
-
-        gItem = selItems[ 0 ]
-        self.selectedGItem = gItem
-
-        gItem.fillPropsTable( self.objProps )
-
-        self.tvObjectProps.resizeColumnToContents( 0 )
-
-    # событие изменения ячейки таблицы свойств объекта
-    def objProps_itemChanged( self, stdModelItem ):
-        if self.selectedGItem is None: return
-
-        GItem = self.selectedGItem
-
-        GItem.updatePropsTable( stdModelItem )
-
-        if isinstance( GItem, CNode_SGItem ):
-            self.SGM.updateNodeIncEdges( GItem )
-
-        self.SGM.bHasChanges = True
-
-    # событие изменения итема (ноды вызывают при перемещении)
-    def itemChangedOnScene(self, GItem):
-        if isinstance( GItem, CNode_SGItem ):
-            self.SGM.updateNodeIncEdges( GItem )
-        
+                
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
         gvFitToPage( self.StorageMap_View )
