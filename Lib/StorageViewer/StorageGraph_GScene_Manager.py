@@ -307,7 +307,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         if self.agentGItems.get ( agentNetObj.name ): return
 
         xPos = (self.agentsNode().childCount()-1) * ( wide_Rail_Width + wide_Rail_Width / 2)
-        agentGItem = CAgent_SGItem ( agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
+        agentGItem = CAgent_SGItem ( SGM=self, agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
         
         agentGItem.setPos( xPos, 0 )
         self.agentGItems[ agentNetObj.name ] = agentGItem

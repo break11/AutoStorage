@@ -24,9 +24,10 @@ class CAgent_SGItem(QGraphicsItem):
     @property
     def direction(self): return self.__agentNetObj()[ "direction" ]
 
-    def __init__(self, agentNetObj, parent ):
+    def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
 
+        self.SGM = SGM
         self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
@@ -34,6 +35,7 @@ class CAgent_SGItem(QGraphicsItem):
         self.status = "N/A"
         
         self.createGraphicElements()
+        self.updatePos()
 
     def createGraphicElements(self):
         w = SGT.wide_Rail_Width
@@ -90,6 +92,9 @@ class CAgent_SGItem(QGraphicsItem):
         return self.__BBoxRect_Adj
     
     def updatePos(self):
+        if not self.edge:
+            return
+
         nxGraph = self.SGM.graphRootNode().nxGraph
         tEdgeKey = eval( self.edge )
         nodeID_1 = str(tEdgeKey[0])
