@@ -6,7 +6,7 @@ from PyQt5 import uic
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import FileUtils
-from Lib.Common.Agent_NetObject import CAgent_NO
+from Lib.Common.Agent_NetObject import CAgent_NO, def_props
 import Lib.Common.StrConsts as SC
 from Lib.Common.GuiUtils import time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Net.NetObj import CNetObj
@@ -17,6 +17,7 @@ import sys
 import os
 import networkx as nx
 import time
+from copy import deepcopy
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -32,5 +33,7 @@ class CAM_MainWindow(QMainWindow):
 
     @pyqtSlot("bool")
     def on_btnAddAgent_clicked( self, bVal ):
+        props = deepcopy( def_props )
         AgentsNode = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Agents" )
+        # CAgent_NO( parent=AgentsNode, props=props )
         CAgent_NO( parent=AgentsNode )

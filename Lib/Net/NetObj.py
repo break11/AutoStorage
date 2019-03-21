@@ -102,7 +102,7 @@ class CNetObj( CTreeNode ):
 
         if bPropExist and self.propsDict()[ key ] == value:
             return
-
+        print( id(self.props), "222" )
         if CNetObj_Manager.isConnected():
             CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
 
@@ -112,13 +112,15 @@ class CNetObj( CTreeNode ):
 
         self.propsDict()[ cmd.sPropName ] = value
         CNetObj_Manager.doCallbacks( cmd )
-
         CNetObj_Manager.sendNetCMD( cmd )
+        print( id(self.props), "333" )
 
     def __delitem__( self, key ):
         if CNetObj_Manager.isConnected():
             CNetObj_Manager.pipe.hdel( self.redisKey_Props(), key )
+        del self.propsDict()[ key ]
         cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        CNetObj_Manager.doCallbacks( cmd )
         CNetObj_Manager.sendNetCMD( cmd )
 
 ###################################################################################

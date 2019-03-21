@@ -21,7 +21,7 @@ from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createEdge_NetObj
-from Lib.Common.Agent_NetObject import CAgent_NO
+from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agent_def_props
 from Lib.Common.StorageGraphTypes import wide_Rail_Width
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Net.NetObj import CNetObj
@@ -306,10 +306,12 @@ class CStorageGraph_GScene_Manager( QObject ):
     def addAgent( self, agentNetObj ):
         if self.agentGItems.get ( agentNetObj.name ): return
 
-        xPos = (self.agentsNode().childCount()-1) * ( wide_Rail_Width + wide_Rail_Width / 2)
+        xPos = (agentNetObj.UID % 10) * ( wide_Rail_Width + wide_Rail_Width / 2)
+        yPos = (agentNetObj.UID % 100) // 10 * 100
         agentGItem = CAgent_SGItem ( SGM=self, agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
         
-        agentGItem.setPos( xPos, 0 )
+        if not agentGItem.edge:
+            agentGItem.setPos( xPos, yPos )
         self.agentGItems[ agentNetObj.name ] = agentGItem
 
         agentGItem.init()

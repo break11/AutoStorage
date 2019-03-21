@@ -35,7 +35,6 @@ class CAgent_SGItem(QGraphicsItem):
         self.status = "N/A"
         
         self.createGraphicElements()
-        self.updatePos()
 
     def createGraphicElements(self):
         w = SGT.wide_Rail_Width
@@ -86,7 +85,7 @@ class CAgent_SGItem(QGraphicsItem):
         return self.__agentNetObj()
 
     def init( self ):
-        pass
+        self.updatePos()
 
     def boundingRect(self):
         return self.__BBoxRect_Adj
@@ -96,7 +95,14 @@ class CAgent_SGItem(QGraphicsItem):
             return
 
         nxGraph = self.SGM.graphRootNode().nxGraph
-        tEdgeKey = eval( self.edge )
+        try:
+            tEdgeKey = eval( self.edge )
+        except Exception:
+            return
+
+        if type(tEdgeKey) is not tuple:
+            return
+        
         nodeID_1 = str(tEdgeKey[0])
         nodeID_2 = str(tEdgeKey[1])
 
