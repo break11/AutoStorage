@@ -23,10 +23,16 @@ class CNetObj( CTreeNode ):
 
 ###################################################################################
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.UID  = id if id else CNetObj_Manager.genNetObj_UID()
         self.props = props
         self.ext_fields = ext_fields
+
+        # В связи с тем, что в параметрах по умолчанию нельзя использовать дикты, здесь инициализируем данные переменные пустыми дикстами
+        # В случае указания пустого дикта в заголовке ф-ции, все объекты будут ссылаться на один дикт и редактировать его
+        if self.props is None: self.props = {}
+        if self.ext_fields is None: self.ext_fields = {}
+
         name = name if name else str(self.UID)
         super().__init__( name = name, parent = parent )
 
@@ -65,17 +71,6 @@ class CNetObj( CTreeNode ):
             netObj  = ObjClass( name=sName, parent=self, **kwargs )
 
 ###################################################################################
-##remove##
-    # def sendDeleted_NetCmd( self ):
-    #     if CNetObj_Manager.isConnected():
-    #         self.localDestroy()
-    #         # только отправляем команду, которую поймает парсер сетевых команд и выполнит localDestroy
-    #         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
-    #         CNetObj_Manager.sendNetCMD( cmd )
-    #     else:
-    #         # в оффлайн режиме удаляем объект, т.к. до парсера сетевых команд не дойдет
-    #         self.localDestroy()
-
     def __localDestroy( self ):
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.doCallbacks( cmd )
@@ -91,14 +86,7 @@ class CNetObj( CTreeNode ):
 
     def destroy( self ):
         CNetObj_Manager.sendNetCMD( CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID ) )
-
         self.localDestroy()
-
-##remove##
-    # def localDestroy( self ):
-    #     # self.rename( self.name + f"__del__{self.UID}" )
-    #     self.__localDestroy()
-    #     self.parent = None
 
     def localDestroyChildren( self ):
         for child in list(self.children):
@@ -130,13 +118,14 @@ class CNetObj( CTreeNode ):
 
         self.propsDict()[ cmd.sPropName ] = value
         CNetObj_Manager.doCallbacks( cmd )
-
         CNetObj_Manager.sendNetCMD( cmd )
 
     def __delitem__( self, key ):
         if CNetObj_Manager.isConnected():
             CNetObj_Manager.pipe.hdel( self.redisKey_Props(), key )
+        del self.propsDict()[ key ]
         cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key )
+        CNetObj_Manager.doCallbacks( cmd )
         CNetObj_Manager.sendNetCMD( cmd )
 
 ###################################################################################

@@ -6,7 +6,7 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
 
 class CGraphRoot_NO( CNetObj ):
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={}, nxGraph=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None, nxGraph=None ):
 
         if nxGraph is not None:
             self.nxGraph = nxGraph
@@ -24,7 +24,7 @@ class CGraphRoot_NO( CNetObj ):
 
 class CGraphNode_NO( CNetObj ):
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
         # функция для вызова в конструкторе предка, так как нода nx-графа должна быть заполнена до ObjCreated
@@ -66,7 +66,7 @@ class CGraphEdge_NO( CNetObj ):
     s_NodeID_1 = "NodeID_1"
     s_NodeID_2 = "NodeID_2"
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
 
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
@@ -99,7 +99,7 @@ def createGraph_NO_Branches( nxGraph ):
     Edges = CNetObj(name="Edges", parent=Graph)
     return Graph, Nodes, Edges
 
-def createEdge_NetObj( nodeID_1, nodeID_2, parent, props={} ):
+def createEdge_NetObj( nodeID_1, nodeID_2, parent, props=None ):
     ext_fields = {
                     CGraphEdge_NO.s_NodeID_1 : nodeID_1,
                     CGraphEdge_NO.s_NodeID_2 : nodeID_2

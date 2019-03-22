@@ -16,20 +16,18 @@ class CAgent_SGItem(QGraphicsItem):
     # __width = SGT.wide_Rail_Width
 
     @property
-    def edge(self):
-        return self.__agentNetObj()[ "edge" ]
+    def edge(self): return self.__agentNetObj()[ "edge" ]
     
     @property
-    def position(self):
-        return self.__agentNetObj()[ "position" ]
+    def position(self): return self.__agentNetObj()[ "position" ]
 
     @property
-    def direction(self):
-        return self.__agentNetObj()[ "direction" ]
+    def direction(self): return self.__agentNetObj()[ "direction" ]
 
-    def __init__(self, agentNetObj, parent ):
+    def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
 
+        self.SGM = SGM
         self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
@@ -74,7 +72,6 @@ class CAgent_SGItem(QGraphicsItem):
 
         self.textRect =  QRectF( sx + of_sx, sy + of_sy, w - 2*of_sx, h - 2*of_sy )
 
-
         # для отрисовки svg надо закомментировать метод paint
         # self.renderer = QSvgRenderer("/home/easyrid3r/temp/a.svg")
         # self.setSharedRenderer ( self.renderer )
@@ -88,46 +85,38 @@ class CAgent_SGItem(QGraphicsItem):
         return self.__agentNetObj()
 
     def init( self ):
-        pass
-
-    ############################################
-
-    def fillPropsTable( self, mdlObjProps ):
-        mdlObjProps.setHorizontalHeaderLabels( [ "agentID", self.agentNetObj.name ] )
-
-        for key, val in sorted( self.agentNetObj.propsDict().items() ):
-            stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
-            if stdItem_PropName is None:
-                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
-                mdlObjProps.appendRow( rowItems )
-            else:
-                stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), 1 )
-                stdItem_PropValue.setData( val, Qt.EditRole )
-
-    def updatePropsTable( self, stdModelItem ):
-        propName  = stdModelItem.model().item( stdModelItem.row(), 0 ).data( Qt.EditRole )
-        propValue = stdModelItem.data( Qt.EditRole )
-        
-        self.updateProp( propName, propValue )
-
-    def updateProp( self, propName, propValue ):
-        self.agentNetObj[ propName ] = SGT.adjustAttrType( propName, propValue )
-        self.init()
-        
-    ############################################
+        self.updatePos()
 
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
-    def updateEdgePos(self):
+    # отгон челнока в дефолтное временное место на сцене
+    def parking( self ):
+        xPos = (self.agentNetObj.UID % 10) * ( SGT.wide_Rail_Width + SGT.wide_Rail_Width / 2)
+        yPos = (self.agentNetObj.UID % 100) // 10 * 100
+        self.setPos( xPos, yPos )
+
+    def updatePos(self):
+        if ( not self.edge ) or ( not self.SGM.graphRootNode() ):
+            self.parking()
+            return
+
         nxGraph = self.SGM.graphRootNode().nxGraph
-        tEdgeKey = eval( self.edge )
+        try:
+            tEdgeKey = eval( self.edge )
+        except Exception:
+            self.parking()
+            return
+
+        if type(tEdgeKey) is not tuple:
+            self.parking()
+            return
+        
         nodeID_1 = str(tEdgeKey[0])
         nodeID_2 = str(tEdgeKey[1])
 
         if not nxGraph.has_edge( nodeID_1, nodeID_2 ): return
         
-
         x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
         y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
         
@@ -141,10 +130,6 @@ class CAgent_SGItem(QGraphicsItem):
 
         d_x = line.length() * self.position / 100 * math.cos( rAngle )
         d_y = line.length() * self.position / 100 * math.sin( rAngle )
-
-        # print ( d_x, d_y )
-        # print ( x1, y1, x2, y2 )
-        # print ( math.degrees (rAngle) )
 
         x = round(x1 + d_x)
         y = round(y1 - d_y)

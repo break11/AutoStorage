@@ -18,15 +18,13 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.removeObj( cmd.Obj_UID )
 
     def onObjPropUpdated( self, cmd ):
-        # netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-        # propName  = netCmd.sPropName
-        # propValue = netObj[ netCmd.sPropName ]
         if cmd.Obj_UID not in self.objList:
             return
 
         col = self.objList.index( cmd.Obj_UID )
         row = self.propList.index( cmd.sPropName )
         idx = self.index( row, col, QModelIndex() )
+
         self.dataChanged.emit( idx, idx )
 
     def updateObj_Set( self, objSet ):
@@ -39,7 +37,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
                 self.removeObj( UID )
 
     ####################################
-    
+
     def appendObj( self, UID ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj is None: return
@@ -112,6 +110,20 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         if role == Qt.DisplayRole or role == Qt.EditRole:            
             return netObj.get( propName ) if netObj else None
 
+    def setData( self, index, value, role ):
+        if not index.isValid(): return None
+
+        UID = self.objList[ index.column() ]
+        netObj = CNetObj_Manager.accessObj( UID )
+        propName = self.propList[ index.row() ]
+
+        if netObj is None: return False
+
+        if role == Qt.EditRole:
+            netObj[ propName ] = value
+            
+        return True
+
     def headerData( self, section, orientation, role ):
         if role != Qt.DisplayRole: return
 
@@ -122,6 +134,5 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         elif orientation == Qt.Vertical:
             return self.propList[ section ]
 
-
-    # def flags( self, index ):
-    #     return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+    def flags( self, index ):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable

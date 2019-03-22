@@ -57,36 +57,8 @@ class CNode_SGItem(QGraphicsItem):
     def destroy_NetObj( self ):
         self.netObj().destroy()
 
-    ############################################
-
     def getNetObj_UIDs( self ):
         return { self.netObj().UID }
-
-    def fillPropsTable( self, mdlObjProps ):
-        mdlObjProps.setHorizontalHeaderLabels( [ "nodeID", self.nodeID ] )
-
-        for key, val in sorted( self.nxNode.items() ):
-            stdItem_PropName = Std_Model_FindItem( pattern=key, model=mdlObjProps, col=0 )
-            if stdItem_PropName is None:
-                rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( SGT.adjustAttrType( key, val ) ) ]
-                mdlObjProps.appendRow( rowItems )
-            else:
-                stdItem_PropValue = mdlObjProps.item( stdItem_PropName.row(), 1 )
-                stdItem_PropValue.setData( val, Qt.EditRole )
-
-    def updatePropsTable( self, stdModelItem ):
-        propName  = stdModelItem.model().item( stdModelItem.row(), 0 ).data( Qt.EditRole )
-        propValue = stdModelItem.data( Qt.EditRole )
-        
-        self.updateProp( propName, propValue )
-
-    def updateProp( self, propName, propValue ):
-        self.netObj()[ propName ] = SGT.adjustAttrType( propName, propValue )
-        self.init()
-        self.updatePos_From_NX()
-        self.updateType()
-        
-    ############################################
 
     def calcBBox(self):
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
@@ -115,18 +87,16 @@ class CNode_SGItem(QGraphicsItem):
     def init(self):
         self.updateType()
         self.calcBBox()
-        self.updatePos_From_NX()
-
-    # обновление позиции на сцене по атрибутам из графа
-    def updatePos_From_NX(self):
-        super().setPos( self.x, self.y )
+        self.updatePos()
 
     def setPos(self, x, y):
         self.x = round(x)
         self.y = round(y)
-        self.updatePos_From_NX()
 
-        self.scene().itemChanged.emit( self )
+        super().setPos( self.x, self.y )
+    
+    def updatePos(self):
+        self.setPos( self.x, self.y )
     
     def move(self, deltaPos):
         pos = self.pos() + deltaPos
