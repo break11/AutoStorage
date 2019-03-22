@@ -23,10 +23,16 @@ class CNetObj( CTreeNode ):
 
 ###################################################################################
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props={}, ext_fields={} ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.UID  = id if id else CNetObj_Manager.genNetObj_UID()
         self.props = props
         self.ext_fields = ext_fields
+
+        # В связи с тем, что в параметрах по умолчанию нельзя использовать дикты, здесь инициализируем данные переменные пустыми дикстами
+        # В случае указания пустого дикта в заголовке ф-ции, все объекты будут ссылаться на один дикт и редактировать его
+        if self.props is None: self.props = {}
+        if self.ext_fields is None: self.ext_fields = {}
+
         name = name if name else str(self.UID)
         super().__init__( name = name, parent = parent )
 
@@ -102,7 +108,7 @@ class CNetObj( CTreeNode ):
 
         if bPropExist and self.propsDict()[ key ] == value:
             return
-        print( id(self.props), "222" )
+
         if CNetObj_Manager.isConnected():
             CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
 
@@ -113,7 +119,6 @@ class CNetObj( CTreeNode ):
         self.propsDict()[ cmd.sPropName ] = value
         CNetObj_Manager.doCallbacks( cmd )
         CNetObj_Manager.sendNetCMD( cmd )
-        print( id(self.props), "333" )
 
     def __delitem__( self, key ):
         if CNetObj_Manager.isConnected():

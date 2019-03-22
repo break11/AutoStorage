@@ -35,5 +35,4 @@ class CAM_MainWindow(QMainWindow):
     def on_btnAddAgent_clicked( self, bVal ):
         props = deepcopy( def_props )
         AgentsNode = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Agents" )
-        # CAgent_NO( parent=AgentsNode, props=props )
-        CAgent_NO( parent=AgentsNode )
+        CAgent_NO( parent=AgentsNode, props=props )

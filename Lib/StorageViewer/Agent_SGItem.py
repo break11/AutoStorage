@@ -94,6 +94,9 @@ class CAgent_SGItem(QGraphicsItem):
         if not self.edge:
             return
 
+        if not self.SGM.graphRootNode():
+            return
+
         nxGraph = self.SGM.graphRootNode().nxGraph
         try:
             tEdgeKey = eval( self.edge )

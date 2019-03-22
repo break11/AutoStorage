@@ -30,7 +30,6 @@ def registerNetObjTypes():
 def registerNetNodeWidgets( parent ):
     reg = CNetObj_WidgetsManager.registerWidget
     reg( CNetObj,       CNetObj_Widget, parent )
-    reg( CGraphRoot_NO, CDictProps_Widget, parent )
     reg( CGraphNode_NO, CDictProps_Widget, parent )
     reg( CGraphEdge_NO, CDictProps_Widget, parent )
     reg( CAgent_NO,     CDictProps_Widget, parent )
@@ -74,7 +73,7 @@ class CBaseApplication( QApplication ):
             registerNetNodeWidgets( self.objMonitor.saNetObj_WidgetContents )
             self.objMonitor.show()
 
-    def initConnection(self, default_settings={}, parent=None ):
+    def initConnection(self, parent=None ):
         if self.bNetworkMode:
             if not CNetObj_Manager.connect(): return False
 
@@ -115,7 +114,7 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParam
         app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
 
     window.init( EAppStartPhase.BeforeRedisConnect )
-    if not app.initConnection( default_settings = default_settings ): return -1
+    if not app.initConnection(): return -1
     window.init( EAppStartPhase.AfterRedisConnect )
 
     window.show()
