@@ -90,20 +90,26 @@ class CAgent_SGItem(QGraphicsItem):
     def boundingRect(self):
         return self.__BBoxRect_Adj
     
-    def updatePos(self):
-        if not self.edge:
-            return
+    # отгон челнока в дефолтное временное место на сцене
+    def parking( self ):
+        xPos = (self.agentNetObj.UID % 10) * ( SGT.wide_Rail_Width + SGT.wide_Rail_Width / 2)
+        yPos = (self.agentNetObj.UID % 100) // 10 * 100
+        self.setPos( xPos, yPos )
 
-        if not self.SGM.graphRootNode():
+    def updatePos(self):
+        if ( not self.edge ) or ( not self.SGM.graphRootNode() ):
+            self.parking()
             return
 
         nxGraph = self.SGM.graphRootNode().nxGraph
         try:
             tEdgeKey = eval( self.edge )
         except Exception:
+            self.parking()
             return
 
         if type(tEdgeKey) is not tuple:
+            self.parking()
             return
         
         nodeID_1 = str(tEdgeKey[0])
@@ -124,10 +130,6 @@ class CAgent_SGItem(QGraphicsItem):
 
         d_x = line.length() * self.position / 100 * math.cos( rAngle )
         d_y = line.length() * self.position / 100 * math.sin( rAngle )
-
-        # print ( d_x, d_y )
-        # print ( x1, y1, x2, y2 )
-        # print ( math.degrees (rAngle) )
 
         x = round(x1 + d_x)
         y = round(y1 - d_y)

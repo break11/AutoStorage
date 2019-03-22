@@ -14,15 +14,13 @@ from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
-from Lib.Common.GuiUtils import gvFitToPage, Std_Model_Item, time_func
-from Lib.Common.GraphUtils import EdgeDisplayName
+from Lib.Common.GuiUtils import gvFitToPage, time_func
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createEdge_NetObj
 from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agent_def_props
-from Lib.Common.StorageGraphTypes import wide_Rail_Width
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
@@ -306,12 +304,8 @@ class CStorageGraph_GScene_Manager( QObject ):
     def addAgent( self, agentNetObj ):
         if self.agentGItems.get ( agentNetObj.name ): return
 
-        xPos = (agentNetObj.UID % 10) * ( wide_Rail_Width + wide_Rail_Width / 2)
-        yPos = (agentNetObj.UID % 100) // 10 * 100
         agentGItem = CAgent_SGItem ( SGM=self, agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
         
-        if not agentGItem.edge:
-            agentGItem.setPos( xPos, yPos )
         self.agentGItems[ agentNetObj.name ] = agentGItem
 
         agentGItem.init()
