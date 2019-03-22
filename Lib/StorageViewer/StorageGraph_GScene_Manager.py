@@ -498,7 +498,6 @@ class CStorageGraph_GScene_Manager( QObject ):
             self.addAgent( agentNetObj = netObj )
         elif isinstance( netObj, CNetObj ) and netObj.name == "Graph_End_Obj":
             gvFitToPage( self.gView )
-            print( self.agentGItems )
             for agentGItem in self.agentGItems.values():
                 agentGItem.updatePos()
 
