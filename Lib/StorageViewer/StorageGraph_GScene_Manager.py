@@ -19,7 +19,7 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Br
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, createEdge_NetObj
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agent_def_props
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Net.NetObj import CNetObj
@@ -167,7 +167,7 @@ class CStorageGraph_GScene_Manager( QObject ):
                 cur_node = CGraphNode_NO( name = self.genStrNodeID(), parent = self.graphRootNode().nodesNode(),
                         saveToRedis = True, props = props, ext_fields = {} )
                 if last_node:
-                    createEdge_NetObj( nodeID_1 = cur_node.name, nodeID_2 = last_node.name, parent = self.graphRootNode().edgesNode() )
+                    CGraphEdge_NO.createEdge_NetObj( nodeID_1 = cur_node.name, nodeID_2 = last_node.name, parent = self.graphRootNode().edgesNode() )
 
                 last_node = cur_node
 
@@ -188,7 +188,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         for nodeID, nodeGItem in self.nodeGItems.items():
             self.calcNodeMiddleLine( nodeGItem )
         
-        gvFitToPage( self.gView )
+        ##remove## gvFitToPage( self.gView ) - не нужно т.к. выполоняется как реакция на GraphNet_Obj
         self.bHasChanges = False  # сбрасываем признак изменения сцены после загрузки
 
         self.bGraphLoading = False
@@ -366,10 +366,10 @@ class CStorageGraph_GScene_Manager( QObject ):
             nodeID_1 = nodeGItems[i].nodeID
             nodeID_2 = nodeGItems[i+1].nodeID
             if direct: #создание граней в прямом направлении
-                createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
 
             if reverse: #создание граней в обратном направлении
-                createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
 
             if direct == False and reverse == False: continue
 
@@ -428,10 +428,10 @@ class CStorageGraph_GScene_Manager( QObject ):
             edgeGItem.edge2_1().destroy()
 
         if b12:
-            createEdge_NetObj( edgeGItem.nodeID_2, edgeGItem.nodeID_1, parent = self.graphRootNode().edgesNode(), props=attr12 )
+            CGraphEdge_NO.createEdge_NetObj( edgeGItem.nodeID_2, edgeGItem.nodeID_1, parent = self.graphRootNode().edgesNode(), props=attr12 )
         
         if b21:
-            createEdge_NetObj( edgeGItem.nodeID_1, edgeGItem.nodeID_2, parent = self.graphRootNode().edgesNode(), props=attr21 )
+            CGraphEdge_NO.createEdge_NetObj( edgeGItem.nodeID_1, edgeGItem.nodeID_2, parent = self.graphRootNode().edgesNode(), props=attr21 )
 
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
@@ -496,6 +496,11 @@ class CStorageGraph_GScene_Manager( QObject ):
             self.addEdge( edgeNetObj = netObj )
         elif isinstance( netObj, CAgent_NO ):
             self.addAgent( agentNetObj = netObj )
+        elif isinstance( netObj, CNetObj ) and netObj.name == "Graph_End_Obj":
+            gvFitToPage( self.gView )
+            print( self.agentGItems )
+            for agentGItem in self.agentGItems.values():
+                agentGItem.updatePos()
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )

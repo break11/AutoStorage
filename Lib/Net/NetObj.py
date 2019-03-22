@@ -69,6 +69,7 @@ class CNetObj( CTreeNode ):
         netObj = CNetObj.resolvePath( self, sName )
         if netObj is None:
             netObj  = ObjClass( name=sName, parent=self, **kwargs )
+        return netObj
 
 ###################################################################################
     def __localDestroy( self ):

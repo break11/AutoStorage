@@ -30,6 +30,7 @@ def registerNetObjTypes():
 def registerNetNodeWidgets( parent ):
     reg = CNetObj_WidgetsManager.registerWidget
     reg( CNetObj,       CNetObj_Widget, parent )
+    reg( CGraphRoot_NO, CDictProps_Widget, parent )
     reg( CGraphNode_NO, CDictProps_Widget, parent )
     reg( CGraphEdge_NO, CDictProps_Widget, parent )
     reg( CAgent_NO,     CDictProps_Widget, parent )

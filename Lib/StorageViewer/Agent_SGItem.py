@@ -2,7 +2,6 @@ import weakref
 import math
 
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
-# from PyQt5.QtSvg import  QGraphicsSvgItem, QSvgRenderer
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont, QPainterPath, QPolygon )
 from PyQt5.QtCore import ( Qt, QPoint, QRectF, QPointF, QLineF )
 
@@ -12,8 +11,6 @@ from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  =  5 # расширение BBox для удобства выделения
-    # __height = SGT.narrow_Rail_Width
-    # __width = SGT.wide_Rail_Width
 
     @property
     def edge(self): return self.__agentNetObj()[ "edge" ]
@@ -71,11 +68,6 @@ class CAgent_SGItem(QGraphicsItem):
         self.lines.append ( v_line.translated ( w - 2*of_sx, h - ln ) )
 
         self.textRect =  QRectF( sx + of_sx, sy + of_sy, w - 2*of_sx, h - 2*of_sy )
-
-        # для отрисовки svg надо закомментировать метод paint
-        # self.renderer = QSvgRenderer("/home/easyrid3r/temp/a.svg")
-        # self.setSharedRenderer ( self.renderer )
-        # self.setElementId( "rect3713" )
         
     def getNetObj_UIDs( self ):
         return { self.agentNetObj.UID }
@@ -93,7 +85,7 @@ class CAgent_SGItem(QGraphicsItem):
     # отгон челнока в дефолтное временное место на сцене
     def parking( self ):
         xPos = (self.agentNetObj.UID % 10) * ( SGT.wide_Rail_Width + SGT.wide_Rail_Width / 2)
-        yPos = (self.agentNetObj.UID % 100) // 10 * 100
+        yPos = (self.agentNetObj.UID % 100) // 10 * ( - SGT.narrow_Rail_Width - 100)
         self.setPos( xPos, yPos )
 
     def updatePos(self):
@@ -115,7 +107,9 @@ class CAgent_SGItem(QGraphicsItem):
         nodeID_1 = str(tEdgeKey[0])
         nodeID_2 = str(tEdgeKey[1])
 
-        if not nxGraph.has_edge( nodeID_1, nodeID_2 ): return
+        if not nxGraph.has_edge( nodeID_1, nodeID_2 ):
+            self.parking()
+            return
         
         x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
         y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]

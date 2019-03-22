@@ -5,7 +5,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
 
-class CGraphRoot_NO( CNetObj ):
+class CGraphRoot_NO( CNetObj ):    
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None, nxGraph=None ):
 
         if nxGraph is not None:
@@ -13,12 +13,15 @@ class CGraphRoot_NO( CNetObj ):
         else:
             self.nxGraph = nx.DiGraph( **props )
 
+        props = self.nxGraph.graph
+
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )        
 
         self.nodesNode = CTreeNodeCache( baseNode = self, path = "Nodes" )
         self.edgesNode = CTreeNodeCache( baseNode = self, path = "Edges" )
-    
-    def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
+
+    ##remove## вроде не нужно, т.к. корректно перешли на self.props - позже удалить
+    # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
 
 ###################################################################################
 
@@ -63,8 +66,16 @@ class CGraphNode_NO( CNetObj ):
 ###################################################################################
 
 class CGraphEdge_NO( CNetObj ):
-    s_NodeID_1 = "NodeID_1"
-    s_NodeID_2 = "NodeID_2"
+    s_NodeID_1  = "NodeID_1"
+    s_NodeID_2  = "NodeID_2"
+
+    @classmethod
+    def createEdge_NetObj( cls, nodeID_1, nodeID_2, parent, props=None ):
+        ext_fields = {
+                        cls.s_NodeID_1 : nodeID_1,
+                        cls.s_NodeID_2 : nodeID_2
+                        }
+        edge = parent.queryObj( EdgeDisplayName( nodeID_1, nodeID_2 ), cls, props=props, ext_fields=ext_fields )
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
 
@@ -99,13 +110,6 @@ def createGraph_NO_Branches( nxGraph ):
     Edges = CNetObj(name="Edges", parent=Graph)
     return Graph, Nodes, Edges
 
-def createEdge_NetObj( nodeID_1, nodeID_2, parent, props=None ):
-    ext_fields = {
-                    CGraphEdge_NO.s_NodeID_1 : nodeID_1,
-                    CGraphEdge_NO.s_NodeID_2 : nodeID_2
-                    }
-    edge = parent.queryObj( EdgeDisplayName( nodeID_1, nodeID_2 ), CGraphEdge_NO, props=props, ext_fields=ext_fields )
-
 def createNetObjectsForGraph( nxGraph ):
     Graph, Nodes, Edges = createGraph_NO_Branches( nxGraph )
 
@@ -113,8 +117,10 @@ def createNetObjectsForGraph( nxGraph ):
         node = CGraphNode_NO( name=nodeID, parent=Nodes )
 
     for edgeID in nxGraph.edges():
-        createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges )
+        edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges )
 
+    CNetObj(name="Graph_End_Obj", parent=Graph)
+    
 def loadGraphML_to_NetObj( sFName, bReload ):
     graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
     if graphObj:
