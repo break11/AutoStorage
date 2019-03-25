@@ -13,13 +13,13 @@ class CAgent_SGItem(QGraphicsItem):
     __fBBoxD  =  5 # расширение BBox для удобства выделения
 
     @property
-    def edge(self): return self.__agentNetObj()[ "edge" ]
+    def edge(self): return self.__agentNetObj().edge
     
     @property
-    def position(self): return self.__agentNetObj()[ "position" ]
+    def position(self): return self.__agentNetObj().position
 
     @property
-    def direction(self): return self.__agentNetObj()[ "direction" ]
+    def direction(self): return self.__agentNetObj().direction
 
     def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
@@ -87,30 +87,19 @@ class CAgent_SGItem(QGraphicsItem):
         xPos = (self.agentNetObj.UID % 10) * ( SGT.wide_Rail_Width + SGT.wide_Rail_Width / 2)
         yPos = (self.agentNetObj.UID % 100) // 10 * ( - SGT.narrow_Rail_Width - 100)
         self.setPos( xPos, yPos )
+        self.setRotation( 0 )
 
     def updatePos(self):
-        if ( not self.edge ) or ( not self.SGM.graphRootNode() ):
+        tEdgeKey = self.agentNetObj.isOnTrack()
+        if tEdgeKey is None:
             self.parking()
             return
+        
+        nodeID_1 = str( tEdgeKey[0] )
+        nodeID_2 = str( tEdgeKey[1] )
 
         nxGraph = self.SGM.graphRootNode().nxGraph
-        try:
-            tEdgeKey = eval( self.edge )
-        except Exception:
-            self.parking()
-            return
 
-        if type(tEdgeKey) is not tuple:
-            self.parking()
-            return
-        
-        nodeID_1 = str(tEdgeKey[0])
-        nodeID_2 = str(tEdgeKey[1])
-
-        if not nxGraph.has_edge( nodeID_1, nodeID_2 ):
-            self.parking()
-            return
-        
         x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
         y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
         
@@ -130,8 +119,11 @@ class CAgent_SGItem(QGraphicsItem):
 
         super().setPos(x, y)
 
-        edgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ][ SGT.s_widthType ]
-        dAngle = - math.degrees( rAngle ) if edgeType == SGT.EWidthType.Narrow.name else - math.degrees( rAngle ) + 90
+        s_EdgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ].get( SGT.s_widthType )
+
+        railType = SGT.railType( s_EdgeType )
+
+        dAngle = - math.degrees( rAngle ) if railType == SGT.EWidthType.Narrow else - math.degrees( rAngle ) + 90
         self.setRotation( dAngle + (1 - self.direction)/2 * 180 )
 
         # self.scene().itemChanged.emit( self )

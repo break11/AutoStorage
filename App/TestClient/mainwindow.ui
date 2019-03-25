@@ -46,6 +46,22 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnSimpleAgent_Test">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>43</y>
+      <width>271</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Simple Agent Test</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolMain">
