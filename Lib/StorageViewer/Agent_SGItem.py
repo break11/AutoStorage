@@ -155,4 +155,8 @@ class CAgent_SGItem(QGraphicsItem):
             painter.drawPolygon( self.polygon )
             painter.drawLines( self.lines )
             painter.fillRect(-10, -10, 20, 20, Qt.black)
+
+            #поворот текста для удобства чтения, если итем челнока перевернут
+            if ( -270 < self.rotation() < -90 ):
+                painter.rotate( -180 )
             painter.drawText( self.textRect, alignFlags , text )
