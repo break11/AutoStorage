@@ -47,7 +47,7 @@ class CBaseApplication( QApplication ):
 
         if self.bNetworkMode:
             self.tickTimer = QTimer()
-            self.tickTimer.setInterval(100)
+            self.tickTimer.setInterval( 50 )
             self.tickTimer.start()
 
             self.ttlTimer = QTimer()
@@ -112,10 +112,10 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParam
         window.dkNetObj_Monitor = QDockWidget( parent = window )
         window.dkNetObj_Monitor.setObjectName( "dkNetObj_Monitor" )
         window.addDockWidget( Qt.RightDockWidgetArea, window.dkNetObj_Monitor )
-        app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
 
     window.init( EAppStartPhase.BeforeRedisConnect )
     if not app.initConnection(): return -1
+    app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
     window.init( EAppStartPhase.AfterRedisConnect )
 
     window.show()

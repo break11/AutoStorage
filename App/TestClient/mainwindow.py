@@ -117,10 +117,11 @@ class CTC_MainWindow(QMainWindow):
 
         if agentNO.isOnTrack() is None:
             agentNO.edge = str( edge )
-
         elif agentNO.route == "":
             sp = eval( agentNO.edge )
             startNode = str( sp[0] )
+            if startNode == targetNode:
+                return
             nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
             edges_route = []
             for i in range( len(nodes_route) - 1 ):
@@ -138,14 +139,14 @@ class CTC_MainWindow(QMainWindow):
                 edges_route.insert(0,  agentNO.edge )
 
             agentNO.route = str ( edges_route )
-
+            print("\nNEW:", agentNO.route, "\n")
         else:
             edges_route = eval(agentNO.route)
             new_pos = agentNO.position + 20
 
             if new_pos > 100:
                 edges_route = edges_route[1::]
-                if len(edges_route):
+                if len(edges_route) != 0:
                     agentNO.edge = str(edges_route[0])
                     agentNO.route = str ( edges_route )
                     agentNO.position = new_pos % 100
@@ -154,11 +155,3 @@ class CTC_MainWindow(QMainWindow):
                     agentNO.position = 100
             else:
                 agentNO.position = new_pos
-
-
-
-
-
-
-        # for node in graphNode.nxGraph.nodes:
-        #     print( node )

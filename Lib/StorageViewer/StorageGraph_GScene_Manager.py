@@ -532,5 +532,7 @@ class CStorageGraph_GScene_Manager( QObject ):
             gItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
+            # if netCmd.sPropName != "position":
+            #     return
             gItem = self.agentGItems[ netObj.name ]
             gItem.updatePos()

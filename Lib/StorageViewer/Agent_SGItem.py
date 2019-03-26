@@ -10,7 +10,7 @@ from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
-    __fBBoxD  =  5 # расширение BBox для удобства выделения
+    __fBBoxD  =  10 # расширение BBox для удобства выделения
 
     @property
     def edge(self): return self.__agentNetObj().edge
@@ -90,6 +90,7 @@ class CAgent_SGItem(QGraphicsItem):
         self.setRotation( 0 )
 
     def updatePos(self):
+        # print( self.edge, self.position, self.direction )
         tEdgeKey = self.agentNetObj.isOnTrack()
         if tEdgeKey is None:
             self.parking()
@@ -122,8 +123,7 @@ class CAgent_SGItem(QGraphicsItem):
         s_EdgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ].get( SGT.s_widthType )
 
         railType = SGT.railType( s_EdgeType )
-
-        dAngle = - math.degrees( rAngle ) if railType == SGT.EWidthType.Narrow else - math.degrees( rAngle ) + 90
+        dAngle = - math.degrees( rAngle ) if railType == SGT.EWidthType.Narrow else - math.degrees( rAngle ) + 90 * self.direction
         self.setRotation( dAngle + (1 - self.direction)/2 * 180 )
 
         # self.scene().itemChanged.emit( self )
@@ -132,6 +132,13 @@ class CAgent_SGItem(QGraphicsItem):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
 
         color = Qt.red if self.isSelected() else Qt.darkGreen
+
+        ## BBox
+        # pen = QPen( Qt.blue )
+        # pen.setWidth( 4 )
+        # painter.setBrush( QBrush() )
+        # painter.setPen(pen)
+        # painter.drawRect( self.boundingRect() )
 
         if lod < 0.03:
             painter.fillRect ( self.__BBoxRect, color )
@@ -157,6 +164,7 @@ class CAgent_SGItem(QGraphicsItem):
             painter.fillRect(-10, -10, 20, 20, Qt.black)
 
             #поворот текста для удобства чтения, если итем челнока перевернут
-            if ( -270 < self.rotation() < -90 ):
+            if ( 90 < abs( self.rotation() ) < 270 ):
                 painter.rotate( -180 )
             painter.drawText( self.textRect, alignFlags , text )
+            painter.resetTransform()

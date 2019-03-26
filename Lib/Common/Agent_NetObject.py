@@ -44,7 +44,6 @@ class CAgent_NO( CNetObj ):
         if ( not self.edge ) or ( not self.graphRootNode() ):
             return
 
-        nxGraph = self.graphRootNode().nxGraph
         try:
             tEdgeKey = eval( self.edge )
         except Exception:
@@ -56,6 +55,7 @@ class CAgent_NO( CNetObj ):
         nodeID_1 = str(tEdgeKey[0])
         nodeID_2 = str(tEdgeKey[1])
 
+        nxGraph = self.graphRootNode().nxGraph
         if not nxGraph.has_edge( nodeID_1, nodeID_2 ):
             return
         

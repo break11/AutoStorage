@@ -195,7 +195,7 @@ class CNetObj_Manager( object ):
         if len( NetUpdatedObj ):
             startU = time.time()
             values = cls.pipeUpdatedObjects.execute()
-            print( f"update time {(time.time() - startU)*1000}")
+            # print( f"update time {(time.time() - startU)*1000}")
             valIDX = 0
             for item in NetUpdatedObj:
                 obj       = item[0]
