@@ -15,7 +15,7 @@ class CNetCmd:
         cmd = self.Event.name if bDebug else self.Event
         if   self.Event <= EV.ClientDisconnected: return f"{cmd}"
         elif self.Event <= EV.ObjDeleted:         return f"{cmd}:{self.Obj_UID}"
-        elif self.Event <= EV.ObjPropUpdated:     return f"{cmd}:{self.Obj_UID}:{self.sPropName}:{self.value}"
+        elif self.Event <= EV.ObjPropUpdated:     return f"{cmd}:{self.Obj_UID}:{self.sPropName}:{CStrTypeConverter.ValToStr(self.value)}"
         elif self.Event >  EV.ObjPropUpdated:     return f"{cmd}:{self.Obj_UID}:{self.ExtCmdData}"
 
     @staticmethod
@@ -32,7 +32,7 @@ class CNetCmd:
                 return CNetCmd( Event=ev, Obj_UID=Obj_UID )
             elif ev <= EV.ObjPropUpdated:
                 propName  = l[2]
-                value     = l[3]
+                value     = CStrTypeConverter.ValFromStr(l[3])
                 return CNetCmd( Event=ev, Obj_UID=Obj_UID, PropName=propName, value=value )
 
             elif ev > EV.ObjPropUpdated:

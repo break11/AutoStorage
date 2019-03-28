@@ -41,7 +41,7 @@ class CTC_MainWindow(QMainWindow):
         self.updateEdgesWidthTest_Timer.timeout.connect( self.updateEdgesWidthTest )
 
         self.SimpleAgentTest_Timer = QTimer( self )
-        self.SimpleAgentTest_Timer.setInterval(25)
+        self.SimpleAgentTest_Timer.setInterval(5)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
         
         load_Window_State_And_Geometry( self )
@@ -142,7 +142,7 @@ class CTC_MainWindow(QMainWindow):
             print("\nNEW:", agentNO.route, "\n")
         else:
             edges_route = eval(agentNO.route)
-            new_pos = agentNO.position + 20
+            new_pos = agentNO.position + 2
 
             if new_pos > 100:
                 edges_route = edges_route[1::]

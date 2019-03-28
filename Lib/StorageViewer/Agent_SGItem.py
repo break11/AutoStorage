@@ -89,12 +89,10 @@ class CAgent_SGItem(QGraphicsItem):
         self.setPos( xPos, yPos )
         self.setRotation( 0 )
 
-    def updatePos(self, pos = None, edge = None):
-        print( self.edge, edge, "|", self.position, pos, "|", self.direction )
-        if edge is None:
-            tEdgeKey = self.agentNetObj.isOnTrack()
-        else:
-            tEdgeKey = eval( edge )
+    def updatePos(self):
+        print( self.edge, "|", self.position, "|", self.direction )
+
+        tEdgeKey = self.agentNetObj.isOnTrack()
 
         if tEdgeKey is None:
             self.parking()
@@ -116,12 +114,11 @@ class CAgent_SGItem(QGraphicsItem):
         rAngle = math.acos( line.dx() / ( line.length() or 1) )
         if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
 
-        if pos is None:
-            pos = self.position
+        pos = self.position
         ##remove##print( type(pos), "111111111111111111111111111111111" )
 
-        d_x = line.length() * int(pos) / 100 * math.cos( rAngle )
-        d_y = line.length() * int(pos) / 100 * math.sin( rAngle )
+        d_x = line.length() * pos / 100 * math.cos( rAngle )
+        d_y = line.length() * pos / 100 * math.sin( rAngle )
 
         x = round(x1 + d_x)
         y = round(y1 - d_y)
@@ -133,7 +130,7 @@ class CAgent_SGItem(QGraphicsItem):
         railType = SGT.railType( s_EdgeType )
         
         dAngle = - math.degrees( rAngle ) if railType == SGT.EWidthType.Narrow else - math.degrees( rAngle ) + 90 * int(self.direction)
-        self.setRotation( dAngle + (1 - int(self.direction))/2 * 180 )
+        self.setRotation( dAngle + (1 - self.direction)/2 * 180 )
 
         # self.scene().itemChanged.emit( self )
     
