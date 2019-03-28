@@ -115,7 +115,6 @@ class CAgent_SGItem(QGraphicsItem):
         if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
 
         pos = self.position
-        ##remove##print( type(pos), "111111111111111111111111111111111" )
 
         d_x = line.length() * pos / 100 * math.cos( rAngle )
         d_y = line.length() * pos / 100 * math.sin( rAngle )

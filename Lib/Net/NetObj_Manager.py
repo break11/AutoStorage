@@ -168,7 +168,6 @@ class CNetObj_Manager( object ):
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
                     if netObj is not None:
                         NetUpdatedObj.append( [ netObj, netCmd ] )
-                        ##remove## cls.pipeUpdatedObjects.hget( netObj.redisKey_Props(), netCmd.sPropName )
         
                 elif netCmd.Event == EV.ObjPropDeleted:
                     netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
@@ -194,20 +193,11 @@ class CNetObj_Manager( object ):
         #  применение обновления полей для всех объектов по которым были получены команды обновления полей
         if len( NetUpdatedObj ):
             startU = time.time()
-            ##remove##values = cls.pipeUpdatedObjects.execute()
-            # print( f"update time {(time.time() - startU)*1000}")
-            # valIDX = 0
             for item in NetUpdatedObj:
                 obj       = item[0]
                 netCmd    = item[1]
-                # val = values[ valIDX ]
-                # val = val.decode()
-                # val = CStrTypeConverter.ValFromStr( val )
-                # obj.propsDict()[ netCmd.sPropName ] = val
                 obj.propsDict()[ netCmd.sPropName ] = netCmd.value
                 cls.doCallbacks( netCmd )
-                # valIDX += 1
-            # NetUpdatedObj.clear()
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()
@@ -297,7 +287,6 @@ class CNetObj_Manager( object ):
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
             cls.pipe = cls.redisConn.pipeline()
             cls.pipeCreatedObjects = cls.redisConn.pipeline()
-            ##remove##cls.pipeUpdatedObjects = cls.redisConn.pipeline()
 
             cls.redisConn.info() # for genering exception if no connection
             cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
