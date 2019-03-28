@@ -203,7 +203,8 @@ class CNetObj_Manager( object ):
                 val = values[ valIDX ]
                 val = val.decode()
                 val = CStrTypeConverter.ValFromStr( val )
-                obj.propsDict()[ netCmd.sPropName ] = val
+                # obj.propsDict()[ netCmd.sPropName ] = val
+                obj.propsDict()[ netCmd.sPropName ] = netCmd.value
                 cls.doCallbacks( netCmd )
                 valIDX += 1
             # NetUpdatedObj.clear()

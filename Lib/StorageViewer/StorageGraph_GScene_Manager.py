@@ -532,7 +532,14 @@ class CStorageGraph_GScene_Manager( QObject ):
             gItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
-            # if netCmd.sPropName != "position":
-            #     return
+            if netCmd.sPropName == "route":
+                return
+
             gItem = self.agentGItems[ netObj.name ]
-            gItem.updatePos()
+            if netCmd.sPropName == "position":
+                ##remove##print( netCmd.value, type( netCmd.value ), "2222222222222222222222" )
+                gItem.updatePos( pos = int(netCmd.value) )
+            elif netCmd.sPropName == "edge":
+                gItem.updatePos( edge = netCmd.value )
+            else:
+                gItem.updatePos()

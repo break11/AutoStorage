@@ -41,7 +41,7 @@ class CTC_MainWindow(QMainWindow):
         self.updateEdgesWidthTest_Timer.timeout.connect( self.updateEdgesWidthTest )
 
         self.SimpleAgentTest_Timer = QTimer( self )
-        self.SimpleAgentTest_Timer.setInterval(100)
+        self.SimpleAgentTest_Timer.setInterval(25)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
         
         load_Window_State_And_Geometry( self )

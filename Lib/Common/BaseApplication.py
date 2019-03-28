@@ -47,7 +47,7 @@ class CBaseApplication( QApplication ):
 
         if self.bNetworkMode:
             self.tickTimer = QTimer()
-            self.tickTimer.setInterval( 50 )
+            self.tickTimer.setInterval( 100 )
             self.tickTimer.start()
 
             self.ttlTimer = QTimer()
