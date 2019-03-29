@@ -41,7 +41,7 @@ class CTC_MainWindow(QMainWindow):
         self.updateEdgesWidthTest_Timer.timeout.connect( self.updateEdgesWidthTest )
 
         self.SimpleAgentTest_Timer = QTimer( self )
-        self.SimpleAgentTest_Timer.setInterval(5)
+        self.SimpleAgentTest_Timer.setInterval(2)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
         
         load_Window_State_And_Geometry( self )
@@ -94,11 +94,7 @@ class CTC_MainWindow(QMainWindow):
         else:
             self.SimpleAgentTest_Timer.stop()
 
-    def SimpleAgentTest( self ):
-        if self.graphRootNode() is None: return
-        if self.agentsNode().childCount() == 0: return
-
-        agentNO = list( self.agentsNode().children )[ 0 ]
+    def AgentTestMoving(self, agentNO):
 
         # nx.algorithms.dag.dag_longest_path( graphNode.nxGraph )
         # print( nx.algorithms.shortest_paths.generic.shortest_path( graphNode.nxGraph ) )
@@ -142,7 +138,7 @@ class CTC_MainWindow(QMainWindow):
             print("\nNEW:", agentNO.route, "\n")
         else:
             edges_route = eval(agentNO.route)
-            new_pos = agentNO.position + 2
+            new_pos = agentNO.position + 1
 
             if new_pos > 100:
                 edges_route = edges_route[1::]
@@ -155,3 +151,10 @@ class CTC_MainWindow(QMainWindow):
                     agentNO.position = 100
             else:
                 agentNO.position = new_pos
+
+    def SimpleAgentTest( self ):
+        if self.graphRootNode() is None: return
+        if self.agentsNode().childCount() == 0: return
+
+        for agentNO in self.agentsNode().children:
+            self.AgentTestMoving( agentNO )
