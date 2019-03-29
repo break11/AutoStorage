@@ -15,10 +15,10 @@ class CClientList_Widget(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/ClientList_Widget.ui", self )
 
-        self.timer = QTimer()
-        self.timer.setInterval(1500)
-        self.timer.timeout.connect( self.tick )
-        self.timer.start()
+        self.ClientList_Timer = QTimer()
+        self.ClientList_Timer.setInterval(1500)
+        self.ClientList_Timer.timeout.connect( self.updateClientList )
+        self.ClientList_Timer.start()
         
         # модель со списком сервисов
         self.clientList_Model = QStandardItemModel( self )
@@ -71,7 +71,4 @@ class CClientList_Widget(QWidget):
             if not ( sID in clientIDList ):
                 m.removeRow( i )
             i += 1
-
-    def tick(self):
-        self.updateClientList()
 
