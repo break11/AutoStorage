@@ -1,5 +1,6 @@
 import weakref
 import math
+import numpy as np
 
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont, QPainterPath, QPolygon )
@@ -7,6 +8,7 @@ from PyQt5.QtCore import ( Qt, QPoint, QRectF, QPointF, QLineF )
 
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
+from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
@@ -20,6 +22,12 @@ class CAgent_SGItem(QGraphicsItem):
 
     @property
     def direction(self): return self.__agentNetObj().direction
+
+    @property
+    def angle(self): return self.__agentNetObj().angle
+
+    @angle.setter
+    def angle(self, val): self.__agentNetObj().angle = val
 
     def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
@@ -89,6 +97,12 @@ class CAgent_SGItem(QGraphicsItem):
         self.setPos( xPos, yPos )
         self.setRotation( 0 )
 
+    def updateRotation(self):
+        agent_vec_x_y = eval( self.angle )
+        print(self.angle, agent_vec_x_y, "!!!!!!!!!!!!!!!!!!!")
+        dAngle = getUnitVector_DegAngle( *(getUnitVector(*agent_vec_x_y)) )
+        self.setRotation( -dAngle )
+
     def updatePos(self):
         # print( self.edge, self.position, self.direction )
         tEdgeKey = self.agentNetObj.isOnTrack()
@@ -107,24 +121,61 @@ class CAgent_SGItem(QGraphicsItem):
         x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
         y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
 
-        line = QLineF(x1, y1, x2, y2)
+        ######### Position
 
-        rAngle = math.acos( line.dx() / ( line.length() or 1) )
-        if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
+        # line = QLineF(x1, y1, x2, y2)
 
-        d_x = line.length() * self.position / 100 * math.cos( rAngle )
-        d_y = line.length() * self.position / 100 * math.sin( rAngle )
+        # old_rAngle = math.acos( line.dx() / ( line.length() or 1) )
+        # if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
+
+        # old_d_x = line.length() * self.position / 100 * math.cos( old_rAngle )
+        # old_d_y = line.length() * self.position / 100 * math.sin( old_rAngle )
+        # print( "\nOLD:", old_rAngle, line.length(), old_d_x, old_d_y )
+
+        edge_vec = np.array( [x2,y2], float ) - np.array( [x1,y1], float )
+
+        edge_vec[1] = - edge_vec[1] #берём отрицательное значение тк, значения по оси "y" увеличиваются по направлению вниз
+        edge_vec_len: float = np.hypot( *edge_vec )
+
+        rAngle = getUnitVector_RadAngle( *(getUnitVector(*edge_vec)) )
+
+        d_x = edge_vec_len * self.position / 100 * math.cos( rAngle )
+        d_y = edge_vec_len * self.position / 100 * math.sin( rAngle )
+        print( "NEW:", rAngle, edge_vec_len, f"unit:{edge_vec} { getUnitVector(*edge_vec) }", d_x, d_y, "\n" )
 
         x = round(x1 + d_x)
         y = round(y1 - d_y)
 
+
         super().setPos(x, y)
 
-        s_EdgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ].get( SGT.s_widthType )
+        ######### Rotation
 
+        agent_vec_x_y = eval( self.angle )
+        agent_vec = getUnitVector( agent_vec_x_y[0], agent_vec_x_y[1] )
+
+        edge_unit_vec = getUnitVector( *edge_vec )
+        cos = edge_unit_vec[0]
+        sin = edge_unit_vec[1]
+
+        rotation_matrix = np.array( [[cos, sin], [-sin, cos]], float )
+
+        res_vec = rotation_matrix.dot(agent_vec)
+        dDeltaAngle = getUnitVector_DegAngle( *res_vec )
+
+        s_EdgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ].get( SGT.s_widthType )
         railType = SGT.railType( s_EdgeType )
-        dAngle = - math.degrees( rAngle ) if railType == SGT.EWidthType.Narrow else - math.degrees( rAngle ) + 90 * self.direction
-        self.setRotation( dAngle + (1 - self.direction)/2 * 180 )
+
+        if dDeltaAngle <= 45 or dDeltaAngle > 315:
+            self.angle = str( tuple(edge_unit_vec) )
+        elif dDeltaAngle <= 135 and railType == SGT.EWidthType.Wide :
+            plus90_matrix = np.array( [[0, -1], [1, 0]], float )
+            self.angle = str( tuple(plus90_matrix.dot(edge_unit_vec)) )
+        elif dDeltaAngle <= 225:
+            self.angle = str( tuple(edge_unit_vec * -1) )
+        elif dDeltaAngle <= 315 and railType == SGT.EWidthType.Wide:
+            minus90_matrix = np.array( [[0, 1], [-1, 0]], float )
+            self.angle = str( tuple(minus90_matrix.dot(edge_unit_vec)) )
 
         # self.scene().itemChanged.emit( self )
     
