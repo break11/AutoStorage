@@ -11,9 +11,9 @@ s_edge      = "edge"
 s_position  = "position"
 s_direction = "direction"
 s_route     = "route"
-s_angle     = "angle"
+s_vector    = "vector"
 
-def_props = { s_edge: "", s_position: 0, s_direction: 1, s_route: "", s_angle: "1,0" }
+def_props = { s_edge: "", s_position: 0, s_direction: 1, s_route: "", s_vector: "1,0" }
 
 class CAgent_NO( CNetObj ):
     @property
@@ -37,9 +37,9 @@ class CAgent_NO( CNetObj ):
     def direction(self, val): self[ s_direction ] = val
 
     @property
-    def angle(self): return self[ s_angle ]
-    @angle.setter
-    def angle(self, val): self[ s_angle ] = val
+    def vector(self): return self[ s_vector ]
+    @vector.setter
+    def vector(self, val): self[ s_vector ] = val
     
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )

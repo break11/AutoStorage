@@ -24,10 +24,10 @@ class CAgent_SGItem(QGraphicsItem):
     def direction(self): return self.__agentNetObj().direction
 
     @property
-    def angle(self): return self.__agentNetObj().angle
+    def vector(self): return self.__agentNetObj().vector
 
-    @angle.setter
-    def angle(self, val): self.__agentNetObj().angle = val
+    @vector.setter
+    def vector(self, val): self.__agentNetObj().vector = val
 
     def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
@@ -98,8 +98,7 @@ class CAgent_SGItem(QGraphicsItem):
         self.setRotation( 0 )
 
     def updateRotation(self):
-        agent_vec_x_y = eval( self.angle )
-        print(self.angle, agent_vec_x_y, "!!!!!!!!!!!!!!!!!!!")
+        agent_vec_x_y = eval( self.vector )
         dAngle = getUnitVector_DegAngle( *(getUnitVector(*agent_vec_x_y)) )
         self.setRotation( -dAngle )
 
@@ -155,7 +154,7 @@ class CAgent_SGItem(QGraphicsItem):
 
         ######### Rotation
 
-        agent_vec_x_y = eval( self.angle )
+        agent_vec_x_y = eval( self.vector )
         agent_vec = getUnitVector( agent_vec_x_y[0], agent_vec_x_y[1] )
 
         edge_unit_vec = getUnitVector( *edge_vec )
@@ -171,15 +170,15 @@ class CAgent_SGItem(QGraphicsItem):
         railType = SGT.railType( s_EdgeType )
 
         if dDeltaAngle <= 45 or dDeltaAngle > 315:
-            self.angle = str( tuple(edge_unit_vec) )
+            self.vector = str( tuple(edge_unit_vec) )
         elif dDeltaAngle <= 135 and railType == SGT.EWidthType.Wide :
             plus90_matrix = np.array( [[0, -1], [1, 0]], float )
-            self.angle = str( tuple(plus90_matrix.dot(edge_unit_vec)) )
+            self.vector = str( tuple(plus90_matrix.dot(edge_unit_vec)) )
         elif dDeltaAngle <= 225:
-            self.angle = str( tuple(edge_unit_vec * -1) )
+            self.vector = str( tuple(edge_unit_vec * -1) )
         elif dDeltaAngle <= 315 and railType == SGT.EWidthType.Wide:
             minus90_matrix = np.array( [[0, 1], [-1, 0]], float )
-            self.angle = str( tuple(minus90_matrix.dot(edge_unit_vec)) )
+            self.vector = str( tuple(minus90_matrix.dot(edge_unit_vec)) )
 
         # self.scene().itemChanged.emit( self )
     

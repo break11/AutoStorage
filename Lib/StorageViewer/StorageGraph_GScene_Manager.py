@@ -532,12 +532,13 @@ class CStorageGraph_GScene_Manager( QObject ):
             gItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
+            print ( netCmd.sPropName )
             if netCmd.sPropName == "route":
                 return
 
             gItem = self.agentGItems[ netObj.name ]
             
-            if netCmd.sPropName == "angle":
+            if netCmd.sPropName == "vector":
                 gItem.updateRotation()
             else:
                 gItem.updatePos()
