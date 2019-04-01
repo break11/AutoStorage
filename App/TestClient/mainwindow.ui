@@ -13,56 +13,7 @@
   <property name="windowTitle">
    <string>TestClient</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="btnUpdateNodesXY_Test">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>271</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Update Nodes X,Y Test</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnUpdateEdgesWidth_Test">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>10</y>
-      <width>271</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Update Edges Width Test</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnSimpleAgent_Test">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>43</y>
-      <width>271</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Simple Agent Test</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralwidget"/>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolMain">
    <property name="windowTitle">

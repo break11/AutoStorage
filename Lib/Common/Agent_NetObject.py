@@ -53,6 +53,7 @@ class CAgent_NO( CNetObj ):
         try:
             tEdgeKey = eval( self.edge )
         except Exception:
+            print( "Error eval!" )
             return
 
         if type(tEdgeKey) is not tuple:

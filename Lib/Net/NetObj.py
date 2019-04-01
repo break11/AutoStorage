@@ -113,7 +113,7 @@ class CNetObj( CTreeNode ):
         if CNetObj_Manager.isConnected():
             CNetObj_Manager.pipe.hset( self.redisKey_Props(), key, CStrTypeConverter.ValToStr( value ) )
 
-        cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key )
+        cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key, value=value )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
 

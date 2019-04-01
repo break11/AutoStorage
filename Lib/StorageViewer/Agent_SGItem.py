@@ -104,8 +104,10 @@ class CAgent_SGItem(QGraphicsItem):
         self.setRotation( -dAngle )
 
     def updatePos(self):
-        # print( self.edge, self.position, self.direction )
+        print( self.edge, "|", self.position, "|", self.direction )
+
         tEdgeKey = self.agentNetObj.isOnTrack()
+
         if tEdgeKey is None:
             self.parking()
             return
@@ -139,8 +141,10 @@ class CAgent_SGItem(QGraphicsItem):
 
         rAngle = getUnitVector_RadAngle( *(getUnitVector(*edge_vec)) )
 
-        d_x = edge_vec_len * self.position / 100 * math.cos( rAngle )
-        d_y = edge_vec_len * self.position / 100 * math.sin( rAngle )
+        pos = self.position
+
+        d_x = edge_vec_len * pos / 100 * math.cos( rAngle )
+        d_y = edge_vec_len * pos / 100 * math.sin( rAngle )
         print( "NEW:", rAngle, edge_vec_len, f"unit:{edge_vec} { getUnitVector(*edge_vec) }", d_x, d_y, "\n" )
 
         x = round(x1 + d_x)

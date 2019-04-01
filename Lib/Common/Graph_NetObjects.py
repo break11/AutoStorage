@@ -20,9 +20,6 @@ class CGraphRoot_NO( CNetObj ):
         self.nodesNode = CTreeNodeCache( baseNode = self, path = "Nodes" )
         self.edgesNode = CTreeNodeCache( baseNode = self, path = "Edges" )
 
-    ##remove## вроде не нужно, т.к. корректно перешли на self.props - позже удалить
-    # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
-
 ###################################################################################
 
 class CGraphNode_NO( CNetObj ):
