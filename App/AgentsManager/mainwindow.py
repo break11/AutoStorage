@@ -19,10 +19,13 @@ import networkx as nx
 import time
 from copy import deepcopy
 
+from .AgentsMoveManager import CAgents_Move_Manager
+
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
+        CAgents_Move_Manager.init()
                 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:

@@ -3,8 +3,19 @@ import math
 import networkx as nx
 import numpy as np
 import os
+import re
 
 # рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
+
+def tEdgeKeyFromStr( edge_str ):
+    pattern = " |,|:|-"
+    return re.split(pattern, edge_str)
+
+def tEdgeKeyToStr( tEdgeKey, bReversed = False ):
+    if bReversed:
+        tEdgeKey = tuple( reversed(tEdgeKey) )
+    return f"{tEdgeKey[0]} {tEdgeKey[1]}"
+
 def getLineAngle( line ):
     rAngle = math.acos( line.dx() / ( line.length() or 1) )
     if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
@@ -12,17 +23,24 @@ def getLineAngle( line ):
 
 def getUnitVector( x, y ):
     h: float =  np.hypot(x, y)
-    unitVector = np.array( [ 0, 0 ], float )
-    if h != 0:
-        unitVector = np.array( [ x/h, y/h ], float )
-    return unitVector
+    try:
+        return np.array( [ x/h, y/h ], float )
+    except ZeroDivisionError:
+        return np.array( [ 0, 0 ], float )
 
 def getUnitVector_RadAngle( x, y ):
     rAngle = np.arccos( x ) if y >= 0 else 2*np.pi - np.arccos( x )
     return rAngle
 
 def getUnitVector_DegAngle( x, y ):
-    return ( np.degrees( getUnitVector_RadAngle(x, y) ) )
+    return float( np.degrees( getUnitVector_RadAngle(x, y) ) )
+
+def getUnitVector_FromDegAngle( angle ):
+    angle = np.radians( angle % 360 )
+    x = np.cos(angle)
+    y = np.sin(angle) if angle <= 180 else - np.sin(angle)
+    print (  )
+    return np.array( [x, y], float )
 
 def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 

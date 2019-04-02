@@ -20,7 +20,7 @@ from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
-from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agent_def_props
+from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
@@ -88,7 +88,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         self.__maxNodeID    = 0
         self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
-        self.agentsNode    = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )
+        self.agentsNode    = agentsNodeCache()
 
         CNetObj_Manager.addCallback( EV.ObjCreated,       self.ObjCreated )
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
@@ -533,12 +533,12 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         elif isinstance( netObj, CAgent_NO ):
             print ( netCmd.sPropName )
-            if netCmd.sPropName == "route":
+            if netCmd.sPropName == s_route:
                 return
 
             gItem = self.agentGItems[ netObj.name ]
             
-            if netCmd.sPropName == "vector":
+            if netCmd.sPropName == s_angle:
                 gItem.updateRotation()
             else:
                 gItem.updatePos()

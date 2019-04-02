@@ -4,16 +4,18 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from copy import deepcopy
 from Lib.Net.NetObj_Manager import CNetObj_Manager
-
-b_id = id
+from Lib.Common.GraphUtils import tEdgeKeyFromStr
 
 s_edge      = "edge"
 s_position  = "position"
-s_direction = "direction"
 s_route     = "route"
-s_vector    = "vector"
+s_angle     = "angle"
 
-def_props = { s_edge: "", s_position: 0, s_direction: 1, s_route: "", s_vector: "1,0" }
+
+def_props = { s_edge: "", s_position: 0, s_route: "", s_angle : 0 }
+
+def agentsNodeCache():
+    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )
 
 class CAgent_NO( CNetObj ):
     @property
@@ -32,14 +34,9 @@ class CAgent_NO( CNetObj ):
     def position(self, val): self[ s_position ] = val
 
     @property
-    def direction(self): return self[ s_direction ]
-    @direction.setter
-    def direction(self, val): self[ s_direction ] = val
-
-    @property
-    def vector(self): return self[ s_vector ]
-    @vector.setter
-    def vector(self, val): self[ s_vector ] = val
+    def angle(self): return self[ s_angle ]
+    @angle.setter
+    def angle(self, val): self[ s_angle ] = val
     
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
@@ -50,17 +47,13 @@ class CAgent_NO( CNetObj ):
         if ( not self.edge ) or ( not self.graphRootNode() ):
             return
 
-        try:
-            tEdgeKey = eval( self.edge )
-        except Exception:
-            print( "Error eval!" )
-            return
+        tEdgeKey = tEdgeKeyFromStr(self.edge)
 
-        if type(tEdgeKey) is not tuple:
+        if len(tEdgeKey) < 2 :
             return
         
-        nodeID_1 = str(tEdgeKey[0])
-        nodeID_2 = str(tEdgeKey[1])
+        nodeID_1 = tEdgeKey[0]
+        nodeID_2 = tEdgeKey[1]
 
         nxGraph = self.graphRootNode().nxGraph
         if not nxGraph.has_edge( nodeID_1, nodeID_2 ):
