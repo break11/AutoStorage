@@ -13,6 +13,7 @@ from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Agent_NetObject import agentsNodeCache
+from Lib.Common.Graph_NetObjects import graphNodeCache
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj, CTreeNode
@@ -34,8 +35,8 @@ class CSystemTests_Widget(QWidget):
         self.SimpleAgentTest_Timer.setInterval(500)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
 
-        self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
-        self.agentsNode    = agentsNodeCache()
+        self.graphRootNode = graphNodeCache()
+        self.agentsNodeCache = agentsNodeCache()
 
     def init( self, initPhase ):
         pass
@@ -109,11 +110,10 @@ class CSystemTests_Widget(QWidget):
                 edges_route.insert(0,  tEdgeKeyFromStr (agentNO.edge) )
 
             agentNO.route = str ( edges_route )
-            print("\nNEW:", agentNO.route, "\n")
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
         if self.agentsNodeCache().childCount() == 0: return
 
-        for agentNO in self.agentsNode().children:
+        for agentNO in self.agentsNodeCache().children:
             self.AgentTestMoving( agentNO )

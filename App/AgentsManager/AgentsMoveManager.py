@@ -40,9 +40,6 @@ class CAgents_Move_Manager():
 
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
 
-        if netCmd.sPropName in [ s_position, s_edge ]:
-            cls.calcAgentAngle( netObj )
-
     @classmethod
     def calcAgentAngle( cls, agentNO ):
         tEdgeKey = agentNO.isOnTrack()
@@ -70,7 +67,6 @@ class CAgents_Move_Manager():
         railType = SGT.railType( s_EdgeType )
 
         agent_unit_vec = getUnitVector_FromDegAngle( agentNO.angle )
-        print( agentNO.angle, agent_unit_vec )
 
         minus90_matrix = np.array( [[0, 1], [-1, 0]], float )
 
@@ -89,6 +85,9 @@ class CAgents_Move_Manager():
 
     @classmethod
     def move( cls, agentNO ):
+        if agentNO.route == "":
+            return
+
         edges_route = eval(agentNO.route)
         new_pos = agentNO.position + 1
 
@@ -103,6 +102,8 @@ class CAgents_Move_Manager():
                 agentNO.position = 100
         else:
             agentNO.position = new_pos
+
+        cls.calcAgentAngle( agentNO )
 
     @classmethod
     def moveAgents( cls ):

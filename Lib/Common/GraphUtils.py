@@ -39,7 +39,6 @@ def getUnitVector_FromDegAngle( angle ):
     angle = np.radians( angle % 360 )
     x = np.cos(angle)
     y = np.sin(angle) if angle <= 180 else - np.sin(angle)
-    print (  )
     return np.array( [x, y], float )
 
 def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2

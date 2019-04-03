@@ -113,17 +113,6 @@ class CAgent_SGItem(QGraphicsItem):
         x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
         y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
 
-        ######### Position
-
-        # line = QLineF(x1, y1, x2, y2)
-
-        # old_rAngle = math.acos( line.dx() / ( line.length() or 1) )
-        # if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
-
-        # old_d_x = line.length() * self.position / 100 * math.cos( old_rAngle )
-        # old_d_y = line.length() * self.position / 100 * math.sin( old_rAngle )
-        # print( "\nOLD:", old_rAngle, line.length(), old_d_x, old_d_y )
-
         edge_vec = np.array( [x2,y2], float ) - np.array( [x1,y1], float )
 
         edge_vec[1] = - edge_vec[1] #берём отрицательное значение тк, значения по оси "y" увеличиваются по направлению вниз
@@ -133,46 +122,15 @@ class CAgent_SGItem(QGraphicsItem):
 
         pos = self.position
 
-        d_x = edge_vec_len * pos / 100 * math.cos( rAngle )
-        d_y = edge_vec_len * pos / 100 * math.sin( rAngle )
-        print( "NEW:", rAngle, edge_vec_len, f"unit:{edge_vec} { getUnitVector(*edge_vec) }", d_x, d_y, "\n" )
+        k = edge_vec_len * pos / 100
+        d_x = k * math.cos( rAngle )
+        d_y = k * math.sin( rAngle )
 
         x = round(x1 + d_x)
         y = round(y1 - d_y)
 
-
         super().setPos(x, y)
 
-        ######### Rotation
-
-        # agent_vec_x_y = eval( self.vector )
-        # agent_vec = getUnitVector( agent_vec_x_y[0], agent_vec_x_y[1] )
-
-        # edge_unit_vec = getUnitVector( *edge_vec )
-        # cos = edge_unit_vec[0]
-        # sin = edge_unit_vec[1]
-
-        # rotation_matrix = np.array( [[cos, sin], [-sin, cos]], float )
-
-        # res_vec = rotation_matrix.dot(agent_vec)
-        # dDeltaAngle = getUnitVector_DegAngle( *res_vec )
-
-        # s_EdgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ].get( SGT.s_widthType )
-        # railType = SGT.railType( s_EdgeType )
-
-        # if dDeltaAngle <= 45 or dDeltaAngle > 315:
-        #     self.vector = str( tuple(edge_unit_vec) )
-        # elif dDeltaAngle <= 135 and railType == SGT.EWidthType.Wide :
-        #     plus90_matrix = np.array( [[0, -1], [1, 0]], float )
-        #     self.vector = str( tuple(plus90_matrix.dot(edge_unit_vec)) )
-        # elif dDeltaAngle <= 225:
-        #     self.vector = str( tuple(edge_unit_vec * -1) )
-        # elif dDeltaAngle <= 315 and railType == SGT.EWidthType.Wide:
-        #     minus90_matrix = np.array( [[0, 1], [-1, 0]], float )
-        #     self.vector = str( tuple(minus90_matrix.dot(edge_unit_vec)) )
-
-        # self.scene().itemChanged.emit( self )
-    
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
 
@@ -209,7 +167,7 @@ class CAgent_SGItem(QGraphicsItem):
             painter.fillRect(-10, -10, 20, 20, Qt.black)
 
             #поворот текста для удобства чтения, если итем челнока перевернут
-            if ( 90 < abs( self.rotation() ) < 270 ):
+            if ( 95 < abs( self.rotation() ) < 265 ):
                 painter.rotate( -180 )
             painter.drawText( self.textRect, alignFlags , text )
             painter.resetTransform()

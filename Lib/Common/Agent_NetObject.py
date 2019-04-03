@@ -5,6 +5,7 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from copy import deepcopy
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.GraphUtils import tEdgeKeyFromStr
+from Lib.Common.Graph_NetObjects import graphNodeCache
 
 s_edge      = "edge"
 s_position  = "position"
@@ -39,7 +40,7 @@ class CAgent_NO( CNetObj ):
     def angle(self, val): self[ s_angle ] = val
     
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-        self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
+        self.graphRootNode = graphNodeCache()
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}

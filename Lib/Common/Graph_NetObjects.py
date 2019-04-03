@@ -5,6 +5,9 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
 
+def graphNodeCache():
+    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
+
 class CGraphRoot_NO( CNetObj ):    
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None, nxGraph=None ):
 

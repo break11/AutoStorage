@@ -15,7 +15,7 @@ from .Edge_SGItem import CEdge_SGItem
 from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
 from Lib.Common.GuiUtils import gvFitToPage, time_func
-from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches
+from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
@@ -87,7 +87,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         # self.gScene.setBspTreeDepth( 1 )
 
         self.__maxNodeID    = 0
-        self.graphRootNode = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
+        self.graphRootNode = graphNodeCache()
         self.agentsNode    = agentsNodeCache()
 
         CNetObj_Manager.addCallback( EV.ObjCreated,       self.ObjCreated )
@@ -532,7 +532,6 @@ class CStorageGraph_GScene_Manager( QObject ):
             gItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
-            print ( netCmd.sPropName )
             if netCmd.sPropName == s_route:
                 return
 
@@ -540,5 +539,5 @@ class CStorageGraph_GScene_Manager( QObject ):
             
             if netCmd.sPropName == s_angle:
                 gItem.updateRotation()
-            else:
+            elif netCmd.sPropName in [ s_position, s_edge ]:
                 gItem.updatePos()
