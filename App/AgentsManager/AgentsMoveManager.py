@@ -1,4 +1,4 @@
-import numpy as np
+import math
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 
@@ -57,10 +57,7 @@ class CAgents_Move_Manager():
         x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
         y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
 
-        edge_vec = np.array( [x2,y2], float ) - np.array( [x1,y1], float )
-        # edge_vec = np.array( [x2-x1,y2-y1], float ) )
-
-        edge_vec[1] = - edge_vec[1] #берём отрицательное значение тк, значения по оси "y" увеличиваются по направлению вниз
+        edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
         edge_unit_vec = getUnitVector( *edge_vec )
         
         s_EdgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ].get( SGT.s_widthType )
@@ -68,20 +65,21 @@ class CAgents_Move_Manager():
 
         agent_unit_vec = getUnitVector_FromDegAngle( agentNO.angle )
 
-        minus90_matrix = np.array( [[0, 1], [-1, 0]], float )
-
         if railType == SGT.EWidthType.Narrow:
             r_unit_vec = edge_unit_vec
         elif railType == SGT.EWidthType.Wide:
-            r_unit_vec = minus90_matrix.dot( edge_unit_vec )
+            #Если рельс широкий, используем для рассчёта повернутый на -90 градусов вектор грани,
+            #так как направление "вперёд" для челнока на широком рельсе это вектор челнока, повернутый на +90 градусов
+            #поворачиваем вектор грани, а не вектор челнока для удобства рассчёта, матрица поворота ([0,1],[-1,0])
+            r_unit_vec = (edge_unit_vec[1], -edge_unit_vec[0])
         
-        cos = np.dot(r_unit_vec, agent_unit_vec)
-        rAngle = np.arccos( cos )
+        cos = r_unit_vec[0] * agent_unit_vec[0] + r_unit_vec[1] * agent_unit_vec[1] #так как вектора единичные достаточно скалярного произведения
+        rAngle = math.acos( min( max( -1, cos), 1) ) #компенсация ошибок точности, если abs(cos) > 1
         
-        if rAngle < np.pi/4 :
+        if rAngle < math.pi/4 :
             agentNO.angle = getUnitVector_DegAngle( *r_unit_vec )
-        elif rAngle > np.pi * 3/4:
-            agentNO.angle = getUnitVector_DegAngle( *(-r_unit_vec) )
+        elif rAngle > math.pi * 3/4:
+            agentNO.angle = getUnitVector_DegAngle( -r_unit_vec[0], -r_unit_vec[1] )
 
     @classmethod
     def move( cls, agentNO ):

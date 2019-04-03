@@ -1,6 +1,5 @@
 import weakref
 import math
-import numpy as np
 
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont, QPainterPath, QPolygon )
@@ -113,10 +112,8 @@ class CAgent_SGItem(QGraphicsItem):
         x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
         y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
 
-        edge_vec = np.array( [x2,y2], float ) - np.array( [x1,y1], float )
-
-        edge_vec[1] = - edge_vec[1] #берём отрицательное значение тк, значения по оси "y" увеличиваются по направлению вниз
-        edge_vec_len: float = np.hypot( *edge_vec )
+        edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
+        edge_vec_len: float = math.hypot( *edge_vec )
 
         rAngle = getUnitVector_RadAngle( *(getUnitVector(*edge_vec)) )
 

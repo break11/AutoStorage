@@ -1,7 +1,6 @@
 
 import math
 import networkx as nx
-import numpy as np
 import os
 import re
 
@@ -22,24 +21,24 @@ def getLineAngle( line ):
     return rAngle
 
 def getUnitVector( x, y ):
-    h: float =  np.hypot(x, y)
+    h: float =  math.hypot(x, y)
     try:
-        return np.array( [ x/h, y/h ], float )
+        return ( x/h, y/h )
     except ZeroDivisionError:
-        return np.array( [ 0, 0 ], float )
+        return (0, 0)
 
 def getUnitVector_RadAngle( x, y ):
-    rAngle = np.arccos( x ) if y >= 0 else 2*np.pi - np.arccos( x )
+    rAngle = math.acos( x ) if y >= 0 else 2*math.pi - math.acos( x )
     return rAngle
 
 def getUnitVector_DegAngle( x, y ):
-    return float( np.degrees( getUnitVector_RadAngle(x, y) ) )
+    return float( math.degrees( getUnitVector_RadAngle(x, y) ) )
 
 def getUnitVector_FromDegAngle( angle ):
-    angle = np.radians( angle % 360 )
-    x = np.cos(angle)
-    y = np.sin(angle) if angle <= 180 else - np.sin(angle)
-    return np.array( [x, y], float )
+    angle = math.radians( angle % 360 )
+    x = math.cos(angle)
+    y = math.sin(angle) if angle <= 180 else - math.sin(angle)
+    return (x, y)
 
 def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 
