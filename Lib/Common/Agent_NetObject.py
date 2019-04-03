@@ -61,4 +61,3 @@ class CAgent_NO( CNetObj ):
             return
         
         return tEdgeKey
-

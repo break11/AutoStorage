@@ -4,6 +4,8 @@ import networkx as nx
 import os
 import re
 
+from Lib.Common import StorageGraphTypes as SGT
+
 # рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
 
 def tEdgeKeyFromStr( edge_str ):
@@ -39,6 +41,20 @@ def getUnitVector_FromDegAngle( angle ):
     x = math.cos(angle)
     y = math.sin(angle) if angle <= 180 else - math.sin(angle)
     return (x, y)
+
+def getEdgeCoords (nxGraph, tEdgeKey):
+    nodeID_1, nodeID_2 = tEdgeKey[0], tEdgeKey[1]
+
+    if not nxGraph.has_edge( nodeID_1, nodeID_2 ):
+        return
+
+    x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
+    y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
+    
+    x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
+    y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
+
+    return x1, x2, y1, y2
 
 def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 

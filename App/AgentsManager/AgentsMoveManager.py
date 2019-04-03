@@ -6,7 +6,7 @@ from Lib.Common.Agent_NetObject import s_position, s_edge, s_angle,agentsNodeCac
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNode import CTreeNodeCache
-from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle, getUnitVector_FromDegAngle, tEdgeKeyToStr
+from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle, getUnitVector_FromDegAngle, tEdgeKeyToStr, getEdgeCoords
 from Lib.Common import StorageGraphTypes as SGT
 
 class CAgents_Move_Manager():
@@ -49,28 +49,22 @@ class CAgents_Move_Manager():
             return
 
         nxGraph = agentNO.graphRootNode().nxGraph
-        nodeID_1, nodeID_2 = tEdgeKey[0], tEdgeKey[1]
-
-        x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
-        y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
-        
-        x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
-        y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
+        x1, x2, y1, y2 = getEdgeCoords( nxGraph, tEdgeKey )
 
         edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
         edge_unit_vec = getUnitVector( *edge_vec )
         
-        s_EdgeType = nxGraph.edges()[ (nodeID_1, nodeID_2) ].get( SGT.s_widthType )
+        s_EdgeType = nxGraph.edges()[ tEdgeKey ].get( SGT.s_widthType )
         railType = SGT.railType( s_EdgeType )
 
         agent_unit_vec = getUnitVector_FromDegAngle( agentNO.angle )
 
+        #Если рельс широкий, используем для рассчёта повернутый на -90 градусов вектор грани,
+        #так как направление "вперёд" для челнока на широком рельсе это вектор челнока, повернутый на +90 градусов
+        #поворачиваем вектор грани, а не вектор челнока для удобства рассчёта, матрица поворота ([0,1],[-1,0])
         if railType == SGT.EWidthType.Narrow:
             r_unit_vec = edge_unit_vec
         elif railType == SGT.EWidthType.Wide:
-            #Если рельс широкий, используем для рассчёта повернутый на -90 градусов вектор грани,
-            #так как направление "вперёд" для челнока на широком рельсе это вектор челнока, повернутый на +90 градусов
-            #поворачиваем вектор грани, а не вектор челнока для удобства рассчёта, матрица поворота ([0,1],[-1,0])
             r_unit_vec = (edge_unit_vec[1], -edge_unit_vec[0])
         
         cos = r_unit_vec[0] * agent_unit_vec[0] + r_unit_vec[1] * agent_unit_vec[1] #так как вектора единичные достаточно скалярного произведения

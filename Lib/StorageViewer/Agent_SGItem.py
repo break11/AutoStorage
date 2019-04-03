@@ -7,7 +7,7 @@ from PyQt5.QtCore import ( Qt, QPoint, QRectF, QPointF, QLineF )
 
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
-from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle
+from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle, getEdgeCoords
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
@@ -100,17 +100,8 @@ class CAgent_SGItem(QGraphicsItem):
         if tEdgeKey is None:
             self.parking()
             return
-        
-        nodeID_1 = str( tEdgeKey[0] )
-        nodeID_2 = str( tEdgeKey[1] )
 
-        nxGraph = self.SGM.graphRootNode().nxGraph
-
-        x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
-        y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
-        
-        x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
-        y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
+        x1, x2, y1, y2 = getEdgeCoords( self.SGM.graphRootNode().nxGraph, tEdgeKey )
 
         edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
         edge_vec_len: float = math.hypot( *edge_vec )
