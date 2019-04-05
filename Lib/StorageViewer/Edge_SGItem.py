@@ -6,7 +6,7 @@ import math
 
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
-from Lib.Common.GraphUtils import getLineAngle, EdgeDisplayName
+from Lib.Common.GraphUtils import EdgeDisplayName
 from Lib.Common.TreeNode import CTreeNodeCache
 
 from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
@@ -43,7 +43,6 @@ class CEdge_SGItem(QGraphicsItem):
         self.edgesNetObj_by_TKey[ ( self.nodeID_1, self.nodeID_2 ) ] = self.edge1_2
         self.edgesNetObj_by_TKey[ ( self.nodeID_2, self.nodeID_1 ) ] = self.edge2_1
 
-        self.__rAngle   = 0
         self.__BBoxRect = None     
         self.baseLine   = QLineF()
         
@@ -76,9 +75,6 @@ class CEdge_SGItem(QGraphicsItem):
         # исходная линия может быть полезной далее, например для получения длины
         self.baseLine = QLineF( self.x1, self.y1, self.x2, self.y2 )
 
-        # угол поворота грани при рисовании (она рисуется горизонтально в своей локальной системе координат, потом поворачивается)
-        self.__rAngle = getLineAngle ( self.baseLine )
-
         # расчет BBox-а поворачиваем точки BBox-а (topLeft, bottomRight) на тот же угол
         self.setRotation( -self.rotateAngle() )
         p1 = QPoint( 0, 0 )
@@ -98,7 +94,7 @@ class CEdge_SGItem(QGraphicsItem):
 
     # угол поворта в градусах
     def rotateAngle(self):
-        return math.degrees(self.__rAngle)
+        return self.baseLine.angle()
 
     def paint(self, painter, option, widget):
         lod = min( self.baseLine.length(), 100 ) * option.levelOfDetailFromTransform( painter.worldTransform() )

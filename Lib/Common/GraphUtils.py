@@ -19,11 +19,6 @@ def tEdgeKeyToStr( tEdgeKey, bReversed = False ):
     
     return f"{tEdgeKey[0]} {tEdgeKey[1]}"
 
-def getLineAngle( line ):
-    rAngle = math.acos( line.dx() / ( line.length() or 1) )
-    if line.dy() >= 0: rAngle = (math.pi * 2.0) - rAngle
-    return rAngle
-
 def getUnitVector( x, y ):
     h: float =  math.hypot(x, y)
     try:
