@@ -140,6 +140,22 @@ class CNetObj( CTreeNode ):
 ###################################################################################
 
     def propsDict(self): return self.props
+
+    # доступ к пропертям NetObj по имени через поля класса ( AgentNetObj.angle=0 равноценно AgentNetObj["angle"] = 0 )
+    def __getattr__(self, name):
+        try:
+            return object.__getattribute__(self, "props")[ name ]
+        except KeyError:
+            raise AttributeError
+    
+    def __setattr__(self, name, val):
+        try:
+            self[ name ]
+        except:
+            object.__setattr__(self, name, val)
+        else:
+            self[ name ] = val
+
 ###################################################################################
     @classmethod    
     def redisBase_Name_C(cls, UID) : return f"{cls.__s_obj}:{UID}" 

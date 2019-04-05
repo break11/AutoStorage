@@ -13,7 +13,7 @@
   <key attr.name="nodeType" attr.type="string" for="node" id="d3" />
   <key attr.name="y" attr.type="long" for="node" id="d2" />
   <key attr.name="x" attr.type="long" for="node" id="d1" />
-  <key attr.name="name" attr.type="string" for="graph" id="d0" />
+  <key attr.name="_name" attr.type="string" for="graph" id="d0" />
   <graph edgedefault="directed">
     <node id="0">
       <data key="d1">13248</data>

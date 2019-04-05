@@ -10,11 +10,13 @@ from Lib.Common import StorageGraphTypes as SGT
 
 def tEdgeKeyFromStr( edge_str ):
     pattern = " |,|:|-"
-    return re.split(pattern, edge_str)
+    return tuple (re.split(pattern, edge_str))
 
 def tEdgeKeyToStr( tEdgeKey, bReversed = False ):
+    k = tEdgeKey
     if bReversed:
         tEdgeKey = tuple( reversed(tEdgeKey) )
+    
     return f"{tEdgeKey[0]} {tEdgeKey[1]}"
 
 def getLineAngle( line ):
