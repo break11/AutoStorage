@@ -2,7 +2,7 @@
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
   <key attr.name="widthType" attr.type="string" for="edge" id="d5" />
   <key attr.name="y" attr.type="long" for="edge" id="d4" />
-  <key attr.name="edgeSize" attr.type="string" for="edge" id="d3" />
+  <key attr.name="edgeSize" attr.type="long" for="edge" id="d3" />
   <key attr.name="nodeType" attr.type="string" for="node" id="d2" />
   <key attr.name="y" attr.type="long" for="node" id="d1" />
   <key attr.name="x" attr.type="long" for="node" id="d0" />
