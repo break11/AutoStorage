@@ -138,66 +138,59 @@ class CNetObj_Manager( object ):
             cmdList = msgData.split("|")
             packetClientID = int( cmdList[0] )
 
-            for cmdItem in cmdList[1::]:
-                # принимаем сообщения от всех клиентов кроме себя самого
-                if packetClientID == cls.ClientID: continue
-
-                netCmd = CNetCmd.fromString( cmdItem )
+            # принимаем сообщения от всех клиентов кроме себя самого
+            if packetClientID != cls.ClientID:
+                del(cmdList[0]) # откусывание от списка команд ID клиента - остаются только однородные команды по объектам
+                cmdList = [ CNetCmd.fromString( sCmd ) for sCmd in cmdList ] # преобразование списка строк в список структур
+                cmdList2 = []
 
                 #################################################################################################
-                i += 1
-                if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd} ClientID={packetClientID}" )
+                # предварительный проход по командам создания объектов для вычитывания всех необходимых данный одним пайпом
+                for netCmd in cmdList:
+                    netObj = cls.accessObj( netCmd.Obj_UID )
 
-                if netCmd.Event <= EV.ClientDisconnected:
-                    cls.doCallbacks( netCmd )
-
-                elif netCmd.Event == EV.ObjCreated:
-                    CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
-                    if cls.accessObj( netCmd.Obj_UID ) is None:
-                        NetCreatedObj_UIDs.append( netCmd.Obj_UID )
-
-                elif netCmd.Event == EV.ObjPrepareDelete:
-                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=False )
-                    if netObj is not None:
-                        netObj.localDestroy()
-                        del netObj
+                    if netCmd.Event == EV.ObjCreated:
+                        if netObj is not None: continue
+                        CNetObj.load_PipeData_FromRedis( cls.pipeCreatedObjects, netCmd.Obj_UID )
                     else:
-                        print( f"{SC.sWarning} Trying to delete object what not found! UID = {netCmd.Obj_UID}" )
+                        if netObj is None: continue
 
-                elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
-                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-                    if netObj is not None:
-                        NetUpdatedObj.append( [ netObj, netCmd ] )
-        
-                elif netCmd.Event == EV.ObjPropDeleted:
-                    netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genWarning=True )
-                    if netObj is not None:
-                        propExist = netObj.propsDict().get( netCmd.sPropName )
+                    cmdList2.append( (weakref.ref( netObj ) if netObj else None, netCmd) )
+
+                # получение данных по созданным объектам
+                objCreatedData = cls.pipeCreatedObjects.execute()
+                objCreatedDataIDX = 0
+
+                #################################################################################################
+                for item in cmdList2:
+                    netObj = item[0]
+                    netCmd = item[1]
+
+                    i += 1
+                    if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd} ClientID={packetClientID}" )
+
+                    if netCmd.Event <= EV.ClientDisconnected:
+                        cls.doCallbacks( netCmd )
+
+                    elif netCmd.Event == EV.ObjCreated:
+                        obj, objCreatedDataIDX = CNetObj.createObj_From_PipeData( objCreatedData, netCmd.Obj_UID, objCreatedDataIDX )
+
+                    elif netCmd.Event == EV.ObjPrepareDelete:
+                        netObj().localDestroy()
+
+                    elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
+                        netObj().propsDict()[ netCmd.sPropName ] = netCmd.value
+                        cls.doCallbacks( netCmd )
+    
+                    elif netCmd.Event == EV.ObjPropDeleted:
+                        propExist = netObj().propsDict().get( netCmd.sPropName )
                         if propExist is not None:
                             cls.doCallbacks( netCmd )
                             del netObj.propsDict()[ netCmd.sPropName ]
-
                 ###################################################################################################
 
         # выполнение общего пакета редис команд (в том числе удаление объектов)
         cls.pipe.execute()
-
-        # создание всех объектов пришедших от команд в тике за один проход из отдельного пакета редис
-        if len( NetCreatedObj_UIDs ):
-            values = cls.pipeCreatedObjects.execute()
-            valIDX = 0
-            for objID in NetCreatedObj_UIDs:
-                obj, valIDX = CNetObj.createObj_From_PipeData( values, objID, valIDX )
-            # NetCreatedObj_UIDs.clear()
-
-        #  применение обновления полей для всех объектов по которым были получены команды обновления полей
-        if len( NetUpdatedObj ):
-            startU = time.time()
-            for item in NetUpdatedObj:
-                obj       = item[0]
-                netCmd    = item[1]
-                obj.propsDict()[ netCmd.sPropName ] = netCmd.value
-                cls.doCallbacks( netCmd )
 
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()
