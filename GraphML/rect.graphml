@@ -1,14 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <key attr.name="curvature" attr.type="string" for="edge" id="d11" />
-  <key attr.name="widthType" attr.type="string" for="edge" id="d10" />
-  <key attr.name="sensorSide" attr.type="string" for="edge" id="d9" />
-  <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d8" />
-  <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d7" />
-  <key attr.name="edgeSize" attr.type="long" for="edge" id="d6" />
-  <key attr.name="edgeType" attr.type="string" for="edge" id="d5" />
-  <key attr.name="floor_num" attr.type="long" for="node" id="d4" />
-  <key attr.name="containsAgent" attr.type="long" for="node" id="d3" />
+  <key attr.name="curvature" attr.type="string" for="edge" id="d8" />
+  <key attr.name="widthType" attr.type="string" for="edge" id="d7" />
+  <key attr.name="sensorSide" attr.type="string" for="edge" id="d6" />
+  <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d5" />
+  <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d4" />
+  <key attr.name="edgeSize" attr.type="long" for="edge" id="d3" />
   <key attr.name="nodeType" attr.type="string" for="node" id="d2" />
   <key attr.name="y" attr.type="long" for="node" id="d1" />
   <key attr.name="x" attr.type="long" for="node" id="d0" />
@@ -17,101 +14,85 @@
       <data key="d0">2000</data>
       <data key="d1">2000</data>
       <data key="d2">DummyNode</data>
-      <data key="d3">-1</data>
-      <data key="d4">0</data>
     </node>
     <node id="2">
       <data key="d0">6000</data>
       <data key="d1">2000</data>
       <data key="d2">DummyNode</data>
-      <data key="d3">-1</data>
-      <data key="d4">0</data>
     </node>
     <node id="3">
       <data key="d0">2000</data>
       <data key="d1">6000</data>
       <data key="d2">DummyNode</data>
-      <data key="d3">-1</data>
-      <data key="d4">0</data>
     </node>
     <node id="4">
       <data key="d0">6000</data>
       <data key="d1">6000</data>
       <data key="d2">DummyNode</data>
-      <data key="d3">-1</data>
-      <data key="d4">0</data>
     </node>
     <edge source="1" target="2">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
     <edge source="1" target="3">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
     <edge source="2" target="1">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
     <edge source="2" target="4">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
     <edge source="3" target="4">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
     <edge source="3" target="1">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
     <edge source="4" target="2">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
     <edge source="4" target="3">
-      <data key="d5">Normal</data>
-      <data key="d6">500</data>
-      <data key="d7">0</data>
-      <data key="d8">0</data>
-      <data key="d9">SBoth</data>
-      <data key="d10">Narrow</data>
-      <data key="d11">Straight</data>
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
     </edge>
   </graph>
 </graphml>

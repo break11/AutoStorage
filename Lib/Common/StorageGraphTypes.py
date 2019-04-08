@@ -42,9 +42,9 @@ graphAttrTypes = { EGraphAttrs.widthType        : str,
 
 def adjustAttrType( sAttrName, val ):
     if val is None: return None
-
     # для атрибутов, которых нет в списке возвращаем без преобразования типа
-    if not EGraphAttrs.__members__.get( sAttrName ): return val
+    if not EGraphAttrs.__members__.get( sAttrName ):
+        return val
     
     val = (graphAttrTypes[ EGraphAttrs[sAttrName] ] )( val )
     return val
@@ -114,12 +114,4 @@ class ESensorSide( Enum ):
     SRight   = auto()
     SBoth    = auto()
     SPassive = auto()
-
-def adjustGraphPropsDict( d ):
-    d1 = {}
-    for k,v in d.items():
-        k1 = k.decode() 
-        v1 = v.decode()
-        d1[ k1 ] = adjustAttrType( k1, v1 )
-    return d1
 
