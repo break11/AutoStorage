@@ -9,8 +9,8 @@ from Lib.Common import StorageGraphTypes as SGT
 # рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
 
 def tEdgeKeyFromStr( edge_str ):
-    pattern = " |,|:|-"
-    return tuple (re.split(pattern, edge_str))
+    pattern = " ,|,| |:|-"
+    return tuple( re.split(pattern, edge_str) )
 
 def tEdgeKeyToStr( tEdgeKey, bReversed = False ):
     k = tEdgeKey
