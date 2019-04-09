@@ -37,7 +37,12 @@ nxGraph = nx.DiGraph()
 
 nodeID1 = "ID1"
 nodeID2 = "ID2"
-tEdgeKey = (nodeID1, nodeID2)
+
+nodeID3 = "ID3"
+nodeID4 = "ID4"
+
+tEdgeKey12 = (nodeID1, nodeID2)
+tEdgeKey34 = (nodeID3, nodeID4)
 
 x1, x2, y1, y2 = 10, -20, 30, -40
 
@@ -84,22 +89,33 @@ test_225_deg_angle = gu.getUnitVector_DegAngle( *u_vec_225 )
 test_270_deg_angle = gu.getUnitVector_DegAngle( *u_vec_270 )
 test_315_deg_angle = gu.getUnitVector_DegAngle( *u_vec_315 )
 
-test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey)
+test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey12)
 
 
 #############################################################
 
 class TestMathFuncs(unittest.TestCase):
 
-    #вспомогательная функция сравнения двух tuple типа (float, float)
+    #вспомогательная функция сравнения двух tuple типа (float, float, ...)
     def check_TupleVecs_IsEqual(self, vec1, vec2):
-        return math.isclose ( vec1[0], vec2[0], abs_tol=1e-9 ) and math.isclose( vec1[1], vec2[1], abs_tol=1e-9 )
+        bEqual = len(vec1) == len(vec2)
+        if not bEqual: return False
+
+        for i in range( len(vec1) ):
+            bEqual = bEqual and math.isclose ( vec1[i], vec2[i], abs_tol=1e-9 )
+        return bEqual
 
     def test_check_TupleVecs_IsEqual(self):
-        self.assertTrue  ( self.check_TupleVecs_IsEqual(u_vec_45, u_vec_45)  )
-        self.assertFalse ( self.check_TupleVecs_IsEqual(u_vec_45, u_vec_135) )
+        self.assertTrue  (   self.check_TupleVecs_IsEqual(  u_vec_45, u_vec_45       ) )
+        self.assertFalse (   self.check_TupleVecs_IsEqual(  u_vec_45, u_vec_135      ) )
+        self.assertFalse (   self.check_TupleVecs_IsEqual( (0.1, 0.2, 0.3), (0.1, 0.2) )  )
+        self.assertFalse (   self.check_TupleVecs_IsEqual( (0.1, 0.2), (0.1, 0.2, 0.3) )  )
 
-    
+        self.assertTrue  (   self.check_TupleVecs_IsEqual(  (1.1e-9, 1), (1.2e-9, 1) )    )
+        self.assertFalse (   self.check_TupleVecs_IsEqual(  (1.1e-8, 1), (1.2e-8, 1) )    )
+
+    #######################################################################################
+
     def test_getUnitVector(self):
         self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_0,   u_vec_0  )   )
         self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_45,  u_vec_45 )   )
@@ -146,6 +162,30 @@ class TestMathFuncs(unittest.TestCase):
 
     def test_getEdgeCoords(self):
         self.assertEqual( (test_x1, test_x2, test_y1, test_y2), (x1, x2, y1, y2)  )
+
+
+class TestStrFuncs(unittest.TestCase):
+
+    def test_tEdgeKeyFromStr(self):
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1},{nodeID2}" ),  tEdgeKey12   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1}:{nodeID2}" ),  tEdgeKey12   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1}-{nodeID2}" ),  tEdgeKey12   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1} {nodeID2}" ),  tEdgeKey12   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1} ,{nodeID2}" ), tEdgeKey12   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3},{nodeID4}" ),  tEdgeKey34   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3}:{nodeID4}" ),  tEdgeKey34   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3}-{nodeID4}" ),  tEdgeKey34   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3} {nodeID4}" ),  tEdgeKey34   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3} ,{nodeID4}" ), tEdgeKey34   )
+
+    def test_tEdgeKeyToStr(self):
+        self.assertEqual(  gu.tEdgeKeyToStr( tEdgeKey12 ),  f"{nodeID1} {nodeID2}" )
+        self.assertEqual(  gu.tEdgeKeyToStr( tEdgeKey34 ),  f"{nodeID3} {nodeID4}" )
+
+    def test_EdgeDisplayName(self):
+        self.assertEqual(  gu.EdgeDisplayName( nodeID1, nodeID2 ),  f"{nodeID1} --> {nodeID2}" )
+        self.assertEqual(  gu.EdgeDisplayName( nodeID3, nodeID4 ),  f"{nodeID3} --> {nodeID4}" )
+
 
 if __name__ == '__main__':
     unittest.main()
