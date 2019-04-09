@@ -101,7 +101,7 @@ class CAgent_SGItem(QGraphicsItem):
             self.parking()
             return
 
-        x1, x2, y1, y2 = getEdgeCoords( self.SGM.graphRootNode().nxGraph, tEdgeKey )
+        x1, y1, x2, y2 = getEdgeCoords( self.SGM.graphRootNode().nxGraph, tEdgeKey )
 
         edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
         edge_vec_len: float = math.hypot( *edge_vec )

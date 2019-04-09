@@ -49,7 +49,7 @@ class CAgents_Move_Manager():
             return
 
         nxGraph = agentNO.graphRootNode().nxGraph
-        x1, x2, y1, y2 = getEdgeCoords( nxGraph, tEdgeKey )
+        x1, y1, x2, y2 = getEdgeCoords( nxGraph, tEdgeKey )
 
         edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
         edge_unit_vec = getUnitVector( *edge_vec )

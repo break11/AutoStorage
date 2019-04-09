@@ -51,7 +51,7 @@ def getEdgeCoords (nxGraph, tEdgeKey):
     x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
     y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
 
-    return x1, x2, y1, y2
+    return x1, y1, x2, y2
 
 def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 
