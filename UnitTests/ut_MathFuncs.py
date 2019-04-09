@@ -93,13 +93,23 @@ class TestMathFuncs(unittest.TestCase):
 
     #вспомогательная функция сравнения двух tuple типа (float, float)
     def check_TupleVecs_IsEqual(self, vec1, vec2):
-        return math.isclose ( vec1[0], vec2[0], abs_tol=1e-9 ) and math.isclose( vec1[1], vec2[1], abs_tol=1e-9 )
+        bEqual = len(vec1) == len(vec2)
+        if not bEqual: return False
+
+        for i in range( len(vec1) ):
+            bEqual = bEqual and math.isclose ( vec1[i], vec2[i], abs_tol=1e-9 )
+        return bEqual
 
     def test_check_TupleVecs_IsEqual(self):
-        self.assertTrue  ( self.check_TupleVecs_IsEqual(u_vec_45, u_vec_45)  )
-        self.assertFalse ( self.check_TupleVecs_IsEqual(u_vec_45, u_vec_135) )
+        self.assertTrue  (   self.check_TupleVecs_IsEqual(  u_vec_45, u_vec_45)    )
+        self.assertFalse (   self.check_TupleVecs_IsEqual(  u_vec_45, u_vec_135)   )
+        self.assertFalse (   self.check_TupleVecs_IsEqual( (0.1, 0.2, 0.3), (0.1, 0.2) )  )
+        self.assertFalse (   self.check_TupleVecs_IsEqual( (0.1, 0.2), (0.1, 0.2, 0.3) )  )
 
-    
+        self.assertTrue  (   self.check_TupleVecs_IsEqual(  (1.1e-9, 1), (1.2e-9, 1) )    )
+        self.assertFalse (   self.check_TupleVecs_IsEqual(  (1.1e-8, 1), (1.2e-8, 1) )    )
+
+    ###################33
     def test_getUnitVector(self):
         self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_0,   u_vec_0  )   )
         self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_45,  u_vec_45 )   )
