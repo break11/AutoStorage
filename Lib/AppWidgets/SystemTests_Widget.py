@@ -100,16 +100,19 @@ class CSystemTests_Widget(QWidget):
             if startNode == targetNode:
                 return
             nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
-            edges_route = []
-            for i in range( len(nodes_route) - 1 ):
-                edges_route.append( (nodes_route[i], nodes_route[i+1]) )
+            # edges_route = []
+            # for i in range( len(nodes_route) - 1 ):
+            #     edges_route.append( (nodes_route[i], nodes_route[i+1]) )
 
-            if edges_route[0] != current_edge:
+            # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
+            # if edges_route[0] != current_edge:
+            if nodes_route[0] != current_edge[0]:
                 agentNO.edge = tEdgeKeyToStr( current_edge, bReversed=True )
                 agentNO.position = 100 - agentNO.position
-                edges_route.insert(0,  tEdgeKeyFromStr (agentNO.edge) )
+                # edges_route.insert(0,  tEdgeKeyFromStr (agentNO.edge) )
+                nodes_route.insert(0, current_edge[1] )
 
-            agentNO.route = str ( edges_route )
+            agentNO.route = ",".join( nodes_route )
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return

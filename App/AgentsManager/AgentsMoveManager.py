@@ -80,18 +80,33 @@ class CAgents_Move_Manager():
         if agentNO.route == "":
             return
 
-        edges_route = eval(agentNO.route)
+        nodes_route = agentNO.route.split(",")
+
         new_pos = agentNO.position + 1
 
         if new_pos > 100:
-            edges_route = edges_route[1::]
-            if len(edges_route) != 0:
-                agentNO.edge = tEdgeKeyToStr(edges_route[0])
-                agentNO.route = str ( edges_route )
-                agentNO.position = new_pos % 100
-            else:
+            newIDX = agentNO.route_idx + 1
+
+            if newIDX >= len( nodes_route ):
+                agentNO.route_idx = 0
                 agentNO.route = ""
-                agentNO.position = 100
+                return
+
+            agentNO.position = new_pos % 100
+            tEdgeKey = ( nodes_route[ agentNO.route_idx ], nodes_route[ newIDX ] )
+            agentNO.edge = tEdgeKeyToStr( tEdgeKey )
+            agentNO.route_idx = newIDX
+
+            ##remove##
+            # edges_route = edges_route[1::]
+            # if len(edges_route) != 0:
+            #     agentNO.edge = tEdgeKeyToStr(edges_route[0])
+            #     agentNO.route = str ( edges_route )
+            #     agentNO.position = new_pos % 100
+            # else:
+            #     agentNO.route = ""
+            #     agentNO.position = 100
+
         else:
             agentNO.position = new_pos
 
