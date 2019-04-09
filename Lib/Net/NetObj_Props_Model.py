@@ -11,7 +11,8 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.propCounter = {}
         self.objList = []
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.onObjPropUpdated )
+        CNetObj_Manager.addCallback( EV.ObjPropDeleted,   self.onObjPropDelete )
 
     ####################################
     def onObjPrepareDelete( self, cmd ):
@@ -26,6 +27,10 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         idx = self.index( row, col, QModelIndex() )
 
         self.dataChanged.emit( idx, idx )
+
+    def onObjPropDelete( self, cmd ):
+        self.decPropCounter( cmd.sPropName )
+        self.clearNotUsedProps()
 
     def updateObj_Set( self, objSet ):
         for UID in objSet:
@@ -59,7 +64,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         if UID not in self.objList: return
 
         for propName in netObj.propsDict().keys():
-            self.removePropCounter( propName )
+            self.decPropCounter( propName )
 
         i = self.objList.index( UID )
         self.beginRemoveColumns( QModelIndex(), i, i )
@@ -75,7 +80,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.endInsertRows()
         self.propCounter[ propName ] = 1
 
-    def removePropCounter( self, propName ):
+    def decPropCounter( self, propName ):
         self.propCounter[ propName ] -= 1
 
     def clearNotUsedProps( self ):
