@@ -84,7 +84,7 @@ test_225_deg_angle = gu.getUnitVector_DegAngle( *u_vec_225 )
 test_270_deg_angle = gu.getUnitVector_DegAngle( *u_vec_270 )
 test_315_deg_angle = gu.getUnitVector_DegAngle( *u_vec_315 )
 
-test_x1, test_x2, test_y1, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey)
+test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey)
 
 
 #############################################################
