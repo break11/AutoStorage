@@ -2,52 +2,26 @@
 from enum import Enum, auto
 from PyQt5.QtCore import (Qt)
 
-class EGraphAttrs( Enum ):
-    widthType        = auto()
-    edgeSize         = auto()
-    highRailSizeFrom = auto()
-    highRailSizeTo   = auto()
-    curvature        = auto()
-    edgeType         = auto()
-    sensorSide       = auto()
-    chargeSide       = auto()
-    containsAgent    = auto()
-    floor_num        = auto()
-    x                = auto()
-    y                = auto()
-    nodeType         = auto()
-    storageType      = auto()
-    # name            = auto() # не используем из-за конфликта со встроенными атрибутами класса, нужен только в пропертях графа
+_graphAttrs = [
+            "widthType",
+            "edgeSize",
+            "highRailSizeFrom",
+            "highRailSizeTo",
+            "curvature",
+            "edgeType",
+            "sensorSide",
+            "chargeSide",
+            "containsAgent",
+            "floor_num",
+            "x",
+            "y",
+            "nodeType",
+            "storageType",
+          ]
 
-# Экспортируем "короткие" алиасы имен атрибутов ( будет доступно по SGT.s_nodeType, SGT.s_x и т.д. )
-for attr in EGraphAttrs:
-    locals()[ "s_" + attr.name ] = attr.name
-
-graphAttrTypes = { EGraphAttrs.widthType        : str,
-                   EGraphAttrs.edgeSize         : int,
-                   EGraphAttrs.highRailSizeFrom : int,
-                   EGraphAttrs.highRailSizeTo   : int,
-                   EGraphAttrs.curvature        : str,
-                   EGraphAttrs.edgeType         : str,
-                   EGraphAttrs.sensorSide       : str,
-                   EGraphAttrs.chargeSide       : str,
-                   EGraphAttrs.containsAgent    : int,
-                   EGraphAttrs.floor_num        : int,
-                   EGraphAttrs.x                : int,
-                   EGraphAttrs.y                : int,
-                   EGraphAttrs.nodeType         : str,
-                   EGraphAttrs.storageType      : str,
-                #    EGraphAttrs.name             : str,
-}
-
-def adjustAttrType( sAttrName, val ):
-    if val is None: return None
-    # для атрибутов, которых нет в списке возвращаем без преобразования типа
-    if not EGraphAttrs.__members__.get( sAttrName ):
-        return val
-    
-    val = (graphAttrTypes[ EGraphAttrs[sAttrName] ] )( val )
-    return val
+# Экспортируем "короткие" алиасы строковых констант
+for str_item in _graphAttrs:
+    locals()[ "s_" + str_item ] = str_item
 
 #######################################################
 

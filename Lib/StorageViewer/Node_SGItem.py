@@ -23,12 +23,12 @@ class CNode_SGItem(QGraphicsItem):
     @property
     def x(self): return self.netObj()[ SGT.s_x ]
     @x.setter
-    def x(self, value): self.netObj()[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, value )
+    def x(self, value): self.netObj()[ SGT.s_x ] = value
 
     @property
     def y(self): return self.netObj()[ SGT.s_y ]
     @y.setter
-    def y(self, value): self.netObj()[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, value )
+    def y(self, value): self.netObj()[ SGT.s_y ] = value
 
     @property
     def nodeID( self ): return self.netObj().name
