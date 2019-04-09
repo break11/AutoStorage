@@ -461,8 +461,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
                 attr = deepcopy (self.default_Node_Props)
-                attr[ SGT.s_x ] = SGT.adjustAttrType( SGT.s_x, self.gView.mapToScene(event.pos()).x() )
-                attr[ SGT.s_y ] = SGT.adjustAttrType( SGT.s_y, self.gView.mapToScene(event.pos()).y() )
+                attr[ SGT.s_x ] = self.gView.mapToScene(event.pos()).x()
+                attr[ SGT.s_y ] = self.gView.mapToScene(event.pos()).y()
 
                 CGraphNode_NO( name=self.genStrNodeID(), parent=self.graphRootNode().nodesNode(), props=attr )
 

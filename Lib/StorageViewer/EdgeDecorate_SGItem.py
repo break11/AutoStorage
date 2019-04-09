@@ -68,11 +68,6 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
 
         if None in ( eL, eHFrom, eHTo ): return
 
-        # adjustAttrType можно будет убрать, если перевести атрибуты ниже в инты в графе
-        eL     = SGT.adjustAttrType( SGT.s_edgeSize,         eL )
-        eHFrom = SGT.adjustAttrType( SGT.s_highRailSizeFrom, eHFrom )
-        eHTo   = SGT.adjustAttrType( SGT.s_highRailSizeTo,   eHTo )
-
         kW = bline_length / eL
 
         sensorSide = edgeNetObj.get( SGT.s_sensorSide )
