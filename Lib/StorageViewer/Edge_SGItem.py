@@ -15,13 +15,13 @@ class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
     
     @property
-    def x1(self): return self.node_1()[ SGT.s_x ]
+    def x1(self): return self.node_1().x
     @property
-    def y1(self): return self.node_1()[ SGT.s_y ]
+    def y1(self): return self.node_1().y
     @property
-    def x2(self): return self.node_2()[ SGT.s_x ]
+    def x2(self): return self.node_2().x
     @property
-    def y2(self): return self.node_2()[ SGT.s_y ]
+    def y2(self): return self.node_2().y
 
     def __init__(self, SGM, fsEdgeKey, graphRootNode, parent ):
         super().__init__( parent=parent )

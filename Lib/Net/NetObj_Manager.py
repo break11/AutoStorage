@@ -131,7 +131,7 @@ class CNetObj_Manager( object ):
 
         msg = cls.receiver.get_message( ignore_subscribe_messages=False )
 
-        i = 0
+        # i = 0
         if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
             msgData = msg[ s_Redis_data ].decode()
 
@@ -166,7 +166,7 @@ class CNetObj_Manager( object ):
                     netObj = item[0]
                     netCmd = item[1]
 
-                    i += 1
+                    # i += 1
                     if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd} ClientID={packetClientID}" )
 
                     if netCmd.Event <= EV.ClientDisconnected:
@@ -195,7 +195,7 @@ class CNetObj_Manager( object ):
         # отправка всех накопившихся в буфере сетевых команд одним блоком (команды создания, удаления, обновления объектов в редис чат)
         CNetObj_Manager.send_NetCmd_Buffer()
 
-        if i: print( f"NetCmd count in tick = {i}" )
+        # if i: print( f"NetCmd count in tick = {i}" )
 
     #####################################################
     

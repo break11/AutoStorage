@@ -21,23 +21,7 @@ class CNode_SGItem(QGraphicsItem):
     stRectR = QRectF( __st_offset - __st_width/2, -__st_height/2, __st_width, __st_height)
 
     @property
-    def x(self): return self.netObj()[ SGT.s_x ]
-    @x.setter
-    def x(self, value): self.netObj()[ SGT.s_x ] = value
-
-    @property
-    def y(self): return self.netObj()[ SGT.s_y ]
-    @y.setter
-    def y(self, value): self.netObj()[ SGT.s_y ] = value
-
-    @property
     def nodeID( self ): return self.netObj().name
-
-    @property
-    def nxGraph( self ): return self.netObj().nxGraph()
-
-    @property
-    def nxNode( self ): return self.netObj().nxNode()
 
     def __init__(self, SGM, nodeNetObj, parent ):
         super().__init__( parent=parent )
@@ -90,13 +74,13 @@ class CNode_SGItem(QGraphicsItem):
         self.updatePos()
 
     def setPos(self, x, y):
-        self.x = round(x)
-        self.y = round(y)
+        self.netObj().x = round(x)
+        self.netObj().y = round(y)
 
-        super().setPos( self.x, self.y )
+        super().setPos( self.netObj().x, self.netObj().y )
     
     def updatePos(self):
-        self.setPos( self.x, self.y )
+        self.setPos( self.netObj().x, self.netObj().y )
     
     def move(self, deltaPos):
         pos = self.pos() + deltaPos
@@ -104,8 +88,8 @@ class CNode_SGItem(QGraphicsItem):
 
     def updateType(self):
         try:
-            sNodeType = self.nxGraph.node[ self.nodeID ][ SGT.s_nodeType ]
-        except KeyError:
+            sNodeType = self.netObj().nodeType
+        except AttributeError:
             sNodeType = SGT.ENodeTypes.NoneType.name
         
         try:

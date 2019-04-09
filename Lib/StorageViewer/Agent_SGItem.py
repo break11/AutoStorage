@@ -13,15 +13,6 @@ class CAgent_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  =  10 # расширение BBox для удобства выделения
 
-    @property
-    def edge(self): return self.__agentNetObj().edge
-    
-    @property
-    def position(self): return self.__agentNetObj().position
-
-    @property
-    def angle(self): return self.__agentNetObj().angle
-
     def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
 
@@ -71,11 +62,7 @@ class CAgent_SGItem(QGraphicsItem):
         self.textRect =  QRectF( sx + of_sx, sy + of_sy, w - 2*of_sx, h - 2*of_sy )
         
     def getNetObj_UIDs( self ):
-        return { self.agentNetObj.UID }
-
-    @property
-    def agentNetObj(self):
-        return self.__agentNetObj()
+        return { self.__agentNetObj().UID }
 
     def init( self ):
         self.updatePos()
@@ -86,16 +73,16 @@ class CAgent_SGItem(QGraphicsItem):
     
     # отгон челнока в дефолтное временное место на сцене
     def parking( self ):
-        xPos = (self.agentNetObj.UID % 10) * ( SGT.wide_Rail_Width + SGT.wide_Rail_Width / 2)
-        yPos = (self.agentNetObj.UID % 100) // 10 * ( - SGT.narrow_Rail_Width - 100)
+        xPos = (self.__agentNetObj().UID % 10) * ( SGT.wide_Rail_Width + SGT.wide_Rail_Width / 2)
+        yPos = (self.__agentNetObj().UID % 100) // 10 * ( - SGT.narrow_Rail_Width - 100)
         self.setPos( xPos, yPos )
         self.setRotation( 0 )
 
     def updateRotation(self):
-        self.setRotation( - self.angle )
+        self.setRotation( - self.__agentNetObj().angle )
 
     def updatePos(self):
-        tEdgeKey = self.agentNetObj.isOnTrack()
+        tEdgeKey = self.__agentNetObj().isOnTrack()
 
         if tEdgeKey is None:
             self.parking()
@@ -108,7 +95,7 @@ class CAgent_SGItem(QGraphicsItem):
 
         rAngle = getUnitVector_RadAngle( *(getUnitVector(*edge_vec)) )
 
-        pos = self.position
+        pos = self.__agentNetObj().position
 
         k = edge_vec_len * pos / 100
         d_x = k * math.cos( rAngle )

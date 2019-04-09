@@ -37,7 +37,6 @@ class EGManagerEditMode (Flag):
 
 class CStorageGraph_GScene_Manager( QObject ):
     default_Edge_Props = {
-                            SGT.s_edgeType:         'Normal',                    # type: ignore
                             SGT.s_edgeSize:         500,                         # type: ignore
                             SGT.s_highRailSizeFrom: 0,                           # type: ignore
                             SGT.s_highRailSizeTo:   0,                           # type: ignore
@@ -50,8 +49,6 @@ class CStorageGraph_GScene_Manager( QObject ):
                             SGT.s_x: 0,                                    # type: ignore
                             SGT.s_y: 0,                                    # type: ignore
                             SGT.s_nodeType: SGT.ENodeTypes.DummyNode.name, # type: ignore
-                            SGT.s_containsAgent: -1,                       # type: ignore
-                            SGT.s_floor_num: 0                             # type: ignore
                         }
 
     @property

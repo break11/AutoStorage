@@ -57,8 +57,6 @@ class CGraphNode_NO( CNetObj ):
         if self.__has_nxNode():
             self.nxGraph().remove_node( self.name )
 
-    def propsDict(self): return self.nxNode() if self.graphNode() else {}
-
     def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
     def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.__has_nxNode() else {}
     def __has_nxNode(self): return self.nxGraph().has_node( self.name ) if self.nxGraph() else None
@@ -95,8 +93,6 @@ class CGraphEdge_NO( CNetObj ):
         if self.__has_nxEdge():
             self.nxGraph().remove_edge( *self.__nxEdgeName() )
 
-    def propsDict(self): return self.nxEdge() if self.graphNode() else {}
-
     def nxNodeID_1(self)  : return self.ext_fields[ self.s_NodeID_1 ]
     def nxNodeID_2(self)  : return self.ext_fields[ self.s_NodeID_2 ]
     def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1(), self.nxNodeID_2() ) if self.nxGraph() else None
@@ -114,10 +110,10 @@ def createNetObjectsForGraph( nxGraph ):
     Graph, Nodes, Edges = createGraph_NO_Branches( nxGraph )
 
     for nodeID in nxGraph.nodes():
-        node = CGraphNode_NO( name=nodeID, parent=Nodes )
+        node = CGraphNode_NO( name=nodeID, parent=Nodes, props=nxGraph.nodes()[ nodeID ] )
 
     for edgeID in nxGraph.edges():
-        edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges )
+        edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges, props=nxGraph.edges()[ edgeID ] )
 
     CNetObj(name="Graph_End_Obj", parent=Graph)
     
