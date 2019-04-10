@@ -42,13 +42,14 @@ nodeID3 = "ID3"
 nodeID4 = "ID4"
 
 tEdgeKey12 = (nodeID1, nodeID2)
-tEdgeKey34 = (nodeID3, nodeID4)
+tEdgeKey21 = (nodeID2, nodeID1)
 
 x1, x2, y1, y2 = 10, -20, 30, -40
 
 nxGraph.add_node(nodeID1, x=x1, y=y1)
 nxGraph.add_node(nodeID2, x=x2, y=y2)
 nxGraph.add_edge(nodeID1, nodeID2)
+nxGraph.add_edge(nodeID2, nodeID1)
 
 #тестируемые значения
 test_u_vec_0   = gu.getUnitVector(10,    0)
@@ -88,9 +89,6 @@ test_180_deg_angle = gu.getUnitVector_DegAngle( *u_vec_180 )
 test_225_deg_angle = gu.getUnitVector_DegAngle( *u_vec_225 )
 test_270_deg_angle = gu.getUnitVector_DegAngle( *u_vec_270 )
 test_315_deg_angle = gu.getUnitVector_DegAngle( *u_vec_315 )
-
-test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey12)
-
 
 #############################################################
 
@@ -161,7 +159,11 @@ class TestMathFuncs(unittest.TestCase):
 
 
     def test_getEdgeCoords(self):
-        self.assertEqual( (test_x1, test_x2, test_y1, test_y2), (x1, x2, y1, y2)  )
+        test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey12)
+        self.assertEqual( (test_x1, test_y1, test_x2, test_y2), (x1, y1, x2, y2)  )
+
+        test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey21)
+        self.assertEqual( (test_x1, test_y1, test_x2, test_y2), (x2, y2, x1, y1)  )
 
 
 class TestStrFuncs(unittest.TestCase):
@@ -172,19 +174,19 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1}-{nodeID2}" ),  tEdgeKey12   )
         self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1} {nodeID2}" ),  tEdgeKey12   )
         self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID1} ,{nodeID2}" ), tEdgeKey12   )
-        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3},{nodeID4}" ),  tEdgeKey34   )
-        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3}:{nodeID4}" ),  tEdgeKey34   )
-        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3}-{nodeID4}" ),  tEdgeKey34   )
-        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3} {nodeID4}" ),  tEdgeKey34   )
-        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID3} ,{nodeID4}" ), tEdgeKey34   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID2},{nodeID1}" ),  tEdgeKey21   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID2}:{nodeID1}" ),  tEdgeKey21   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID2}-{nodeID1}" ),  tEdgeKey21   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID2} {nodeID1}" ),  tEdgeKey21   )
+        self.assertEqual(   gu.tEdgeKeyFromStr( f"{nodeID2} ,{nodeID1}" ), tEdgeKey21   )
 
     def test_tEdgeKeyToStr(self):
         self.assertEqual(  gu.tEdgeKeyToStr( tEdgeKey12 ),  f"{nodeID1} {nodeID2}" )
-        self.assertEqual(  gu.tEdgeKeyToStr( tEdgeKey34 ),  f"{nodeID3} {nodeID4}" )
+        self.assertEqual(  gu.tEdgeKeyToStr( tEdgeKey21 ),  f"{nodeID2} {nodeID1}" )
 
     def test_EdgeDisplayName(self):
         self.assertEqual(  gu.EdgeDisplayName( nodeID1, nodeID2 ),  f"{nodeID1} --> {nodeID2}" )
-        self.assertEqual(  gu.EdgeDisplayName( nodeID3, nodeID4 ),  f"{nodeID3} --> {nodeID4}" )
+        self.assertEqual(  gu.EdgeDisplayName( nodeID2, nodeID1 ),  f"{nodeID2} --> {nodeID1}" )
 
 
 if __name__ == '__main__':
