@@ -27,7 +27,7 @@ class CAgents_Move_Manager():
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, cls.OnPropUpdate )
 
         cls.AgentsMove_Timer = QTimer()
-        cls.AgentsMove_Timer.setInterval(5)
+        cls.AgentsMove_Timer.setInterval( 5 )
         cls.AgentsMove_Timer.timeout.connect( cls.moveAgents )
         cls.AgentsMove_Timer.start()
 
@@ -87,26 +87,15 @@ class CAgents_Move_Manager():
         if new_pos > 100:
             newIDX = agentNO.route_idx + 1
 
-            if newIDX >= len( nodes_route ):
+            if newIDX >= len( nodes_route )-1:
                 agentNO.route_idx = 0
                 agentNO.route = ""
                 return
 
             agentNO.position = new_pos % 100
-            tEdgeKey = ( nodes_route[ agentNO.route_idx ], nodes_route[ newIDX ] )
+            tEdgeKey = ( nodes_route[ newIDX ], nodes_route[ newIDX + 1 ] )
             agentNO.edge = tEdgeKeyToStr( tEdgeKey )
             agentNO.route_idx = newIDX
-
-            ##remove##
-            # edges_route = edges_route[1::]
-            # if len(edges_route) != 0:
-            #     agentNO.edge = tEdgeKeyToStr(edges_route[0])
-            #     agentNO.route = str ( edges_route )
-            #     agentNO.position = new_pos % 100
-            # else:
-            #     agentNO.route = ""
-            #     agentNO.position = 100
-
         else:
             agentNO.position = new_pos
 

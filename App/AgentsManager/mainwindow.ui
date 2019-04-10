@@ -14,42 +14,59 @@
    <string>AgentsManager</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTableView" name="tvAgents">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>521</width>
-      <height>391</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnAddAgent">
-    <property name="geometry">
-     <rect>
-      <x>24</x>
-      <y>3</y>
-      <width>102</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Add Agent</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnDelAgent">
-    <property name="geometry">
-     <rect>
-      <x>136</x>
-      <y>2</y>
-      <width>102</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Del Agent</string>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="btnAddAgent">
+        <property name="text">
+         <string>Add Agent</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnDelAgent">
+        <property name="text">
+         <string>Del Agent</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnSimpleAgent_Test">
+        <property name="text">
+         <string>Simple Agent Test</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QTableView" name="tvAgents"/>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="pteAgentLog"/>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolMain">

@@ -12,11 +12,7 @@ def tEdgeKeyFromStr( edge_str ):
     pattern = " ,|,| |:|-"
     return tuple( re.split(pattern, edge_str) )
 
-def tEdgeKeyToStr( tEdgeKey, bReversed = False ):
-    k = tEdgeKey
-    if bReversed:
-        tEdgeKey = tuple( reversed(tEdgeKey) )
-    
+def tEdgeKeyToStr( tEdgeKey, bReversed = False ):    
     return f"{tEdgeKey[0]} {tEdgeKey[1]}"
 
 def getUnitVector( x, y ):
