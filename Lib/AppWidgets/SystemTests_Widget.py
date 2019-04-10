@@ -1,6 +1,5 @@
 
 import os
-import random
 import networkx as nx
 
 from PyQt5.QtWidgets import QWidget
@@ -8,12 +7,9 @@ from PyQt5 import uic
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from Lib.Common.GuiUtils import time_func
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Agent_NetObject import agentsNodeCache
-from Lib.Common.Graph_NetObjects import graphNodeCache
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj, CTreeNode
@@ -30,13 +26,6 @@ class CSystemTests_Widget(QWidget):
         self.updateEdgesWidthTest_Timer = QTimer( self )
         self.updateEdgesWidthTest_Timer.setInterval(1000)
         self.updateEdgesWidthTest_Timer.timeout.connect( self.updateEdgesWidthTest )
-
-        self.SimpleAgentTest_Timer = QTimer( self )
-        self.SimpleAgentTest_Timer.setInterval(500)
-        self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
-
-        self.graphRootNode = graphNodeCache()
-        self.agentsNodeCache = agentsNodeCache()
 
     def init( self, initPhase ):
         pass
@@ -72,51 +61,3 @@ class CSystemTests_Widget(QWidget):
 
         for edge in edges.children:
             edge[ SGT.s_widthType ] = SGT.EWidthType.Wide.name if edge.get( SGT.s_widthType ) == SGT.EWidthType.Narrow.name else SGT.EWidthType.Narrow.name
-
-    ###################################################
-    @pyqtSlot("bool")
-    def on_btnSimpleAgent_Test_clicked( self, bVal ):
-        if bVal:
-            self.SimpleAgentTest_Timer.start()
-        else:
-            self.SimpleAgentTest_Timer.stop()
-
-    def AgentTestMoving(self, agentNO):
-        nxGraph = self.graphRootNode().nxGraph
-
-        l = len( nxGraph.nodes )
-        nodes = list( nxGraph.nodes )
-        targetNode = nodes[ random.randint(0, l-1) ]
-        edges = nxGraph.out_edges( targetNode )
-        if len( edges ) == 0:
-            return
-        edge = list(edges)[0]
-
-        if agentNO.isOnTrack() is None:
-            agentNO.edge = tEdgeKeyToStr(edge)
-        elif agentNO.route == "":
-            current_edge = tEdgeKeyFromStr( agentNO.edge )
-            startNode = current_edge[0]
-            if startNode == targetNode:
-                return
-            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
-            # edges_route = []
-            # for i in range( len(nodes_route) - 1 ):
-            #     edges_route.append( (nodes_route[i], nodes_route[i+1]) )
-
-            # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
-            # if edges_route[0] != current_edge:
-            if nodes_route[0] != current_edge[0]:
-                agentNO.edge = tEdgeKeyToStr( current_edge, bReversed=True )
-                agentNO.position = 100 - agentNO.position
-                # edges_route.insert(0,  tEdgeKeyFromStr (agentNO.edge) )
-                nodes_route.insert(0, current_edge[1] )
-
-            agentNO.route = ",".join( nodes_route )
-
-    def SimpleAgentTest( self ):
-        if self.graphRootNode() is None: return
-        if self.agentsNodeCache().childCount() == 0: return
-
-        for agentNO in self.agentsNodeCache().children:
-            self.AgentTestMoving( agentNO )
