@@ -39,7 +39,6 @@ class CAgents_Model( QAbstractTableModel ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
 
     def rowCount( self, parentIndex ):
-        # return len( self.agentsNode().children ) if self.agentsNode() else 0
         return len( self.agentsList )
 
     def columnCount( self, parentIndex ):
@@ -74,20 +73,14 @@ class CAgents_Model( QAbstractTableModel ):
         self.agentsList.append( netObj.UID )
         self.endInsertRows()
 
-        self.layoutChanged.emit()
-
     def onObjPrepareDelete( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if netObj.parent != self.agentsNode(): return
 
         idx = self.agentsList.index( netObj.UID )
-        print( "idx = ", idx )
         self.beginRemoveRows( QModelIndex(), idx, idx )
-        # self.agentsList.remove( netObj.UID )
         del self.agentsList[ idx ]
         self.endRemoveRows()
-
-        self.layoutChanged.emit()
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -108,27 +101,20 @@ class CAM_MainWindow(QMainWindow):
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             self.Agents_Model = CAgents_Model( parent = self )
             self.tvAgents.setModel( self.Agents_Model )
-            self.tvTest.setModel( self.Agents_Model )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
 
     def on_btnAddAgent_released( self ):
         props = deepcopy( def_props )
-        # AgentsNode = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Agents" )
         CAgent_NO( parent=self.agentsNode(), props=props )
 
     def on_btnDelAgent_released( self ):
         ci = self.tvAgents.currentIndex()
-        print( ci.isValid(), ci.row() )
         if not ci.isValid(): return
         
-        # print( ci.row() )
         agentNetObj = list( self.agentsNode().children )[ ci.row() ]
         agentNetObj.destroy()
-
-        self.tvAgents.setCurrentIndex( ci )
-
 
     ###################################################
 
