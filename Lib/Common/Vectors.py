@@ -67,7 +67,7 @@ class Vector2():
 
     @classmethod
     def fromAngle( cls, angle ):
-        angle =angle % 2*math.pi
+        angle = angle % (2*math.pi)
         x = math.cos(angle)
         y = math.sin(angle) if angle <= math.pi else - math.sin(angle)
         return Vector2(x, y)

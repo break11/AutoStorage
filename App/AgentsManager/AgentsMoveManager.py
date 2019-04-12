@@ -80,10 +80,10 @@ class CAgents_Move_Manager():
         rAngle = agent_vec.angle( r_vec )
         
         if rAngle < math.pi/4 :
-            # print ( "rAngle < math.pi/4", agentNO.angle, r_vec.selfAngle() )
+            # print ( "< pi/4", agentNO.angle, math.degrees(r_vec.selfAngle()) )
             agentNO.angle = math.degrees( r_vec.selfAngle() )
         elif rAngle > math.pi * 3/4:
-            # print ( "rAngle > math.pi * 3/4", agentNO.angle, r_vec.selfAngle() )
+            # print ( "> pi * 3/4", agentNO.angle, math.degrees(r_vec.selfAngle()) )
             agentNO.angle = math.degrees( r_vec.rotate( math.pi ).selfAngle() )
         # print( agentNO.angle, rAngle )
 
