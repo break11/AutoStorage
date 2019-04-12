@@ -8,6 +8,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle, getUnitVector_FromDegAngle, tEdgeKeyToStr, getEdgeCoords
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.Vectors import Vector2
 
 class CAgents_Move_Manager():
     @classmethod
@@ -51,30 +52,40 @@ class CAgents_Move_Manager():
         nxGraph = agentNO.graphRootNode().nxGraph
         x1, y1, x2, y2 = getEdgeCoords( nxGraph, tEdgeKey )
 
-        edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
-        edge_unit_vec = getUnitVector( *edge_vec )
+        # edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
+        # edge_unit_vec = getUnitVector( *edge_vec )
+        edge_vec = Vector2( x2 - x1, - (y2 - y1) )
         
         s_EdgeType = nxGraph.edges()[ tEdgeKey ].get( SGT.s_widthType )
         railType = SGT.railType( s_EdgeType )
 
-        agent_unit_vec = getUnitVector_FromDegAngle( agentNO.angle )
+        # agent_unit_vec = getUnitVector_FromDegAngle( agentNO.angle )
+        agent_vec = Vector2.fromAngle( math.radians( agentNO.angle ) )
 
         #Если рельс широкий, используем для рассчёта повернутый на -90 градусов вектор грани,
         #так как направление "вперёд" для челнока на широком рельсе это вектор челнока, повернутый на +90 градусов
         #поворачиваем вектор грани, а не вектор челнока для удобства рассчёта, матрица поворота ([0,1],[-1,0])
 
+        # if railType == SGT.EWidthType.Narrow:
+        #     r_unit_vec = edge_unit_vec
+        # elif railType == SGT.EWidthType.Wide:
+        #     r_unit_vec = (edge_unit_vec[1], -edge_unit_vec[0])
         if railType == SGT.EWidthType.Narrow:
-            r_unit_vec = edge_unit_vec
+            r_vec = edge_vec
         elif railType == SGT.EWidthType.Wide:
-            r_unit_vec = (edge_unit_vec[1], -edge_unit_vec[0])
+            r_vec = edge_vec.rotate( math.pi/2 )
         
-        cos = r_unit_vec[0] * agent_unit_vec[0] + r_unit_vec[1] * agent_unit_vec[1] #так как вектора единичные достаточно скалярного произведения
-        rAngle = math.acos( min( max( -1, cos), 1) ) #компенсация ошибок точности, если abs(cos) > 1
+        # cos = r_unit_vec[0] * agent_unit_vec[0] + r_unit_vec[1] * agent_unit_vec[1] #так как вектора единичные достаточно скалярного произведения
+        # rAngle = math.acos( min( max( -1, cos), 1) ) #компенсация ошибок точности, если abs(cos) > 1
+        rAngle = agent_vec.angle( r_vec )
         
         if rAngle < math.pi/4 :
-            agentNO.angle = getUnitVector_DegAngle( *r_unit_vec )
+            # print ( "rAngle < math.pi/4", agentNO.angle, r_vec.selfAngle() )
+            agentNO.angle = math.degrees( r_vec.selfAngle() )
         elif rAngle > math.pi * 3/4:
-            agentNO.angle = getUnitVector_DegAngle( -r_unit_vec[0], -r_unit_vec[1] )
+            # print ( "rAngle > math.pi * 3/4", agentNO.angle, r_vec.selfAngle() )
+            agentNO.angle = math.degrees( r_vec.rotate( math.pi ).selfAngle() )
+        # print( agentNO.angle, rAngle )
 
     @classmethod
     def move( cls, agentNO ):
