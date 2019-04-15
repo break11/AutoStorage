@@ -32,7 +32,7 @@ def getUnitVector_DegAngle( x, y ):
 def getUnitVector_FromDegAngle( angle ):
     angle = math.radians( angle % 360 )
     x = math.cos(angle)
-    y = math.sin(angle) if angle <= 180 else - math.sin(angle)
+    y = math.sin(angle)
     return (x, y)
 
 def getEdgeCoords (nxGraph, tEdgeKey):

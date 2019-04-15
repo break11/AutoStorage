@@ -38,9 +38,9 @@ class Vector2():
     def __repr__(self): return f"{self.__class__.__name__} {self.x} {self.y}"
     def __str__(self): return f"{self.x} {self.y}"
 
-    def add(self, number): return Vectro2( self.x + number, self.y + number )
+    def add(self, number): return Vector2( self.x + number, self.y + number )
 
-    def multiply(self, number): return Vectro2( self.x * number, self.y * number )
+    def multiply(self, number): return Vector2( self.x * number, self.y * number )
 
     def magnitude(self): return math.sqrt( self.x**2 + self.y**2 )
 
@@ -68,6 +68,7 @@ class Vector2():
     @classmethod
     def fromAngle( cls, angle ):
         angle = angle % (2*math.pi)
+        # print (angle, math.sin(angle))
         x = math.cos(angle)
-        y = math.sin(angle) if angle <= math.pi else - math.sin(angle)
+        y = math.sin(angle)
         return Vector2(x, y)
