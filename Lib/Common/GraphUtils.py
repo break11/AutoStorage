@@ -35,6 +35,15 @@ def getUnitVector_FromDegAngle( angle ):
     y = math.sin(angle) if angle <= 180 else - math.sin(angle)
     return (x, y)
 
+def getNodeCoords (nxGraph, nodeID):
+    if not nxGraph.has_node( nodeID ):
+        return
+
+    x = nxGraph.nodes()[ nodeID ][SGT.s_x]
+    y = nxGraph.nodes()[ nodeID ][SGT.s_y]
+    
+    return x, y
+
 def getEdgeCoords (nxGraph, tEdgeKey):
     nodeID_1, nodeID_2 = tEdgeKey[0], tEdgeKey[1]
 

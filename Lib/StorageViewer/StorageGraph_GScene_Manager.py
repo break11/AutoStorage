@@ -22,9 +22,11 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
+from Lib.Common.GraphUtils import getUnitVector, getUnitVector_DegAngle, getEdgeCoords, getNodeCoords
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+
 
 class EGManagerMode (Flag):
     View      = auto()
@@ -224,6 +226,38 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bDrawSpecialLines = bVal
         self.gScene.update()
 
+    def calcNodeMiddleLine_test(self, nodeGItem):        
+        if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
+            return
+        
+        NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
+        
+        vec_count = len(NeighborsIDs)
+        x1, y1 = getNodeCoords( self.nxGraph, nodeGItem.nodeID )
+        dictByCos = {}
+
+        for i in range( vec_count ):
+            x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
+            u_vec1 = getUnitVector ( x2 - x1, - (y2 - y1) )
+            
+            for j in range( i, vec_count ):
+                x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[j] )
+                u_vec2 = getUnitVector( x2 - x1, - (y2 - y1) )
+
+                cos = u_vec1[0] * u_vec2[0] + u_vec1[1] * u_vec2[1]
+                dictByCos[ round(cos, 4) ] = ( u_vec1, u_vec2 )
+
+        min_cos = min( dictByCos.keys() )
+        u_vec1, u_vec2 = dictByCos[min_cos][0], dictByCos[min_cos][1]
+        r_vec = ( u_vec1[0] + u_vec2[0], u_vec1[1] + u_vec2[1] )
+        # ang1, ang2 = getUnitVector_DegAngle( *u_vec1 ), getUnitVector_DegAngle( *u_vec2 )
+        # delta_ang = math.degrees( math.acos( min_cos ) )
+
+        # print ("\n", ang1, ang2, delta_ang, "\n")
+
+        # MiddleLineAngle = min( ang1, ang2 ) + delta_ang/2 if abs(ang1 - ang2 ) < 180 else max( ang1, ang2 ) + delta_ang/2
+        return MiddleLineAngle
+
     #рассчет средней линии для нод
     def calcNodeMiddleLine(self, nodeGItem):        
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
@@ -262,7 +296,12 @@ class CStorageGraph_GScene_Manager( QObject ):
             r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
             r2 = e2.rotateAngle() if (e2.nodeID_1 == nodeGItem.nodeID) else (e2.rotateAngle() + 180) % 360
 
-        nodeGItem.setMiddleLineAngle( min(r1, r2) + abs(r1-r2)/2 )
+        MiddleLineAngle = min(r1, r2) + abs(r1-r2)/2
+        MiddleLineAngle_test = self.calcNodeMiddleLine_test(nodeGItem)
+        
+        nodeGItem.setMiddleLineAngle( MiddleLineAngle_test )
+
+        print ( "OLD:", MiddleLineAngle, "\tNEW: ", MiddleLineAngle_test )
 
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
@@ -279,8 +318,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bHasChanges = True
 
         NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
-        nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
-        nodeGItemsNeighbors.append (nodeGItem)
+        nodeGItemsNeighbors = set ( [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ] )
+        nodeGItemsNeighbors.add (nodeGItem)
 
         for nodeGItem in nodeGItemsNeighbors:
             self.calcNodeMiddleLine(nodeGItem)
