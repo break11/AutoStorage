@@ -33,7 +33,7 @@ class Vector2():
 
     def __mul__(self, vec): return self.cross(vec)
 
-    def __eq__(self, pt): return math.isclose( self.x, pt.x ) and math.isclose( self.y, pt.y )
+    def __eq__(self, pt): return math.isclose( self.x, pt.x, abs_tol=1e-9 ) and math.isclose( self.y, pt.y, abs_tol=1e-9 )
 
     def __repr__(self): return f"{self.__class__.__name__} {self.x} {self.y}"
     def __str__(self): return f"{self.x} {self.y}"
