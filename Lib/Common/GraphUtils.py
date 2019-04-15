@@ -15,26 +15,6 @@ def tEdgeKeyFromStr( edge_str ):
 def tEdgeKeyToStr( tEdgeKey, bReversed = False ):    
     return f"{tEdgeKey[0]} {tEdgeKey[1]}"
 
-def getUnitVector( x, y ):
-    h: float =  math.hypot(x, y)
-    try:
-        return ( x/h, y/h )
-    except ZeroDivisionError:
-        return (0, 0)
-
-def getUnitVector_RadAngle( x, y ):
-    rAngle = math.acos( x ) if y >= 0 else 2*math.pi - math.acos( x )
-    return rAngle
-
-def getUnitVector_DegAngle( x, y ):
-    return float( math.degrees( getUnitVector_RadAngle(x, y) ) )
-
-def getUnitVector_FromDegAngle( angle ):
-    angle = math.radians( angle % 360 )
-    x = math.cos(angle)
-    y = math.sin(angle)
-    return (x, y)
-
 def getEdgeCoords (nxGraph, tEdgeKey):
     nodeID_1, nodeID_2 = tEdgeKey[0], tEdgeKey[1]
 

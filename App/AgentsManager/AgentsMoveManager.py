@@ -6,7 +6,7 @@ from Lib.Common.Agent_NetObject import s_position, s_edge, s_angle,agentsNodeCac
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNode import CTreeNodeCache
-from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle, getUnitVector_FromDegAngle, tEdgeKeyToStr, getEdgeCoords
+from Lib.Common.GraphUtils import tEdgeKeyToStr, getEdgeCoords
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
