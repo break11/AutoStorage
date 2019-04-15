@@ -24,9 +24,9 @@ from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr
 from .AgentsList_Model import CAgentsList_Model
 
-# from .routeBuilder import RouteBuilder
-# from .connectionManager import ConnectionManager
-# from .agentPoolManager import AgentPoolManager
+from .routeBuilder import RouteBuilder
+from .connectionManager import ConnectionManager
+from .agentPoolManager import AgentPoolManager
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -48,9 +48,9 @@ class CAM_MainWindow(QMainWindow):
             self.Agents_Model = CAgentsList_Model( parent = self )
             self.tvAgents.setModel( self.Agents_Model )
 
-            # self.routeBuilder = RouteBuilder(graph)
-            # self.agentPoolManager  = AgentPoolManager(routeBuilder)
-            # self.connectionManager = ConnectionManager(agentPoolManager)
+            self.routeBuilder = RouteBuilder(self.graphRootNode().nxGraph)
+            self.agentPoolManager  = AgentPoolManager(self.routeBuilder)
+            self.connectionManager = ConnectionManager(self.agentPoolManager)
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )

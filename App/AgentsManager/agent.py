@@ -1,4 +1,4 @@
-from agentStringCommandParser import AgentStringCommandParser
+from .agentStringCommandParser import AgentStringCommandParser
 
 from threading import Timer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,

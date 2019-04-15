@@ -1,5 +1,5 @@
 from networkx import shortest_path
-from panda3d.core import LPoint3, LVector3
+# from panda3d.core import LPoint3, LVector3
 from copy import deepcopy
 #from graph2panda import nodeToLPoint3
 

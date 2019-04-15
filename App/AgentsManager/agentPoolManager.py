@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGri
 from PyQt5.QtCore import QObject, QTimer, QMutex
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 
-from agent import Agent
+from .agent import Agent
 
 class AgentPoolManager(QObject):
     """ Class to manage a pool of agents"""
