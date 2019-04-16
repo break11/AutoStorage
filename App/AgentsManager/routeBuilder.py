@@ -34,36 +34,6 @@ class SRailSegment:
         return str({'length':self.length, 'railHeight':self.railHeight, 'sensorSide':self.sensorSide,
                     'widthType':self.widthType, 'curvature':self.curvature})
 
-"""
-(RouteCase 8 36 180.0,"[
-@SB,
-@WO:N,
-@DP:000408,F,H,B,S,
-@DP:000700,F,L,B,S,
-@DP:004730,F,H,L,S,
-@DP:002590,F,L,L,C,
-@DP:000350,F,L,B,C,
-@DP:000350,F,L,R,S,
-@DP:002600,F,L,L,C,
-@DP:000650,F,L,B,S,
-@DP:000640,F,H,B,S,
-@DP:002442,F,L,B,S,
-@DP:000505,F,H,P,S,
-@DP:000714,F,L,P,S,
-@DP:000005,F,H,P,S,
-@SE,
-
-@SB,
-@WO:W,
-@DP:000490,F,H,P,S,
-@DP:000675,F,L,L,S,
-@DP:000374,F,H,L,S,
-@DP:000751,F,L,L,S,
-@DP:000374,F,H,L,S,
-@DP:000033,F,L,L,S,
-@SE]")
-"""
-
 class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
     def __init__(self):
@@ -78,11 +48,12 @@ class CRouteBuilder():
         #TODO: not uses orientation at current moment
 
         shortestPath = shortest_path(self.nxGraph, nodeFrom, nodeTo)
-        print (shortestPath)
+        # print (shortestPath)
 
         # 0) Split path by fractures
         pathParts = self.splitPathByFractures(shortestPath)
 
+        commands = []
         for pathPart in pathParts:
             """
             path part is a node sequence with constans rail width and direction of movement. 
@@ -120,9 +91,8 @@ class CRouteBuilder():
             # 7) Add delta to rails when rail type change exists at the end of a segment
             railListWithAddedDelta = self.addDeltaToRailList(gluedRailList)
 
-            commands = self.gluedRailListToCommands(railListWithAddedDelta, temp__directionStr)
-            print(commands)
-            return commands
+            commands.append( self.gluedRailListToCommands(railListWithAddedDelta, temp__directionStr))
+        return commands
 
     def splitPathByFractures(self, path):
         fracturedPath = []
