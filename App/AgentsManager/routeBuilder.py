@@ -1,7 +1,10 @@
-from networkx import shortest_path
-# from panda3d.core import LPoint3, LVector3
+import math
 from copy import deepcopy
-#from graph2panda import nodeToLPoint3
+from networkx import shortest_path
+from Lib.Common.Graph_NetObjects import graphNodeCache
+from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.Vectors import Vector2
+
 
 RH_LOW = 0
 RH_HIGH = 1
@@ -9,16 +12,17 @@ RH_HIGH = 1
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
 hysteresis = 30
-shiftFract = 10
+shiftFract = 10.0
 shiftLeast = 100
 
-widthTypeToCommand  = {'Narrow':'N', 'Wide':'W'}
-railHeightToCommand = {RH_LOW:'L', RH_HIGH:'H'}
-sensorSideToCommand = {'SLeft':'L', 'SRight':'R', 'SBoth':'B', 'SPassive':'P'}
-curvatureToCommand  = {'Straight':'S', 'Curve':'C'}
-widthTypeToLedgeSize = {'Narrow':sensorNarr, 'Wide':sensorWide}
+widthTypeToCommand   = { SGT.EWidthType.Narrow.name: 'N', SGT.EWidthType.Wide.name: 'W' }
+railHeightToCommand  = { RH_LOW: 'L', RH_HIGH:'H' }
+sensorSideToCommand  = { SGT.ESensorSide.SLeft.name: 'L', SGT.ESensorSide.SRight.name: 'R',
+                         SGT.ESensorSide.SBoth.name: 'B', SGT.ESensorSide.SPassive.name:'P' }
+curvatureToCommand   = { SGT.ECurvature.Straight.name: 'S', SGT.ECurvature.Curve.name: 'C' }
+widthTypeToLedgeSize = { SGT.EWidthType.Narrow.name: sensorNarr, SGT.EWidthType.Wide.name: sensorWide }
 
-class RailSegment:
+class SRailSegment:
     def __init__(self, length, railHeight, sensorSide, widthType, curvature):
         self.length = length
         self.railHeight = railHeight
@@ -27,23 +31,8 @@ class RailSegment:
         self.curvature = curvature
 
     def __repr__(self):
-        return str({'length':self.length, 'railHeight':self.railHeight, 'sensorSide':self.sensorSide, 'widthType':self.widthType, 'curvature':self.curvature})
-
-class RailSegmentWithCoords:
-    #def __init__(self, length, railHeight, sensorSide, widthType, curvature, posStart, posEnd):
-    def __init__(self, length, railHeight, sensorSide, widthType, curvature):
-        self.length = length
-        self.railHeight = railHeight
-        self.sensorSide = sensorSide
-        self.widthType = widthType
-        self.curvature = curvature
-        #self.posStart = posStart
-        #self.posEnd = posEnd
-
-    def __repr__(self):
-        #return str({'length':self.length, 'railHeight':self.railHeight, 'sensorSide':self.sensorSide, 'widthType':self.widthType, 'curvature':self.curvature, 'posStart':self.posStart, 'posEnd':self.posEnd})
-        return str({'length': self.length, 'railHeight': self.railHeight, 'sensorSide': self.sensorSide,
-                    'widthType': self.widthType, 'curvature': self.curvature})
+        return str({'length':self.length, 'railHeight':self.railHeight, 'sensorSide':self.sensorSide,
+                    'widthType':self.widthType, 'curvature':self.curvature})
 
 """
 (RouteCase 8 36 180.0,"[
@@ -75,16 +64,20 @@ class RailSegmentWithCoords:
 @SE]")
 """
 
-class RouteBuilder():
+class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
-    def __init__(self, nxgraph):
-        self.nxgraph = nxgraph
+    def __init__(self):
+        self.graphRootNode = graphNodeCache()
+
+    @property
+    def nxGraph(self):
+        return self.graphRootNode().nxGraph
 
     def buildRoute(self, nodeFrom, nodeTo, temp__directionStr):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
         #TODO: not uses orientation at current moment
 
-        shortestPath = shortest_path(self.nxgraph, nodeFrom, nodeTo)
+        shortestPath = shortest_path(self.nxGraph, nodeFrom, nodeTo)
         print (shortestPath)
 
         # 0) Split path by fractures
@@ -104,7 +97,7 @@ class RouteBuilder():
             ledgeNode = self.findNodeForLedge(pathPart[-2], pathPart[-1])
             ledgeRailList = self.nodeListToRails([pathPart[-1], ledgeNode])
 
-            width = self.nxgraph[pathPart[-2]][pathPart[-1]]['widthType']
+            width = self.nxGraph[pathPart[-2]][pathPart[-1]][SGT.s_widthType]
             ledgeSize = widthTypeToLedgeSize[width]
 
             ledge = self.takeRailListPart(ledgeRailList, ledgeSize)
@@ -118,7 +111,7 @@ class RouteBuilder():
 
             # 5) adjust the curvature at the beggining of the path
             railListWithAdjustedCurvature = railListWithHystShift
-            if railStartCurvature == 'Curve':
+            if railStartCurvature == SGT.ECurvature.Curve.name:
                 railListWithAdjustedCurvature = self.setCurvatureFromBegin(railListWithHystShift, ledgeSize, railStartCurvature)
 
             # 6) merge all the rails with the same shape
@@ -132,28 +125,30 @@ class RouteBuilder():
             return commands
 
     def splitPathByFractures(self, path):
-        #print('splitPathByFractures:')
-        #print('input path = {}'.format(path))
         fracturedPath = []
         fracturedPathSegment = []
-        if len(path) > 2:
+        nodes_count = len(path)
+        if nodes_count > 2:
             fracturedPathSegment.append(path[0])
-            for i in range(1,len(path)-1):
+            for i in range(1, nodes_count - 1):
                 np = path[i-1]
                 nc = path[i]
                 nn = path[i+1]
-                xp = self.nxgraph.nodes[np]['x']
-                yp = self.nxgraph.nodes[np]['y']
-                xc = self.nxgraph.nodes[nc]['x']
-                yc = self.nxgraph.nodes[nc]['y']
-                xn = self.nxgraph.nodes[nn]['x']
-                yn = self.nxgraph.nodes[nn]['y']
-                vec0 = LVector3(xc-xp, yc-yp, 0)
-                vec1 = LVector3(xn-xc, yn-yc, 0)
-                vec0.normalize()
-                vec1.normalize()
-                angle = vec0.angleDeg(vec1)
-                #print([nc, angle])
+
+                xp = self.nxGraph.nodes[np][SGT.s_x]
+                yp = self.nxGraph.nodes[np][SGT.s_y]
+                xc = self.nxGraph.nodes[nc][SGT.s_x]
+                yc = self.nxGraph.nodes[nc][SGT.s_y]
+                xn = self.nxGraph.nodes[nn][SGT.s_x]
+                yn = self.nxGraph.nodes[nn][SGT.s_y]
+
+                vec0 = Vector2(xc-xp, yc-yp)
+                vec1 = Vector2(xn-xc, yn-yc)
+
+                vec0 = vec0.unit()
+                vec1 = vec1.unit()
+
+                angle = math.degrees( vec0.angle(vec1) )
                 fracturedPathSegment.append(nc)
                 if angle > 45.0:
                     # fracture found due to narrow->wide or direction change (ex. on curved cross)
@@ -163,30 +158,33 @@ class RouteBuilder():
 
             fracturedPath.append(fracturedPathSegment)
 
-        #print('output path = {}'.format(fracturedPath))
         return fracturedPath
 
     def findNodeForLedge(self, lastNode, node):
-        #print('findNodeForLedge')
-        out_edges = self.nxgraph.out_edges(node)
-        #print (out_edges)
-        xp = self.nxgraph.nodes[lastNode]['x']
-        yp = self.nxgraph.nodes[lastNode]['y']
-        xc = self.nxgraph.nodes[node]['x']
-        yc = self.nxgraph.nodes[node]['y']
-        vec0 = LVector3(xc - xp, yc - yp, 0)
-        vec0.normalize()
+        out_edges = self.nxGraph.out_edges(node)
+
+        xp = self.nxGraph.nodes[lastNode][SGT.s_x]
+        yp = self.nxGraph.nodes[lastNode][SGT.s_y]
+        xc = self.nxGraph.nodes[  node  ][SGT.s_x]
+        yc = self.nxGraph.nodes[  node  ][SGT.s_y]
+
+        vec0 = Vector2(xc - xp, yc - yp)
+        vec0 = vec0.unit()
+
         bestNode = False
         bestAngle = 360.0
-        for out_edge in out_edges:
-            xn = self.nxgraph.nodes[out_edge[1]]['x']
-            yn = self.nxgraph.nodes[out_edge[1]]['y']
-            vec1 = LVector3(xn - xc, yn - yc, 0)
-            vec1.normalize()
-            angle = vec0.angleDeg(vec1)
+
+        for edge in out_edges:
+            xn = self.nxGraph.nodes[ edge[1] ][SGT.s_x]
+            yn = self.nxGraph.nodes[ edge[1] ][SGT.s_y]
+            vec1 = Vector2(xn - xc, yn - yc)
+            vec1 = vec1.unit()
+
+            angle = math.degrees( vec0.angle(vec1) )
             if angle < bestAngle:
                 bestAngle = angle
-                bestNode = out_edge[1]
+                bestNode = edge[1]
+        
         return bestNode
 
 
@@ -242,28 +240,25 @@ class RouteBuilder():
             for i in range(0, len(path) - 1):
                 n0 = path[i]
                 n1 = path[i + 1]
-                edge = self.nxgraph[n0][n1]
-                #print(edge)
-                highRailSizeFrom = int(edge['highRailSizeFrom'])
-                highRailSizeTo = int(edge['highRailSizeTo'])
-                edgeSize = int(edge['edgeSize'])
-                sensorSide = edge['sensorSide']
-                widthType = edge['widthType']
-                curvature = edge['curvature']
-
-                #p0 = nodeToLPoint3(self.nxgraph, n0)
-                #p1 = nodeToLPoint3(self.nxgraph, n1)
+                edge = self.nxGraph[n0][n1]
+                highRailSizeFrom = edge[ SGT.s_highRailSizeFrom ]
+                highRailSizeTo   = edge[ SGT.s_highRailSizeTo   ]
+                edgeSize         = edge[ SGT.s_edgeSize         ]
+                sensorSide       = edge[ SGT.s_sensorSide       ]
+                widthType        = edge[ SGT.s_widthType        ]
+                curvature        = edge[ SGT.s_curvature        ]
 
                 if highRailSizeFrom > 0:
-                    railSegment = RailSegmentWithCoords(highRailSizeFrom, RH_HIGH, sensorSide, widthType, curvature)
+                    railSegment = SRailSegment(highRailSizeFrom, RH_HIGH, sensorSide, widthType, curvature)                    
                     rails.append(railSegment)
 
-                railSegment = RailSegmentWithCoords(edgeSize - highRailSizeFrom - highRailSizeTo, RH_LOW, sensorSide, widthType, curvature)
-                if railSegment.length > 0 :
+                rail_seg_length = edgeSize - highRailSizeFrom - highRailSizeTo
+                if rail_seg_length > 0 :
+                    railSegment = SRailSegment(rail_seg_length, RH_LOW, sensorSide, widthType, curvature)
                     rails.append(railSegment)
 
                 if highRailSizeTo > 0:
-                    railSegment = RailSegmentWithCoords(highRailSizeTo, RH_HIGH, sensorSide, widthType, curvature)
+                    railSegment = SRailSegment(highRailSizeTo, RH_HIGH, sensorSide, widthType, curvature)
                     rails.append(railSegment)
         return rails
         #print(rails)
@@ -271,57 +266,58 @@ class RouteBuilder():
 
     def glueSameRailListParts(self, railList):
         outRailList = []
-        length = railList[0].length
+        length     = railList[0].length
         railHeight = railList[0].railHeight
         sensorSide = railList[0].sensorSide
-        widthType = railList[0].widthType
-        curvature = railList[0].curvature
+        widthType  = railList[0].widthType
+        curvature  = railList[0].curvature
 
         for rail in railList[1:]:
             if (rail.railHeight == railHeight) and (rail.sensorSide == sensorSide) and (rail.curvature == curvature):
                 length = length + rail.length
             else:
-                newRail = RailSegment(length, railHeight, sensorSide, widthType, curvature)
+                newRail = SRailSegment(length, railHeight, sensorSide, widthType, curvature)
                 outRailList.append(newRail)
 
-                length = rail.length
+                length     = rail.length
                 railHeight = rail.railHeight
                 sensorSide = rail.sensorSide
-                widthType = rail.widthType
-                curvature = rail.curvature
+                widthType  = rail.widthType
+                curvature  = rail.curvature
 
-        newRail = RailSegment(length, railHeight, sensorSide, widthType, curvature)
+        newRail = SRailSegment(length, railHeight, sensorSide, widthType, curvature)
         outRailList.append(newRail)
         return outRailList
 
     def shiftRailListByHyst(self, railList):
         # encrease first segment by hyst, decrease last segment by hyst
-        railList[0].length = railList[0].length + hysteresis
+        railList[0].length  = railList[0].length + hysteresis
         railList[-1].length = railList[-1].length - hysteresis
         return railList
 
     def addDeltaToRailList(self, railList):
         # adding delta to rail size to take into account possible wheels slippage, etc.
         # delta only should be added for rail segment with rail height change at the end
-        for i in range(0, len(railList) - 1):
+        for i in range(0, len(railList)-1 ):
             rail = railList[i]
             railNext = railList[i+1]
+
             if rail.railHeight != railNext.railHeight:
                 length = rail.length
-                delta = length * (float(shiftFract)/100.0)
-                if delta < shiftLeast:
-                    delta = shiftLeast
+                delta = length * (shiftFract/100.0)
+                delta = shiftLeast if delta < shiftLeast else delta
                 length = length + delta
                 rail.length = length
+        
         return railList
 
     def gluedRailListToCommands(self, railList, temp__directionStr):
         commands = []
         widthTypeStr = widthTypeToCommand[railList[0].widthType]
-        #directionStr = 'F'
         directionStr = temp__directionStr
         commands.append('@SB')
         commands.append(('@WO:{:s}').format(widthTypeStr))
+
         for rail in railList:
             lengthStr = ('{:06d}').format(int(rail.length))
             railHeightStr = railHeightToCommand[rail.railHeight]
@@ -329,6 +325,7 @@ class RouteBuilder():
             curvatureStr = curvatureToCommand[rail.curvature]
             command = ('@DP:{:s},{:s},{:s},{:s},{:s}').format(lengthStr, directionStr, railHeightStr, sensorSideStr, curvatureStr)
             commands.append(command)
+        
         commands.append('@SE')
         return commands
 

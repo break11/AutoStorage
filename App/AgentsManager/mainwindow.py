@@ -24,7 +24,7 @@ from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr
 from .AgentsList_Model import CAgentsList_Model
 
-from .routeBuilder import RouteBuilder
+from .routeBuilder import CRouteBuilder
 from .connectionManager import ConnectionManager
 from .agentPoolManager import AgentPoolManager
 
@@ -48,7 +48,7 @@ class CAM_MainWindow(QMainWindow):
             self.Agents_Model = CAgentsList_Model( parent = self )
             self.tvAgents.setModel( self.Agents_Model )
 
-            self.routeBuilder = RouteBuilder(self.graphRootNode().nxGraph)
+            self.routeBuilder = CRouteBuilder()
             self.agentPoolManager  = AgentPoolManager(self.routeBuilder)
             self.connectionManager = ConnectionManager(self.agentPoolManager)
 
