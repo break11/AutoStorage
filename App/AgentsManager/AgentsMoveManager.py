@@ -6,7 +6,7 @@ from Lib.Common.Agent_NetObject import s_position, s_edge, s_angle,agentsNodeCac
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNode import CTreeNodeCache
-from Lib.Common.GraphUtils import tEdgeKeyToStr, getEdgeCoords
+from Lib.Common.GraphUtils import tEdgeKeyToStr, getEdgeCoords, getAgentAngle
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -49,31 +49,8 @@ class CAgents_Move_Manager():
             agentNO.angle = 0
             return
 
-        nxGraph = agentNO.graphRootNode().nxGraph
-        x1, y1, x2, y2 = getEdgeCoords( nxGraph, tEdgeKey )
-
-        edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
-        
-        s_EdgeType = nxGraph.edges()[ tEdgeKey ].get( SGT.s_widthType )
-        railType = SGT.railType( s_EdgeType )
-
-        agent_vec = Vector2.fromAngle( math.radians( agentNO.angle ) )
-
-        #Если рельс широкий, используем для рассчёта повернутый на -90 градусов вектор грани,
-        #так как направление "вперёд" для челнока на широком рельсе это вектор челнока, повернутый на +90 градусов
-        #поворачиваем вектор грани, а не вектор челнока для удобства рассчёта, матрица поворота ([0,1],[-1,0])
-
-        if railType == SGT.EWidthType.Narrow:
-            r_vec = edge_vec
-        elif railType == SGT.EWidthType.Wide:
-            r_vec = edge_vec.rotate( math.pi/2 )
-        
-        rAngle = agent_vec.angle( r_vec )
-        
-        if rAngle < math.pi/4 :
-            agentNO.angle = math.degrees( r_vec.selfAngle() )
-        elif rAngle > math.pi * 3/4:
-            agentNO.angle = math.degrees( r_vec.rotate( math.pi ).selfAngle() )
+        rAngle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
+        agentNO.angle = math.degrees( rAngle )
 
     @classmethod
     def move( cls, agentNO ):

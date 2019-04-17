@@ -2,6 +2,7 @@ import math
 from copy import deepcopy
 from networkx import shortest_path
 from Lib.Common.Graph_NetObjects import graphNodeCache
+from Lib.Common.GraphUtils import getAgentAngle
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -43,17 +44,19 @@ class CRouteBuilder():
     def nxGraph(self):
         return self.graphRootNode().nxGraph
 
-    def buildRoute(self, nodeFrom, nodeTo, temp__directionStr):
+    def buildRoute(self, nodeFrom, nodeTo, agent_angle):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
         #TODO: not uses orientation at current moment
 
         shortestPath = shortest_path(self.nxGraph, nodeFrom, nodeTo)
-        # print (shortestPath)
+        commands = []
+        if len( shortestPath ) < 2:
+            return commands
+        directionStr = self.getDirection( (shortestPath[0], shortestPath[1]), agent_angle )
 
         # 0) Split path by fractures
         pathParts = self.splitPathByFractures(shortestPath)
 
-        commands = []
         for pathPart in pathParts:
             """
             path part is a node sequence with constans rail width and direction of movement. 
@@ -91,8 +94,13 @@ class CRouteBuilder():
             # 7) Add delta to rails when rail type change exists at the end of a segment
             railListWithAddedDelta = self.addDeltaToRailList(gluedRailList)
 
-            commands.append( self.gluedRailListToCommands(railListWithAddedDelta, temp__directionStr))
+            commands.append( self.gluedRailListToCommands(railListWithAddedDelta, directionStr))
         return commands
+
+    def getDirection(self, tEdgeKey, agent_angle):
+        DirDict = { True: "R", False: "F", None: "E" }
+        rAngle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
+        return DirDict[bReverse]
 
     def splitPathByFractures(self, path):
         fracturedPath = []
@@ -193,13 +201,10 @@ class CRouteBuilder():
         return outRailList
 
     def setCurvatureFromBegin(self, railList, length, curvature):
-        print("setCurvatureFromBegin:")
         lengthSetted = 0
         for rail in railList:
             rail.curvature = curvature
             lengthSetted += rail.length
-            print(lengthSetted)
-            print(length)
             if lengthSetted >= length:
                 return railList
 
