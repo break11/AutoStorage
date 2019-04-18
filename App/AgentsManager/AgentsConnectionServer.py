@@ -13,77 +13,64 @@ import array
 import string
 import random
 
-CHANNEL_ECHO_TEST = 0
-SILENT_RX_TEST = 0
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5000
 
-class ConnectionManager():
-    """Class to manage a pool of socket threads"""
-    def __init__(self, agentPoolManager):
-        self.agentPoolManager = agentPoolManager
-        self.server = AgentSocketsServer(agentPoolManager)
-
-        if not self.server.listen(port=8888):
-            print("Threaded Fortune Server - Unable to start the server: {:s}.".format(self.server.errorString()))
-            #self.close()
-            return
-        else:
-            print('Threaded Fortune Server created OK, listen started')
-
-        for ipAddress in QNetworkInterface.allAddresses():
-            if ipAddress.toIPv4Address() != 0:
-                ipAddress = ipAddress.toString()
-                print("The server is running on IP: {:s}, port: {:d}".format(ipAddress, self.server.serverPort()))
-
-
-class AgentSocketsServer(QTcpServer):
+class CAgentsConnectionServer(QTcpServer):
     """
     QTcpServer wrapper to listen for incoming connections.
-    When new connection detected - creates a corresponding thread and adds it to self.threadPool
+    When new connection detected - creates a corresponding thread and adds it to self.unknownAgentThreadPool
     Then sends a @HW greeting to remote side to ask if it's an agent and what it's number
     When answer with agent number received ("Agent number estimated" event)- creates a corresponding agent if needed and asign a thread to it
     This thread will be deleted when there is no incoming data for more than 5 seconds ("dirty" disconnected link)
     """
+    bChannel_Echo_Test = False
+    bSilent_RX_Test = False
 
     def __init__(self, agentPoolManager, parent=None):
-        super(AgentSocketsServer, self).__init__(parent)
+        super().__init__(parent)
         self.agentPoolManager = agentPoolManager
         self.unknownAgentThreadPool = [] # A pool of socket threads to listen for incoming connections
 
+        if not self.listen( port=8888 ):
+            print("AgentsConnectionServer - Unable to start the server: {:s}.".format(self.errorString()))
+            return
+        else:
+            print('AgentsConnectionServer created OK, listen started')
+
+        for ipAddress in QNetworkInterface.allAddresses():
+            if ipAddress.toIPv4Address() != 0:
+                ipAddress = ipAddress.toString()
+                print( f"The server is running on IP: {ipAddress}, port: {self.serverPort()}." )
+
     # override QTcpServer incomingConnection function
     def incomingConnection(self, socketDescriptor):
-
-        print("Incoming connection")
-
         # Create a new thread for listening from socket
-        thread = AgentSocketThread(socketDescriptor, self.agentPoolManager, self)
+        thread = CAgentSocketThread(socketDescriptor, self.agentPoolManager, self)
         thread.finished.connect(self.threadFinihsedSlot)
         thread.agentNumberEstimated[int].connect(self.agentNumberEstimatedSlot)
         thread.newAgentDetectedSignal[int].connect(self.agentPoolManager.newAgentDetectedSlot)
         thread.start()
 
         self.unknownAgentThreadPool.append(thread)
-        print (self.unknownAgentThreadPool)
+        print ( f"Incoming connection: {thread}" )
 
-        #threadsAlive = [t for t in self.threadPool if t.isRunning()]
-
-    @pyqtSlot()
     def threadFinihsedSlot(self):
-        thread = self.sender()
-        if CHANNEL_ECHO_TEST or SILENT_RX_TEST:
+        if self.bChannel_Echo_Test or self.bSilent_RX_Test:
             return
 
-        # delete ref of this thread from self.threadPool if exist
+        thread = self.sender()
+
         if thread in self.unknownAgentThreadPool:
-            print ("deleting thread {:s} from unnumbered thread pool".format(str(thread)))
+            print ( f"Deleting thread {thread.agentN} from unnumbered thread pool." )
             self.unknownAgentThreadPool.remove(thread)
 
-        # delete ref of this thread from corresponding agent if exist
-        if thread in self.agentPoolManager.getAgent(thread.agentN).socketThreads:
-            print("deleting thread {:s} from thread list for agent {:d}".format(str(thread), thread.agentN))
-            self.agentPoolManager.getAgent(thread.agentN).socketThreads.remove(thread)
+        agentLink = self.agentPoolManager.getAgent( thread.agentN )
+        if agentLink is not None:
+            if thread in agentLink.socketThreads:
+                print( f"Deleting thread {thread.agentN} from thread list for agent.")
+                agentLink.socketThreads.remove(thread)
 
-        print ("Deleting object{:s}".format(str(thread)))
+        print ( f"Deleting thread {thread}." )
         thread.deleteLater()
 
     @pyqtSlot(int)
@@ -99,7 +86,7 @@ class AgentSocketsServer(QTcpServer):
 
 
 
-class AgentSocketThread(QThread):
+class CAgentSocketThread(QThread):
     """This thread will be created when someone connects to opened socket"""
     error = pyqtSignal(QTcpSocket.SocketError)
     agentNumberEstimated = pyqtSignal(int)
@@ -107,8 +94,8 @@ class AgentSocketThread(QThread):
     txFifo = deque([])
 
     def __init__(self, socketDescriptor, agentPoolManager, parent):
-        # parent is an AgentSocketsServer
-        super(AgentSocketThread, self).__init__(parent)
+        # parent is an CAgentsConnectionServer
+        super(CAgentSocketThread, self).__init__(parent)
         self.agentPoolManager = agentPoolManager
         print ('Creating rx thread {:s} for unknown agent'.format(str(self)))
 
@@ -129,13 +116,11 @@ class AgentSocketThread(QThread):
         self.ackRetransmitTimer = 0
         self.noRxTimer = 0 # timer to ckeck if there is no incoming data - thread will be closed if no activity on socket for more than 5 secs or so
 
-        if CHANNEL_ECHO_TEST:
+        if self.parent().bChannel_Echo_Test:
             self.channelTestTimer = 1
             self.testStringToWait = ''
             self.channelTestRxString = ''
             self.skipRxString = 0
-
-
 
     def run(self):
         self.tcpSocket = QTcpSocket()
@@ -154,7 +139,7 @@ class AgentSocketThread(QThread):
 
 
         # sendind greeting HW when socket just connected
-        if CHANNEL_ECHO_TEST==0:
+        if not self.parent().bChannel_Echo_Test:
             self.txPacketFifo.append(b'000,000:@HW')
 
         while self.running:
@@ -165,14 +150,14 @@ class AgentSocketThread(QThread):
             if line:
                 # some line (ended with '\n') present in socket rx buffer, let's process it
                 self.noRxTimer = 0
-                if CHANNEL_ECHO_TEST:
+                if self.parent().bChannel_Echo_Test:
                     self.processRxPacketChannelTest(line.data())
-                elif SILENT_RX_TEST:
+                elif self.parent().bSilent_RX_Test:
                     print (line.data())
                 else:
                     self.processRxPacket(line.data())
 
-            if SILENT_RX_TEST==0:
+            if not self.parent().bSilent_RX_Test:
                 #waitForReadyRead(1) above will block for 1ms, let's use it as (unpercise) 1ms timer tick
                 if self.packetRetransmitTimer == 0:
                     # clear to send new packet
@@ -198,7 +183,7 @@ class AgentSocketThread(QThread):
                     block = self.txFifo.popleft()
                     self.tcpSocket.write(block)
 
-                if CHANNEL_ECHO_TEST:
+                if self.parent().bChannel_Echo_Test:
                     if self.testStringToWait:
                         if self.channelTestRxString:
                             print ('RX test stinrg:', end='')

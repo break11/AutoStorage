@@ -32,12 +32,10 @@ class AgentPoolManager(QObject):
         del self.agentPool[agentN]
 
     def getAgent(self, agentN):
-        agent = 0
         try:
-            agent = self.agentPool[agentN]
+            return self.agentPool[ agentN ]
         except:
             print ("WARNING: Agent n={:d} acess requested but it wasn't created yet".format(agentN))
-        return agent
 
     @pyqtSlot(int)
     def newAgentDetectedSlot(self, n):

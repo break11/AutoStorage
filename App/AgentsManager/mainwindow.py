@@ -25,7 +25,7 @@ from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr
 from .AgentsList_Model import CAgentsList_Model
 
 from .routeBuilder import CRouteBuilder
-from .connectionManager import ConnectionManager
+from .AgentsConnectionServer import CAgentsConnectionServer
 from .agentPoolManager import AgentPoolManager
 
 class CAM_MainWindow(QMainWindow):
@@ -50,7 +50,7 @@ class CAM_MainWindow(QMainWindow):
 
             self.routeBuilder = CRouteBuilder()
             self.agentPoolManager  = AgentPoolManager(self.routeBuilder)
-            self.connectionManager = ConnectionManager(self.agentPoolManager)
+            self.AgentSocketsServer = CAgentsConnectionServer(self.agentPoolManager)
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
