@@ -31,16 +31,17 @@ class CAgentsConnectionServer(QTcpServer):
         self.agentPoolManager = agentPoolManager
         self.unknownAgentThreadPool = [] # A pool of socket threads to listen for incoming connections
 
-        if not self.listen( address = QHostAddress("127.0.0.1"), port=8888 ):
+        address = QHostAddress( "255.255.255.255" )
+        if not self.listen( address=address, port=8888 ):
             print("AgentsConnectionServer - Unable to start the server: {:s}.".format(self.errorString()))
             return
         else:
-            print('AgentsConnectionServer created OK, listen started')
+            print( f'AgentsConnectionServer created OK, listen started on address = {address.toString()}.' )
 
-        for ipAddress in QNetworkInterface.allAddresses():
-            if ipAddress.toIPv4Address() != 0:
-                ipAddress = ipAddress.toString()
-                print( f"The server is running on IP: {ipAddress}, port: {self.serverPort()}." )
+        # for ipAddress in QNetworkInterface.allAddresses():
+        #     if ipAddress.toIPv4Address() != 0:
+        #         ipAddress = ipAddress.toString()
+        #         print( f"The server is running on IP: {ipAddress}, port: {self.serverPort()}." )
 
     # override QTcpServer incomingConnection function
     def incomingConnection(self, socketDescriptor):
