@@ -39,65 +39,24 @@ with open("./UnitTests/routeCases.txt", 'r') as routes_file:
 
 routeBuilder = CRouteBuilder()
 
-# RouteCase 8 36 180.0
-testCommandList_8_36_180_Answer = [
-[
-"@SB",
-"@WO:N",
-"@DP:000408,F,H,B,S",
-"@DP:000700,F,L,B,S",
-"@DP:004730,F,H,L,S",
-"@DP:002590,F,L,L,C",
-"@DP:000350,F,L,B,C",
-"@DP:000350,F,L,R,S",
-"@DP:002600,F,L,L,C",
-"@DP:000650,F,L,B,S",
-"@DP:000640,F,H,B,S",
-"@DP:002442,F,L,B,S",
-"@DP:000505,F,H,P,S",
-"@DP:000714,F,L,P,S",
-"@DP:000005,F,H,P,S",
-"@SE",
-],
-[
-"@SB",
-"@WO:W",
-"@DP:000490,F,H,P,S",
-"@DP:000675,F,L,L,S",
-"@DP:000374,F,H,L,S",
-"@DP:000751,F,L,L,S",
-"@DP:000374,F,H,L,S",
-"@DP:000033,F,L,L,S",
-"@SE"
-]
-]
-
 class TestRouteBuilder(unittest.TestCase):
 
     def test_buildRoute(self):
         self.maxDiff = 3000
         
-        i = 1
-        correctCases = []
         for case in routeCases:
-            # print( i, "  ", case )
 
             route = routeBuilder.buildRoute( nodeFrom = case.startNode, nodeTo = case.endNode, agent_angle = case.agentAngle )
 
             CommandsList = []
-            for l in route:
-                for command in l:
+            for sequence in route:
+                for command in sequence:
                     CommandsList.append( command )
 
             route_str = ",".join( CommandsList )
 
-            correct = route_str == case.sCommands
-            print  (i,  correct  )
-            if correct: correctCases.append(i)
-
-            i+=1
-            # self.assertEqual  (  "route = routeBuilder.buildRoute", "route = routeBuilder.buildRout1"  )
-        print( len( correctCases ), "   ", correctCases )
+            self.assertEqual( route_str, case.sCommands )
+            print( f"RouteCase : {case.startNode} {case.endNode} {case.agentAngle} \tOK" )
 
 if __name__ == '__main__':
     unittest.main()
