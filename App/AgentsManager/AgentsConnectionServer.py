@@ -31,7 +31,7 @@ class CAgentsConnectionServer(QTcpServer):
         self.agentPoolManager = agentPoolManager
         self.unknownAgentThreadPool = [] # A pool of socket threads to listen for incoming connections
 
-        if not self.listen( port=8888 ):
+        if not self.listen( address = QHostAddress("127.0.0.1"), port=8888 ):
             print("AgentsConnectionServer - Unable to start the server: {:s}.".format(self.errorString()))
             return
         else:

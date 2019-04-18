@@ -16,19 +16,19 @@ class CFakeAgent_ConnectForm(QWidget):
         uic.loadUi( os.path.dirname( __file__ ) + "/FakeAgent_ConnectForm.ui", self )
         self.socketThread = None
 
-    def on_pbStart_clicked(self):
+    def on_pbStart_released(self):
         self.pbStart.setEnabled(False)
         self.pbStop.setEnabled(True)
         self.socketThread = CFakeAgentThread(self.cbServerIP.currentText(), int(self.cbServerPort.currentText()), self)
         self.socketThread.threadFinished.connect(self.threadFinihsedSlot)
         self.socketThread.start()
 
-    def on_pbStop_clicked(self):
+    def on_pbStop_released(self):
         self.pbStart.setEnabled(True)
         self.pbStop.setEnabled(False)
         self.socketThread.disconnectFromServer()
 
-    def on_pbQuit_clicked(self):
+    def on_pbQuit_released(self):
         self.close()
 
     def threadFinihsedSlot(self):
