@@ -8,19 +8,20 @@ import networkx as nx
 sys.path.append( os.path.abspath(os.curdir)  )
 
 import Lib.Common.GraphUtils as gu
+from Lib.Common.Vectors import Vector2
 
 #доверенные значения
 cos_45 = math.sqrt(2)/2
 sin_45 = math.sqrt(2)/2
 
-u_vec_0   = (1, 0)
-u_vec_45  = (cos_45, sin_45)
-u_vec_90  = (0, 1)
-u_vec_135 = (-cos_45, sin_45)
-u_vec_180 = (-1, 0)
-u_vec_225 = (-cos_45, -sin_45)
-u_vec_270 = (0, -1)
-u_vec_315 = (cos_45, -sin_45)
+u_vec_0   = Vector2 (1, 0)
+u_vec_45  = Vector2 (cos_45, sin_45)
+u_vec_90  = Vector2 (0, 1)
+u_vec_135 = Vector2 (-cos_45, sin_45)
+u_vec_180 = Vector2 (-1, 0)
+u_vec_225 = Vector2 (-cos_45, -sin_45)
+u_vec_270 = Vector2 (0, -1)
+u_vec_315 = Vector2 (cos_45, -sin_45)
 
 deg_0   = 0.0
 deg_45  = 45.0
@@ -52,79 +53,74 @@ nxGraph.add_edge(nodeID1, nodeID2)
 nxGraph.add_edge(nodeID2, nodeID1)
 
 #тестируемые значения
-test_u_vec_0   = gu.getUnitVector(10,    0)
-test_u_vec_45  = gu.getUnitVector(30,   30)
-test_u_vec_90  = gu.getUnitVector(0,    99)
-test_u_vec_135 = gu.getUnitVector(-15,  15)
-test_u_vec_180 = gu.getUnitVector(-0.4,   0)
-test_u_vec_225 = gu.getUnitVector(-0.1107, -0.1107)
-test_u_vec_270 = gu.getUnitVector(0,   -1.5)
-test_u_vec_315 = gu.getUnitVector(2506,  -2506)
+test_u_vec_0   = Vector2(10,    0).unit()
+test_u_vec_45  = Vector2(30,   30).unit()
+test_u_vec_90  = Vector2(0,    99).unit()
+test_u_vec_135 = Vector2(-15,  15).unit()
+test_u_vec_180 = Vector2(-0.4,   0).unit()
+test_u_vec_225 = Vector2(-0.1107, -0.1107).unit()
+test_u_vec_270 = Vector2(0,   -1.5).unit()
+test_u_vec_315 = Vector2(2506,  -2506).unit()
 
-test_u_vec_from_0_deg   = gu.getUnitVector_FromDegAngle( deg_0 )
-test_u_vec_from_45_deg  = gu.getUnitVector_FromDegAngle( deg_45 )
-test_u_vec_from_90_deg  = gu.getUnitVector_FromDegAngle( deg_90 )
-test_u_vec_from_135_deg = gu.getUnitVector_FromDegAngle( deg_135 )
-test_u_vec_from_180_deg = gu.getUnitVector_FromDegAngle( deg_180 )
-test_u_vec_from_225_deg = gu.getUnitVector_FromDegAngle( deg_225 )
-test_u_vec_from_270_deg = gu.getUnitVector_FromDegAngle( deg_270 )
-test_u_vec_from_315_deg = gu.getUnitVector_FromDegAngle( deg_315 )
-test_u_vec_from_360_deg = gu.getUnitVector_FromDegAngle( deg_360 )
-test_u_vec_from_540_deg = gu.getUnitVector_FromDegAngle( deg_540 )
+test_u_vec_from_0_deg   = Vector2.fromAngle( math.radians( deg_0   ) )
+test_u_vec_from_45_deg  = Vector2.fromAngle( math.radians( deg_45  ) )
+test_u_vec_from_90_deg  = Vector2.fromAngle( math.radians( deg_90  ) )
+test_u_vec_from_135_deg = Vector2.fromAngle( math.radians( deg_135 ) )
+test_u_vec_from_180_deg = Vector2.fromAngle( math.radians( deg_180 ) )
+test_u_vec_from_225_deg = Vector2.fromAngle( math.radians( deg_225 ) )
+test_u_vec_from_270_deg = Vector2.fromAngle( math.radians( deg_270 ) )
+test_u_vec_from_315_deg = Vector2.fromAngle( math.radians( deg_315 ) )
+test_u_vec_from_360_deg = Vector2.fromAngle( math.radians( deg_360 ) )
+test_u_vec_from_540_deg = Vector2.fromAngle( math.radians( deg_540 ) )
 
-test_0_rad_angle   = gu.getUnitVector_RadAngle( *u_vec_0 )
-test_45_rad_angle  = gu.getUnitVector_RadAngle( *u_vec_45 )
-test_90_rad_angle  = gu.getUnitVector_RadAngle( *u_vec_90 )
-test_135_rad_angle = gu.getUnitVector_RadAngle( *u_vec_135 )
-test_180_rad_angle = gu.getUnitVector_RadAngle( *u_vec_180 )
-test_225_rad_angle = gu.getUnitVector_RadAngle( *u_vec_225 )
-test_270_rad_angle = gu.getUnitVector_RadAngle( *u_vec_270 )
-test_315_rad_angle = gu.getUnitVector_RadAngle( *u_vec_315 )
-
-test_0_deg_angle   = gu.getUnitVector_DegAngle( *u_vec_0 )
-test_45_deg_angle  = gu.getUnitVector_DegAngle( *u_vec_45 )
-test_90_deg_angle  = gu.getUnitVector_DegAngle( *u_vec_90 )
-test_135_deg_angle = gu.getUnitVector_DegAngle( *u_vec_135 )
-test_180_deg_angle = gu.getUnitVector_DegAngle( *u_vec_180 )
-test_225_deg_angle = gu.getUnitVector_DegAngle( *u_vec_225 )
-test_270_deg_angle = gu.getUnitVector_DegAngle( *u_vec_270 )
-test_315_deg_angle = gu.getUnitVector_DegAngle( *u_vec_315 )
+test_0_rad_angle   = u_vec_0.selfAngle()
+test_45_rad_angle  = u_vec_45.selfAngle()
+test_90_rad_angle  = u_vec_90.selfAngle()
+test_135_rad_angle = u_vec_135.selfAngle()
+test_180_rad_angle = u_vec_180.selfAngle()
+test_225_rad_angle = u_vec_225.selfAngle()
+test_270_rad_angle = u_vec_270.selfAngle()
+test_315_rad_angle = u_vec_315.selfAngle()
 
 #############################################################
 
 class TestMathFuncs(unittest.TestCase):
 
-    #вспомогательная функция сравнения двух tuple типа (float, float, ...)
-    def check_TupleVecs_IsEqual(self, vec1, vec2):
-        bEqual = len(vec1) == len(vec2)
-        if not bEqual: return False
 
-        for i in range( len(vec1) ):
-            bEqual = bEqual and math.isclose ( vec1[i], vec2[i], abs_tol=1e-9 )
-        return bEqual
+    def test_isEqual(self):
+        self.assertTrue  (  u_vec_45 == u_vec_45  )
+        self.assertFalse (  u_vec_45 != u_vec_45  )
+        self.assertFalse (  u_vec_45 == u_vec_135 )
 
-    def test_check_TupleVecs_IsEqual(self):
-        self.assertTrue  (   self.check_TupleVecs_IsEqual(  u_vec_45, u_vec_45       ) )
-        self.assertFalse (   self.check_TupleVecs_IsEqual(  u_vec_45, u_vec_135      ) )
-        self.assertFalse (   self.check_TupleVecs_IsEqual( (0.1, 0.2, 0.3), (0.1, 0.2) )  )
-        self.assertFalse (   self.check_TupleVecs_IsEqual( (0.1, 0.2), (0.1, 0.2, 0.3) )  )
+        self.assertTrue  (  Vector2(1.1e-9, 1) ==  Vector2(1.2e-9, 1)  )
+        self.assertFalse (  Vector2(1.1e-8, 1) ==  Vector2(1.2e-8, 1)  )
 
-        self.assertTrue  (   self.check_TupleVecs_IsEqual(  (1.1e-9, 1), (1.2e-9, 1) )    )
-        self.assertFalse (   self.check_TupleVecs_IsEqual(  (1.1e-8, 1), (1.2e-8, 1) )    )
+    def test_unit(self):
+        self.assertTrue(   test_u_vec_0    == u_vec_0     )
+        self.assertTrue(   test_u_vec_45   == u_vec_45    )
+        self.assertTrue(   test_u_vec_90   == u_vec_90    )
+        self.assertTrue(   test_u_vec_135  == u_vec_135   )
+        self.assertTrue(   test_u_vec_180  == u_vec_180   )
+        self.assertTrue(   test_u_vec_225  == u_vec_225   )
+        self.assertTrue(   test_u_vec_270  == u_vec_270   )
+        self.assertTrue(   test_u_vec_315  == u_vec_315   )
 
-    #######################################################################################
+    def test_angle(self):
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_0 ),   0.00 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_45 ),  0.25 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_90 ),  0.50 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_135),  0.75 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_180),  1.00 * math.pi)  )
 
-    def test_getUnitVector(self):
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_0,   u_vec_0  )   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_45,  u_vec_45 )   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_90,  u_vec_90 )   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_135, u_vec_135)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_180, u_vec_180)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_225, u_vec_225)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_270, u_vec_270)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_315, u_vec_315)   )
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_315 ),  0.25 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_270 ),  0.50 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_0.angle( u_vec_225),   0.75 * math.pi)  )
 
-    def test_getUnitVector_RadAngle(self):
+        self.assertTrue(   math.isclose ( u_vec_45.angle( u_vec_315),  0.50 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_180.angle( u_vec_315), 0.75 * math.pi)  )
+        self.assertTrue(   math.isclose ( u_vec_135.angle( u_vec_315), 1.00 * math.pi)  )
+
+    def test_selfAngle(self):
         self.assertTrue(   math.isclose (test_0_rad_angle,   0.00 * math.pi)  )
         self.assertTrue(   math.isclose (test_45_rad_angle,  0.25 * math.pi)  )
         self.assertTrue(   math.isclose (test_90_rad_angle,  0.50 * math.pi)  )
@@ -134,28 +130,18 @@ class TestMathFuncs(unittest.TestCase):
         self.assertTrue(   math.isclose (test_270_rad_angle, 1.50 * math.pi)  )
         self.assertTrue(   math.isclose (test_315_rad_angle, 1.75 * math.pi)  )
 
-    def test_getUnitVector_DegAngle(self):
-        self.assertTrue(   math.isclose (test_0_deg_angle,   0.0)    )
-        self.assertTrue(   math.isclose (test_45_deg_angle,  45.0)   )
-        self.assertTrue(   math.isclose (test_90_deg_angle,  90.0)   )
-        self.assertTrue(   math.isclose (test_135_deg_angle, 135.0)  )
-        self.assertTrue(   math.isclose (test_180_deg_angle, 180.0)  )
-        self.assertTrue(   math.isclose (test_225_deg_angle, 225.0)  )
-        self.assertTrue(   math.isclose (test_270_deg_angle, 270.0)  )
-        self.assertTrue(   math.isclose (test_315_deg_angle, 315.0)  )
-
-    def test_getUnitVector_FromDegAngle(self):
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_0_deg,   u_vec_0  )   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_45_deg,  u_vec_45 )   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_90_deg,  u_vec_90 )   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_135_deg, u_vec_135)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_180_deg, u_vec_180)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_225_deg, u_vec_225)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_270_deg, u_vec_270)   )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_315_deg, u_vec_315)   )
+    def test_fromAngle(self):
+        self.assertTrue(   test_u_vec_from_0_deg    == u_vec_0     )
+        self.assertTrue(   test_u_vec_from_45_deg   == u_vec_45    )
+        self.assertTrue(   test_u_vec_from_90_deg   == u_vec_90    )
+        self.assertTrue(   test_u_vec_from_135_deg  == u_vec_135   )
+        self.assertTrue(   test_u_vec_from_180_deg  == u_vec_180   )
+        self.assertTrue(   test_u_vec_from_225_deg  == u_vec_225   )
+        self.assertTrue(   test_u_vec_from_270_deg  == u_vec_270   )
+        self.assertTrue(   test_u_vec_from_315_deg  == u_vec_315   )
         
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_360_deg, u_vec_0)     )
-        self.assertTrue(   self.check_TupleVecs_IsEqual (test_u_vec_from_540_deg, u_vec_180)   )
+        self.assertTrue(   test_u_vec_from_360_deg  == u_vec_0     )
+        self.assertTrue(   test_u_vec_from_540_deg  == u_vec_180   )
 
 
     def test_getEdgeCoords(self):

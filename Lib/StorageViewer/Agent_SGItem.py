@@ -7,7 +7,8 @@ from PyQt5.QtCore import ( Qt, QPoint, QRectF, QPointF, QLineF )
 
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
-from Lib.Common.GraphUtils import getUnitVector, getUnitVector_RadAngle, getUnitVector_DegAngle, getEdgeCoords
+from Lib.Common.GraphUtils import getEdgeCoords
+from Lib.Common.Vectors import Vector2
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
@@ -89,15 +90,12 @@ class CAgent_SGItem(QGraphicsItem):
             return
 
         x1, y1, x2, y2 = getEdgeCoords( self.SGM.graphRootNode().nxGraph, tEdgeKey )
+        edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
 
-        edge_vec = ( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
-        edge_vec_len: float = math.hypot( *edge_vec )
-
-        rAngle = getUnitVector_RadAngle( *(getUnitVector(*edge_vec)) )
-
+        rAngle = edge_vec.selfAngle()
         pos = self.__agentNetObj().position
 
-        k = edge_vec_len * pos / 100
+        k = edge_vec.magnitude() * pos / 100
         d_x = k * math.cos( rAngle )
         d_y = k * math.sin( rAngle )
 
