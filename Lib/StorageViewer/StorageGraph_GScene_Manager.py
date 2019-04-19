@@ -22,10 +22,11 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
-from Lib.Common.GraphUtils import getUnitVector, getUnitVector_DegAngle, getEdgeCoords, getNodeCoords
+from Lib.Common.GraphUtils import getEdgeCoords, getNodeCoords
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Common.Vectors import Vector2
 
 
 class EGManagerMode (Flag):
@@ -234,29 +235,28 @@ class CStorageGraph_GScene_Manager( QObject ):
         
         vec_count = len(NeighborsIDs)
         x1, y1 = getNodeCoords( self.nxGraph, nodeGItem.nodeID )
-        dictByCos = {}
+        dictByAngle = {}
 
         for i in range( vec_count ):
             x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
-            u_vec1 = getUnitVector ( x2 - x1, - (y2 - y1) )
+            vec1 = Vector2 ( x2 - x1, - (y2 - y1) )
             
             for j in range( i, vec_count ):
                 x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[j] )
-                u_vec2 = getUnitVector( x2 - x1, - (y2 - y1) )
+                vec2 = Vector2( x2 - x1, - (y2 - y1) )
 
-                cos = u_vec1[0] * u_vec2[0] + u_vec1[1] * u_vec2[1]
-                dictByCos[ round(cos, 4) ] = ( u_vec1, u_vec2 )
+                angle = vec1.angle( vec2 )
+                dictByAngle[ round(angle, 2) ] = ( vec1, vec2 )
 
-        min_cos = min( dictByCos.keys() )
-        u_vec1, u_vec2 = dictByCos[min_cos][0], dictByCos[min_cos][1]
-        r_vec = ( u_vec1[0] + u_vec2[0], u_vec1[1] + u_vec2[1] )
-        # ang1, ang2 = getUnitVector_DegAngle( *u_vec1 ), getUnitVector_DegAngle( *u_vec2 )
-        # delta_ang = math.degrees( math.acos( min_cos ) )
+        angle = max( dictByAngle.keys() )
+        vec1, vec2 = dictByAngle[angle][0], dictByAngle[angle][1]
+        r_vec = vec1 + vec2
+        r_vec = r_vec if r_vec else vec1.rotate(math.pi/2)
 
-        # print ("\n", ang1, ang2, delta_ang, "\n")
+        # print( nodeGItem.nodeID,  NeighborsIDs, dictByAngle)
+        # print( vec1, vec2, ":: ", r_vec, bool(r_vec), "\n" )
 
-        # MiddleLineAngle = min( ang1, ang2 ) + delta_ang/2 if abs(ang1 - ang2 ) < 180 else max( ang1, ang2 ) + delta_ang/2
-        return MiddleLineAngle
+        return math.degrees( r_vec.selfAngle() )
 
     #рассчет средней линии для нод
     def calcNodeMiddleLine(self, nodeGItem):        

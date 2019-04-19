@@ -38,6 +38,8 @@ class Vector2():
     def __repr__(self): return f"{self.__class__.__name__} {self.x} {self.y}"
     def __str__(self): return f"{self.x} {self.y}"
 
+    def __bool__ (self): return not ( math.isclose( self.x, 0, abs_tol=1e-9 ) and math.isclose( self.y, 0, abs_tol=1e-9 ) )
+
     def add(self, number): return Vector2( self.x + number, self.y + number )
 
     def multiply(self, number): return Vector2( self.x * number, self.y * number )
