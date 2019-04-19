@@ -4,8 +4,6 @@ from threading import Timer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
                              QVBoxLayout, QPushButton, QWidget)
 
-from PyQt5.QtCore import QTimer
-
 class RepeatedTimer(object):
     """Threaded timer class similar to QTimer for per-second requests, etc"""
     def __init__(self, interval, function, *args, **kwargs):
@@ -32,11 +30,12 @@ class RepeatedTimer(object):
         self._timer.cancel()
         self.is_running = False
 
-class Agent():
+class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
-    def __init__(self, agentN, routeBuilder):
+    # def __init__(self, agentN, routeBuilder):
+    def __init__(self, agentN):
         self.agentN = agentN
-        self.routeBuilder = routeBuilder
+        # self.routeBuilder = routeBuilder
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state
         self.currentTxPacketN = 1000 #uninited state
@@ -48,6 +47,16 @@ class Agent():
         self.temp__deToPass = 0
         self.temp__finishNode = 0
 
+    def __del__(self):
+        print( "AgentLink DESTROY +++++++++++++++++++++++++++++++++++++++++++++" )
+
+    def done( self ):
+        self.rt.stop()
+        for thread in self.socketThreads:
+            print( "111111111111111111" )
+            thread.running = False
+            thread.exit()
+        self.socketThreads = []
 
     def resetAutorequesterState(self):
         """method to start autorequests after agent conection or re-connection"""
@@ -92,13 +101,13 @@ class Agent():
     def putToNode(self, node):
         self.temp__AssumedPosition = node
 
-    def goToNode(self, node):
-        route = self.routeBuilder.buildRoute(str(self.temp__AssumedPosition), str(node))
-        self.temp__finishNode = node
-        for s in route:
-            self.sendCommandBySockets(s)
-            if s.find('@DP') != -1:
-                self.temp__deToPass = self.temp__deToPass + 1
+    # def goToNode(self, node):
+    #     route = self.routeBuilder.buildRoute(str(self.temp__AssumedPosition), str(node))
+    #     self.temp__finishNode = node
+    #     for s in route:
+    #         self.sendCommandBySockets(s)
+    #         if s.find('@DP') != -1:
+    #             self.temp__deToPass = self.temp__deToPass + 1
 
     def dePassed(self):
         print("DE passed")

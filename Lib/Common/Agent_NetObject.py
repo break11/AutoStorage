@@ -1,8 +1,9 @@
 
 import networkx as nx
+from copy import deepcopy
+
 from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
-from copy import deepcopy
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.GraphUtils import tEdgeKeyFromStr
 from Lib.Common.Graph_NetObjects import graphNodeCache
@@ -17,6 +18,10 @@ def_props = { s_edge: "", s_position: 0, s_route: "", s_route_idx: 0, s_angle : 
 
 def agentsNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )
+
+def queryAgentNetObj( name ):
+    props = deepcopy( def_props )
+    agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
 
 class CAgent_NO( CNetObj ):    
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):

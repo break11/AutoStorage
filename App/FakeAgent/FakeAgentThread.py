@@ -22,7 +22,7 @@ DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_
 
 class CFakeAgentThread(QThread):
     threadFinished = pyqtSignal(int)
-    def __init__(self, host, port, parent):
+    def __init__(self, agentN, host, port, parent):
         super(CFakeAgentThread, self).__init__(parent)
         print('Socket thread init')
         self.host = host
@@ -33,7 +33,7 @@ class CFakeAgentThread(QThread):
 
         self.currentRxPacketN = 1000 # 1000 means that numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message.
         self.currentTxPacketN = 0
-        self.currentAgentN = 10
+        self.currentAgentN = agentN
 
         self.txFifo = deque([]) #packet-wise tx fifo
         self.ackNumberToSend = 1000

@@ -3,7 +3,7 @@ import os
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QMessageBox
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from PyQt5.QtNetwork import QAbstractSocket
+from PyQt5.QtNetwork import QAbstractSocket, QNetworkInterface
 
 from .FakeAgentThread import CFakeAgentThread
 
@@ -16,10 +16,15 @@ class CFakeAgent_ConnectForm(QWidget):
         uic.loadUi( os.path.dirname( __file__ ) + "/FakeAgent_ConnectForm.ui", self )
         self.socketThread = None
 
+        for ipAddress in QNetworkInterface.allAddresses():
+            if ipAddress.toIPv4Address() != 0:
+                self.cbServerIP.addItem( ipAddress.toString() )
+        
+
     def on_pbStart_released(self):
         self.pbStart.setEnabled(False)
         self.pbStop.setEnabled(True)
-        self.socketThread = CFakeAgentThread(self.cbServerIP.currentText(), int(self.cbServerPort.currentText()), self)
+        self.socketThread = CFakeAgentThread( self.sbAgentN.value(), self.cbServerIP.currentText(), int(self.cbServerPort.currentText()), self)
         self.socketThread.threadFinished.connect(self.threadFinihsedSlot)
         self.socketThread.start()
 

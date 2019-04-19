@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
+    <width>466</width>
     <height>140</height>
    </rect>
   </property>
@@ -21,11 +21,21 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout" columnstretch="0,1">
-     <item row="2" column="0">
-      <widget class="QLabel" name="lbServerPort">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="lbAgentN">
        <property name="text">
-        <string>Server port:</string>
+        <string>Agent number:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="sbAgentN">
+       <property name="maximum">
+        <number>999</number>
+       </property>
+       <property name="value">
+        <number>555</number>
        </property>
       </widget>
      </item>
@@ -41,11 +51,13 @@
        <property name="editable">
         <bool>true</bool>
        </property>
-       <item>
-        <property name="text">
-         <string>127.0.0.1</string>
-        </property>
-       </item>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="lbServerPort">
+       <property name="text">
+        <string>Server port:</string>
+       </property>
       </widget>
      </item>
      <item row="2" column="1">
@@ -58,20 +70,6 @@
          <string>8888</string>
         </property>
        </item>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="lbAgentName">
-       <property name="text">
-        <string>Agent name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="leAgentName">
-       <property name="text">
-        <string>555</string>
-       </property>
       </widget>
      </item>
     </layout>

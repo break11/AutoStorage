@@ -5,8 +5,8 @@ import os
 import networkx as nx
 import time
 import weakref
-
 from copy import deepcopy
+
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction
@@ -26,7 +26,7 @@ from .AgentsList_Model import CAgentsList_Model
 
 from .routeBuilder import CRouteBuilder
 from .AgentsConnectionServer import CAgentsConnectionServer
-from .agentPoolManager import AgentPoolManager
+##remove##from .agentPoolManager import AgentPoolManager
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -49,8 +49,8 @@ class CAM_MainWindow(QMainWindow):
             self.tvAgents.setModel( self.Agents_Model )
 
             self.routeBuilder = CRouteBuilder()
-            self.agentPoolManager  = AgentPoolManager(self.routeBuilder)
-            self.AgentSocketsServer = CAgentsConnectionServer(self.agentPoolManager)
+            ##remove##self.agentPoolManager  = AgentPoolManager(self.routeBuilder)
+            self.AgentSocketsServer = CAgentsConnectionServer()
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
