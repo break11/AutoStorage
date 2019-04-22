@@ -49,7 +49,7 @@ class Vector2():
     def unit(self): return Vector2( self.x / self.magnitude(), self.y / self.magnitude() )
 
     def angle(self, vec):
-        cosA = self.dot(vec) / self.magnitude() * vec.magnitude()
+        cosA = self.dot(vec) / (self.magnitude() * vec.magnitude())
         cosA = min( max( -1, cosA), 1)
         # print(self.dot(vec), self.magnitude(), vec.magnitude(), cosA)
         return math.acos( cosA )

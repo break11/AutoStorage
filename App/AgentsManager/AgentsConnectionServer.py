@@ -68,7 +68,7 @@ class CAgentsConnectionServer(QTcpServer):
         agentLink = self.getAgentLink( thread.agentN )
         if agentLink is not None:
             if thread in agentLink.socketThreads:
-                print( f"Deleting thread {thread.agentN} from thread list for agent.")
+                print( f"Deleting thread {id(thread)} agentN={thread.agentN} from thread list for agent.")
                 agentLink.socketThreads.remove(thread)
 
         print ( f"Deleting thread {id(thread)}." )
@@ -123,7 +123,7 @@ class CAgentSocketThread(QThread):
         # when at least one of threads sucessfully transmitted all what needed and received an answer
         self.txPacketFIFO = deque([])
 
-        self.running = True
+        self.bRunning = True
         self.commandToParse = []
         self.lastTxPacket = False
         self.packetRetransmitTimer = 0 # can send new packet only when retransmitTimer==0
@@ -161,7 +161,7 @@ class CAgentSocketThread(QThread):
         if not self.parent().bChannel_Echo_Test:
             self.txPacketFIFO.append(b'000,000:@HW')
 
-        while self.running:
+        while self.bRunning:
 
             self.tcpSocket.waitForReadyRead(1) # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
 
@@ -241,7 +241,7 @@ class CAgentSocketThread(QThread):
             self.noRxTimer = self.noRxTimer + 1
             if self.noRxTimer > TIMEOUT_NO_ACTIVITY_ON_SOCKET:
                 print ("Thread closed with no activity for 5 secs")
-                self.running = False
+                self.bRunning = False
 
 
         print('Thread finished')
@@ -378,4 +378,4 @@ class CAgentSocketThread(QThread):
     def disconnected(self):
         print("disconnected")
         self.channelTestTimer = 0
-        self.running = False # stop this thread
+        self.bRunning = False # stop this thread

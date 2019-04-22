@@ -40,7 +40,7 @@ class CAgentLink():
         self.currentRxPacketN = 1000 #uninited state
         self.currentTxPacketN = 1000 #uninited state
         self.agentStringCommandParser = AgentStringCommandParser(self)
-
+ 
         self.rt = RepeatedTimer(1, self.requestTelemetryTick)
         self.resetAutorequesterState()
         self.temp__AssumedPosition = 0
@@ -53,9 +53,13 @@ class CAgentLink():
     def done( self ):
         self.rt.stop()
         for thread in self.socketThreads:
-            print( "111111111111111111" )
-            thread.running = False
+            thread.bRunning = False
             thread.exit()
+
+        for thread in self.socketThreads:
+            while thread.isRunning():
+                print( "waiting thread stop..." )
+                
         self.socketThreads = []
 
     def resetAutorequesterState(self):
