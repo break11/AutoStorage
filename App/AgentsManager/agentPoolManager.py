@@ -1,11 +1,11 @@
 
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
-                             QHBoxLayout, QVBoxLayout, QPushButton, QWidget, QDialog, QLineEdit, QSizePolicy)
+# from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
+#                              QHBoxLayout, QVBoxLayout, QPushButton, QWidget, QDialog, QLineEdit, QSizePolicy)
 
-from PyQt5.QtCore import QObject, QTimer, QMutex
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
+# from PyQt5.QtCore import QObject, QTimer, QMutex
+# from PyQt5.QtCore import (pyqtSignal, pyqtSlot)
 
-from .AgentLink import CAgentLink
+# from .AgentLink import CAgentLink
 
 # class AgentPoolManager(QObject):
 #     """ Class to manage a pool of agents"""

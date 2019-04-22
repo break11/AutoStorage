@@ -9,7 +9,6 @@ from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSoc
 
 from .AgentLink import CAgentLink
 import Lib.Common.StrConsts as SC
-from Lib.Common.Agent_NetObject import queryAgentNetObj
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5000
 
@@ -90,7 +89,6 @@ class CAgentsConnectionServer(QTcpServer):
         print ( f"Creating new agent #{agentN}" )
         agentLink = CAgentLink( agentN )
         self.AgentLinks[ agentN ] = agentLink
-        queryAgentNetObj( str( agentN ) )
 
     def deleteAgent(self, agentN): del self.AgentLinks[agentN]
 

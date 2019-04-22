@@ -16,7 +16,7 @@ import datetime
 
 CHANNEL_TEST = 0
 TIMER_PERIOD = 1
-TX_RX_VERBOSE = 0
+TX_RX_VERBOSE = 1
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
 

@@ -1,39 +1,17 @@
 from .agentStringCommandParser import AgentStringCommandParser
 
-from threading import Timer
+# from threading import Timer
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
                              QVBoxLayout, QPushButton, QWidget)
-
-class RepeatedTimer(object):
-    """Threaded timer class similar to QTimer for per-second requests, etc"""
-    def __init__(self, interval, function, *args, **kwargs):
-        self._timer     = None
-        self.interval   = interval
-        self.function   = function
-        self.args       = args
-        self.kwargs     = kwargs
-        self.is_running = False
-        self.start()
-
-    def _run(self):
-        self.is_running = False
-        self.start()
-        self.function(*self.args, **self.kwargs)
-
-    def start(self):
-        if not self.is_running:
-            self._timer = Timer(self.interval, self._run)
-            self._timer.start()
-            self.is_running = True
-
-    def stop(self):
-        self._timer.cancel()
-        self.is_running = False
+from Lib.Common.Agent_NetObject import queryAgentNetObj
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
     # def __init__(self, agentN, routeBuilder):
     def __init__(self, agentN):
+        queryAgentNetObj( str( agentN ) )
+
         self.agentN = agentN
         # self.routeBuilder = routeBuilder
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
@@ -41,7 +19,11 @@ class CAgentLink():
         self.currentTxPacketN = 1000 #uninited state
         self.agentStringCommandParser = AgentStringCommandParser(self)
  
-        self.rt = RepeatedTimer(1, self.requestTelemetryTick)
+        self.requestTelemetry_Timer = QTimer()
+        self.requestTelemetry_Timer.setInterval(1000)
+        self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
+        self.requestTelemetry_Timer.start()
+
         self.resetAutorequesterState()
         self.temp__AssumedPosition = 0
         self.temp__deToPass = 0
@@ -51,7 +33,7 @@ class CAgentLink():
         print( "AgentLink DESTROY +++++++++++++++++++++++++++++++++++++++++++++" )
 
     def done( self ):
-        self.rt.stop()
+        self.requestTelemetry_Timer.stop()
         for thread in self.socketThreads:
             thread.bRunning = False
             thread.exit()
@@ -93,7 +75,7 @@ class CAgentLink():
     def processStringCommand(self, data):
         self.agentStringCommandParser.processStringCommand(data)
 
-    def requestTelemetryTick(self):
+    def requestTelemetry(self):
         """Per-second event to do telemetry requests, etc"""
         if self.currentTxPacketN != 1000:
             if self.BsAnswerReceived:
