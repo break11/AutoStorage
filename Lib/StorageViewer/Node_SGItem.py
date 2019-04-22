@@ -59,9 +59,8 @@ class CNode_SGItem(QGraphicsItem):
         self.middleLineAngle = fVal
 
         # если поворот более 45 градусов, доворачиваем на 180, чтобы левая коробка была в левом секторе
-        storagesAngle = self.middleLineAngle
-        # storagesAngle = self.middleLineAngle % 180
-        # storagesAngle = storagesAngle if (storagesAngle < 45) else storagesAngle + 180
+        storagesAngle = self.middleLineAngle % 180
+        storagesAngle = storagesAngle if (storagesAngle < 45) else storagesAngle + 180
         
         self.setRotation(-storagesAngle)
 

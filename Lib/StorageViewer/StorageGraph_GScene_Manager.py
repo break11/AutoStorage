@@ -232,6 +232,7 @@ class CStorageGraph_GScene_Manager( QObject ):
             return
         
         NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
+        #NeighborsIDs = list( set(NeighborsIDs) ) #протестить, что будет быстрее - убирать повтор( в случае кратных граней) нод или нет
         
         vec_count = len(NeighborsIDs)
         x1, y1 = getNodeCoords( self.nxGraph, nodeGItem.nodeID )
@@ -239,22 +240,19 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         for i in range( vec_count ):
             x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
-            vec1 = Vector2 ( x2 - x1, - (y2 - y1) )
+            vec1 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
             
-            for j in range( i, vec_count ):
+            for j in range( i + 1, vec_count ):
                 x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[j] )
-                vec2 = Vector2( x2 - x1, - (y2 - y1) )
+                vec2 = Vector2( x2 - x1, - (y2 - y1) ).unit()
 
                 angle = vec1.angle( vec2 )
                 dictByAngle[ round(angle, 2) ] = ( vec1, vec2 )
-
+        
         angle = max( dictByAngle.keys() )
         vec1, vec2 = dictByAngle[angle][0], dictByAngle[angle][1]
         r_vec = vec1 + vec2
-        r_vec = r_vec if r_vec else vec1.rotate(math.pi/2)
-
-        # print( nodeGItem.nodeID,  NeighborsIDs, dictByAngle)
-        # print( vec1, vec2, ":: ", r_vec, bool(r_vec), "\n" )
+        r_vec = r_vec if r_vec else vec1.rotate(math.pi/2) #если вектора противоположнонаправлены, r_vec будет нулевым вектором
 
         return math.degrees( r_vec.selfAngle() )
 
