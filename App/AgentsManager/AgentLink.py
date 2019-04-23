@@ -29,8 +29,8 @@ class CAgentLink():
         self.temp__deToPass = 0
         self.temp__finishNode = 0
 
-    def __del__(self):
-        print( "AgentLink DESTROY +++++++++++++++++++++++++++++++++++++++++++++" )
+    # def __del__(self):
+    #     print( "AgentLink DESTROY +++++++++++++++++++++++++++++++++++++++++++++" )
 
     def done( self ):
         self.requestTelemetry_Timer.stop()
@@ -40,7 +40,7 @@ class CAgentLink():
 
         for thread in self.socketThreads:
             while thread.isRunning():
-                print( "waiting thread stop..." )
+                pass # waiting thread stop
                 
         self.socketThreads = []
 
@@ -58,19 +58,6 @@ class CAgentLink():
             if self.currentTxPacketN == 1000:
                 self.currentTxPacketN = 1
             socketThread.putBytestrToTxFifoWithNewline(bstr)
-
-    def getRxPacketN(self):
-        return self.currentRxPacketN
-
-    def getTxPacketN(self):
-        return self.currentTxPacketN
-
-    def setRxPacketN(self, n):
-        self.currentRxPacketN = n
-
-    def setTxPacketN(self, n):
-        #print ('setTxPacketN to {:d}'.format(n))
-        self.currentTxPacketN = n
 
     def processStringCommand(self, data):
         self.agentStringCommandParser.processStringCommand(data)

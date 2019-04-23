@@ -162,10 +162,6 @@ class CFakeAgentThread(QThread):
             if not self.currentTask:
                 self.startNextTask()
 
-
-
-
-
     def processRxPacket(self, packet):
 
         # All processing below based on bytestr
