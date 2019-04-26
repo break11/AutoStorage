@@ -8,7 +8,7 @@ class AgentStringCommandParser():
         self.agent = agent
 
     def processStringCommand(self, data):
-        print("Agent #{:d} - processing string command:{:s}".format(self.agent.agentN, data.decode()))
+        # print("Agent #{:d} - processing string command:{:s}".format(self.agent.agentN, data.decode()))
 
         if data.find(b'@BS') != -1:
             #print ("self.agent.BsAnswerReceived = True")

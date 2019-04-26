@@ -1,3 +1,5 @@
+import datetime
+
 from .agentStringCommandParser import AgentStringCommandParser
 
 # from threading import Timer
@@ -13,6 +15,11 @@ class CAgentLink():
         queryAgentNetObj( str( agentN ) )
 
         self.agentN = agentN
+
+        now = datetime.datetime.now()
+        s = now.strftime("%d-%m-%Y %H:%M:%S")
+        self.log = f"Agent={self.agentN}, {s}"
+
         # self.routeBuilder = routeBuilder
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state
@@ -57,7 +64,7 @@ class CAgentLink():
             self.currentTxPacketN = self.currentTxPacketN + 1
             if self.currentTxPacketN == 1000:
                 self.currentTxPacketN = 1
-            socketThread.putBytestrToTxFifoWithNewline(bstr)
+            socketThread.putBytestrToTxFIFO( bstr )
 
     def processStringCommand(self, data):
         self.agentStringCommandParser.processStringCommand(data)

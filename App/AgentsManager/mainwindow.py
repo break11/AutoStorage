@@ -49,11 +49,40 @@ class CAM_MainWindow(QMainWindow):
             self.tvAgents.setModel( self.Agents_Model )
 
             self.routeBuilder = CRouteBuilder()
-            ##remove##self.agentPoolManager  = AgentPoolManager(self.routeBuilder)
-            self.AgentSocketsServer = CAgentsConnectionServer()
+            self.AgentsConnectionServer = CAgentsConnectionServer()
+
+            self.tvAgents.selectionModel().currentChanged.connect( self.CurrentAgentChanged )
+
+            self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
+
+    ################################################################
+    # текущий агент выделенный в таблице
+    def currAgentN( self ):
+        agentNO = self.Agents_Model.agentNO_from_Index( self.tvAgents.selectionModel().currentIndex() )
+        if agentNO is None:
+            return
+        
+        agentN = int( agentNO.name )
+        return agentN
+
+    def CurrentAgentChanged( self, current, previous):
+        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        if agentLink is None:
+            self.pteAgentLog.clear()
+            return
+        
+        self.pteAgentLog.setPlainText( agentLink.log )
+
+    def AgentLogUpdated( self, agentN, data ):
+        if self.currAgentN() != agentN:
+            return
+
+        self.pteAgentLog.appendPlainText( data )
+
+    ################################################################
 
     def on_btnAddAgent_released( self ):
         props = deepcopy( agentDefProps )
