@@ -61,6 +61,9 @@ class CAM_MainWindow(QMainWindow):
     ################################################################
     # текущий агент выделенный в таблице
     def currAgentN( self ):
+        if not self.tvAgents.selectionModel().currentIndex().isValid():
+            return
+
         agentNO = self.Agents_Model.agentNO_from_Index( self.tvAgents.selectionModel().currentIndex() )
         if agentNO is None:
             return

@@ -1,6 +1,5 @@
 
 from collections import deque
-# import array
 import string
 import random
 
@@ -88,6 +87,7 @@ class CAgentsConnectionServer(QTcpServer):
         print ( f"Creating new agentN={agentN}" )
         agentLink = CAgentLink( agentN )
         self.AgentLinks[ agentN ] = agentLink
+        self.AgentLogUpdated.emit( agentN, agentLink.log )
 
     @pyqtSlot( int )
     def thread_SocketError( self, error ):

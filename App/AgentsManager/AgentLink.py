@@ -1,12 +1,11 @@
 import datetime
 
-from .agentStringCommandParser import AgentStringCommandParser
-
-# from threading import Timer
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
                              QVBoxLayout, QPushButton, QWidget)
+
 from Lib.Common.Agent_NetObject import queryAgentNetObj
+from .agentStringCommandParser import AgentStringCommandParser
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
@@ -14,12 +13,11 @@ class CAgentLink():
     def __init__(self, agentN):
         queryAgentNetObj( str( agentN ) )
 
-        self.agentN = agentN
-
         now = datetime.datetime.now()
         s = now.strftime("%d-%m-%Y %H:%M:%S")
-        self.log = f"Agent={self.agentN}, {s}"
+        self.log = f"Agent={agentN}, Created={s}"
 
+        self.agentN = agentN
         # self.routeBuilder = routeBuilder
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state
