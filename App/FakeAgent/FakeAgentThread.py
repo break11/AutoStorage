@@ -20,6 +20,8 @@ TX_RX_VERBOSE = 1
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
 
+START_PACKET_NUMBER = 11 # временно ставим номер пакета отличный от 0 - чтобы легче отличать "переговорку" с сервером
+
 class CFakeAgentThread(QThread):
     threadFinished = pyqtSignal(int)
     def __init__(self, agentN, host, port, parent):
@@ -32,7 +34,7 @@ class CFakeAgentThread(QThread):
         self.commandToParse = []
 
         self.currentRxPacketN = 1000 # 1000 means that numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message.
-        self.currentTxPacketN = 0
+        self.currentTxPacketN = START_PACKET_NUMBER
         self.currentAgentN = agentN
 
         self.txFifo = deque([]) #packet-wise tx fifo
@@ -107,7 +109,7 @@ class CFakeAgentThread(QThread):
                 self.ackNumberToWait = self.currentTxPacketN
                 self.currentTxPacketN = self.currentTxPacketN +1
                 if self.currentTxPacketN == 1000:
-                    self.currentTxPacketN = 1
+                    self.currentTxPacketN = START_PACKET_NUMBER
 
         if self.currentTask:
             # there is some task to complete
@@ -177,6 +179,7 @@ class CFakeAgentThread(QThread):
             ack_n = int(packet[4:4+3])
             if ack_n == self.ackNumberToWait:
                 self.serverAckReceived = 1
+                self.currentTxPacketWithNumbering = ""
         else:
             # it's a data packet
             try:
@@ -186,6 +189,7 @@ class CFakeAgentThread(QThread):
 
             # 1) sending ack:
             self.ackNumberToSend = packetN
+            # self.writeBytestrToSocket('@CA:{:03d}'.format(self.ackNumberToSend).encode('utf-8'))
             self.ackSendCounter = 1 # ack will be sended in next cycle
 
             # 2) Check for broadcast mesage (with agentN = 0):

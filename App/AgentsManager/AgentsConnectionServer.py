@@ -188,21 +188,21 @@ class CAgentSocketThread(QThread):
                     self.putBytestrToTxFIFO(self.lastTxPacket)
                     self.packetRetransmitTimer = 500
 
-            if self.ackRetransmitTimer > 0:
-                self.ackRetransmitTimer = self.ackRetransmitTimer - 1
-                #retransmit timer timeout event, need to retransmit last packet
-                if self.ackRetransmitTimer == 0:
-                    self.putBytestrToTxFIFO(self.lastAck)
-                    self.ackRetransmitTimer = 500
+            # if self.ackRetransmitTimer > 0:
+            #     self.ackRetransmitTimer = self.ackRetransmitTimer - 1
+            #     #retransmit timer timeout event, need to retransmit last packet
+            #     if self.ackRetransmitTimer == 0:
+            #         self.putBytestrToTxFIFO(self.lastAck)
+            #         self.ackRetransmitTimer = 500
 
             if len(self.txFIFO):
                 block = self.txFIFO.popleft()
                 self.tcpSocket.write(block)
 
-            self.noRxTimer = self.noRxTimer + 1
-            if self.noRxTimer > TIMEOUT_NO_ACTIVITY_ON_SOCKET:
-                print( f"Thread {id(self)} will closed with no activity for 5 secs." )
-                self.bRunning = False
+            # self.noRxTimer = self.noRxTimer + 1
+            # if self.noRxTimer > TIMEOUT_NO_ACTIVITY_ON_SOCKET:
+            #     print( f"Thread {id(self)} will closed with no activity for 5 secs." )
+            #     self.bRunning = False
 
     def putBytestrToTxFIFO(self, data):
         block = QByteArray()
