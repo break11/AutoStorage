@@ -9,6 +9,8 @@ from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSoc
 from .AgentLink import CAgentLink
 import Lib.Common.StrConsts as SC
 from Lib.Common.NetUtils import socketErrorToString
+from .AgentServerPacket import UNINITED_AGENT_N
+from .AgentServer_Event import EAgentServer_Event
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5000
 
@@ -95,7 +97,7 @@ class CAgentsConnectionServer(QTcpServer):
 
     @pyqtSlot( int, str )
     def thread_AgentLogUpdated( self, agentN, data ):
-        if agentN == -1:
+        if agentN == UNINITED_AGENT_N:
             print( agentN, data )
         else:
             self.getAgentLink( agentN ).log =  self.getAgentLink( agentN ).log + "\n" + data
@@ -115,6 +117,21 @@ class CAgentsConnectionServer(QTcpServer):
 
 ############################################################
 
+class CAgentServerDialect:
+    def __init__( self, tcpSocket, RX_DataHandler=None, AcceptEvent=EAgentServer_Event.ServerAccepting ):
+        self.TX_Packets = deque( [] )
+        self.tcpSocket = tcpSocket
+        self.RX_DataHandler = RX_DataHandler
+        self.AcceptEvent = AcceptEvent
+
+    def process( self ):
+        self.tcpSocket.waitForReadyRead(1)
+
+        line = self.tcpSocket.readLine()
+        if line and self.RX_DataHandler:
+            self.RX_DataHandler( line.data() )
+############################################################
+
 class CAgentSocketThread(QThread):
     """This thread will be created when someone connects to opened socket"""
     socketError          = pyqtSignal( int )
@@ -128,7 +145,7 @@ class CAgentSocketThread(QThread):
         super().__init__(parent)
         print( f"Creating rx thread {id(self)} for unknown agent." )
 
-        self.agentN = -1 # for just started rx thread agent number is uninited
+        self.agentN = UNINITED_AGENT_N
         self.socketDescriptor = socketDescriptor
         self.rxByteFIFO = deque([])
 
@@ -151,6 +168,7 @@ class CAgentSocketThread(QThread):
 
     def run(self):
         self.tcpSocket = QTcpSocket()
+        self.dialect = CAgentServerDialect( self.tcpSocket, RX_DataHandler=self.processRxPacket )
 
         if not self.tcpSocket.setSocketDescriptor( self.socketDescriptor ):
             self.socketError.emit( self.tcpSocket.error() )
@@ -164,15 +182,17 @@ class CAgentSocketThread(QThread):
         self.txPacketFIFO.append(b'000,000:@HW')
 
         while self.bRunning:
-            # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
-            self.tcpSocket.waitForReadyRead(1)
+            self.dialect.process()
 
-            # try to read line (ended with '\n') from socket. Will return empty list if there is no full line in buffer present
-            line = self.tcpSocket.readLine()
-            if line:
-                # some line (ended with '\n') present in socket rx buffer, let's process it
-                self.noRxTimer = 0
-                self.processRxPacket( line.data() )
+            # # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
+            # self.tcpSocket.waitForReadyRead(1)
+
+            # # try to read line (ended with '\n') from socket. Will return empty list if there is no full line in buffer present
+            # line = self.tcpSocket.readLine()
+            # if line:
+            #     # some line (ended with '\n') present in socket rx buffer, let's process it
+            #     self.noRxTimer = 0
+            #     self.processRxPacket( line.data() )
 
             #waitForReadyRead(1) above will block for 1ms, let's use it as (unpercise) 1ms timer tick
             if self.packetRetransmitTimer == 0:
@@ -248,7 +268,7 @@ class CAgentSocketThread(QThread):
             agent = self.parent().getAgentLink(agentN)
 
             #print("self.agentN={:s}".format(str(self.agentN)))
-            if self.agentN == -1:
+            if self.agentN == UNINITED_AGENT_N:
                 self.agentN = agentN
                 self.agentNumberEstimated.emit(agentN)
 
