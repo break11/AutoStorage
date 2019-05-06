@@ -93,7 +93,7 @@
         <bool>true</bool>
        </attribute>
       </widget>
-      <widget class="QPlainTextEdit" name="pteAgentLog"/>
+      <widget class="QTextEdit" name="pteAgentLog"/>
      </widget>
     </item>
    </layout>

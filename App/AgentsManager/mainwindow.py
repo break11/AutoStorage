@@ -8,7 +8,7 @@ import weakref
 from copy import deepcopy
 
 from PyQt5.QtCore import pyqtSlot, QTimer
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction
 from PyQt5 import uic
 
@@ -77,13 +77,15 @@ class CAM_MainWindow(QMainWindow):
             self.pteAgentLog.clear()
             return
         
-        self.pteAgentLog.setPlainText( agentLink.log )
+        self.pteAgentLog.setHtml( agentLink.log )
+
+        self.pteAgentLog.moveCursor( QTextCursor.End )
 
     def AgentLogUpdated( self, agentN, data ):
         if self.currAgentN() != agentN:
             return
 
-        self.pteAgentLog.appendPlainText( data )
+        self.pteAgentLog.append( data )
 
     ################################################################
 

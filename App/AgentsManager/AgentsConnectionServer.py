@@ -9,7 +9,7 @@ from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSoc
 from .AgentLink import CAgentLink
 import Lib.Common.StrConsts as SC
 from Lib.Common.NetUtils import socketErrorToString
-from .AgentServerPacket import UNINITED_AGENT_N
+from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5000
@@ -95,12 +95,37 @@ class CAgentsConnectionServer(QTcpServer):
     def thread_SocketError( self, error ):
         print( f"{SC.sError} Socket error={ socketErrorToString(error) }" )
 
-    @pyqtSlot( int, str )
-    def thread_AgentLogUpdated( self, agentN, data ):
+    @pyqtSlot( bool, int, str )
+    def thread_AgentLogUpdated( self, bTX_or_RX, agentN, data ):
+
+        data = data.replace( "\n", "" )
+
+        packet = CAgentServerPacket.fromStr( data, bTX_or_RX )
+
         if agentN == UNINITED_AGENT_N:
             print( agentN, data )
         else:
-            self.getAgentLink( agentN ).log =  self.getAgentLink( agentN ).log + "\n" + data
+            if bTX_or_RX:
+                sTX_or_RX = "TX"
+                colorPrefix = "#ff0000"
+            else:
+                sTX_or_RX = "RX"
+                colorPrefix = "#283593"
+
+            colorsByEvents = { EAgentServer_Event.BatteryState:    "#388E3C",
+                               EAgentServer_Event.ClientAccepting: "#1565C0",
+                               EAgentServer_Event.ServerAccepting: "#FF3300", }
+
+            colorData = colorsByEvents.get( packet.event )
+            if colorData is None: colorData = "#000000"
+
+            def bTag( color, weight = 200 ):
+                return f"<span style=\" font-size:12pt; font-weight:{weight}; color:{color};\" >"
+            eTag = "</span>"
+
+            data = f"{bTag( colorPrefix, 400 )}{sTX_or_RX}:{eTag} {bTag( colorData )}{data}{eTag}"
+
+            self.getAgentLink( agentN ).log = self.getAgentLink( agentN ).log + "<br>" + data
                 
         self.AgentLogUpdated.emit( agentN, data )
 
@@ -118,11 +143,12 @@ class CAgentsConnectionServer(QTcpServer):
 ############################################################
 
 class CAgentServerDialect:
-    def __init__( self, tcpSocket, RX_DataHandler=None, AcceptEvent=EAgentServer_Event.ServerAccepting ):
+    def __init__( self, tcpSocket, RX_DataHandler=None, bServer=True ):
         self.TX_Packets = deque( [] )
         self.tcpSocket = tcpSocket
         self.RX_DataHandler = RX_DataHandler
-        self.AcceptEvent = AcceptEvent
+        self.bServer = bServer
+        self.AcceptEvent = EAgentServer_Event.ServerAccepting if bServer else EAgentServer_Event.ClientAccepting
 
     def process( self ):
         self.tcpSocket.waitForReadyRead(1)
@@ -137,7 +163,7 @@ class CAgentSocketThread(QThread):
     socketError          = pyqtSignal( int )
     agentNumberEstimated = pyqtSignal( int )
     newAgentDetected     = pyqtSignal( int )
-    AgentLogUpdated      = pyqtSignal( int, str )
+    AgentLogUpdated      = pyqtSignal( bool, int, str )
     txFIFO = deque([])
 
     def __init__(self, socketDescriptor, parent):
@@ -229,12 +255,12 @@ class CAgentSocketThread(QThread):
         block.append(data)
         block.append(b'\n')
 
-        self.AgentLogUpdated.emit( self.agentN, f"TX: {block.data()}" )
+        self.AgentLogUpdated.emit( True, self.agentN, block.data().decode() )
 
         self.txFIFO.append(block)
 
     def processRxPacket(self, data):
-        self.AgentLogUpdated.emit( self.agentN, f"RX: {data}" )
+        self.AgentLogUpdated.emit( False, self.agentN, data.decode() )
 
         # 1) check if it is a client ack (@CA:xxx)
         if data.find(b'@CA') != -1:
