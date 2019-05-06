@@ -245,10 +245,10 @@ class CAgentSocketThread(QThread):
                 block = self.txFIFO.popleft()
                 self.tcpSocket.write(block)
 
-            # self.noRxTimer = self.noRxTimer + 1
-            # if self.noRxTimer > TIMEOUT_NO_ACTIVITY_ON_SOCKET:
-            #     print( f"Thread {id(self)} will closed with no activity for 5 secs." )
-            #     self.bRunning = False
+            self.noRxTimer = self.noRxTimer + 1
+            if self.noRxTimer > TIMEOUT_NO_ACTIVITY_ON_SOCKET:
+                print( f"Thread {id(self)} will closed with no activity for 5 secs." )
+                self.bRunning = False
 
     def putBytestrToTxFIFO(self, data):
         block = QByteArray()
@@ -260,6 +260,7 @@ class CAgentSocketThread(QThread):
         self.txFIFO.append(block)
 
     def processRxPacket(self, data):
+        self.noRxTimer = 0
         self.AgentLogUpdated.emit( False, self.agentN, data.decode() )
 
         # 1) check if it is a client ack (@CA:xxx)
