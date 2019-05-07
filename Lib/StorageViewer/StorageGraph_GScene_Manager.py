@@ -231,8 +231,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
             return
         
-        NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
-        NeighborsIDs = list( set(NeighborsIDs) ) #убираем дублирование смежных вершин (в случае кратных граней)
+        NeighborsIDs = set( self.nxGraph.successors(nodeGItem.nodeID) ).union( set(self.nxGraph.predecessors(nodeGItem.nodeID)) )
+        NeighborsIDs = [ ID for ID in NeighborsIDs if self.edgeGItems.get(frozenset((nodeGItem.nodeID, ID))) ]
         
         vec_count = len(NeighborsIDs)
         dictByAngle = {}
