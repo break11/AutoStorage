@@ -1,4 +1,5 @@
 import datetime
+from collections import deque
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
@@ -16,6 +17,7 @@ class CAgentLink():
         now = datetime.datetime.now()
         s = now.strftime("%d-%m-%Y %H:%M:%S")
         self.log = f"Agent={agentN}, Created={s}"
+        self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
 
         self.agentN = agentN
         # self.routeBuilder = routeBuilder

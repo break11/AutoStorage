@@ -3,7 +3,7 @@ from collections import deque
 import string
 import random
 
-from PyQt5.QtCore import (pyqtSignal, QByteArray, QDataStream, QIODevice, QThread, QTimer, pyqtSlot)
+from PyQt5.QtCore import (pyqtSignal, QDataStream, QIODevice, QThread, QTimer, pyqtSlot)
 from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSocket, QAbstractSocket
 
 from .AgentLink import CAgentLink
@@ -48,7 +48,6 @@ class CAgentsConnectionServer(QTcpServer):
     def incomingConnection(self, socketDescriptor):
         thread = CAgentSocketThread(socketDescriptor, self)
         thread.finished.            connect( self.thread_Finihsed )
-        thread.agentNumberEstimated.connect( self.agentNumberEstimated )
         thread.newAgentDetected.    connect( self.createAgentLink )
         thread.socketError.         connect( self.thread_SocketError )
         thread.AgentLogUpdated.     connect( self.thread_AgentLogUpdated )
@@ -74,7 +73,12 @@ class CAgentsConnectionServer(QTcpServer):
         thread.deleteLater()
 
     @pyqtSlot(int)
-    def agentNumberEstimated(self, agentN):
+    def createAgentLink(self, agentN):
+        print ( f"Creating new agentN={agentN}" )
+        agentLink = CAgentLink( agentN )
+        self.AgentLinks[ agentN ] = agentLink
+        self.AgentLogUpdated.emit( agentN, agentLink.log )
+
         thread = self.sender()
         print( f"Agent number {agentN} estimated for thread {id(thread)}." )
 
@@ -84,22 +88,12 @@ class CAgentsConnectionServer(QTcpServer):
         #add a ref of this thread to corresponding agent
         self.getAgentLink(agentN).socketThreads.append(thread)
 
-    @pyqtSlot(int)
-    def createAgentLink(self, agentN):
-        print ( f"Creating new agentN={agentN}" )
-        agentLink = CAgentLink( agentN )
-        self.AgentLinks[ agentN ] = agentLink
-        self.AgentLogUpdated.emit( agentN, agentLink.log )
-
     @pyqtSlot( int )
     def thread_SocketError( self, error ):
         print( f"{SC.sError} Socket error={ socketErrorToString(error) }" )
 
     @pyqtSlot( bool, int, str )
     def thread_AgentLogUpdated( self, bTX_or_RX, agentN, data ):
-
-        data = data.replace( "\n", "" )
-
         packet = CAgentServerPacket.fromStr( data, bTX_or_RX )
 
         if agentN == UNINITED_AGENT_N:
@@ -144,18 +138,52 @@ class CAgentsConnectionServer(QTcpServer):
 
 class CAgentServerDialect:
     def __init__( self, tcpSocket, RX_DataHandler=None, bServer=True ):
-        self.TX_Packets = deque( [] )
         self.tcpSocket = tcpSocket
         self.RX_DataHandler = RX_DataHandler
         self.bServer = bServer
         self.AcceptEvent = EAgentServer_Event.ServerAccepting if bServer else EAgentServer_Event.ClientAccepting
 
+        self.lastAccPacket = None
+        self.HW_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=0 )
+
+    def init( self ):
+        self.tcpSocket.write( self.HW_Cmd.toTX_BStr() + b"\n" )
+
+        self.tcpSocket.waitForReadyRead(1)
+
+        ## read
+        line = self.tcpSocket.readLine()
+        try:
+            cmd = CAgentServerPacket.fromRX_BStr( line )
+        except:
+            cmd = None
+
+        if cmd is not None:
+            if not self.parent().getAgentLink( cmd.agentN, bWarning = False):
+                AgentsConnectionServer.createAgentLink(  )
+
+                self.newAgentDetected.emit(agentN)
+                # wait for CAgentConnectionServer to process a newAgentDetectedSignal if requested agent wasn't created yet
+                while (not self.parent().getAgentLink(agentN, bWarning = False)):
+                    self.msleep(10)
+            if self.agentN == UNINITED_AGENT_N:
+                self.agentN = agentN
+
+            # self.RX_DataHandler( line.data() )
+
     def process( self ):
         self.tcpSocket.waitForReadyRead(1)
 
+        ## read
         line = self.tcpSocket.readLine()
         if line and self.RX_DataHandler:
             self.RX_DataHandler( line.data() )
+
+        # ## write
+        # if len( self.TX_Packets ):
+        #     data = self.TX_Packets.popleft()
+        #     self.tcpSocket.write( data )
+
 ############################################################
 
 class CAgentSocketThread(QThread):
@@ -173,7 +201,6 @@ class CAgentSocketThread(QThread):
 
         self.agentN = UNINITED_AGENT_N
         self.socketDescriptor = socketDescriptor
-        self.rxByteFIFO = deque([])
 
         # per-thread packet tx fifo: when server's agent object decides to transmit something - it pushes packet to all corresponding threads fifos
         # some of this threads will tramsmit this data fast, some slow, and agent server still can push new data to thread's fifos
@@ -205,7 +232,14 @@ class CAgentSocketThread(QThread):
         self.tcpSocket.disconnected.connect( self.disconnected )
 
         # sendind greeting HW when socket just connected
-        self.txPacketFIFO.append(b'000,000:@HW')
+        # self.txPacketFIFO.append(b'000,000:@HW')
+        # cmdHelloWorld = b'000,000:@HW'
+        # self.lastTxPacket = b'000,000:@HW'
+        # self.putBytestrToTxFIFO(self.lastTxPacket)
+        self.packetRetransmitTimer = 500
+
+        while self.bRunning and self.agentN == UNINITED_AGENT_N:
+            self.dialect.init() ## send HW cmd and wait HW answer from Agent for init agentN
 
         while self.bRunning:
             self.dialect.process()
@@ -221,43 +255,65 @@ class CAgentSocketThread(QThread):
             #     self.processRxPacket( line.data() )
 
             #waitForReadyRead(1) above will block for 1ms, let's use it as (unpercise) 1ms timer tick
-            if self.packetRetransmitTimer == 0:
+            # if self.packetRetransmitTimer == 0:
+            #     pass
                 # clear to send new packet
-                if len(self.txPacketFIFO) > 0 :
-                    self.lastTxPacket = self.txPacketFIFO.popleft()
-                    self.putBytestrToTxFIFO(self.lastTxPacket)
-                    self.packetRetransmitTimer = 500
-            else:
-                self.packetRetransmitTimer = self.packetRetransmitTimer - 1
+                # if len(self.txPacketFIFO) > 0 :
+            #     if cmdHelloWorld is not None:
+            #         # self.lastTxPacket = self.txPacketFIFO.popleft()
+            #         # self.putBytestrToTxFIFO(self.lastTxPacket)
+            #         # self.packetRetransmitTimer = 500
+
+            #         self.lastTxPacket = cmdHelloWorld
+            #         self.putBytestrToTxFIFO(self.lastTxPacket)
+            #         self.packetRetransmitTimer = 500
+            #         cmdHelloWorld = None
+            # else:
+            self.packetRetransmitTimer = self.packetRetransmitTimer - 1
+            #retransmit timer timeout event, need to retransmit last packet
+            if self.packetRetransmitTimer == 0:
+                self.putBytestrToTxFIFO(self.lastTxPacket)
+                self.packetRetransmitTimer = 500
+
+            if self.ackRetransmitTimer > 0:
+                self.ackRetransmitTimer = self.ackRetransmitTimer - 1
                 #retransmit timer timeout event, need to retransmit last packet
-                if self.packetRetransmitTimer == 0:
-                    self.putBytestrToTxFIFO(self.lastTxPacket)
-                    self.packetRetransmitTimer = 500
+                if self.ackRetransmitTimer == 0:
+                    self.putBytestrToTxFIFO(self.lastAck)
+                    self.ackRetransmitTimer = 500
 
-            # if self.ackRetransmitTimer > 0:
-            #     self.ackRetransmitTimer = self.ackRetransmitTimer - 1
-            #     #retransmit timer timeout event, need to retransmit last packet
-            #     if self.ackRetransmitTimer == 0:
-            #         self.putBytestrToTxFIFO(self.lastAck)
-            #         self.ackRetransmitTimer = 500
 
-            if len(self.txFIFO):
-                block = self.txFIFO.popleft()
-                self.tcpSocket.write(block)
+            #################################
+
+            TX_FIFO = self.getTX_FIFO()
+            if ( TX_FIFO is not None ) and len(TX_FIFO):
+                data = TX_FIFO.popleft()
+                self.tcpSocket.write( data )
+
+            #################################
 
             self.noRxTimer = self.noRxTimer + 1
             if self.noRxTimer > TIMEOUT_NO_ACTIVITY_ON_SOCKET:
                 print( f"Thread {id(self)} will closed with no activity for 5 secs." )
                 self.bRunning = False
 
+    def getTX_FIFO(self):
+        if self.agentN == UNINITED_AGENT_N:
+            return None
+
+        agentLink = self.parent().getAgentLink( self.agentN, bWarning = False)
+        if agentLink is None:
+            return None
+        
+        return agentLink.TX_Packets
+
     def putBytestrToTxFIFO(self, data):
-        block = QByteArray()
-        block.append(data)
-        block.append(b'\n')
-
-        self.AgentLogUpdated.emit( True, self.agentN, block.data().decode() )
-
-        self.txFIFO.append(block)
+        TX_FIFO = self.getTX_FIFO()
+        if ( TX_FIFO is not None ):
+            self.AgentLogUpdated.emit( True, self.agentN, data.decode() )
+            TX_FIFO.append( data + b'\n' )
+        else:
+            print( f"Can't send cmd = ", data.decode() )
 
     def processRxPacket(self, data):
         self.noRxTimer = 0
@@ -277,27 +333,22 @@ class CAgentSocketThread(QThread):
             # it's a data packet
             parsed = self.parseClientPacketWithNumbering( data )
             if parsed:
-                (packetN, agentN, channelN, timestemp, data) = parsed
-            #print (packetN, agentN, channelN, timestemp, data)
-            # print('packetN={:d}, agentN={:d}, data={:s}'.format(packetN, agentN, data.decode()))
+                packetN, agentN, channelN, timestemp, data = parsed
 
             # 1) sending ack:
             self.lastAck = f"@SA:{packetN:03d}".encode('utf-8')
             self.putBytestrToTxFIFO(self.lastAck)
             self.ackRetransmitTimer = 500
 
-            if not self.parent().getAgentLink(agentN, bWarning = False):
-                self.newAgentDetected.emit(agentN)
-                # wait for CAgentConnectionServer to process a newAgentDetectedSignal if requested agent wasn't created yet
-                while (not self.parent().getAgentLink(agentN, bWarning = False)):
-                    self.msleep(10)
+            # if not self.parent().getAgentLink(agentN, bWarning = False):
+            #     self.newAgentDetected.emit(agentN)
+            #     # wait for CAgentConnectionServer to process a newAgentDetectedSignal if requested agent wasn't created yet
+            #     while (not self.parent().getAgentLink(agentN, bWarning = False)):
+            #         self.msleep(10)
+            # if self.agentN == UNINITED_AGENT_N:
+            #     self.agentN = agentN
 
             agent = self.parent().getAgentLink(agentN)
-
-            #print("self.agentN={:s}".format(str(self.agentN)))
-            if self.agentN == UNINITED_AGENT_N:
-                self.agentN = agentN
-                self.agentNumberEstimated.emit(agentN)
 
             # 2) Check for HW:
             if data.find(b'@HW') != -1:
