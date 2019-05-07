@@ -232,12 +232,21 @@ class CStorageGraph_GScene_Manager( QObject ):
             return
         
         NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
-        #NeighborsIDs = list( set(NeighborsIDs) ) #протестить, что будет быстрее - убирать повтор( в случае кратных граней) нод или нет
+        NeighborsIDs = list( set(NeighborsIDs) ) #убираем дублирование смежных вершин (в случае кратных граней)
         
         vec_count = len(NeighborsIDs)
-        x1, y1 = getNodeCoords( self.nxGraph, nodeGItem.nodeID )
         dictByAngle = {}
+        x1, y1 = getNodeCoords( self.nxGraph, nodeGItem.nodeID )
 
+        #крайние случаи, если нет смежных вершин или одна смежная вершины
+        if vec_count == 0:
+            return 0
+        elif vec_count == 1:
+            x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[0] )
+            vec1 = Vector2 ( x2 - x1, - (y2 - y1) )
+            return math.degrees( vec1.rotate(math.pi/2).selfAngle() )
+
+        #случаи, если смежных вершин две и более
         for i in range( vec_count ):
             x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
             vec1 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
@@ -298,6 +307,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         MiddleLineAngle_test = self.calcNodeMiddleLine_test(nodeGItem)
         
         nodeGItem.setMiddleLineAngle( MiddleLineAngle_test )
+        # nodeGItem.setMiddleLineAngle( MiddleLineAngle )
 
         print ( "OLD:", MiddleLineAngle, "\tNEW: ", MiddleLineAngle_test )
 
