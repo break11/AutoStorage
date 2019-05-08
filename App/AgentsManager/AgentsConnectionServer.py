@@ -240,6 +240,16 @@ class CAgentSocketThread(QThread):
         # self.TX_Timer.moveToThread( self )
         # self.TX_Timer.start()
 
+        from threading import Timer
+        class RepeatTimer(Timer):
+            def run(self):
+                while not self.finished.wait(self.interval):
+                    self.function(*self.args, **self.kwargs)
+
+        from threading import Timer
+        self.t = RepeatTimer(0.5, self.sendTX_cmd)
+        self.t.start()
+
         self.tcpSocket = QTcpSocket()
         # self.dialect = CAgentServerDialect( AgentsConnectionServer=self.parent, self.tcpSocket, RX_DataHandler=self.processRxPacket )
 
@@ -253,17 +263,17 @@ class CAgentSocketThread(QThread):
 
         self.packetRetransmitTimer = 500
 
-        # self.exec_()
+        # from PyQt5.QtCore import QEventLoop
+        # loop = QEventLoop()
+        # loop.exec_()
+        self.exec_()
 
         # send HW cmd and wait HW answer from Agent for init agentN
-        # while self.bRunning and self.agentN == UNINITED_AGENT_N:
-        #     self.initHW()
+        while self.bRunning and self.agentN == UNINITED_AGENT_N:
+            self.initHW()
 
-        # while self.bRunning:
-        #     self.process()
         while self.bRunning:
-            print( "1111111111111111111111111111111111111" )
-            
+            self.process()            
 
         # self.TX_Timer.stop()
 
