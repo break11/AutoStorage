@@ -2,6 +2,7 @@
 from collections import deque
 import string
 import random
+import weakref
 
 from PyQt5.QtCore import (pyqtSignal, QDataStream, QIODevice, QThread, QTimer, pyqtSlot)
 from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSocket, QAbstractSocket
@@ -40,7 +41,19 @@ class CAgentsConnectionServer(QTcpServer):
 
     def __del__(self):
         print( f"{self.s_AgentsNetServer} shutting down." )
-        print( "__del__333333333333333333333333333333333333333333333333333" )
+
+        # deleting Unknown threads
+        for thread in self.UnknownConnections_Threads:
+            thread.bRunning = False
+            thread.exit()
+
+        for thread in self.UnknownConnections_Threads:
+            while thread.isRunning():
+                pass # waiting thread stop
+
+        self.UnknownConnections_Threads = []
+
+        # deleting agents threads
         for aLink in self.AgentLinks.values():
             aLink.done()
         self.AgentLinks = {}
@@ -197,7 +210,7 @@ class CAgentSocketThread(QThread):
         super().__init__()
         print( f"Creating rx thread {id(self)} for unknown agent." )
 
-        self.ACS = parent # parent is an CAgentsConnectionServer
+        self.ACS = weakref.ref( parent ) # parent is an CAgentsConnectionServer
         self.agentN = UNINITED_AGENT_N
         self.socketDescriptor = socketDescriptor
 
@@ -243,11 +256,14 @@ class CAgentSocketThread(QThread):
         # self.exec_()
 
         # send HW cmd and wait HW answer from Agent for init agentN
-        while self.bRunning and self.agentN == UNINITED_AGENT_N:
-            self.initHW()
+        # while self.bRunning and self.agentN == UNINITED_AGENT_N:
+        #     self.initHW()
 
+        # while self.bRunning:
+        #     self.process()
         while self.bRunning:
-            self.process()
+            print( "1111111111111111111111111111111111111" )
+            
 
         # self.TX_Timer.stop()
 
@@ -261,10 +277,10 @@ class CAgentSocketThread(QThread):
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
 
             if cmd is not None:
-                if not self.ACS.getAgentLink( cmd.agentN, bWarning = False):
+                if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
                     self.newAgentDetected.emit( cmd.agentN )
                     # wait for CAgentConnectionServer to process a newAgentDetectedSignal if requested agent wasn't created yet
-                    while (not self.ACS.getAgentLink( cmd.agentN, bWarning = False)):
+                    while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
                 self.agentN = cmd.agentN
 
@@ -335,7 +351,7 @@ class CAgentSocketThread(QThread):
         if self.agentN == UNINITED_AGENT_N:
             return None
 
-        agentLink = self.ACS.getAgentLink( self.agentN, bWarning = False)
+        agentLink = self.ACS().getAgentLink( self.agentN, bWarning = False)
         if agentLink is None:
             return None
         
