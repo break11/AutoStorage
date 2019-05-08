@@ -11,6 +11,22 @@ from App.AgentsManager.AgentServerPacket import CAgentServerPacket
 class TestAgentServerPacket(unittest.TestCase):
 
     def test_fromBStr(self):
+        # test remove "line feed" = "\n"
+        p1 = CAgentServerPacket.fromTX_BStr( b"000,000:@HW\n" )
+        p2 = b"000,000:@HW"
+
+        print( p1.toTX_BStr(), p2 )
+        self.assertEqual( p1.toTX_BStr(), p2 )
+        ###################################################
+        # test return None value when can't parse string
+        pNone = CAgentServerPacket.fromTX_BStr( b"Not supported cmd - dog symbol not present!" )
+        print( pNone )
+        self.assertEqual( pNone, None )
+
+        pNone = CAgentServerPacket.fromTX_BStr( b"AAA,BBB:@HW" )
+        print( pNone )
+        self.assertEqual( pNone, None )
+        ###################################################
         p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=0 )
         p2 = CAgentServerPacket.fromTX_BStr( b"000,000:@HW" )
         p3 = b"000,000:@HW"
