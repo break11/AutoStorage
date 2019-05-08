@@ -231,37 +231,36 @@ class CStorageGraph_GScene_Manager( QObject ):
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
             return
         
+        # берем смежные вершины и оставляем только те из них, для которых есть грань в edgeGItems,
+        # тк в случае удаления грани или вершины из графа они удаляются позже
         NeighborsIDs = set( self.nxGraph.successors(nodeGItem.nodeID) ).union( set(self.nxGraph.predecessors(nodeGItem.nodeID)) )
-        # for n in NeighborsIDs:
-        #     print( n, getNodeCoords( self.nxGraph, n ) )
         NeighborsIDs = [ ID for ID in NeighborsIDs if self.edgeGItems.get(frozenset((nodeGItem.nodeID, ID))) ]
         
-        vec_count = len(NeighborsIDs)
-        dictByAngle = {}
+        Neighbors_count = len(NeighborsIDs)
         x1, y1 = getNodeCoords( self.nxGraph, nodeGItem.nodeID )
 
-        #крайние случаи, если нет смежных вершин или одна смежная вершины
-        if vec_count == 0:
+        #если нет смежных вершин или смежная вершина одна
+        if Neighbors_count == 0:
             return 0
-        elif vec_count == 1:
+        elif Neighbors_count == 1:
             x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[0] )
             vec1 = Vector2 ( x2 - x1, - (y2 - y1) )
             return math.degrees( vec1.rotate(math.pi/2).selfAngle() )
 
-        #случаи, если смежных вершин две и более
-        for i in range( vec_count ):
+        #если смежных вершин две и более, составляем дикт угол:пара векторов, исходящих из ноды
+        dictByAngle = {}
+        for i in range( Neighbors_count ):
             x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
             vec1 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
             
-            for j in range( i + 1, vec_count ):
+            for j in range( i + 1, Neighbors_count ):
                 x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[j] )
                 vec2 = Vector2( x2 - x1, - (y2 - y1) ).unit()
 
                 angle = vec1.angle( vec2 )
-                dictByAngle[ round(angle, 2) ] = ( vec1, vec2 )
+                dictByAngle[angle] = ( vec1, vec2 )
         
-        angle = max( dictByAngle.keys() )
-        vec1, vec2 = dictByAngle[angle][0], dictByAngle[angle][1]
+        vec1, vec2 = dictByAngle[ max(dictByAngle.keys()) ]
         r_vec = vec1 + vec2
         r_vec = r_vec if r_vec else vec1.rotate(math.pi/2) #если вектора противоположнонаправлены, r_vec будет нулевым вектором
 
@@ -310,8 +309,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         
         nodeGItem.setMiddleLineAngle( MiddleLineAngle_test )
         # nodeGItem.setMiddleLineAngle( MiddleLineAngle )
-
-        print ( "OLD:", MiddleLineAngle, "\tNEW: ", MiddleLineAngle_test )
 
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
