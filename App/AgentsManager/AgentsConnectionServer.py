@@ -269,10 +269,10 @@ class CAgentSocketThread(QThread):
                     self.agentNumberInited.emit( cmd.agentN )
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
+                    # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
+                    # self.ACS().getAgentLink( cmd.agentN ).currentTxPacketN = 1
                 self.agentN = cmd.agentN
 
-        # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-        self.ACS().getAgentLink( cmd.agentN ).currentTxPacketN = 1
 
     def process( self ):
         self.tcpSocket.waitForReadyRead(1)
