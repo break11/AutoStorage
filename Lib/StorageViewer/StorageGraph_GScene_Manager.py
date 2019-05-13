@@ -227,7 +227,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bDrawSpecialLines = bVal
         self.gScene.update()
 
-    def calcNodeMiddleLine_test(self, nodeGItem):        
+    def calcNodeMiddleLine(self, nodeGItem):        
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
             return
         
@@ -241,33 +241,35 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         #если нет смежных вершин или смежная вершина одна
         if Neighbors_count == 0:
-            return 0
+            nodeGItem.setMiddleLineAngle( 0 )
+            return
         elif Neighbors_count == 1:
             x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[0] )
             vec1 = Vector2 ( x2 - x1, - (y2 - y1) )
-            return math.degrees( vec1.rotate(math.pi/2).selfAngle() )
-
+            nodeGItem.setMiddleLineAngle(  math.degrees(vec1.rotate(math.pi/2).selfAngle())  )
+            return
         #если смежных вершин две и более, составляем дикт угол:пара векторов, исходящих из ноды
-        dictByAngle = {}
-        for i in range( Neighbors_count ):
-            x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
-            vec1 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
+        else:
+            dictByAngle = {}
+            for i in range( Neighbors_count ):
+                x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
+                vec1 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
+                
+                for j in range( i + 1, Neighbors_count ):
+                    x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[j] )
+                    vec2 = Vector2( x2 - x1, - (y2 - y1) ).unit()
+
+                    angle = vec1.angle( vec2 )
+                    dictByAngle[angle] = ( vec1, vec2 )
             
-            for j in range( i + 1, Neighbors_count ):
-                x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[j] )
-                vec2 = Vector2( x2 - x1, - (y2 - y1) ).unit()
+            vec1, vec2 = dictByAngle[ max(dictByAngle.keys()) ]
+            r_vec = vec1 + vec2
+            r_vec = r_vec if r_vec else vec1.rotate(math.pi/2) #если вектора противоположнонаправлены, r_vec будет нулевым вектором
 
-                angle = vec1.angle( vec2 )
-                dictByAngle[angle] = ( vec1, vec2 )
-        
-        vec1, vec2 = dictByAngle[ max(dictByAngle.keys()) ]
-        r_vec = vec1 + vec2
-        r_vec = r_vec if r_vec else vec1.rotate(math.pi/2) #если вектора противоположнонаправлены, r_vec будет нулевым вектором
-
-        return math.degrees( r_vec.selfAngle() )
+            nodeGItem.setMiddleLineAngle ( math.degrees(r_vec.selfAngle()) )
 
     #рассчет средней линии для нод
-    def calcNodeMiddleLine(self, nodeGItem):        
+    def calcNodeMiddleLine_OLD(self, nodeGItem):        
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
             return
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
