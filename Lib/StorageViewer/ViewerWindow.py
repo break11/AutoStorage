@@ -222,8 +222,12 @@ class CViewerWindow(QMainWindow):
 
     def saveGraphML( self, sFName ):
         sFName = correctFNameToProjectDir( sFName )
+        if not self.SGM.save( sFName ):
+            mb =  QMessageBox(0,'Error', f"Can't save file with name = {sFName}", QMessageBox.Ok)
+            mb.exec()
+            return
+        
         self.graphML_fname = sFName
-        self.SGM.save( sFName )
         self.setWindowTitle( self.__sWindowTitle + sFName )
         CSM.options[ SC.s_last_opened_file ] = sFName
         self.SGM.bHasChanges = False

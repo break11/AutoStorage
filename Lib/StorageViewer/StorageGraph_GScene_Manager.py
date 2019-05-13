@@ -194,7 +194,12 @@ class CStorageGraph_GScene_Manager( QObject ):
         return True
 
     def save( self, sFName ):
-        nx.write_graphml(self.nxGraph, sFName)
+        try:
+            nx.write_graphml(self.nxGraph, sFName)
+            return True
+        except Exception as e:
+            print( f"{SC.sError} { e }" )
+            return False
 
     def setDrawInfoRails( self, bVal ):
         self.bDrawInfoRails = bVal

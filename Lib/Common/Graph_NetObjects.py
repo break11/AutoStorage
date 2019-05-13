@@ -34,6 +34,7 @@ class CGraphNode_NO( CNetObj ):
         def addNxNode(netObj):
             if not netObj.__has_nxNode():
                 netObj.nxGraph().add_node( netObj.name, **netObj.props )
+                netObj.props = netObj.nxGraph().nodes[netObj.name]
 
         self._CNetObj__beforeObjCreatedCallback = addNxNode
 
@@ -81,7 +82,9 @@ class CGraphEdge_NO( CNetObj ):
 
         def addNxEdge(netObj):
             if not netObj.__has_nxEdge():
+                tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
                 netObj.nxGraph().add_edge( netObj.nxNodeID_1(), netObj.nxNodeID_2(), **netObj.props )
+                netObj.props = netObj.nxGraph().edges[ tKey ]
 
         self._CNetObj__beforeObjCreatedCallback = addNxEdge
 
