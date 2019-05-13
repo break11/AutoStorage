@@ -12,7 +12,7 @@ import time
 from __main__ import __file__ as baseFName
 import os
 from Lib.Common import NetUtils
-from  Lib.Common.GuiUtils import time_func
+from  Lib.Common.Utils import time_func
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"

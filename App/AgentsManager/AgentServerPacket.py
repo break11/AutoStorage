@@ -12,7 +12,7 @@ class CAgentServerPacket:
         self.timeStamp = timeStamp
         self.data      = data
 
-    def toBStr( self, bTX_or_RX ):
+    def toBStr( self, bTX_or_RX, appendLF=True ):
         Event_Sign = EAgentServer_Event.toStr( self.event )
         sResult = ""
 
@@ -25,11 +25,14 @@ class CAgentServerPacket:
             else:
                 sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08d}:{ Event_Sign }:{self.data}"
 
+        if appendLF:
+            sResult += "\n"
+                
         return sResult.encode()
 
-    def toTX_BStr( self ): return self.toBStr( bTX_or_RX=True )
+    def toTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
 
-    def toRX_BStr( self ): return self.toBStr( bTX_or_RX=False )
+    def toRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
 
     ############################################################
 

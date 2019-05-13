@@ -18,12 +18,12 @@ class CAgentLink():
         s = now.strftime("%d-%m-%Y %H:%M:%S")
         self.log = f"Agent={agentN}, Created={s}"
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
+        self.currentTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
 
         self.agentN = agentN
         # self.routeBuilder = routeBuilder
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state
-        self.currentTxPacketN = 1000 #uninited state
         self.agentStringCommandParser = AgentStringCommandParser(self)
  
         self.requestTelemetry_Timer = QTimer()
@@ -57,8 +57,9 @@ class CAgentLink():
         self.TsAnswerReceived = True
         self.TlAnswerReceived = True
 
-    def sendCommandBySockets(self, command):
-        """Send a commnd to agent. Proper numeration and line-end will be added inside automatically"""
+    def sendCommandBySockets( self, command ):
+        # cmd.packetN = self.currentTxPacketN
+
         for socketThread in self.socketThreads:
             bstr = "{:03d},{:03d}:{:s}".format(self.currentTxPacketN, self.agentN, command).encode('utf-8')
             self.currentTxPacketN = self.currentTxPacketN + 1
@@ -71,12 +72,13 @@ class CAgentLink():
 
     def requestTelemetry(self):
         """Per-second event to do telemetry requests, etc"""
-        if self.currentTxPacketN != 1000:
-            if self.BsAnswerReceived:
-                self.sendCommandBySockets('@BS')
-                self.BsAnswerReceived = False
-        else:
-            print ("outgoing numeration not inited")
+        pass
+        # if self.currentTxPacketN != 1000:
+        #     if self.BsAnswerReceived:
+        #         self.sendCommandBySockets('@BS')
+        #         self.BsAnswerReceived = False
+        # else:
+        #     print ("outgoing numeration not inited")
 
     def putToNode(self, node):
         self.temp__AssumedPosition = node

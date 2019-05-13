@@ -6,7 +6,7 @@ from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Proxy import CNetObj_Proxy
-from Lib.Common.GuiUtils import time_func        
+from Lib.Common.Utils import time_func        
 from .NetObj_Proxy import gProxys
 
 class CNetObj_Model( QAbstractItemModel ):

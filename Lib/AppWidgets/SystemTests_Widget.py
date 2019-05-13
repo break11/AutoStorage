@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5 import uic
 
 from PyQt5.QtCore import pyqtSlot, QTimer
-from Lib.Common.GuiUtils import time_func
+from Lib.Common.Utils import time_func
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common import StorageGraphTypes as SGT

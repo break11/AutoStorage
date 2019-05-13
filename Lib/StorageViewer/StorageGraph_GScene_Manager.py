@@ -14,7 +14,8 @@ from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .Agent_SGItem import CAgent_SGItem
 from Lib.Common.GItem_EventFilter import CGItem_EventFilter
-from Lib.Common.GuiUtils import gvFitToPage, time_func
+from Lib.Common.GuiUtils import gvFitToPage
+from Lib.Common.Utils import time_func
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC

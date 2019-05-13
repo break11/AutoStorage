@@ -16,7 +16,8 @@ from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import FileUtils
 from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps
 import Lib.Common.StrConsts as SC
-from Lib.Common.GuiUtils import time_func, load_Window_State_And_Geometry, save_Window_State_And_Geometry
+from Lib.Common.Utils import time_func
+from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
 from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
