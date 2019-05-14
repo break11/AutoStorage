@@ -135,6 +135,12 @@ class TestMathFuncs(unittest.TestCase):
         self.assertTrue(   test_u_vec_from_360_deg  == u_vec_0     )
         self.assertTrue(   test_u_vec_from_540_deg  == u_vec_180   )
 
+    def test_rotate(self):
+        self.assertTrue(  u_vec_0.rotate( math.pi/4 )  == u_vec_45   )
+        self.assertTrue(  u_vec_45.rotate( math.pi/4 ) == u_vec_90   )
+        self.assertTrue(  u_vec_90.rotate( - math.pi ) == u_vec_270  )
+        self.assertTrue(  u_vec_90.rotate( 2 * math.pi )  == u_vec_90 )
+        self.assertTrue(  u_vec_135.rotate( 4 * math.pi ) == u_vec_135 )
 
     def test_getEdgeCoords(self):
         x1, y1 = nxGraph.nodes()[nodeID1][ SGT.s_x ], nxGraph.nodes()[nodeID1][ SGT.s_y ]
