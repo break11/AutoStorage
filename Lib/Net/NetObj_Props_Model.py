@@ -81,7 +81,8 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.propCounter[ propName ] = 1
 
     def decPropCounter( self, propName ):
-        self.propCounter[ propName ] -= 1
+        if self.propCounter.get(propName) is not None: #поля может не быть, если оно добавилось через другой интерфейс (ловить PropCreate)
+            self.propCounter[ propName ] -= 1
 
     def clearNotUsedProps( self ):
         delList = []

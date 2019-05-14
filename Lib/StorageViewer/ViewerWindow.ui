@@ -397,6 +397,9 @@
    <property name="toolTip">
     <string>Add node mode</string>
    </property>
+   <property name="shortcut">
+    <string>N</string>
+   </property>
   </action>
   <action name="acAddEdge">
    <property name="icon">
