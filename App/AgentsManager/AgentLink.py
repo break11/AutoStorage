@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGri
                              QVBoxLayout, QPushButton, QWidget)
 
 from Lib.Common.Agent_NetObject import queryAgentNetObj
+from .AgentServerPacket import CAgentServerPacket
+from .AgentServer_Event import EAgentServer_Event
 from .agentStringCommandParser import AgentStringCommandParser
 
 class CAgentLink():
@@ -19,6 +21,7 @@ class CAgentLink():
         self.log = f"Agent={agentN}, Created={s}"
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.currentTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
+        self.BS_cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState )
 
         self.agentN = agentN
         # self.routeBuilder = routeBuilder
@@ -57,9 +60,12 @@ class CAgentLink():
         self.TsAnswerReceived = True
         self.TlAnswerReceived = True
 
-    def sendCommandBySockets( self, command ):
-        # cmd.packetN = self.currentTxPacketN
+    def pushCmd_to_TX_FIFO( self, cmd ):
+        cmd.packetN = self.currentTxPacketN
+        self.currentTxPacketN = (self.currentTxPacketN + 1) % 1000
+        self.TX_Packets.append( cmd )
 
+    def sendCommandBySockets( self, command ):##remove##
         for socketThread in self.socketThreads:
             bstr = "{:03d},{:03d}:{:s}".format(self.currentTxPacketN, self.agentN, command).encode('utf-8')
             self.currentTxPacketN = self.currentTxPacketN + 1
@@ -72,7 +78,8 @@ class CAgentLink():
 
     def requestTelemetry(self):
         """Per-second event to do telemetry requests, etc"""
-        pass
+        self.pushCmd_to_TX_FIFO( self.BS_cmd )
+
         # if self.currentTxPacketN != 1000:
         #     if self.BsAnswerReceived:
         #         self.sendCommandBySockets('@BS')

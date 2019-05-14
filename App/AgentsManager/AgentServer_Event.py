@@ -10,9 +10,8 @@ class EAgentServer_Event( IntEnum ):
     def fromBStr( cls, data ):
         return _AgentServer_Event_from_BStr.get( data )
 
-    @classmethod
-    def toStr( cls, data ):
-        return _AgentServer_Event_to_Str[ data ]
+    def toStr( self ):
+        return _AgentServer_Event_to_Str[ self ]
 
 _AgentServer_Event_from_BStr = {
                                 b"@HW": EAgentServer_Event.HelloWorld,

@@ -5,6 +5,10 @@ class CRepeatTimer(Timer):
     def run(self):
         while not self.finished.wait(self.interval):
             self.function(*self.args, **self.kwargs)
+        
+    def cancel( self ):
+        self.function = None # для корректного завершения, чтобы не сохранились циклические ссылки на self владельца таймера
+        super().cancel()
 
 def time_func( sMsg=None, threshold=0 ):
     def wrapper(f):

@@ -3,14 +3,26 @@ from .AgentServer_Event import EAgentServer_Event
 
 UNINITED_AGENT_N = 0
 
+from enum import IntEnum, auto
+
+class EPacket_Status( IntEnum ):
+    Normal    = auto()
+    Duplicate = auto()
+    Error     = auto()
+
 class CAgentServerPacket:
-    def __init__( self, event, packetN, agentN=UNINITED_AGENT_N, channelN=None, timeStamp=None, data=None ):
+    def __init__( self, event, packetN=0, agentN=UNINITED_AGENT_N, channelN=None, timeStamp=None, data=None, status=EPacket_Status.Normal ):
         self.event     = event
         self.agentN    = agentN
         self.packetN   = packetN
         self.channelN  = channelN
         self.timeStamp = timeStamp
         self.data      = data
+
+        self.status    = status
+
+    def __str__( self ):
+        return f"event={self.event.toStr()} agentN={self.agentN} packetN={self.packetN} channelN={self.channelN} timeStamp={self.timeStamp} data={self.data}"
 
     def toBStr( self, bTX_or_RX, appendLF=True ):
         Event_Sign = EAgentServer_Event.toStr( self.event )

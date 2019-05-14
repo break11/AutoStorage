@@ -10,7 +10,7 @@ from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSoc
 from .AgentLink import CAgentLink
 import Lib.Common.StrConsts as SC
 from Lib.Common.NetUtils import socketErrorToString
-from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket
+from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from .AgentServer_Event import EAgentServer_Event
 from Lib.Common.Utils import CRepeatTimer
 
@@ -107,9 +107,13 @@ class CAgentsConnectionServer(QTcpServer):
     def thread_SocketError( self, error ):
         print( f"{SC.sError} Socket error={ socketErrorToString(error) }" )
 
-    @pyqtSlot( bool, int, str )
-    def thread_AgentLogUpdated( self, bTX_or_RX, agentN, data ):
-        packet = CAgentServerPacket.fromStr( data, bTX_or_RX )
+    @pyqtSlot( bool, int, CAgentServerPacket )
+    def thread_AgentLogUpdated( self, bTX_or_RX, agentN, packet ):
+        agentLink = self.getAgentLink( agentN, bWarning=False )
+        data = packet.toBStr( bTX_or_RX=bTX_or_RX, appendLF=False ).decode()
+        if agentLink is None:
+            print( data )
+            return
 
         if bTX_or_RX:
             sTX_or_RX = "TX"
@@ -118,12 +122,17 @@ class CAgentsConnectionServer(QTcpServer):
             sTX_or_RX = "RX"
             colorPrefix = "#283593"
 
-        colorsByEvents = { EAgentServer_Event.BatteryState:    "#388E3C",
-                            EAgentServer_Event.ClientAccepting: "#1565C0",
-                            EAgentServer_Event.ServerAccepting: "#FF3300", }
+        if packet.status == EPacket_Status.Normal:
+            colorsByEvents = { EAgentServer_Event.BatteryState:    "#388E3C",
+                                EAgentServer_Event.ClientAccepting: "#1565C0",
+                                EAgentServer_Event.ServerAccepting: "#FF3300", }
 
-        colorData = colorsByEvents.get( packet.event )
-        if colorData is None: colorData = "#000000"
+            colorData = colorsByEvents.get( packet.event )
+            if colorData is None: colorData = "#000000"
+        elif packet.status == EPacket_Status.Duplicate:
+            colorData = "#999999"
+        elif packet.status == EPacket_Status.Error:
+            colorData = "#FF0000"
 
         def bTag( color, weight = 200 ):
             return f"<span style=\" font-size:12pt; font-weight:{weight}; color:{color};\" >"
@@ -131,7 +140,7 @@ class CAgentsConnectionServer(QTcpServer):
 
         data = f"{bTag( colorPrefix, 400 )}{sTX_or_RX}:{eTag} {bTag( colorData )}{data}{eTag}"
 
-        self.getAgentLink( agentN ).log = self.getAgentLink( agentN ).log + "<br>" + data
+        agentLink.log = self.getAgentLink( agentN ).log + "<br>" + data
                 
         self.AgentLogUpdated.emit( agentN, data )
 
@@ -146,64 +155,11 @@ class CAgentsConnectionServer(QTcpServer):
             print( f"{SC.sWarning} Agent n={agentN} acess requested but it wasn't created yet." )
         return aLink
 
-############################################################
-
-# class CAgentServerDialect:
-#     def __init__( self, AgentsConnectionServer=None, tcpSocket=None, RX_DataHandler=None, bServer=True ):
-#         self.ACS = AgentsConnectionServer
-#         self.tcpSocket = tcpSocket
-#         self.RX_DataHandler = RX_DataHandler
-#         self.bServer = bServer
-#         self.AcceptEvent = EAgentServer_Event.ServerAccepting if bServer else EAgentServer_Event.ClientAccepting
-
-#         self.lastAccPacket = None
-#         self.HW_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=0 )
-
-#     def init( self ):
-#         self.tcpSocket.write( self.HW_Cmd.toTX_BStr() + b"\n" )
-
-#         self.tcpSocket.waitForReadyRead(1)
-
-#         ## read
-#         line = self.tcpSocket.readLine()
-#         try:
-#             cmd = CAgentServerPacket.fromRX_BStr( line )
-#         except:
-#             cmd = None
-
-#         if cmd is not None:
-#             if not self.ACS.getAgentLink( cmd.agentN, bWarning = False):
-#                 self.ACS.createAgentLink( cmd.agentN )
-
-#                 self.newAgentDetected.emit(agentN)
-#                 # wait for CAgentConnectionServer to process a newAgentDetectedSignal if requested agent wasn't created yet
-#                 while (not self.parent().getAgentLink(agentN, bWarning = False)):
-#                     self.msleep(10)
-#             if self.agentN == UNINITED_AGENT_N:
-#                 self.agentN = agentN
-
-#             # self.RX_DataHandler( line.data() )
-
-#     def process( self ):
-#         self.tcpSocket.waitForReadyRead(1)
-
-#         ## read
-#         line = self.tcpSocket.readLine()
-#         if line and self.RX_DataHandler:
-#             self.RX_DataHandler( line.data() )
-
-#         # ## write
-#         # if len( self.TX_Packets ):
-#         #     data = self.TX_Packets.popleft()
-#         #     self.tcpSocket.write( data )
-
-############################################################
-
 class CAgentSocketThread(QThread):
     """This thread will be created when someone connects to opened socket"""
     socketError       = pyqtSignal( int )
     agentNumberInited = pyqtSignal( int )
-    AgentLogUpdated   = pyqtSignal( bool, int, str )
+    AgentLogUpdated   = pyqtSignal( bool, int, CAgentServerPacket )
     txFIFO = deque([])
 
     def __init__(self, socketDescriptor, parent):
@@ -226,18 +182,15 @@ class CAgentSocketThread(QThread):
         self.lastAck = False
         self.ackRetransmitTimer = 0
         self.noRxTimer = 0 # timer to ckeck if there is no incoming data - thread will be closed if no activity on socket for more than 5 secs or so
-        self.HW_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=0 )
+        self.HW_Cmd  = CAgentServerPacket( event=EAgentServer_Event.HelloWorld )
+        self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
 
     def __del__(self):
         self.tcpSocket.close()
         print( f"Thread deleted {id(self)}" )
 
     def run(self):
-        self.sendTX_cmd_Timer = CRepeatTimer(0.5, self.sendTX_cmd)
-        self.sendTX_cmd_Timer.start()
-
         self.tcpSocket = QTcpSocket()
-        # self.dialect = CAgentServerDialect( AgentsConnectionServer=self.parent, self.tcpSocket, RX_DataHandler=self.processRxPacket )
 
         if not self.tcpSocket.setSocketDescriptor( self.socketDescriptor ):
             self.socketError.emit( self.tcpSocket.error() )
@@ -253,28 +206,39 @@ class CAgentSocketThread(QThread):
         while self.bRunning and self.agentN == UNINITED_AGENT_N:
             self.initHW()
 
+        self.bSendTX_cmd = False # флаг для разруливания межпоточных обращений к сокету, т.к. таймер - это отдельный поток
+        def activateSend_TX(): self.bSendTX_cmd = True
+        self.sendTX_cmd_Timer = CRepeatTimer(0.5, activateSend_TX )
+        self.sendTX_cmd_Timer.start()
+
         while self.bRunning:
-            self.process()            
+            self.process()
+        
+        self.sendTX_cmd_Timer.cancel()
 
     def initHW( self ):
-        self.tcpSocket.write( self.HW_Cmd.toTX_BStr() )
+        self.writeTo_Socket( self.HW_Cmd )
 
         self.tcpSocket.waitForReadyRead(1)
         if self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
 
-            if cmd is not None:
+            if (cmd is not None) and ( cmd.event == EAgentServer_Event.HelloWorld ) :
+                self.AgentLogUpdated.emit( False, self.agentN, cmd )
                 if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
                     self.agentNumberInited.emit( cmd.agentN )
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-                    # self.ACS().getAgentLink( cmd.agentN ).currentTxPacketN = 1
+                    self.ACS().getAgentLink( cmd.agentN ).currentTxPacketN = 1
                 self.agentN = cmd.agentN
-
+                self.ACC_cmd.packetN = cmd.packetN
 
     def process( self ):
+        if self.bSendTX_cmd:
+            self.sendTX_cmd()
+
         self.tcpSocket.waitForReadyRead(1)
         if self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
@@ -307,19 +271,20 @@ class CAgentSocketThread(QThread):
         #         self.packetRetransmitTimer = 500
         #         cmdHelloWorld = None
         # else:
-        self.packetRetransmitTimer = self.packetRetransmitTimer - 1
-        #retransmit timer timeout event, need to retransmit last packet
-        if self.packetRetransmitTimer == 0:
-            if self.lastTxPacket is not None:
-                self.putBytestrToTxFIFO(self.lastTxPacket)
-            self.packetRetransmitTimer = 500
 
-        if self.ackRetransmitTimer > 0:
-            self.ackRetransmitTimer = self.ackRetransmitTimer - 1
-            #retransmit timer timeout event, need to retransmit last packet
-            if self.ackRetransmitTimer == 0:
-                self.putBytestrToTxFIFO(self.lastAck)
-                self.ackRetransmitTimer = 500
+        # self.packetRetransmitTimer = self.packetRetransmitTimer - 1
+        # #retransmit timer timeout event, need to retransmit last packet
+        # if self.packetRetransmitTimer == 0:
+        #     if self.lastTxPacket is not None:
+        #         self.putBytestrToTxFIFO(self.lastTxPacket)
+        #     self.packetRetransmitTimer = 500
+
+        # if self.ackRetransmitTimer > 0:
+        #     self.ackRetransmitTimer = self.ackRetransmitTimer - 1
+        #     #retransmit timer timeout event, need to retransmit last packet
+        #     if self.ackRetransmitTimer == 0:
+        #         self.putBytestrToTxFIFO(self.lastAck)
+        #         self.ackRetransmitTimer = 500
 
 
         #################################
@@ -353,35 +318,60 @@ class CAgentSocketThread(QThread):
         except:
             return None
 
-    def putBytestrToTxFIFO(self, data):
-        TX_FIFO = self.getTX_FIFO()
-        if ( TX_FIFO is not None ):
-            self.AgentLogUpdated.emit( True, self.agentN, data.decode() )
-            TX_FIFO.append( data + b'\n' )
-        else:
-            print( f"Can't send cmd = ", data.decode() )
+    def putBytestrToTxFIFO(self, data): ##remove##
+        return
+        # TX_FIFO = self.getTX_FIFO()
+        # if ( TX_FIFO is not None ):
+        #     self.AgentLogUpdated.emit( True, self.agentN, data.decode() )
+        #     TX_FIFO.append( data + b'\n' )
+        # else:
+        #     print( f"Can't send cmd = ", data.decode() )
     #################################
 
+    def writeTo_Socket( self, cmd ):
+        self.AgentLogUpdated.emit( True, self.agentN, cmd )
+        self.tcpSocket.write( cmd.toTX_BStr() )
+
     def sendTX_cmd( self ):
+        self.writeTo_Socket( self.ACC_cmd )
+
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:
-            self.tcpSocket.write( TX_cmd.toTX_BStr )
+            self.writeTo_Socket( TX_cmd )
 
-        print( self.currentTX_cmd(), "11111111111111" )
+        self.bSendTX_cmd = False
 
     def processRxPacket__New( self, cmd ):
-        self.AgentLogUpdated.emit( False, self.agentN, cmd.toRX_BStr().decode() )
-
         if cmd.event == EAgentServer_Event.ClientAccepting:
             cmdTX = self.currentTX_cmd()
             if cmdTX is not None:
                 if cmdTX.packetN == cmd.packetN:
                     # пришло CA по текущей активной команде - сносим ее из очереди отправки ( TX_N=000 CA_N=000 )
                     self.getTX_FIFO().popleft()
-                elif cmdTX.packetN != (cmd.packetN + 1)%1000:
+                elif cmdTX.packetN != (cmd.packetN + 1) % 1000:
+                    cmd.status = EPacket_Status.Error
                     # если пришло CA на 1 меньше, чем активная команда на отправку - это норма, просто повторный приход CA ( TX_N=001 CA_N=000 )
                     # иначе считаем признаком ошибки
                     print( f"{SC.sWarning} Strange Accepting cmd packet received: current TX_N={cmdTX.packetN} CA_N={cmd.packetN}" )
+        else:
+            # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
+            wantedPacketN = ( self.ACC_cmd.packetN + 1) % 1000
+
+            #если 0, то всё корректно 
+            if  cmd.packetN - wantedPacketN == 0:
+                self.ACC_cmd.packetN = cmd.packetN
+                pass
+            #если разница -1, это дубликат последней полученной команды
+            elif (cmd.packetN - wantedPacketN) == -1:
+                cmd.status = EPacket_Status.Duplicate
+            #ошибка(возможно старые пакеты)
+            elif (cmd.packetN - wantedPacketN) < -1:
+                cmd.status = EPacket_Status.Error
+            #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
+            else:
+                cmd.status = EPacket_Status.Error
+
+        self.AgentLogUpdated.emit( False, self.agentN, cmd )
 
     def processRxPacket(self, data):
         self.noRxTimer = 0
