@@ -206,6 +206,8 @@ class CAgentSocketThread(QThread):
         while self.bRunning and self.agentN == UNINITED_AGENT_N:
             self.initHW()
 
+        if not self.bRunning: return
+
         self.bSendTX_cmd = False # флаг для разруливания межпоточных обращений к сокету, т.к. таймер - это отдельный поток
         def activateSend_TX(): self.bSendTX_cmd = True
         self.sendTX_cmd_Timer = CRepeatTimer(0.5, activateSend_TX )
@@ -224,16 +226,22 @@ class CAgentSocketThread(QThread):
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
 
+            self.AgentLogUpdated.emit( False, self.agentN, cmd )
             if (cmd is not None) and ( cmd.event == EAgentServer_Event.HelloWorld ) :
-                self.AgentLogUpdated.emit( False, self.agentN, cmd )
                 if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
                     self.agentNumberInited.emit( cmd.agentN )
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-                    self.ACS().getAgentLink( cmd.agentN ).currentTxPacketN = 1
+                    self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = 1
                 self.agentN = cmd.agentN
                 self.ACC_cmd.packetN = cmd.packetN
+
+    def agentLink(self):
+        if self.agentN == UNINITED_AGENT_N:
+            return None
+        
+        return self.ACS().getAgentLink(self.agentN)
 
     def process( self ):
         if self.bSendTX_cmd:
@@ -338,21 +346,37 @@ class CAgentSocketThread(QThread):
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:
             self.writeTo_Socket( TX_cmd )
-
+            self.agentLink().lastTXpacketN = TX_cmd.packetN
+        
         self.bSendTX_cmd = False
 
     def processRxPacket__New( self, cmd ):
         if cmd.event == EAgentServer_Event.ClientAccepting:
-            cmdTX = self.currentTX_cmd()
-            if cmdTX is not None:
-                if cmdTX.packetN == cmd.packetN:
-                    # пришло CA по текущей активной команде - сносим ее из очереди отправки ( TX_N=000 CA_N=000 )
+            lastTXpacketN = self.agentLink().lastTXpacketN
+            assert lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
+
+            delta = cmd.packetN - lastTXpacketN
+
+            #всё корректно, пришло CA по текущей активной команде - сносим ее из очереди отправки ( lastTX_N=000 CA_N=000 )
+            if delta == 0:
+                TX_FIFO = self.getTX_FIFO()
+                if len(TX_FIFO) and TX_FIFO[0].packetN == cmd.packetN:
+                    # пришел дубликат по текущей активной команде - убираем ее из очереди отправки
                     self.getTX_FIFO().popleft()
-                elif cmdTX.packetN != (cmd.packetN + 1) % 1000:
-                    cmd.status = EPacket_Status.Error
-                    # если пришло CA на 1 меньше, чем активная команда на отправку - это норма, просто повторный приход CA ( TX_N=001 CA_N=000 )
-                    # иначе считаем признаком ошибки
-                    print( f"{SC.sWarning} Strange Accepting cmd packet received: current TX_N={cmdTX.packetN} CA_N={cmd.packetN}" )
+                    cmd.status = EPacket_Status.Normal
+                else:
+                    #видимо, пришло повтороное подтверждение на команду
+                    cmd.status = EPacket_Status.Duplicate 
+            #если разница -1 или 999, это дубликат последней полученной команды ( lastTX_N=001 CA_N=000 ), ( lastTX_N=000 CA_N=999 )
+            elif delta == -1 or delta == 999:
+                cmd.status = EPacket_Status.Duplicate
+            #ошибка(возможно старые пакеты)
+            elif delta < -1:
+                cmd.status = EPacket_Status.Error
+            #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
+            else:
+                cmd.status = EPacket_Status.Error
+
         else:
             # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
             wantedPacketN = ( self.ACC_cmd.packetN + 1) % 1000
@@ -361,6 +385,7 @@ class CAgentSocketThread(QThread):
             #если 0, то всё корректно 
             if  delta == 0:
                 self.ACC_cmd.packetN = cmd.packetN
+                cmd.status = EPacket_Status.Normal
                 pass
             #если разница -1, это дубликат последней полученной команды
             elif delta == -1 or delta == 999:

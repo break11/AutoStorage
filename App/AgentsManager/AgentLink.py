@@ -20,7 +20,8 @@ class CAgentLink():
         s = now.strftime("%d-%m-%Y %H:%M:%S")
         self.log = f"Agent={agentN}, Created={s}"
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
-        self.currentTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
+        self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
+        self.lastTXpacketN = 0
         self.BS_cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState )
 
         self.agentN = agentN
@@ -61,8 +62,8 @@ class CAgentLink():
         self.TlAnswerReceived = True
 
     def pushCmd_to_TX_FIFO( self, cmd ):
-        cmd.packetN = self.currentTxPacketN
-        self.currentTxPacketN = (self.currentTxPacketN + 1) % 1000
+        cmd.packetN = self.genTxPacketN
+        self.genTxPacketN = (self.genTxPacketN + 1) % 1000
         self.TX_Packets.append( cmd )
 
     def sendCommandBySockets( self, command ):##remove##
