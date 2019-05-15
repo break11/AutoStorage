@@ -248,23 +248,26 @@ class CStorageGraph_GScene_Manager( QObject ):
             vec1 = Vector2 ( x2 - x1, - (y2 - y1) )
             nodeGItem.setMiddleLineAngle(  math.degrees(vec1.rotate(math.pi/2).selfAngle())  )
             return
-        #если смежных вершин две и более, составляем дикт угол:пара векторов, исходящих из ноды
+        #если смежных вершин две и более, составляем дикт {угол:пара векторов}, исходящих из ноды nodeGItem
         else:
+            NodeIDs_Pairs = set( [frozenset ((nID1, nID2)) for nID1 in NeighborsIDs for nID2 in NeighborsIDs if nID1 != nID2] )
             dictByAngle = {}
-            for i in range( Neighbors_count ):
-                x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[i] )
+            for nID1, nID2 in NodeIDs_Pairs:
+                x2, y2 = getNodeCoords( self.nxGraph, nID1 )
                 vec1 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
-                
-                for j in range( i + 1, Neighbors_count ):
-                    x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[j] )
-                    vec2 = Vector2( x2 - x1, - (y2 - y1) ).unit()
 
-                    angle = vec1.angle( vec2 )
-                    dictByAngle[angle] = ( vec1, vec2 )
+                x2, y2 = getNodeCoords( self.nxGraph, nID2 )
+                vec2 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
+
+                angle = vec1.angle( vec2 )
+                dictByAngle[angle] = ( vec1, vec2 )
             
             vec1, vec2 = dictByAngle[ max(dictByAngle.keys()) ]
             r_vec = vec1 + vec2
-            r_vec = r_vec if r_vec else vec1.rotate(math.pi/2) #если вектора противоположнонаправлены, r_vec будет нулевым вектором
+
+            #если вектора противоположнонаправлены, r_vec будет нулевым вектором,
+            # тогда результирующий вектор берём как перпендикуляр vec1 или vec2
+            r_vec = r_vec if r_vec else vec1.rotate(math.pi/2)
 
             nodeGItem.setMiddleLineAngle ( math.degrees(r_vec.selfAngle()) )
 
@@ -306,11 +309,8 @@ class CStorageGraph_GScene_Manager( QObject ):
             r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
             r2 = e2.rotateAngle() if (e2.nodeID_1 == nodeGItem.nodeID) else (e2.rotateAngle() + 180) % 360
 
-        MiddleLineAngle = min(r1, r2) + abs(r1-r2)/2
-        MiddleLineAngle_test = self.calcNodeMiddleLine_test(nodeGItem)
-        
-        nodeGItem.setMiddleLineAngle( MiddleLineAngle_test )
-        # nodeGItem.setMiddleLineAngle( MiddleLineAngle )
+        MiddleLineAngle = min(r1, r2) + abs(r1-r2)/2        
+        nodeGItem.setMiddleLineAngle( MiddleLineAngle )
 
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
