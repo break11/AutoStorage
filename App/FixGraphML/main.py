@@ -43,15 +43,26 @@ attr_to_del = [
                 "containsAgent", "floor_num", "edgeType",
               ]
 
-def load_and_fix_GraphML_File( sFName ):
-    # загрузка графа и создание его объектов для сетевой синхронизации
-    if not os.path.exists( sFName ):
-        print( f"{SC.sWarning} GraphML file not found '{sFName}'!" )
-        return None
+attr_to_node_ins_haskell = { "containsAgent" : -1, "floor_num" : 0 }
+attr_to_edge_ins_haskell = { "edgeType" : "Normal" }
 
-    print( f"Fixing {sFName} ..." )
+def convertToHaskel( nxGraph ):
+    print( "Convert to Haskell format." )
 
-    nxGraph = nx.read_graphml( sFName )
+    for k,v in nxGraph.nodes().items():
+        for attrName, attrValue in attr_to_node_ins_haskell.items():
+            if nxGraph.nodes()[k].get( attrName ) is None:
+                print( f"Ins attr {attrName} in node '{k}' props." )
+                nxGraph.nodes()[k][ attrName ] = attrValue
+
+    for k,v in nxGraph.edges().items():
+        for attrName, attrValue in attr_to_edge_ins_haskell.items():
+            if nxGraph.edges()[k].get( attrName ) is None:
+                print( f"Ins attr {attrName} in edge '{k}' props." )
+                nxGraph.edges()[k][ attrName ] = attrValue
+            
+def converToPython( nxGraph ):
+    print( "Convert to Python format." )
 
     nxGraph.graph = adjustGraphPropsDict( nxGraph.graph )
     print( "Adjust graph props types." )
@@ -85,6 +96,21 @@ def load_and_fix_GraphML_File( sFName ):
                 print( f"Del attr {attrName} from edge '{k}' props." )
                 del nxGraph.edges()[k][ attrName ]
 
+def load_and_fix_GraphML_File( sFName="", bConvertToHaskelFormat=False ):
+    # загрузка графа и создание его объектов для сетевой синхронизации
+    if not os.path.exists( sFName ):
+        print( f"{SC.sWarning} GraphML file not found '{sFName}'!" )
+        return None
+
+    print( f"Fixing {sFName} ..." )
+
+    nxGraph = nx.read_graphml( sFName )
+
+    if bConvertToHaskelFormat:
+        convertToHaskel( nxGraph )
+    else:
+        converToPython( nxGraph )
+
     nx.write_graphml( nxGraph, sFName )
 
 def main():
@@ -93,13 +119,16 @@ def main():
         print( "Usage: FixGraphML --all              --> for fix all graphml in ./GraphML dir" )
         return 1
 
-    if sys.argv[1] == "--all":
+
+    bHaskelFormat = sys.argv.count( "--haskell" ) > 0
+
+    if sys.argv.count( "--all" ) >0:
         for root, dirs, files in os.walk("./GraphML"):
             for file in files:
                 if file.endswith(".graphml"):
                     sFName = os.path.join(root, file)
-                    load_and_fix_GraphML_File( sFName )
+                    load_and_fix_GraphML_File( sFName=sFName, bConvertToHaskelFormat=bHaskelFormat )
     else:
-        load_and_fix_GraphML_File( sys.argv[1] )
+        load_and_fix_GraphML_File( sFName=sys.argv[1], bConvertToHaskelFormat=bHaskelFormat )
 
     return 0

@@ -356,16 +356,17 @@ class CAgentSocketThread(QThread):
         else:
             # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
             wantedPacketN = ( self.ACC_cmd.packetN + 1) % 1000
+            delta = cmd.packetN - wantedPacketN
 
             #если 0, то всё корректно 
-            if  cmd.packetN - wantedPacketN == 0:
+            if  delta == 0:
                 self.ACC_cmd.packetN = cmd.packetN
                 pass
             #если разница -1, это дубликат последней полученной команды
-            elif (cmd.packetN - wantedPacketN) == -1:
+            elif delta == -1 or delta == 999:
                 cmd.status = EPacket_Status.Duplicate
             #ошибка(возможно старые пакеты)
-            elif (cmd.packetN - wantedPacketN) < -1:
+            elif delta < -1:
                 cmd.status = EPacket_Status.Error
             #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
             else:
