@@ -7,8 +7,10 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from App.AgentsManager.routeBuilder import CRouteBuilder
 
+sDir = "./UnitTests/RouteBuilder/"
+
 CNetObj_Manager.initRoot()
-loadGraphML_to_NetObj( sFName = "./UnitTests/magadanskaya.graphml", bReload = False)
+loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
 
 class CRouteCase():
     def __init__(self):
@@ -23,7 +25,7 @@ class CRouteCase():
 
 routeCases:list = []
 
-with open("./UnitTests/routeCases.txt", 'r') as routes_file:
+with open( sDir + "routeCases.txt" , 'r') as routes_file:
     for line in routes_file:
 
         route = line.split("|")
@@ -56,7 +58,7 @@ class TestRouteBuilder(unittest.TestCase):
             route_str = ",".join( CommandsList )
 
             self.assertEqual( route_str, case.sCommands )
-            print( f"RouteCase : {case.startNode} {case.endNode} {case.agentAngle} \tOK" )
+            # print( f"RouteCase : {case.startNode} {case.endNode} {case.agentAngle} \tOK" )
 
 if __name__ == '__main__':
     unittest.main()
