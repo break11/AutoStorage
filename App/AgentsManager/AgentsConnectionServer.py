@@ -208,7 +208,6 @@ class CAgentSocketThread(QThread):
     socketError       = pyqtSignal( int )
     agentNumberInited = pyqtSignal( int )
     AgentLogUpdated   = pyqtSignal( bool, int, CAgentServerPacket )
-    txFIFO = deque([])
 
     def __init__(self, socketDescriptor, parent):
         super().__init__()
@@ -281,7 +280,7 @@ class CAgentSocketThread(QThread):
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-                    self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = 1
+                    self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1
                 self.agentN = cmd.agentN
                 self.ACC_cmd.packetN = cmd.packetN
 
@@ -289,55 +288,14 @@ class CAgentSocketThread(QThread):
         if self.bSendTX_cmd:
             self.sendTX_cmd()
 
+        # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
         self.tcpSocket.waitForReadyRead(1)
+
         if self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
             _processRxPacket( cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None )
             self.AgentLogUpdated.emit( False, self.agentN, cmd )
-
-            # self.processRxPacket( line.data() )
-
-        # # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
-        # self.tcpSocket.waitForReadyRead(1)
-
-        # # try to read line (ended with '\n') from socket. Will return empty list if there is no full line in buffer present
-        # line = self.tcpSocket.readLine()
-        # if line:
-        #     # some line (ended with '\n') present in socket rx buffer, let's process it
-        #     self.noRxTimer = 0
-        #     self.processRxPacket( line.data() )
-
-        #waitForReadyRead(1) above will block for 1ms, let's use it as (unpercise) 1ms timer tick
-        # if self.packetRetransmitTimer == 0:
-        #     pass
-            # clear to send new packet
-            # if len(self.txPacketFIFO) > 0 :
-        #     if cmdHelloWorld is not None:
-        #         # self.lastTxPacket = self.txPacketFIFO.popleft()
-        #         # self.putBytestrToTxFIFO(self.lastTxPacket)
-        #         # self.packetRetransmitTimer = 500
-
-        #         self.lastTxPacket = cmdHelloWorld
-        #         self.putBytestrToTxFIFO(self.lastTxPacket)
-        #         self.packetRetransmitTimer = 500
-        #         cmdHelloWorld = None
-        # else:
-
-        # self.packetRetransmitTimer = self.packetRetransmitTimer - 1
-        # #retransmit timer timeout event, need to retransmit last packet
-        # if self.packetRetransmitTimer == 0:
-        #     if self.lastTxPacket is not None:
-        #         self.putBytestrToTxFIFO(self.lastTxPacket)
-        #     self.packetRetransmitTimer = 500
-
-        # if self.ackRetransmitTimer > 0:
-        #     self.ackRetransmitTimer = self.ackRetransmitTimer - 1
-        #     #retransmit timer timeout event, need to retransmit last packet
-        #     if self.ackRetransmitTimer == 0:
-        #         self.putBytestrToTxFIFO(self.lastAck)
-        #         self.ackRetransmitTimer = 500
-
 
         #################################
 
@@ -369,15 +327,6 @@ class CAgentSocketThread(QThread):
         except:
             return None
     #################################
-
-    def putBytestrToTxFIFO(self, data): ##remove##
-        return
-        # TX_FIFO = self.getTX_FIFO()
-        # if ( TX_FIFO is not None ):
-        #     self.AgentLogUpdated.emit( True, self.agentN, data.decode() )
-        #     TX_FIFO.append( data + b'\n' )
-        # else:
-        #     print( f"Can't send cmd = ", data.decode() )
 
     def writeTo_Socket( self, cmd ):
         self.AgentLogUpdated.emit( True, self.agentN, cmd )
@@ -415,7 +364,7 @@ class CAgentSocketThread(QThread):
 
             # 1) sending ack:
             self.lastAck = f"@SA:{packetN:03d}".encode('utf-8')
-            self.putBytestrToTxFIFO(self.lastAck)
+            ##remove##self.putBytestrToTxFIFO(self.lastAck)
             self.ackRetransmitTimer = 500
 
             # if not self.parent().getAgentLink(agentN, bWarning = False):
