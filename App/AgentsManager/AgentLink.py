@@ -21,7 +21,7 @@ class CAgentLink():
         self.log = f"Agent={agentN}, Created={s}"
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
-        self.lastTXpacketN = 0
+        self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
         self.BS_cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState )
 
         self.agentN = agentN
@@ -78,15 +78,13 @@ class CAgentLink():
         self.agentStringCommandParser.processStringCommand(data)
 
     def requestTelemetry(self):
-        """Per-second event to do telemetry requests, etc"""
-        self.pushCmd_to_TX_FIFO( self.BS_cmd )
+        # кладем в очередь команду запроса состояния батарей, только если ее там нет (это будет значить, что предыдущий запрос выполнен)
 
-        # if self.currentTxPacketN != 1000:
-        #     if self.BsAnswerReceived:
-        #         self.sendCommandBySockets('@BS')
-        #         self.BsAnswerReceived = False
-        # else:
-        #     print ("outgoing numeration not inited")
+        for item in self.TX_Packets:
+            if item.event == EAgentServer_Event.BatteryState:
+                return
+
+        self.pushCmd_to_TX_FIFO( self.BS_cmd )
 
     def putToNode(self, node):
         self.temp__AssumedPosition = node
