@@ -39,9 +39,9 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
         self.assertEqual( p1.toTX_BStr(), p3 )
         ###################################################
-        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN=555, packetN=11, channelN=1, timeStamp=10, data="000" )
-        p2 = CAgentServerPacket.fromRX_BStr( b"011,555,1,00000010:@HW:000" )
-        p3 = b"011,555,1,00000010:@HW:000\n"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN=555, packetN=11, channelN=1, timeStamp=int("0xA", 16), data="000" )
+        p2 = CAgentServerPacket.fromRX_BStr( b"011,555,1,0000000a:@HW:000" )
+        p3 = b"011,555,1,0000000a:@HW:000\n"
 
         print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
         self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
@@ -71,9 +71,26 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
         self.assertEqual( p1.toTX_BStr(), p3 )
         ###################################################
-        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, agentN=777, packetN=35, channelN=2, timeStamp=20, data="S,43.2V,39.31V,47.43V,-0.06A" )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, agentN=777, packetN=35, channelN=2, timeStamp=int("20", 16), data="S,43.2V,39.31V,47.43V,-0.06A" )
         p2 = CAgentServerPacket.fromRX_BStr( b"035,777,2,00000020:@BS:S,43.2V,39.31V,47.43V,-0.06A" )
         p3 = b"035,777,2,00000020:@BS:S,43.2V,39.31V,47.43V,-0.06A\n"
+
+        print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
+        self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
+        self.assertEqual( p1.toRX_BStr(), p3 )
+
+        ###################################################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=20, agentN=555 )
+        p2 = CAgentServerPacket.fromTX_BStr( b"020,555:@TS" )
+        p3 = b"020,555:@TS\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
+        ###################################################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=2, agentN=2, timeStamp=int( "25fdc", 16 ), data="22,23,22,24,24,25,25,25,25" )
+        p2 = CAgentServerPacket.fromRX_BStr( b"002,002,1,00025fdc:@TS:22,23,22,24,24,25,25,25,25" )
+        p3 = b"002,002,1,00025fdc:@TS:22,23,22,24,24,25,25,25,25\n"
 
         print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
         self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )

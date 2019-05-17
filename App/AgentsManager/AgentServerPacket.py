@@ -11,7 +11,8 @@ class EPacket_Status( IntEnum ):
     Error     = auto()
 
 class CAgentServerPacket:
-    def __init__( self, event, packetN=0, agentN=UNINITED_AGENT_N, channelN=None, timeStamp=None, data=None, status=EPacket_Status.Normal ):
+    dataEvents = [ EAgentServer_Event.HelloWorld, EAgentServer_Event.BatteryState, EAgentServer_Event.TemperatureState ]
+    def __init__( self, event, packetN=0, agentN=UNINITED_AGENT_N, channelN=1, timeStamp=0, data=None, status=EPacket_Status.Normal ):
         self.event     = event
         self.agentN    = agentN
         self.packetN   = packetN
@@ -31,11 +32,11 @@ class CAgentServerPacket:
         if self.event == EAgentServer_Event.ClientAccepting or self.event == EAgentServer_Event.ServerAccepting:
             sResult = f"{ Event_Sign }:{self.packetN:03d}"
 
-        elif self.event in [ EAgentServer_Event.HelloWorld, EAgentServer_Event.BatteryState ]:
+        elif self.event in self.dataEvents:
             if bTX_or_RX:
                 sResult = f"{self.packetN:03d},{self.agentN:03d}:{ Event_Sign }"
             else:
-                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08d}:{ Event_Sign }:{self.data}"
+                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{ Event_Sign }:{self.data}"
 
         if appendLF:
             sResult += "\n"
@@ -77,7 +78,7 @@ class CAgentServerPacket:
                 packetN = int( l[1].decode() )
             elif event == EAgentServer_Event.ServerAccepting: # @SA:000
                 packetN = int( l[1].decode() )
-            elif event in [ EAgentServer_Event.HelloWorld, EAgentServer_Event.BatteryState ]:
+            elif event in cls.dataEvents:
                 sAttrs = l[0].split( b"," )
                 packetN = int( sAttrs[0].decode() )
                 agentN  = int( sAttrs[1].decode() )
@@ -85,7 +86,7 @@ class CAgentServerPacket:
                     data = None
                 else:          # 011,555,1,00000010:@HW:000   ///   012,555,1,00000010:@BS:S,43.2V,39.31V,47.43V,-0.06A
                     channelN  = int( sAttrs[2].decode() )
-                    timeStamp = int( sAttrs[3].decode() )
+                    timeStamp = int( sAttrs[3].decode(), 16 )
                     data = l[2].decode()
 
             return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, channelN=channelN, timeStamp=timeStamp, data=data )
