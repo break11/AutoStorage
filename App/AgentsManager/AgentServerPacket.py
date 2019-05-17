@@ -11,7 +11,9 @@ class EPacket_Status( IntEnum ):
     Error     = auto()
 
 class CAgentServerPacket:
-    dataEvents = [ EAgentServer_Event.HelloWorld, EAgentServer_Event.BatteryState, EAgentServer_Event.TemperatureState ]
+    accEvents = [ EAgentServer_Event.ServerAccepting,
+                 EAgentServer_Event.ClientAccepting, ]
+
     def __init__( self, event, packetN=0, agentN=UNINITED_AGENT_N, channelN=1, timeStamp=0, data=None, status=EPacket_Status.Normal ):
         self.event     = event
         self.agentN    = agentN
@@ -29,10 +31,10 @@ class CAgentServerPacket:
         Event_Sign = EAgentServer_Event.toStr( self.event )
         sResult = ""
 
-        if self.event == EAgentServer_Event.ClientAccepting or self.event == EAgentServer_Event.ServerAccepting:
+        if self.event in self.accEvents:
             sResult = f"{ Event_Sign }:{self.packetN:03d}"
 
-        elif self.event in self.dataEvents:
+        else:
             if bTX_or_RX:
                 sResult = f"{self.packetN:03d},{self.agentN:03d}:{ Event_Sign }"
             else:
@@ -74,11 +76,9 @@ class CAgentServerPacket:
 
             packetN = agentN = channelN = timeStamp = None
 
-            if event == EAgentServer_Event.ClientAccepting: # @CA:000
+            if event in cls.accEvents: # @CA:000, @SA:000
                 packetN = int( l[1].decode() )
-            elif event == EAgentServer_Event.ServerAccepting: # @SA:000
-                packetN = int( l[1].decode() )
-            elif event in cls.dataEvents:
+            else:
                 sAttrs = l[0].split( b"," )
                 packetN = int( sAttrs[0].decode() )
                 agentN  = int( sAttrs[1].decode() )

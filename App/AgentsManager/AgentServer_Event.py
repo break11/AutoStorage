@@ -6,6 +6,9 @@ class EAgentServer_Event( IntEnum ):
     ServerAccepting  = auto() # @SA
     BatteryState     = auto() # @BS
     TemperatureState = auto() # @TS
+    TaskList         = auto() # @TL
+    WheelOrientation = auto() # @WO
+    NewTask          = auto() # @NT
 
     @classmethod
     def fromBStr( cls, data ):
@@ -20,6 +23,9 @@ _AgentServer_Event_from_BStr = {
                                 b"@SA": EAgentServer_Event.ServerAccepting,
                                 b"@BS": EAgentServer_Event.BatteryState,
                                 b"@TS": EAgentServer_Event.TemperatureState,
+                                b"@TL": EAgentServer_Event.TaskList,
+                                b"@WO": EAgentServer_Event.WheelOrientation,
+                                b"@NT": EAgentServer_Event.NewTask,
                                }
 
 _AgentServer_Event_to_Str = {}

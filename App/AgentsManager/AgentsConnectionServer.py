@@ -130,9 +130,11 @@ class CAgentsConnectionServer(QTcpServer):
             colorPrefix = "#283593"
 
         if packet.status == EPacket_Status.Normal:
-            colorsByEvents = { EAgentServer_Event.BatteryState:    "#388E3C",
-                                EAgentServer_Event.ClientAccepting: "#1565C0",
-                                EAgentServer_Event.ServerAccepting: "#FF3300", }
+            colorsByEvents = { EAgentServer_Event.BatteryState:     "#388E3C",
+                               EAgentServer_Event.TemperatureState: "#388E3C",
+                               EAgentServer_Event.TaskList:         "#388E3C",
+                               EAgentServer_Event.ClientAccepting:  "#1565C0",
+                               EAgentServer_Event.ServerAccepting:  "#FF3300", }
 
             colorData = colorsByEvents.get( packet.event )
             if colorData is None: colorData = "#000000"
@@ -221,7 +223,6 @@ class CAgentSocketThread(QThread):
 
         if self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
-            print( line )
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
 
             self.AgentLogUpdated.emit( False, self.agentN, cmd )

@@ -19,8 +19,10 @@ class CAgentLink():
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
+
         self.BS_cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState )
         self.TS_cmd = CAgentServerPacket( event=EAgentServer_Event.TemperatureState )
+        self.TL_cmd = CAgentServerPacket( event=EAgentServer_Event.TaskList )
 
         self.agentN = agentN
         # self.routeBuilder = routeBuilder
@@ -60,6 +62,7 @@ class CAgentLink():
     def requestTelemetry(self):        
         self.pushCmd_if_NotExist( self.BS_cmd )
         self.pushCmd_if_NotExist( self.TS_cmd )
+        self.pushCmd_if_NotExist( self.TL_cmd )
 
         # for item in self.TX_Packets:
         #     if item.event == EAgentServer_Event.BatteryState:
