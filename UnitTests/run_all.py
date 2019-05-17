@@ -35,8 +35,13 @@ if not bResult:
 else:
     print( "**************** OK **********************" )
 
+rString = { True : "OK", False : "FAILED !!!!" }
+
 print( "*****************************************" )
 for k,v in rd.items():
-    print( k, "=\t", v )
+    while len( k ) < 50:
+        k += " "
+
+    print( k, "=\t", rString[ v ] )
 print( "*****************************************" )
 print( "*****************************************" )

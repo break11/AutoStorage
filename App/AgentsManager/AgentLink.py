@@ -9,6 +9,7 @@ from Lib.Common.Agent_NetObject import queryAgentNetObj
 from .AgentServerPacket import CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
 from .agentStringCommandParser import AgentStringCommandParser
+from .AgentProtocolUtils import getNextPacketN
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
@@ -63,7 +64,7 @@ class CAgentLink():
 
     def pushCmd_to_TX_FIFO( self, cmd ):
         cmd.packetN = self.genTxPacketN
-        self.genTxPacketN = (self.genTxPacketN + 1) % 1000
+        self.genTxPacketN = getNextPacketN( self.genTxPacketN )
         self.TX_Packets.append( cmd )
 
     def sendCommandBySockets( self, command ):##remove##
