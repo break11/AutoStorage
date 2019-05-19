@@ -109,7 +109,7 @@ class CFakeAgentThread(QThread):
                 self.ackNumberToWait = self.currentTxPacketN
                 self.currentTxPacketN = self.currentTxPacketN +1
                 if self.currentTxPacketN == 1000:
-                    self.currentTxPacketN = START_PACKET_NUMBER
+                    self.currentTxPacketN = 1
 
         if self.currentTask:
             # there is some task to complete

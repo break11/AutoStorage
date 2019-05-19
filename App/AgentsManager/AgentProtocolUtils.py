@@ -13,7 +13,7 @@ def _processRxPacket( cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacke
         #всё корректно, пришло CA по текущей активной команде - сносим ее из очереди отправки ( lastTX_N=000 CA_N=000 )
         if delta == 0:
             if len(TX_FIFO) and TX_FIFO[0].packetN == cmd.packetN:
-                # пришел дубликат по текущей активной команде - убираем ее из очереди отправки
+                # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
                 TX_FIFO.popleft()
                 cmd.status = EPacket_Status.Normal
             else:
