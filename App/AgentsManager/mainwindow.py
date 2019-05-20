@@ -33,7 +33,7 @@ class CAM_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
-        CAgents_Move_Manager.init()
+        # CAgents_Move_Manager.init()
 
         self.SimpleAgentTest_Timer = QTimer( self )
         self.SimpleAgentTest_Timer.setInterval(500)
@@ -92,14 +92,23 @@ class CAM_MainWindow(QMainWindow):
 
     def on_btnAddAgent_released( self ):
         props = deepcopy( agentDefProps )
-        CAgent_NO( parent=self.agentsNode(), props=props )
+        agentNO = CAgent_NO( parent=self.agentsNode(), props=props )
+
+        self.AgentsConnectionServer.createAgentLink( agentNO.UID )
 
     def on_btnDelAgent_released( self ):
+        ### del Agent NetObj
         ci = self.tvAgents.currentIndex()
         if not ci.isValid(): return
         
         agentNetObj = self.Agents_Model.agentNO_from_Index( ci )
+        agentN = int( agentNetObj.name )
         agentNetObj.destroy()
+
+        ### del AgentLink
+        agentLink = self.AgentsConnectionServer.getAgentLink( agentN, bWarning = True )
+        if agentLink is not None:
+            del self.AgentsConnectionServer.AgentLinks[ agentN ]
 
     ###################################################
 

@@ -57,9 +57,6 @@ class CAgentsConnectionServer(QTcpServer):
 
         self.UnknownConnections_Threads = []
 
-        # deleting agents threads
-        for aLink in self.AgentLinks.values():
-            aLink.done()
         self.AgentLinks = {}
         self.close()
 
@@ -76,7 +73,12 @@ class CAgentsConnectionServer(QTcpServer):
         print ( f"Incoming connection - created thread: {id(thread)}" )
 
     def thread_Finihsed(self):
+        print( "ACS.thread_Finihsed" )
         thread = self.sender()
+
+        # в случаях удаления агента по кнопке - сигнал thread_Finihsed отрабатывает позже чем удаление самого потока
+        # при этом все действия по удалению потока уже произведены, поэтому безболезненно делаем выход для подобной ситуации здесь
+        if thread is None: return
 
         if thread in self.UnknownConnections_Threads:
             print ( f"Deleting thread {id(thread)} agentN={thread.agentN} from unnumbered thread pool." )
@@ -92,13 +94,9 @@ class CAgentsConnectionServer(QTcpServer):
         thread.deleteLater()
 
     @pyqtSlot(int)
-    def thread_NewAgent(self, agentN):
-        print ( f"Creating new AgentLink agentN={agentN}" )
+    def thread_NewAgent(self, agentN): self.createAgentLink( agentN )
 
-        agentLink = CAgentLink( agentN )
-        self.AgentLinks[ agentN ] = agentLink
-        self.AgentLogUpdated.emit( agentN, agentLink.log )
-
+    @pyqtSlot(int)
     def thread_AgentNumberInited(self, agentN):
         queryAgentNetObj( str( agentN ) )
         thread = self.sender()
@@ -155,13 +153,20 @@ class CAgentsConnectionServer(QTcpServer):
 
     #############################################################
 
+    def createAgentLink( self, agentN ):
+        print ( f"Creating new AgentLink agentN={agentN}" )
+
+        agentLink = CAgentLink( agentN )
+        self.AgentLinks[ agentN ] = agentLink
+        self.AgentLogUpdated.emit( agentN, agentLink.log )
+
     def deleteAgentLink(self, agentN): del self.AgentLinks[agentN]
 
     def getAgentLink(self, agentN, bWarning = True):
         aLink = self.AgentLinks.get( agentN )
 
         if bWarning and ( aLink is None ):
-            print( f"{SC.sWarning} Agent n={agentN} acess requested but it wasn't created yet." )
+            print( f"{SC.sWarning} AgentLink n={agentN} acess requested but it wasn't created yet." )
         return aLink
 
 class CAgentSocketThread(QThread):

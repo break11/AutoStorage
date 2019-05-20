@@ -11,7 +11,6 @@ from .AgentProtocolUtils import getNextPacketN
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
-    # def __init__(self, agentN, routeBuilder):
     def __init__(self, agentN):
         now = datetime.datetime.now()
         s = now.strftime("%d-%m-%Y %H:%M:%S")
@@ -34,8 +33,9 @@ class CAgentLink():
         self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
         self.requestTelemetry_Timer.start()
 
-    # def __del__(self):
-    #     print( "AgentLink DESTROY +++++++++++++++++++++++++++++++++++++++++++++" )
+    def __del__(self):
+        print( f"AgentLink {self.agentN} DESTROY!" )
+        self.done()
 
     def done( self ):
         self.requestTelemetry_Timer.stop()
@@ -44,7 +44,7 @@ class CAgentLink():
             thread.exit()
 
         for thread in self.socketThreads:
-            while thread.isRunning():
+            while not thread.isFinished():
                 pass # waiting thread stop
                 
         self.socketThreads = []
