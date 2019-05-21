@@ -14,7 +14,7 @@
    <string>AgentsManager</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -67,9 +67,6 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <property name="opaqueResize">
-       <bool>true</bool>
-      </property>
       <widget class="QTableView" name="tvAgents">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -93,7 +90,43 @@
         <bool>true</bool>
        </attribute>
       </widget>
-      <widget class="QTextEdit" name="pteAgentLog"/>
+      <widget class="QWidget" name="layoutWidget">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="btnRequestTelemetry">
+            <property name="toolTip">
+             <string>Request Telemetry</string>
+            </property>
+            <property name="text">
+             <string>RTele</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lePushCMD">
+            <property name="toolTip">
+             <string>Send Custom CMD to Agent</string>
+            </property>
+            <property name="text">
+             <string>000,000:@HW</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="pteAgentLog"/>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

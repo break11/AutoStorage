@@ -24,9 +24,9 @@ from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr
 from .AgentsList_Model import CAgentsList_Model
-
 from .routeBuilder import CRouteBuilder
 from .AgentsConnectionServer import CAgentsConnectionServer
+from .AgentServerPacket import CAgentServerPacket
 ##remove##from .agentPoolManager import AgentPoolManager
 
 class CAM_MainWindow(QMainWindow):
@@ -51,10 +51,13 @@ class CAM_MainWindow(QMainWindow):
 
             self.routeBuilder = CRouteBuilder()
             self.AgentsConnectionServer = CAgentsConnectionServer()
-
             self.tvAgents.selectionModel().currentChanged.connect( self.CurrentAgentChanged )
-
             self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
+
+            # для всех загруженных из редис Agent_NetObj создаем AgentLink-и
+            for row in range( self.Agents_Model.rowCount() ):
+                agentNO = self.Agents_Model.agentNO_from_Index( self.Agents_Model.index( row, 0 ) )
+                self.AgentsConnectionServer.createAgentLink( int(agentNO.name) )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
@@ -79,14 +82,37 @@ class CAM_MainWindow(QMainWindow):
             return
         
         self.pteAgentLog.setHtml( agentLink.log )
-
         self.pteAgentLog.moveCursor( QTextCursor.End )
+
+        self.btnRequestTelemetry.setChecked( agentLink.requestTelemetry_Timer.isActive() )
 
     def AgentLogUpdated( self, agentN, data ):
         if self.currAgentN() != agentN:
             return
 
         self.pteAgentLog.append( data )
+
+    ################################################################
+
+    def on_lePushCMD_returnPressed( self ):
+        if not self.currAgentN(): return
+
+        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        if agentLink is None: return
+
+        cmd = CAgentServerPacket.fromTX_Str( self.lePushCMD.text() )
+        if cmd is None: return
+
+        agentLink.pushCmd_to_TX_FIFO( cmd )
+        print( f"Send custom cmd={cmd} to agent={self.currAgentN()}" )
+
+    @pyqtSlot("bool")
+    def on_btnRequestTelemetry_clicked( self, bVal ):
+        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        if agentLink is None: return
+
+        if bVal: agentLink.requestTelemetry_Timer.start()
+        else: agentLink.requestTelemetry_Timer.stop()
 
     ################################################################
 

@@ -20,10 +20,10 @@ class CAgentsList_Model( QAbstractTableModel ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onAgent_PrepareDelete )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onAgent_PropUpdated )
 
-    def rowCount( self, parentIndex ):
+    def rowCount( self, parentIndex=QModelIndex() ):
         return len( self.agentsList )
 
-    def columnCount( self, parentIndex ):
+    def columnCount( self, parentIndex=QModelIndex() ):
         return len( self.propList )
     
     def data( self, index, role ):

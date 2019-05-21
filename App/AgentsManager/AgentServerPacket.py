@@ -70,7 +70,6 @@ class CAgentServerPacket:
 
         l = data.split( b":" )
         if len(l) < 2:
-            print("********************************")
             cls.printError( data )
             return None
 
@@ -114,6 +113,10 @@ class CAgentServerPacket:
 
     @classmethod
     def fromStr( cls, data, bTX_or_RX, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=bTX_or_RX, removeLF=removeLF )
+    @classmethod
+    def fromRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
+    @classmethod
+    def fromTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
 
     @classmethod
     def fromTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
