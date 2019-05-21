@@ -11,12 +11,19 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.propCounter = {}
         self.objList = []
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
+        CNetObj_Manager.addCallback( EV.ObjPropCreated,   self.onObjPropCreated )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.onObjPropUpdated )
         CNetObj_Manager.addCallback( EV.ObjPropDeleted,   self.onObjPropDelete )
 
     ####################################
     def onObjPrepareDelete( self, cmd ):
         self.removeObj( cmd.Obj_UID )
+
+    def onObjPropCreated( self, cmd ):
+        if cmd.Obj_UID not in self.objList:
+            return
+
+        self.appendProp( cmd.sPropName )
 
     def onObjPropUpdated( self, cmd ):
         if cmd.Obj_UID not in self.objList:
@@ -81,8 +88,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.propCounter[ propName ] = 1
 
     def decPropCounter( self, propName ):
-        if self.propCounter.get(propName) is not None: #поля может не быть, если оно добавилось через другой интерфейс (ловить PropCreate)
-            self.propCounter[ propName ] -= 1
+        self.propCounter[ propName ] -= 1
 
     def clearNotUsedProps( self ):
         delList = []
