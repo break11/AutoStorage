@@ -191,6 +191,7 @@ class CAgentSocketThread(QThread):
         self.noRxTimer = 0 # timer to ckeck if there is no incoming data - thread will be closed if no activity on socket for more than 5 secs or so
         self.HW_Cmd  = CAgentServerPacket( event=EAgentServer_Event.HelloWorld )
         self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
+        self.Off_5S_Cmd = CAgentServerPacket( event=EAgentServer_Event.Warning_, data="#Thread will closed with no activity for 5 secs." )
 
     def __del__(self):
         self.tcpSocket.close()
@@ -265,7 +266,8 @@ class CAgentSocketThread(QThread):
         t = (time.time() - self.noRxTimer)
 
         if t > 5:
-            print( f"Thread {id(self)} will closed with no activity for 5 secs." )
+            self.AgentLogUpdated.emit( False, self.agentN, self.Off_5S_Cmd )
+            # print( f"Thread {id(self)} will closed with no activity for 5 secs." )
             self.bRunning = False
 
     #################################
