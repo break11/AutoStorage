@@ -1,6 +1,9 @@
 from enum import IntEnum, auto
 
 class EAgentServer_Event( IntEnum ):
+    Error            = auto() # Error text message with symbol*
+    Warning_         = auto() # Warning text message with symbol #
+    Text             = auto() # Text message to Log
     HelloWorld       = auto() # @HW
     ClientAccepting  = auto() # @CA
     ServerAccepting  = auto() # @SA
@@ -9,6 +12,10 @@ class EAgentServer_Event( IntEnum ):
     TaskList         = auto() # @TL
     WheelOrientation = auto() # @WO
     NewTask          = auto() # @NT
+    PowerOn          = auto() # @PE
+    PowerOff         = auto() # @PD
+    BrakeRelease     = auto() # @BR
+    EmergencyStop    = auto() # @ES
 
     @classmethod
     def fromBStr( cls, data ):
@@ -18,6 +25,9 @@ class EAgentServer_Event( IntEnum ):
         return _AgentServer_Event_to_Str[ self ]
 
 _AgentServer_Event_from_BStr = {
+                                b"*"  : EAgentServer_Event.Error,
+                                b"#"  : EAgentServer_Event.Warning_,
+                                b""   : EAgentServer_Event.Text,
                                 b"@HW": EAgentServer_Event.HelloWorld,
                                 b"@CA": EAgentServer_Event.ClientAccepting,
                                 b"@SA": EAgentServer_Event.ServerAccepting,
@@ -26,6 +36,11 @@ _AgentServer_Event_from_BStr = {
                                 b"@TL": EAgentServer_Event.TaskList,
                                 b"@WO": EAgentServer_Event.WheelOrientation,
                                 b"@NT": EAgentServer_Event.NewTask,
+                                b"@PE": EAgentServer_Event.PowerOn,
+                                b"@PD": EAgentServer_Event.PowerOff,
+                                b"@BR": EAgentServer_Event.BrakeRelease,
+                                b"@ES": EAgentServer_Event.EmergencyStop,
+
                                }
 
 _AgentServer_Event_to_Str = {}

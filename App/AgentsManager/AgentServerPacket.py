@@ -12,7 +12,11 @@ class EPacket_Status( IntEnum ):
 
 class CAgentServerPacket:
     accEvents = [ EAgentServer_Event.ServerAccepting,
-                 EAgentServer_Event.ClientAccepting, ]
+                  EAgentServer_Event.ClientAccepting, ]
+
+    textEvents = [ EAgentServer_Event.Warning_,
+                   EAgentServer_Event.Error,
+                   EAgentServer_Event.Text ]
 
     def __init__( self, event, packetN=0, agentN=UNINITED_AGENT_N, channelN=1, timeStamp=0, data=None, status=EPacket_Status.Normal ):
         self.event     = event
@@ -33,7 +37,9 @@ class CAgentServerPacket:
 
         if self.event in self.accEvents:
             sResult = f"{ Event_Sign }:{self.packetN:03d}"
-
+        elif (self.event in self.textEvents):
+            if bTX_or_RX == False: # пока текстовые сообщения только с челнока - на челнок они вроде не передаются...
+                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{self.data}"
         else:
             if bTX_or_RX:
                 sResult = f"{self.packetN:03d},{self.agentN:03d}:{ Event_Sign }"
@@ -58,24 +64,34 @@ class CAgentServerPacket:
 
     @classmethod
     def fromBStr( cls, data, bTX_or_RX, removeLF=True ):
+        event = None
         if removeLF:
             data = data.replace( b"\n", b"" )
 
-        try:
-            l = data.split( b":" )
-            for s in l:
-                if s.startswith( b"@" ): break
-            else:
-                cls.printError( data )
-                return None
-            
+        l = data.split( b":" )
+        if len(l) < 2:
+            print("********************************")
+            cls.printError( data )
+            return None
+
+        for s in l:
+            if s.startswith( b"@" ): break
+        else:
+            # нет символа @ - текстовые сообщения, ворнинги и ошибки
+            data = l[1].decode()
+            if data.find( "#" ) != -1: event = EAgentServer_Event.Warning_
+            elif data.find( "*" ) != -1: event = EAgentServer_Event.Error
+            else: event = EAgentServer_Event.Text
+        
+        if event is None: # если эвент не был распознан как текстовое сообщение, ворнинг, ошибка
             event = EAgentServer_Event.fromBStr( s )
             if event is None:
                 cls.printError( data )
                 return None
 
-            packetN = agentN = channelN = timeStamp = None
+        packetN = agentN = channelN = timeStamp = None
 
+        try:
             if event in cls.accEvents: # @CA:000, @SA:000
                 packetN = int( l[1].decode() )
             else:
@@ -87,7 +103,8 @@ class CAgentServerPacket:
                 else:          # 011,555,1,00000010:@HW:000   ///   012,555,1,00000010:@BS:S,43.2V,39.31V,47.43V,-0.06A
                     channelN  = int( sAttrs[2].decode() )
                     timeStamp = int( sAttrs[3].decode(), 16 )
-                    data = l[2].decode()
+                    if event not in cls.textEvents:
+                        data = l[2].decode()
 
             return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, channelN=channelN, timeStamp=timeStamp, data=data )
         except Exception as e:

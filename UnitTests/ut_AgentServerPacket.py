@@ -11,6 +11,52 @@ from App.AgentsManager.AgentServerPacket import CAgentServerPacket
 class TestAgentServerPacket(unittest.TestCase):
 
     def test_fromBStr(self):
+        # test Text Message
+        p1 = CAgentServerPacket.fromRX_BStr( b"039,002,1,00026caf:Global Power Select to SUPERCAP" )
+        p2 = b"039,002,1,00026caf:Global Power Select to SUPERCAP\n"
+
+        self.assertEqual( p1.event, EAgentServer_Event.Text )
+        self.assertEqual( p1.packetN, 39 )
+        self.assertEqual( p1.agentN, 2 )
+        self.assertEqual( p1.channelN, 1 )
+        self.assertEqual( p1.timeStamp, int("26caf", 16) )
+        self.assertEqual( p1.data, "Global Power Select to SUPERCAP" )
+
+        print( p1.toRX_BStr(), p2 )
+        self.assertEqual( p1.toRX_BStr(), p2 )
+
+        # test Warning Message
+        p1 = CAgentServerPacket.fromRX_BStr( b"011,003,2,00023eee:#Warning" )
+        p2 = b"011,003,2,00023eee:#Warning\n"
+
+        self.assertEqual( p1.event, EAgentServer_Event.Warning_ )
+        self.assertEqual( p1.packetN, 11 )
+        self.assertEqual( p1.agentN, 3 )
+        self.assertEqual( p1.channelN, 2 )
+        self.assertEqual( p1.timeStamp, int("23eee", 16) )
+        self.assertEqual( p1.data, "#Warning" )
+
+        print( p1.toRX_BStr(), p2 )
+        self.assertEqual( p1.toRX_BStr(), p2 )
+
+        # test Error Message
+        p1 = CAgentServerPacket.fromRX_BStr( b"011,003,2,00034fff:*Error" )
+        p2 = b"011,003,2,00034fff:*Error\n"
+
+        self.assertEqual( p1.event, EAgentServer_Event.Error )
+        self.assertEqual( p1.packetN, 11 )
+        self.assertEqual( p1.agentN, 3 )
+        self.assertEqual( p1.channelN, 2 )
+        self.assertEqual( p1.timeStamp, int("34fff", 16) )
+        self.assertEqual( p1.data, "*Error" )
+
+        print( p1.toRX_BStr(), p2 )
+        self.assertEqual( p1.toRX_BStr(), p2 )
+
+        # 039,002,1,00026caf:#Warning
+        # 039,002,1,00026caf:*Error
+
+        ###################################################
         # test remove "line feed" = "\n"
         p1 = CAgentServerPacket.fromTX_BStr( b"000,000:@HW\n" )
         p2 = b"000,000:@HW\n"
@@ -23,12 +69,12 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toTX_BStr( appendLF=False ), p3 )
         ###################################################
         # test return None value when can't parse string
-        pNone = CAgentServerPacket.fromTX_BStr( b"Not supported cmd - dog symbol not present!" )
-        print( pNone )
+        pNone = CAgentServerPacket.fromTX_BStr( b"Not supported cmd - 'COLON' symbol not present!" )
+        print( pNone, "None" )
         self.assertEqual( pNone, None )
 
         pNone = CAgentServerPacket.fromTX_BStr( b"AAA,BBB:@HW" )
-        print( pNone )
+        print( pNone, "None" )
         self.assertEqual( pNone, None )
         # @HW
         ###################################################
