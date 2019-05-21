@@ -147,6 +147,9 @@ class CAgentsConnectionServer(QTcpServer):
 
         data = f"{bTag( colorPrefix, 400 )}{sTX_or_RX}:{eTag} {bTag( colorData )}{data}{eTag}"
 
+        thread = self.sender()
+        data = f"T:{id(thread) % 1000} {data}"
+
         agentLink.log = self.getAgentLink( agentN ).log + "<br>" + data
                 
         self.AgentLogUpdated.emit( agentN, data )

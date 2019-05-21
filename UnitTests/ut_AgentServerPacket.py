@@ -180,6 +180,76 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
         self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
         self.assertEqual( p1.toRX_BStr(), p3 )
+        # @PE
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.PowerOn, packetN=20, agentN=31 )
+        p2 = CAgentServerPacket.fromTX_Str( "020,031:@PE" )
+        p3 = b"020,031:@PE\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.PowerOn )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
+        # @PD
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.PowerOff, packetN=444, agentN=222 )
+        p2 = CAgentServerPacket.fromTX_Str( "444,222:@PD" )
+        p3 = b"444,222:@PD\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.PowerOff )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
+        # @BR
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.BrakeRelease, packetN=111, agentN=333 )
+        p2 = CAgentServerPacket.fromTX_Str( "111,333:@BR" )
+        p3 = b"111,333:@BR\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.BrakeRelease )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
+        # @ES
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.EmergencyStop, packetN=777, agentN=888 )
+        p2 = CAgentServerPacket.fromTX_Str( "777,888:@ES" )
+        p3 = b"777,888:@ES\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.EmergencyStop )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
+        # @SB
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.SequenceBegin, packetN=1, agentN=1 )
+        p2 = CAgentServerPacket.fromTX_Str( "001,001:@SB" )
+        p3 = b"001,001:@SB\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.SequenceBegin )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
+        # @SE
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.SequenceEnd, packetN=999, agentN=10 )
+        p2 = CAgentServerPacket.fromTX_Str( "999,010:@SE" )
+        p3 = b"999,010:@SE\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.SequenceEnd )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
+        # @DP
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.DistancePassed, packetN=1, agentN=11, data="000331,F,H,B,C" )
+        p2 = CAgentServerPacket.fromTX_Str( "001,011:@DP:000331,F,H,B,C" )
+        p3 = b"001,011:@DP:000331,F,H,B,C\n"
+
+        print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.DistancePassed )
+        self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
+        self.assertEqual( p1.toTX_BStr(), p3 )
 
 if __name__ == '__main__':
     unittest.main()

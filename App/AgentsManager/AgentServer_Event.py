@@ -16,6 +16,9 @@ class EAgentServer_Event( IntEnum ):
     PowerOff         = auto() # @PD
     BrakeRelease     = auto() # @BR
     EmergencyStop    = auto() # @ES
+    SequenceBegin    = auto() # @SB
+    SequenceEnd      = auto() # @SE
+    DistancePassed   = auto() # @DP
 
     @classmethod
     def fromBStr( cls, data ):
@@ -40,7 +43,9 @@ _AgentServer_Event_from_BStr = {
                                 b"@PD": EAgentServer_Event.PowerOff,
                                 b"@BR": EAgentServer_Event.BrakeRelease,
                                 b"@ES": EAgentServer_Event.EmergencyStop,
-
+                                b"@SB": EAgentServer_Event.SequenceBegin,
+                                b"@SE": EAgentServer_Event.SequenceEnd,
+                                b"@DP": EAgentServer_Event.DistancePassed,
                                }
 
 _AgentServer_Event_to_Str = {}
