@@ -22,6 +22,7 @@ class EAgentServer_Event( IntEnum ):
     OdometerZero     = auto() # @OZ
     OdometerPassed   = auto() # @OP
     OdometerDistance = auto() # @OD
+    DistanceEnd      = auto() # @DE
 
     @classmethod
     def fromBStr( cls, data ):
@@ -52,6 +53,7 @@ _AgentServer_Event_from_BStr = {
                                 b"@OZ": EAgentServer_Event.OdometerZero,
                                 b"@OP": EAgentServer_Event.OdometerPassed,
                                 b"@OD": EAgentServer_Event.OdometerDistance,
+                                b"@DE": EAgentServer_Event.DistanceEnd,                                
                                }
 
 _AgentServer_Event_to_Str = {}

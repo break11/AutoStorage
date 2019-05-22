@@ -280,6 +280,16 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.OdometerDistance )
         self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
         self.assertEqual( p1.toRX_BStr(), p3 )
+        # @DE
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.DistanceEnd, packetN=272, agentN=2, channelN=2, timeStamp=int("2a7f0", 16) )
+        p2 = CAgentServerPacket.fromRX_Str( "272,002,2,0002a7f0:@DE" )
+        p3 = b"272,002,2,0002a7f0:@DE\n"
+
+        print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.DistanceEnd )
+        self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
+        self.assertEqual( p1.toRX_BStr(), p3 )
 
 if __name__ == '__main__':
     unittest.main()
