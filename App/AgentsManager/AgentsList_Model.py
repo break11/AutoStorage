@@ -8,7 +8,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 
 class CAgentsList_Model( QAbstractTableModel ):
-    propList = [ "name", "UID", s_edge, s_position, s_route, s_route_idx ]
+    propList = [ "name", "UID", s_angle, s_edge, s_position, s_route, s_route_idx ]
 
     def __init__( self, parent ):
         super().__init__( parent=parent)

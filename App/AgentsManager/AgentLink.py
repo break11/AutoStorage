@@ -49,6 +49,17 @@ class CAgentLink():
                 
         self.socketThreads = []
 
+    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):
+        if bReMap_PacketN:
+            cmd.packetN = self.genTxPacketN
+            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
+        
+        if bPut_to_TX_FIFO:
+            self.TX_Packets.append( cmd )
+        else:
+            for thread in self.socketThreads:
+                thread.writeTo_Socket( cmd )
+
     def pushCmd_to_TX_FIFO( self, cmd ):
         cmd.packetN = self.genTxPacketN
         self.genTxPacketN = getNextPacketN( self.genTxPacketN )

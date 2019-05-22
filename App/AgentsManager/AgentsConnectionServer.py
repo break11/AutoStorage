@@ -148,7 +148,7 @@ class CAgentsConnectionServer(QTcpServer):
         data = f"{bTag( colorPrefix, 400 )}{sTX_or_RX}:{eTag} {bTag( colorData )}{data}{eTag}"
 
         thread = self.sender()
-        data = f"T:{id(thread) % 1000} {data}"
+        data = f"T:{ thread.UID } {data}"
 
         agentLink.log = self.getAgentLink( agentN ).log + "<br>" + data
                 
@@ -173,6 +173,7 @@ class CAgentsConnectionServer(QTcpServer):
         return aLink
 
 class CAgentSocketThread(QThread):
+    genUID = 0
     """This thread will be created when someone connects to opened socket"""
     socketError       = pyqtSignal( int )
     newAgent          = pyqtSignal( int )
@@ -182,6 +183,9 @@ class CAgentSocketThread(QThread):
     def __init__(self, socketDescriptor, parent):
         super().__init__()
         print( f"Creating rx thread {id(self)} for unknown agent." )
+
+        self.UID = CAgentSocketThread.genUID
+        CAgentSocketThread.genUID = CAgentSocketThread.genUID + 1
 
         self.bRunning = True
         self.ACS = weakref.ref( parent ) # parent is an CAgentsConnectionServer
@@ -267,7 +271,6 @@ class CAgentSocketThread(QThread):
 
         if t > 5:
             self.AgentLogUpdated.emit( False, self.agentN, self.Off_5S_Cmd )
-            # print( f"Thread {id(self)} will closed with no activity for 5 secs." )
             self.bRunning = False
 
     #################################

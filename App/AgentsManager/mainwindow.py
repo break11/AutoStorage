@@ -84,7 +84,11 @@ class CAM_MainWindow(QMainWindow):
         self.pteAgentLog.setHtml( agentLink.log )
         self.pteAgentLog.moveCursor( QTextCursor.End )
 
+        self.updateAgentLogControls( agentLink )
+
+    def updateAgentLogControls( self, agentLink ):
         self.btnRequestTelemetry.setChecked( agentLink.requestTelemetry_Timer.isActive() )
+        self.sbAgentN.setValue( agentLink.agentN )
 
     def AgentLogUpdated( self, agentN, data ):
         if self.currAgentN() != agentN:
@@ -100,10 +104,11 @@ class CAM_MainWindow(QMainWindow):
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
         if agentLink is None: return
 
-        cmd = CAgentServerPacket.fromTX_Str( self.lePushCMD.text() )
+        sCMD = f"{self.sbPacketN.value():03d},{self.sbAgentN.value():03d}:{self.lePushCMD.text()}"
+        cmd = CAgentServerPacket.fromTX_Str( sCMD )
         if cmd is None: return
 
-        agentLink.pushCmd_to_TX_FIFO( cmd )
+        agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
         print( f"Send custom cmd={cmd} to agent={self.currAgentN()}" )
 
     @pyqtSlot("bool")

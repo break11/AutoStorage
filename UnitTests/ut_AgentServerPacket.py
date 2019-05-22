@@ -250,6 +250,36 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.DistancePassed )
         self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
         self.assertEqual( p1.toTX_BStr(), p3 )
+        # @OZ
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerZero, packetN=272, agentN=2, channelN=2, timeStamp=int("2a7f0", 16) )
+        p2 = CAgentServerPacket.fromRX_Str( "272,002,2,0002a7f0:@OZ" )
+        p3 = b"272,002,2,0002a7f0:@OZ\n"
+
+        print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.OdometerZero )
+        self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
+        self.assertEqual( p1.toRX_BStr(), p3 )
+        # @OP
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerPassed, packetN=40, agentN=215, timeStamp=int( "AABB", 16 ), data="50" )
+        p2 = CAgentServerPacket.fromRX_BStr( b"040,215,1,0000aabb:@OP:50" )
+        p3 = b"040,215,1,0000aabb:@OP:50\n"
+
+        print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.OdometerPassed )
+        self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
+        self.assertEqual( p1.toRX_BStr(), p3 )
+        # @OD
+        #########################
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, agentN=215, timeStamp=int( "AABB", 16 ), data="50" )
+        p2 = CAgentServerPacket.fromRX_BStr( b"040,215,1,0000aabb:@OD:50" )
+        p3 = b"040,215,1,0000aabb:@OD:50\n"
+
+        print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
+        self.assertEqual( p2.event, EAgentServer_Event.OdometerDistance )
+        self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
+        self.assertEqual( p1.toRX_BStr(), p3 )
 
 if __name__ == '__main__':
     unittest.main()

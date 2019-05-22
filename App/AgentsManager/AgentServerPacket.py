@@ -43,10 +43,11 @@ class CAgentServerPacket:
         else:
             if bTX_or_RX:
                 sResult = f"{self.packetN:03d},{self.agentN:03d}:{ Event_Sign }"
-                if self.data:
-                    sResult = f"{sResult}:{self.data}"
             else:
-                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{ Event_Sign }:{self.data}"
+                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{ Event_Sign }"
+                
+            if self.data:
+                sResult = f"{sResult}:{self.data}"
 
         if appendLF:
             sResult += "\n"
@@ -98,17 +99,18 @@ class CAgentServerPacket:
             else:
                 sAttrs = l[0].split( b"," )
                 packetN = int( sAttrs[0].decode() )
-                agentN  = int( sAttrs[1].decode() )
+                agentN  = int( sAttrs[1].decode() )                
                 if bTX_or_RX: # 000,000:@HW  ///  001,555:@BS
+                    pass
+                else:          # 011,555,1,00000010:@HW:000   ///   012,555,1,00000010:@BS:S,43.2V,39.31V,47.43V,-0.06A
+                    channelN  = int( sAttrs[2].decode() )
+                    timeStamp = int( sAttrs[3].decode(), 16 )
+
+                if event not in cls.textEvents:
                     if len(l) > 2: # если data реально есть в передаваемой команде - например команда DE (001,011:@DP:000331,F,H,B,C)
                         data = l[2].decode()
                     else:
                         data = None
-                else:          # 011,555,1,00000010:@HW:000   ///   012,555,1,00000010:@BS:S,43.2V,39.31V,47.43V,-0.06A
-                    channelN  = int( sAttrs[2].decode() )
-                    timeStamp = int( sAttrs[3].decode(), 16 )
-                    if event not in cls.textEvents:
-                        data = l[2].decode()
 
             return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, channelN=channelN, timeStamp=timeStamp, data=data )
         except Exception as e:
