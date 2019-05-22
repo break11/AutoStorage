@@ -104,12 +104,20 @@ class CAM_MainWindow(QMainWindow):
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
         if agentLink is None: return
 
-        sCMD = f"{self.sbPacketN.value():03d},{self.sbAgentN.value():03d}:{self.lePushCMD.text()}"
-        cmd = CAgentServerPacket.fromTX_Str( sCMD )
-        if cmd is None: return
+        l = self.lePushCMD.text().split(" ")
+        cmd_list = []
 
-        agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
-        print( f"Send custom cmd={cmd} to agent={self.currAgentN()}" )
+        for item in l:
+            sCMD = f"{self.sbPacketN.value():03d},{self.sbAgentN.value():03d}:{item}"
+            cmd_list.append( CAgentServerPacket.fromTX_Str( sCMD ) )
+
+        if None in cmd_list:
+            print( f"{SC.sWarning} invalid command in command list: {cmd_list}" )
+            return
+        
+        for cmd in cmd_list:
+            agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
+            print( f"Send custom cmd={cmd} to agent={self.currAgentN()}" )
 
     @pyqtSlot("bool")
     def on_btnRequestTelemetry_clicked( self, bVal ):
