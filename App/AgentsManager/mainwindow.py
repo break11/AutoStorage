@@ -24,10 +24,8 @@ from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr
 from .AgentsList_Model import CAgentsList_Model
-from .routeBuilder import CRouteBuilder
 from .AgentsConnectionServer import CAgentsConnectionServer
 from .AgentServerPacket import CAgentServerPacket
-##remove##from .agentPoolManager import AgentPoolManager
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -49,7 +47,6 @@ class CAM_MainWindow(QMainWindow):
             self.Agents_Model = CAgentsList_Model( parent = self )
             self.tvAgents.setModel( self.Agents_Model )
 
-            self.routeBuilder = CRouteBuilder()
             self.AgentsConnectionServer = CAgentsConnectionServer()
             self.tvAgents.selectionModel().currentChanged.connect( self.CurrentAgentChanged )
             self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )

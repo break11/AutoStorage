@@ -6,11 +6,15 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
                              QVBoxLayout, QPushButton, QWidget)
 
-from Lib.Common.Agent_NetObject import agentsNodeCache
-from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr
+from Lib.Common.Agent_NetObject import queryAgentNetObj, s_route
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.Net_Events import ENet_Event as EV
+from Lib.Common.Graph_NetObjects import graphNodeCache
 from .AgentServerPacket import CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
 from .AgentProtocolUtils import getNextPacketN
+from .routeBuilder import CRouteBuilder
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
@@ -22,22 +26,25 @@ class CAgentLink():
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
 
-        self.BS_cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState )
-        self.TS_cmd = CAgentServerPacket( event=EAgentServer_Event.TemperatureState )
-        self.TL_cmd = CAgentServerPacket( event=EAgentServer_Event.TaskList )
 
         self.agentN = agentN
-        # self.routeBuilder = routeBuilder
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state ##remove##
  
+        self.BS_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.BatteryState )
+        self.TS_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.TemperatureState )
+        self.TL_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.TaskList )
+
         self.requestTelemetry_Timer = QTimer()
         self.requestTelemetry_Timer.setInterval(1000)
         self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
         self.requestTelemetry_Timer.start()
 
-        self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( agentN ) )
-        print( self.agentNO().name, self.agentNO().UID )
+        self.agentNO = weakref.ref( queryAgentNetObj( str( agentN ) ) )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+
+        self.graphRootNode = graphNodeCache()
+        self.routeBuilder = CRouteBuilder()
 
     def __del__(self):
         print( f"AgentLink {self.agentN} DESTROY!" )
@@ -55,7 +62,32 @@ class CAgentLink():
                 
         self.socketThreads = []
 
+    ##################
+    def onObjPropUpdated( self, cmd ):
+        agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+
+        if agentNO.UID != self.agentNO().UID: return
+
+        if cmd.sPropName == s_route:
+            pointsList = cmd.value.split( "," )
+            print( pointsList )
+
+            nxGraph = self.graphRootNode().nxGraph
+            seqList = self.routeBuilder.buildRoute( nodeList = pointsList, agent_angle = self.agentNO().angle )
+            print( seqList )
+
+            for seq in seqList:
+                for cmd in seq:
+                    self.pushCmd_to_TX_FIFO( CAgentServerPacket.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
+    ##################
+    def isConnected( self ):
+        return len(self.socketThreads) > 0
+
     def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):
+        if not self.isConnected():
+            print( cmd )
+            return
+        
         if bReMap_PacketN:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = getNextPacketN( self.genTxPacketN )
@@ -67,19 +99,38 @@ class CAgentLink():
                 thread.writeTo_Socket( cmd )
 
     def pushCmd_to_TX_FIFO( self, cmd ):
-        cmd.packetN = self.genTxPacketN
-        self.genTxPacketN = getNextPacketN( self.genTxPacketN )
-        self.TX_Packets.append( cmd )
+        self.pushCmd( cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True )
 
     def pushCmd_if_NotExist( self, cmd ):
         # кладем в очередь команду, только если ее там нет (это будет значить, что предыдущий запрос по этой команде выполнен)
         if cmd not in self.TX_Packets:
             self.pushCmd_to_TX_FIFO( cmd )
 
-    def requestTelemetry(self):        
+    def requestTelemetry(self):
         self.pushCmd_if_NotExist( self.BS_cmd )
         self.pushCmd_if_NotExist( self.TS_cmd )
         self.pushCmd_if_NotExist( self.TL_cmd )
+
+    ####################
+    def processRxPacket( self, cmd ):
+        nxGraph = self.graphRootNode().nxGraph
+        def getDirection( tEdgeKey, agent_angle):
+            DirDict = { True: -1, False: 1, None: 1 }
+            rAngle, bReverse = getAgentAngle(nxGraph, tEdgeKey, agent_angle)
+            return DirDict[ bReverse ]
+
+        if cmd.event == EAgentServer_Event.OdometerZero:
+            self.agentNO().odometer = 0
+        elif cmd.event == EAgentServer_Event.OdometerPassed:
+            new_od = int( cmd.data )
+            distance = new_od - self.agentNO().odometer 
+            self.agentNO().odometer = new_od
+
+            tKey = tEdgeKeyFromStr( self.agentNO().edge )
+            dK = getDirection( tKey, self.agentNO().angle )
+            pos = dK * distance * 100 / nxGraph.edges[tKey]["edgeSize"] + self.agentNO().position
+            self.agentNO().position = pos
+            
 
         # for item in self.TX_Packets:
         #     if item.event == EAgentServer_Event.BatteryState:

@@ -86,10 +86,11 @@ class CAgentsConnectionServer(QTcpServer):
     def incomingConnection(self, socketDescriptor):
         thread = CAgentSocketThread(socketDescriptor, self)
         thread.finished.            connect( self.thread_Finihsed )
-        # thread.agentNumberInited.   connect( self.thread_AgentNumberInited )
+        thread.agentNumberInited.   connect( self.thread_AgentNumberInited )
         thread.socketError.         connect( self.thread_SocketError )
         thread.newAgent.            connect( self.thread_NewAgent )
         thread.AgentLogUpdated.     connect( self.thread_AgentLogUpdated )
+        thread.processRxPacket.     connect( self.thread_processRxPacket )
         thread.start()
 
         self.UnknownConnections_Threads.append( thread )
@@ -119,8 +120,9 @@ class CAgentsConnectionServer(QTcpServer):
     @pyqtSlot(int)
     def thread_NewAgent(self, agentN):
         self.createAgentLink( agentN )
-    # @pyqtSlot(int)
-    # def thread_AgentNumberInited(self, agentN):
+
+    @pyqtSlot(int)
+    def thread_AgentNumberInited(self, agentN):
         thread = self.sender()
         print( f"Agent number {agentN} estimated for thread {id(thread)}." )
 
@@ -133,6 +135,12 @@ class CAgentsConnectionServer(QTcpServer):
     @pyqtSlot( int )
     def thread_SocketError( self, error ):
         print( f"{SC.sError} Socket error={ socketErrorToString(error) }" )
+
+    @pyqtSlot( int, CAgentServerPacket )
+    def thread_processRxPacket( self, agentN, cmd ):
+        agentLink = self.getAgentLink( agentN )
+        if agentLink:
+            agentLink.processRxPacket( cmd )
 
     @pyqtSlot( bool, int, CAgentServerPacket )
     def thread_AgentLogUpdated( self, bTX_or_RX, agentN, packet ):
@@ -199,8 +207,9 @@ class CAgentSocketThread(QThread):
     """This thread will be created when someone connects to opened socket"""
     socketError       = pyqtSignal( int )
     newAgent          = pyqtSignal( int )
-    # agentNumberInited = pyqtSignal( int )
+    agentNumberInited = pyqtSignal( int )
     AgentLogUpdated   = pyqtSignal( bool, int, CAgentServerPacket )
+    processRxPacket   = pyqtSignal( int, CAgentServerPacket )
 
     def __init__(self, socketDescriptor, parent):
         super().__init__()
@@ -269,7 +278,7 @@ class CAgentSocketThread(QThread):
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
                     self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1
                 
-                # self.agentNumberInited.emit( cmd.agentN )
+                self.agentNumberInited.emit( cmd.agentN )
                 self.agentN = cmd.agentN
                 self.ACC_cmd.packetN = cmd.packetN
 
@@ -284,7 +293,8 @@ class CAgentSocketThread(QThread):
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
             self.noRxTimer = time.time()
-            _processRxPacket( cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None )
+            _processRxPacket( cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
+                              processAcceptedPacket=self.__processRxPacket )
             self.AgentLogUpdated.emit( False, self.agentN, cmd )
 
         #################################
@@ -295,6 +305,8 @@ class CAgentSocketThread(QThread):
             self.AgentLogUpdated.emit( False, self.agentN, self.Off_5S_Cmd )
             self.bRunning = False
 
+    def __processRxPacket( self, cmd ):
+        self.processRxPacket.emit( self.agentN, cmd )
     #################################
     def agentLink(self):
         if self.agentN == UNINITED_AGENT_N:

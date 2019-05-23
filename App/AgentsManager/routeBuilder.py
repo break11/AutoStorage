@@ -1,11 +1,9 @@
 import math
 from copy import deepcopy
-from networkx import shortest_path
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
-
 
 RH_LOW = 0
 RH_HIGH = 1
@@ -44,18 +42,17 @@ class CRouteBuilder():
     def nxGraph(self):
         return self.graphRootNode().nxGraph
 
-    def buildRoute(self, nodeFrom, nodeTo, agent_angle):
+    def buildRoute(self, nodeList, agent_angle):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
         #TODO: not uses orientation at current moment
 
-        shortestPath = shortest_path(self.nxGraph, nodeFrom, nodeTo)
         commands = []
-        if len( shortestPath ) < 2:
+        if len( nodeList ) < 2:
             return commands
-        directionStr = self.getDirection( (shortestPath[0], shortestPath[1]), agent_angle )
+        directionStr = self.getDirection( (nodeList[0], nodeList[1]), agent_angle )
 
         # 0) Split path by fractures
-        pathParts = self.splitPathByFractures(shortestPath)
+        pathParts = self.splitPathByFractures(nodeList)
 
         for pathPart in pathParts:
             """

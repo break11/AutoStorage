@@ -2,6 +2,8 @@ import unittest
 import sys
 import os
 
+from networkx import shortest_path
+
 sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -11,6 +13,7 @@ sDir = "./UnitTests/RouteBuilder/"
 
 CNetObj_Manager.initRoot()
 loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
+graphRootNode = graphNodeCache()
 
 class CRouteCase():
     def __init__(self):
@@ -48,7 +51,9 @@ class TestRouteBuilder(unittest.TestCase):
         
         for case in routeCases:
 
-            route = routeBuilder.buildRoute( nodeFrom = case.startNode, nodeTo = case.endNode, agent_angle = case.agentAngle )
+            shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
+
+            route = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
 
             CommandsList = []
             for sequence in route:

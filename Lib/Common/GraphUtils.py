@@ -33,7 +33,10 @@ def getEdgeCoords (nxGraph, tEdgeKey):
 
 def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
 
-    x1, y1, x2, y2 = getEdgeCoords( nxGraph, tEdgeKey )
+    edgeCoords = getEdgeCoords( nxGraph, tEdgeKey )
+    if edgeCoords is None: return agent_angle, False
+
+    x1, y1, x2, y2 = edgeCoords
 
     edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
     
