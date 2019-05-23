@@ -11,11 +11,14 @@ from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSoc
 from .AgentLink import CAgentLink
 import Lib.Common.StrConsts as SC
 from Lib.Common.NetUtils import socketErrorToString
+from Lib.Common.Utils import CRepeatTimer
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.Net_Events import ENet_Event as EV
+from Lib.Common.Agent_NetObject import CAgent_NO
+
 from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from .AgentServer_Event import EAgentServer_Event
 from .AgentProtocolUtils import getNextPacketN, _processRxPacket
-from Lib.Common.Utils import CRepeatTimer
-from Lib.Common.Agent_NetObject import queryAgentNetObj
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 
@@ -43,6 +46,9 @@ class CAgentsConnectionServer(QTcpServer):
         else:
             print( f'{self.s_AgentsNetServer} created OK, listen started on address = {address.toString()}.' )
 
+        CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
+
     def __del__(self):
         print( f"{self.s_AgentsNetServer} shutting down." )
 
@@ -59,11 +65,28 @@ class CAgentsConnectionServer(QTcpServer):
 
         self.AgentLinks = {}
         self.close()
+    ##########################
+    def onObjCreated( self, cmd ):
+        agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+        if not isinstance( agentNO, CAgent_NO ): return
 
+        self.createAgentLink( int(agentNO.name) )
+
+    def onObjPrepareDelete( self, cmd ):
+        agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+        if not isinstance( agentNO, CAgent_NO ): return
+
+        ### del AgentLink
+        agentN = int( agentNO.name )
+        agentLink = self.getAgentLink( agentN, bWarning = True )
+        if agentLink is not None:
+            del self.AgentLinks[ agentN ]
+
+    ##########################
     def incomingConnection(self, socketDescriptor):
         thread = CAgentSocketThread(socketDescriptor, self)
         thread.finished.            connect( self.thread_Finihsed )
-        thread.agentNumberInited.   connect( self.thread_AgentNumberInited )
+        # thread.agentNumberInited.   connect( self.thread_AgentNumberInited )
         thread.socketError.         connect( self.thread_SocketError )
         thread.newAgent.            connect( self.thread_NewAgent )
         thread.AgentLogUpdated.     connect( self.thread_AgentLogUpdated )
@@ -94,11 +117,10 @@ class CAgentsConnectionServer(QTcpServer):
         thread.deleteLater()
 
     @pyqtSlot(int)
-    def thread_NewAgent(self, agentN): self.createAgentLink( agentN )
-
-    @pyqtSlot(int)
-    def thread_AgentNumberInited(self, agentN):
-        queryAgentNetObj( str( agentN ) )
+    def thread_NewAgent(self, agentN):
+        self.createAgentLink( agentN )
+    # @pyqtSlot(int)
+    # def thread_AgentNumberInited(self, agentN):
         thread = self.sender()
         print( f"Agent number {agentN} estimated for thread {id(thread)}." )
 
@@ -177,7 +199,7 @@ class CAgentSocketThread(QThread):
     """This thread will be created when someone connects to opened socket"""
     socketError       = pyqtSignal( int )
     newAgent          = pyqtSignal( int )
-    agentNumberInited = pyqtSignal( int )
+    # agentNumberInited = pyqtSignal( int )
     AgentLogUpdated   = pyqtSignal( bool, int, CAgentServerPacket )
 
     def __init__(self, socketDescriptor, parent):
@@ -247,7 +269,7 @@ class CAgentSocketThread(QThread):
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
                     self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1
                 
-                self.agentNumberInited.emit( cmd.agentN )
+                # self.agentNumberInited.emit( cmd.agentN )
                 self.agentN = cmd.agentN
                 self.ACC_cmd.packetN = cmd.packetN
 

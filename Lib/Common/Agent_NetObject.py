@@ -21,7 +21,7 @@ def agentsNodeCache():
 
 def queryAgentNetObj( name ):
     props = deepcopy( def_props )
-    agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
+    return agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
 
 class CAgent_NO( CNetObj ):    
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):

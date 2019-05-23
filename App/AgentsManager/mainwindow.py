@@ -133,21 +133,13 @@ class CAM_MainWindow(QMainWindow):
         props = deepcopy( agentDefProps )
         agentNO = CAgent_NO( parent=self.agentsNode(), props=props )
 
-        self.AgentsConnectionServer.createAgentLink( agentNO.UID )
-
     def on_btnDelAgent_released( self ):
         ### del Agent NetObj
         ci = self.tvAgents.currentIndex()
         if not ci.isValid(): return
         
-        agentNetObj = self.Agents_Model.agentNO_from_Index( ci )
-        agentN = int( agentNetObj.name )
-        agentNetObj.destroy()
-
-        ### del AgentLink
-        agentLink = self.AgentsConnectionServer.getAgentLink( agentN, bWarning = True )
-        if agentLink is not None:
-            del self.AgentsConnectionServer.AgentLinks[ agentN ]
+        agentNO = self.Agents_Model.agentNO_from_Index( ci )
+        agentNO.destroy()
 
     ###################################################
 

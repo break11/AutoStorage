@@ -1,10 +1,13 @@
 import datetime
+import weakref
 from collections import deque
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
                              QVBoxLayout, QPushButton, QWidget)
 
+from Lib.Common.Agent_NetObject import agentsNodeCache
+from Lib.Common.TreeNode import CTreeNodeCache
 from .AgentServerPacket import CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
 from .AgentProtocolUtils import getNextPacketN
@@ -32,6 +35,9 @@ class CAgentLink():
         self.requestTelemetry_Timer.setInterval(1000)
         self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
         self.requestTelemetry_Timer.start()
+
+        self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( agentN ) )
+        print( self.agentNO().name, self.agentNO().UID )
 
     def __del__(self):
         print( f"AgentLink {self.agentN} DESTROY!" )
