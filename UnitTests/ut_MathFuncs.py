@@ -174,6 +174,14 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual(  gu.EdgeDisplayName( nodeID1, nodeID2 ),  f"{nodeID1} --> {nodeID2}" )
         self.assertEqual(  gu.EdgeDisplayName( nodeID2, nodeID1 ),  f"{nodeID2} --> {nodeID1}" )
 
+# class TestUtilsFuncs(unittest.TestCase):
+
+#     def test_getAgentAngle(self):
+
+#         nxGraph = gu.loadGraphML_File( sFName = "./GraphML/magadanskaya.graphml" )
+
+#         tEdgeKey = ('31', '34')
+#         rAngle, bReverse = gu.getAgentAngle(nxGraph = nxGraph, tEdgeKey = tEdgeKey, agent_angle = 0)
 
 if __name__ == '__main__':
     unittest.main()

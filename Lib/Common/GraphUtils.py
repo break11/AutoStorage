@@ -52,7 +52,7 @@ def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
     if railType == SGT.EWidthType.Narrow:
         r_vec = edge_vec
     elif railType == SGT.EWidthType.Wide:
-        r_vec = edge_vec.rotate( math.pi/2 )
+        r_vec = edge_vec.rotate( -math.pi/2 )
     
     AgentEdgeAngle = agent_vec.angle( r_vec )
 

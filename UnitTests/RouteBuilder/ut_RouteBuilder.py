@@ -16,7 +16,10 @@ loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
 graphRootNode = graphNodeCache()
 
 class CRouteCase():
+    genUID = 0
     def __init__(self):
+        CRouteCase.genUID+=1
+        self.UID = CRouteCase.genUID
         self.startNode   = ""
         self.endNode     = ""
         self.agentAngle  = 0
@@ -63,7 +66,8 @@ class TestRouteBuilder(unittest.TestCase):
             route_str = ",".join( CommandsList )
 
             self.assertEqual( route_str, case.sCommands )
-            # print( f"RouteCase : {case.startNode} {case.endNode} {case.agentAngle} \tOK" )
+            # status = "OK" if (route_str == case.sCommands) else "FAILED"
+            # print( f"RouteCase {case.UID}: {case.startNode} {case.endNode} {case.agentAngle} \t{status}" )
 
 if __name__ == '__main__':
     unittest.main()
