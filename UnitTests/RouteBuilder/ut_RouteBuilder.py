@@ -56,7 +56,7 @@ class TestRouteBuilder(unittest.TestCase):
 
             shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
 
-            route = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
+            route, SLL = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
 
             CommandsList = []
             for sequence in route:

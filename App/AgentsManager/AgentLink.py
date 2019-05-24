@@ -1,16 +1,18 @@
 import datetime
 import weakref
+import math
 from collections import deque
 
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
                              QVBoxLayout, QPushButton, QWidget)
 
-from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr
+from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr, tEdgeKeyToStr
 from Lib.Common.Agent_NetObject import queryAgentNetObj, s_route
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
+from Lib.Common import StorageGraphTypes as SGT
 from .AgentServerPacket import CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
 from .AgentProtocolUtils import getNextPacketN
@@ -45,6 +47,9 @@ class CAgentLink():
 
         self.graphRootNode = graphNodeCache()
         self.routeBuilder = CRouteBuilder()
+        self.SLL = []
+        self.DE_IDX = 0
+        self.segOD = 0
 
     def __del__(self):
         print( f"AgentLink {self.agentN} DESTROY!" )
@@ -69,12 +74,14 @@ class CAgentLink():
         if agentNO.UID != self.agentNO().UID: return
 
         if cmd.sPropName == s_route:
+            agentNO.route_idx = 0
             pointsList = cmd.value.split( "," )
             print( pointsList )
 
             nxGraph = self.graphRootNode().nxGraph
-            seqList = self.routeBuilder.buildRoute( nodeList = pointsList, agent_angle = self.agentNO().angle )
-            print( seqList )
+            seqList, self.SLL = self.routeBuilder.buildRoute( nodeList = pointsList, agent_angle = self.agentNO().angle )
+            self.DE_IDX = 0
+            self.segOD = 0
 
             for seq in seqList:
                 for cmd in seq:
@@ -112,8 +119,21 @@ class CAgentLink():
         self.pushCmd_if_NotExist( self.TL_cmd )
 
     ####################
+    def calcAgentAngle( self, agentNO ):
+        tEdgeKey = agentNO.isOnTrack()
+        
+        if tEdgeKey is None:
+            agentNO.angle = 0
+            return
+
+        rAngle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
+        agentNO.angle = math.degrees( rAngle )
+    ####################
+    
     def processRxPacket( self, cmd ):
+
         nxGraph = self.graphRootNode().nxGraph
+
         def getDirection( tEdgeKey, agent_angle):
             DirDict = { True: -1, False: 1, None: 1 }
             rAngle, bReverse = getAgentAngle(nxGraph, tEdgeKey, agent_angle)
@@ -121,16 +141,45 @@ class CAgentLink():
 
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
+        elif cmd.event == EAgentServer_Event.DistanceEnd:
+            self.DE_IDX+=1
+            self.segOD = 0
         elif cmd.event == EAgentServer_Event.OdometerPassed:
+            agentNO = self.agentNO()
             new_od = int( cmd.data )
-            distance = new_od - self.agentNO().odometer 
-            self.agentNO().odometer = new_od
 
-            tKey = tEdgeKeyFromStr( self.agentNO().edge )
-            dK = getDirection( tKey, self.agentNO().angle )
-            pos = dK * distance * 100 / nxGraph.edges[tKey]["edgeSize"] + self.agentNO().position
-            self.agentNO().position = pos
+            tKey = agentNO.isOnTrack()
+            dK = getDirection( tKey, agentNO.angle )
             
+            distance = dK * (new_od - self.agentNO().odometer)
+            self.segOD+=distance
+            agentNO.odometer = new_od
+
+            if self.segOD < self.SLL[self.DE_IDX]:
+                new_pos = distance * 100 / nxGraph.edges[tKey][ SGT.s_edgeSize ] + agentNO.position
+            else:
+                new_pos = (distance - self.SLL[self.DE_IDX]) * 100 / nxGraph.edges[tKey][ SGT.s_edgeSize ] + agentNO.position
+
+            nodes_route = agentNO.route.split(",")
+            
+            if new_pos > 100:
+                newIDX = agentNO.route_idx + 1
+
+                if newIDX >= len( nodes_route )-1:
+                    agentNO.position = 100
+                    # agentNO.route_idx = 0
+                    # agentNO.route = ""
+                    return
+
+                agentNO.position = new_pos % 100
+                tEdgeKey = ( nodes_route[ newIDX ], nodes_route[ newIDX + 1 ] )
+                agentNO.edge = tEdgeKeyToStr( tEdgeKey )
+                agentNO.route_idx = newIDX
+            else:
+                agentNO.position = new_pos
+
+            self.calcAgentAngle( agentNO )
+
 
         # for item in self.TX_Packets:
         #     if item.event == EAgentServer_Event.BatteryState:

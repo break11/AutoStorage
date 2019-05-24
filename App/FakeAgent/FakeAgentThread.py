@@ -91,7 +91,7 @@ class CFakeAgentThread(QThread):
                 self.ackSendCounter = 500/TIMER_PERIOD
 
         if self.packetResendCounter > 0:
-            self.packetResendCounter = self.ackSendCounter - 1
+            self.packetResendCounter = self.packetResendCounter - 1
         else:
             if self.currentTxPacketWithNumbering :
                 self.writeBytestrToSocket(self.currentTxPacketWithNumbering)
@@ -291,9 +291,6 @@ class CFakeAgentThread(QThread):
                 # New DP task
                 self.distanceToPass = int(self.currentTask[4:4+6])
                 self.currentDirection = self.currentTask[11:11+1] # F or R
-
-
-
         else:
             self.currentTask = ''
             print('All tasks done')

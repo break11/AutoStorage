@@ -2,13 +2,16 @@
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
 
 from Lib.Common.Agent_NetObject import agentsNodeCache
-from Lib.Common.Agent_NetObject import s_edge, s_position, s_route, s_route_idx, s_angle
+from Lib.Common.Agent_NetObject import s_edge, s_position, s_route, s_route_idx, s_angle, s_odometer
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 
+s_name = "name"
+s_UID  = "UID"
+
 class CAgentsList_Model( QAbstractTableModel ):
-    propList = [ "name", "UID", s_angle, s_edge, s_position, s_route, s_route_idx ]
+    propList = [ s_name, s_UID, s_angle, s_edge, s_position, s_route, s_route_idx, s_odometer ]
 
     def __init__( self, parent ):
         super().__init__( parent=parent)
@@ -29,13 +32,29 @@ class CAgentsList_Model( QAbstractTableModel ):
     def data( self, index, role ):
         if not index.isValid(): return None
 
-        # netObj = list(self.agentsNode().children)[ index.row() ]
         objUID = self.agentsList[ index.row() ]
         netObj = CNetObj_Manager.accessObj( objUID, genAssert=True )
+        if not netObj: return None
+        
         sPropName = self.propList[ index.column() ]
 
         if role == Qt.DisplayRole or role == Qt.EditRole:            
-            return getattr( netObj, sPropName ) if netObj else None
+            return getattr( netObj, sPropName )
+
+    def setData( self, index, value, role ):
+        if not index.isValid(): return False
+
+        objUID = self.agentsList[ index.row() ]
+        netObj = CNetObj_Manager.accessObj( objUID, genAssert=True )
+
+        if not netObj: return False
+
+        sPropName = self.propList[ index.column() ]
+
+        if role == Qt.DisplayRole or role == Qt.EditRole:            
+            netObj[ sPropName ] = value
+            
+        return True
 
     def headerData( self, section, orientation, role ):
         if role != Qt.DisplayRole: return
@@ -44,7 +63,11 @@ class CAgentsList_Model( QAbstractTableModel ):
             return self.propList[ section ]
 
     def flags( self, index ):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled# | Qt.ItemIsEditable
+        flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled 
+        sPropName = self.propList[ index.column() ]
+        if sPropName not in [ s_name, s_UID ]:
+            flags = flags | Qt.ItemIsEditable
+        return flags
 
     ################################
     def agentNO_from_Index( self, index ):

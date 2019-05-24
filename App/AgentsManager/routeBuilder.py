@@ -49,12 +49,14 @@ class CRouteBuilder():
         commands = []
         if len( nodeList ) < 2:
             return commands
-        directionStr = self.getDirection( (nodeList[0], nodeList[1]), agent_angle )
 
         # 0) Split path by fractures
         pathParts = self.splitPathByFractures(nodeList)
 
+        segmentLengthList = []
+        angle = agent_angle
         for pathPart in pathParts:
+            angle, directionStr = self.getDirection( (pathPart[0], pathPart[1]), angle )
             """
             path part is a node sequence with constans rail width and direction of movement. 
             Shuttle should start to move at the beginning of pathPart, and do full stop at the end 
@@ -87,17 +89,24 @@ class CRouteBuilder():
 
             # 6) merge all the rails with the same shape
             gluedRailList = self.glueSameRailListParts(railListWithAdjustedCurvature)
+            segmentLengthList = segmentLengthList + [ railSegment.length for railSegment in gluedRailList ]
 
             # 7) Add delta to rails when rail type change exists at the end of a segment
             railListWithAddedDelta = self.addDeltaToRailList(gluedRailList)
 
             commands.append( self.gluedRailListToCommands(railListWithAddedDelta, directionStr))
-        return commands
+
+            for i in range( len(pathPart) -1  ):
+                angle, directionStr = self.getDirection( (pathPart[i], pathPart[i+1]), angle )
+
+        print(segmentLengthList)
+
+        return commands, segmentLengthList
 
     def getDirection(self, tEdgeKey, agent_angle):
         DirDict = { True: "R", False: "F", None: "E" }
         rAngle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
-        return DirDict[bReverse]
+        return math.degrees(rAngle), DirDict[bReverse]
 
     def splitPathByFractures(self, path):
         fracturedPath = []
