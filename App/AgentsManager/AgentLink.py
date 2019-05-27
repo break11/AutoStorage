@@ -151,27 +151,31 @@ class CAgentLink():
             tKey = agentNO.isOnTrack()
             dK = getDirection( tKey, agentNO.angle )
             
-            distance = dK * (new_od - self.agentNO().odometer)
-            self.segOD+=distance
+            distance = dK * ( new_od - self.agentNO().odometer )
             agentNO.odometer = new_od
+            edgeSize = nxGraph.edges[tKey][ SGT.s_edgeSize ]
 
-            if self.segOD < self.SLL[self.DE_IDX]:
-                new_pos = distance * 100 / nxGraph.edges[tKey][ SGT.s_edgeSize ] + agentNO.position
+            if self.segOD + distance < self.SLL[self.DE_IDX]:
+                self.segOD += distance
+                new_pos = distance + agentNO.position
             else:
-                new_pos = (distance - self.SLL[self.DE_IDX]) * 100 / nxGraph.edges[tKey][ SGT.s_edgeSize ] + agentNO.position
+                distance = self.SLL[self.DE_IDX] - self.segOD + 1
+                new_pos = distance + agentNO.position
+                self.segOD += distance
 
             nodes_route = agentNO.route.split(",")
             
-            if new_pos > 100:
+            if new_pos > edgeSize:
                 newIDX = agentNO.route_idx + 1
 
+                ## ????????????????????????????????????????
                 if newIDX >= len( nodes_route )-1:
-                    agentNO.position = 100
+                    agentNO.position = edgeSize
                     # agentNO.route_idx = 0
                     # agentNO.route = ""
                     return
 
-                agentNO.position = new_pos % 100
+                agentNO.position = new_pos % edgeSize
                 tEdgeKey = ( nodes_route[ newIDX ], nodes_route[ newIDX + 1 ] )
                 agentNO.edge = tEdgeKeyToStr( tEdgeKey )
                 agentNO.route_idx = newIDX

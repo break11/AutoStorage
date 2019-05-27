@@ -34,10 +34,9 @@ class CAgent_SGItem(QGraphicsItem):
         sy = -h / 2 # start y - верхний леый угол
         c  = 80    # срез правого верхнего угла (катет)
         ln = 80    # длина линий
-        k  = 0.15   # k для расчета отступа линий
 
-        of_sx = w * k
-        of_sy = h * k
+        of_sx = w/2 - SGT.sensorNarr
+        of_sy = h/2 - SGT.sensorWide
         
         self.__BBoxRect = QRectF( sx, sy, w, h )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
@@ -93,9 +92,11 @@ class CAgent_SGItem(QGraphicsItem):
         edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
 
         rAngle = edge_vec.selfAngle()
+        edgeSize = self.SGM.graphRootNode().nxGraph.edges[ tEdgeKey ][ SGT.s_edgeSize ]
+
         pos = self.__agentNetObj().position
 
-        k = edge_vec.magnitude() * pos / 100
+        k = edge_vec.magnitude() * pos / edgeSize
         d_x = k * math.cos( rAngle )
         d_y = k * math.sin( rAngle )
 

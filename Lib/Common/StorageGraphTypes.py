@@ -60,6 +60,9 @@ def railType( sType ):
         railType = EWidthType.Narrow
     return railType
 
+sensorNarr = 342  # half of distance between sensors (x axis)
+sensorWide = 200  # half of distance between sensors (y axis)
+
 narrow_Rail_Width = 690
 wide_Rail_Width   = 1140
 

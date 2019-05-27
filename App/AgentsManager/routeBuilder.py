@@ -8,8 +8,6 @@ from Lib.Common.Vectors import Vector2
 RH_LOW = 0
 RH_HIGH = 1
 
-sensorNarr = 342  # half of distance between sensors (x axis)
-sensorWide = 200  # half of distance between sensors (y axis)
 hysteresis = 30
 shiftFract = 10.0
 shiftLeast = 100
@@ -19,7 +17,7 @@ railHeightToCommand  = { RH_LOW: 'L', RH_HIGH:'H' }
 sensorSideToCommand  = { SGT.ESensorSide.SLeft.name: 'L', SGT.ESensorSide.SRight.name: 'R',
                          SGT.ESensorSide.SBoth.name: 'B', SGT.ESensorSide.SPassive.name:'P' }
 curvatureToCommand   = { SGT.ECurvature.Straight.name: 'S', SGT.ECurvature.Curve.name: 'C' }
-widthTypeToLedgeSize = { SGT.EWidthType.Narrow.name: sensorNarr, SGT.EWidthType.Wide.name: sensorWide }
+widthTypeToLedgeSize = { SGT.EWidthType.Narrow.name: SGT.sensorNarr, SGT.EWidthType.Wide.name: SGT.sensorWide }
 
 class SRailSegment:
     def __init__(self, length, railHeight, sensorSide, widthType, curvature):
@@ -63,15 +61,17 @@ class CRouteBuilder():
             """
             # 1) generate rails from edges
             rails = self.nodeListToRails(pathPart)
+            print( rails, "1" )
 
             railStartCurvature = rails[0].curvature
 
             # 2) add ledge
             ledgeNode = self.findNodeForLedge(pathPart[-2], pathPart[-1])
             ledgeRailList = self.nodeListToRails([pathPart[-1], ledgeNode])
+            print( ledgeRailList, "2" )
 
-            width = self.nxGraph[pathPart[-2]][pathPart[-1]][SGT.s_widthType]
-            ledgeSize = widthTypeToLedgeSize[width]
+            width = self.nxGraph[ pathPart[-2] ][ pathPart[-1] ] [ SGT.s_widthType ]
+            ledgeSize = widthTypeToLedgeSize[ width ]
 
             ledge = self.takeRailListPart(ledgeRailList, ledgeSize)
             railsWithLedge = rails + ledge
@@ -80,7 +80,9 @@ class CRouteBuilder():
             railListWithLedgeCuttedFromBegin = self.cutRailListFromBegin(railsWithLedge, ledgeSize)
 
             # 4) shift the path by hysteresis
-            railListWithHystShift = self.shiftRailListByHyst(railListWithLedgeCuttedFromBegin)
+            railListWithHystShift = self.shiftRailListByHyst( railListWithLedgeCuttedFromBegin )
+            # railListWithHystShift = railListWithLedgeCuttedFromBegin
+            print( railListWithHystShift, "3" )
 
             # 5) adjust the curvature at the beggining of the path
             railListWithAdjustedCurvature = railListWithHystShift
@@ -242,8 +244,6 @@ class CRouteBuilder():
                     railSegment = SRailSegment(highRailSizeTo, RH_HIGH, sensorSide, widthType, curvature)
                     rails.append(railSegment)
         return rails
-        #print(rails)
-
 
     def glueSameRailListParts(self, railList):
         outRailList = []
@@ -274,6 +274,22 @@ class CRouteBuilder():
         # encrease first segment by hyst, decrease last segment by hyst
         railList[0].length  = railList[0].length + hysteresis
         railList[-1].length = railList[-1].length - hysteresis
+
+        while railList[-1].length < 0:
+            d = railList[-1].length
+            del railList[-1]
+            railList[-1].length += d
+
+        # h = hysteresis
+        # while h > 0:
+        #     l = railList[-1].length
+        #     if l > h:
+        #         l = l - h
+        #     else:
+        #         del railList[-1]
+        #     h -= l
+        # railList[-1].length = l
+
         return railList
 
     def addDeltaToRailList(self, railList):

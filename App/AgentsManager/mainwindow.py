@@ -48,7 +48,7 @@ class CAM_MainWindow(QMainWindow):
             self.tvAgents.setModel( self.Agents_Model )
 
             self.AgentsConnectionServer = CAgentsConnectionServer()
-            self.tvAgents.selectionModel().currentChanged.connect( self.CurrentAgentChanged )
+            self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
             self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
 
             # для всех загруженных из редис Agent_NetObj создаем AgentLink-и
@@ -77,13 +77,13 @@ class CAM_MainWindow(QMainWindow):
         if agentLink is None:
             self.pteAgentLog.clear()
             return
-        
+
         self.pteAgentLog.setHtml( agentLink.log )
         self.pteAgentLog.moveCursor( QTextCursor.End )
 
-        self.updateAgentLogControls( agentLink )
+        self.updateAgentControls( agentLink )
 
-    def updateAgentLogControls( self, agentLink ):
+    def updateAgentControls( self, agentLink ):
         self.btnRequestTelemetry.setChecked( agentLink.requestTelemetry_Timer.isActive() )
         self.sbAgentN.setValue( agentLink.agentN )
 
