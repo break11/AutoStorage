@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDia
 from PyQt5 import uic
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
+from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common import FileUtils
 from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps
 import Lib.Common.StrConsts as SC
@@ -169,8 +170,10 @@ class CAM_MainWindow(QMainWindow):
 
             # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
             if ( nodes_route[0], nodes_route[1] ) != current_edge:
-                agentNO.edge = tEdgeKeyToStr( tuple( reversed(current_edge) ) )
-                agentNO.position = 100 - agentNO.position
+                tKey = tuple( reversed(current_edge) )
+                agentNO.edge = tEdgeKeyToStr( tKey )
+                edgeSize = nxGraph.edges[ tKey ][ SGT.s_edgeSize ]
+                agentNO.position = edgeSize - agentNO.position
                 nodes_route.insert(0, current_edge[1] )
 
             agentNO.route = ",".join( nodes_route )

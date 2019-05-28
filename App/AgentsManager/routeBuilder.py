@@ -1,5 +1,7 @@
 import math
 from copy import deepcopy
+from collections import namedtuple
+
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle
 from Lib.Common import StorageGraphTypes as SGT
@@ -18,6 +20,9 @@ sensorSideToCommand  = { SGT.ESensorSide.SLeft.name: 'L', SGT.ESensorSide.SRight
                          SGT.ESensorSide.SBoth.name: 'B', SGT.ESensorSide.SPassive.name:'P' }
 curvatureToCommand   = { SGT.ECurvature.Straight.name: 'S', SGT.ECurvature.Curve.name: 'C' }
 widthTypeToLedgeSize = { SGT.EWidthType.Narrow.name: SGT.sensorNarr, SGT.EWidthType.Wide.name: SGT.sensorWide }
+dirToK               = { 'F' : 1, 'R' : -1, 'E' : 1}
+
+SI_Item = namedtuple('SII' , 'length K')
 
 class SRailSegment:
     def __init__(self, length, railHeight, sensorSide, widthType, curvature):
@@ -51,7 +56,7 @@ class CRouteBuilder():
         # 0) Split path by fractures
         pathParts = self.splitPathByFractures(nodeList)
 
-        segmentLengthList = []
+        SegmentsInfoItems = []
         angle = agent_angle
         for pathPart in pathParts:
             angle, directionStr = self.getDirection( (pathPart[0], pathPart[1]), angle )
@@ -61,14 +66,12 @@ class CRouteBuilder():
             """
             # 1) generate rails from edges
             rails = self.nodeListToRails(pathPart)
-            print( rails, "1" )
 
             railStartCurvature = rails[0].curvature
 
             # 2) add ledge
             ledgeNode = self.findNodeForLedge(pathPart[-2], pathPart[-1])
             ledgeRailList = self.nodeListToRails([pathPart[-1], ledgeNode])
-            print( ledgeRailList, "2" )
 
             width = self.nxGraph[ pathPart[-2] ][ pathPart[-1] ] [ SGT.s_widthType ]
             ledgeSize = widthTypeToLedgeSize[ width ]
@@ -82,7 +85,6 @@ class CRouteBuilder():
             # 4) shift the path by hysteresis
             railListWithHystShift = self.shiftRailListByHyst( railListWithLedgeCuttedFromBegin )
             # railListWithHystShift = railListWithLedgeCuttedFromBegin
-            print( railListWithHystShift, "3" )
 
             # 5) adjust the curvature at the beggining of the path
             railListWithAdjustedCurvature = railListWithHystShift
@@ -91,19 +93,20 @@ class CRouteBuilder():
 
             # 6) merge all the rails with the same shape
             gluedRailList = self.glueSameRailListParts(railListWithAdjustedCurvature)
-            segmentLengthList = segmentLengthList + [ railSegment.length for railSegment in gluedRailList ]
+            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ directionStr ] ) for railSegment in gluedRailList ]
 
             # 7) Add delta to rails when rail type change exists at the end of a segment
             railListWithAddedDelta = self.addDeltaToRailList(gluedRailList)
 
             commands.append( self.gluedRailListToCommands(railListWithAddedDelta, directionStr))
 
+            # Доворачивание угла проходом по всем граням сиквенса, для корректного определения направления на след. итерации расчета
             for i in range( len(pathPart) -1  ):
                 angle, directionStr = self.getDirection( (pathPart[i], pathPart[i+1]), angle )
 
-        print(segmentLengthList)
+        print( SegmentsInfoItems )
 
-        return commands, segmentLengthList
+        return commands, SegmentsInfoItems
 
     def getDirection(self, tEdgeKey, agent_angle):
         DirDict = { True: "R", False: "F", None: "E" }
@@ -172,8 +175,6 @@ class CRouteBuilder():
                 bestNode = edge[1]
         
         return bestNode
-
-
 
     def takeRailListPart(self, railList, length):
         # function takes railList and return only part of it with specified length
@@ -275,20 +276,11 @@ class CRouteBuilder():
         railList[0].length  = railList[0].length + hysteresis
         railList[-1].length = railList[-1].length - hysteresis
 
+        # если длина рельса была меньше, чем величина гистерезиса, компенсируем отрицательное значение предыдущими рельсами 
         while railList[-1].length < 0:
             d = railList[-1].length
             del railList[-1]
             railList[-1].length += d
-
-        # h = hysteresis
-        # while h > 0:
-        #     l = railList[-1].length
-        #     if l > h:
-        #         l = l - h
-        #     else:
-        #         del railList[-1]
-        #     h -= l
-        # railList[-1].length = l
 
         return railList
 

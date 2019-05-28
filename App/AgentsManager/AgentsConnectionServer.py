@@ -251,7 +251,7 @@ class CAgentSocketThread(QThread):
 
         self.bSendTX_cmd = False # флаг для разруливания межпоточных обращений к сокету, т.к. таймер - это отдельный поток
         def activateSend_TX(): self.bSendTX_cmd = True
-        self.sendTX_cmd_Timer = CRepeatTimer(0.1, activateSend_TX )
+        self.sendTX_cmd_Timer = CRepeatTimer(0.05, activateSend_TX )
         self.sendTX_cmd_Timer.start()
 
         while self.bRunning:

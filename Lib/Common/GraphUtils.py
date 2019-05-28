@@ -10,9 +10,14 @@ import Lib.Common.StrConsts as SC
 
 # рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
 
-def tEdgeKeyFromStr( edge_str ):
+def nodesList_FromStr( nodes_str ):
     pattern = " ,|,| |:|-"
-    return tuple( re.split(pattern, edge_str) )
+    l = re.split(pattern, nodes_str)
+
+    return l if len(l) > 1 else []
+
+def tEdgeKeyFromStr( edge_str ):
+    return tuple( nodesList_FromStr( edge_str) )
 
 def tEdgeKeyToStr( tEdgeKey, bReversed = False ):    
     return f"{tEdgeKey[0]} {tEdgeKey[1]}"
