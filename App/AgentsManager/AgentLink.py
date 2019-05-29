@@ -1,6 +1,7 @@
 import datetime
 import weakref
 import math
+import os
 from collections import deque
 
 from PyQt5.QtCore import QTimer
@@ -13,6 +14,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.FileUtils import agentsLog_Path
 from .AgentServerPacket import CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
 from .AgentProtocolUtils import getNextPacketN
@@ -22,12 +24,19 @@ class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
     def __init__(self, agentN):
         now = datetime.datetime.now()
-        s = now.strftime("%d-%m-%Y %H:%M:%S")
-        self.log = f"Agent={agentN}, Created={s}"
+        sD = now.strftime("%d-%m-%Y")
+        sT = now.strftime("%H-%M-%S")
+        self.log = f"Agent={agentN}, Created={sD}__{sT}"
+
+        self.sLogFName = agentsLog_Path() + f"{agentN}__{sD}.log.html"
+        br = "<br>" if os.path.isfile( self.sLogFName ) else ""
+
+        with open(self.sLogFName, 'a') as file:
+            file.write( br + self.log )
+
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
-
 
         self.agentN = agentN
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
@@ -40,7 +49,7 @@ class CAgentLink():
         self.requestTelemetry_Timer = QTimer()
         self.requestTelemetry_Timer.setInterval(1000)
         self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
-        self.requestTelemetry_Timer.start()
+        # self.requestTelemetry_Timer.start() # временно для отладки отключаем
 
         self.agentNO = weakref.ref( queryAgentNetObj( str( agentN ) ) )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
@@ -155,10 +164,12 @@ class CAgentLink():
             if tKey is None: return
             if len(self.nodes_route) == 0: return
 
-            print( len( self.SII ), self.DE_IDX, self.SII )
-            segK = self.SII[ self.DE_IDX ].K
-            segLength = self.SII[ self.DE_IDX ].length
-            
+            # print( len( self.SII ), self.DE_IDX, self.SII )
+            # последний DE приходит независимо от того была смена выс-низ рельс, поэтому число пришедших DE меньше числа сегментов
+            deIdx = self.DE_IDX if self.DE_IDX < len(self.SII) else len(self.SII)-1
+            segK = self.SII[ deIdx ].K
+            segLength = self.SII[ deIdx ].length
+        
             new_od = int( cmd.data )
             distance = segK * ( new_od - agentNO.odometer )
             agentNO.odometer = new_od
@@ -183,8 +194,8 @@ class CAgentLink():
 
             self.calcAgentAngle( agentNO )
 
-            # if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeSize:
-            #     agentNO.route = ""
+            if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeSize:
+                agentNO.route = ""
 
 # def putToNode(self, node):
     #     self.temp__AssumedPosition = node

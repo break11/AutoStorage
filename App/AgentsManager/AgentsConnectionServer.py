@@ -181,7 +181,9 @@ class CAgentsConnectionServer(QTcpServer):
         data = f"T:{ thread.UID } {data}"
 
         agentLink.log = self.getAgentLink( agentN ).log + "<br>" + data
-                
+        with open( agentLink.sLogFName, 'a' ) as file:
+            file.write( "<br>" + data )
+        
         self.AgentLogUpdated.emit( agentN, data )
 
     #############################################################

@@ -111,6 +111,13 @@
            </widget>
           </item>
           <item>
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QSpinBox" name="sbPacketN">
             <property name="toolTip">
              <string>PacketN</string>

@@ -17,6 +17,9 @@ def correctFNameToProjectDir( sFName ):
 
 def graphML_Path():
     return projectDir() + "GraphML/"
+
+def agentsLog_Path():
+    return projectDir() + "Log/Agents/"
     
 def mainAppBaseName():
     return os.path.basename( baseFName ).replace( ".py", "" )
