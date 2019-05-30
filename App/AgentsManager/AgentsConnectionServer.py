@@ -252,8 +252,15 @@ class CAgentSocketThread(QThread):
         if not self.bRunning: return
 
         self.bSendTX_cmd = False # флаг для разруливания межпоточных обращений к сокету, т.к. таймер - это отдельный поток
-        def activateSend_TX(): self.bSendTX_cmd = True
-        self.sendTX_cmd_Timer = CRepeatTimer(0.05, activateSend_TX )
+        self.nReSendTX_Counter = 0
+
+        def activateSend_TX():
+            self.nReSendTX_Counter += 1
+            if self.nReSendTX_Counter > 49:
+                self.nReSendTX_Counter = 0
+                self.bSendTX_cmd = True
+
+        self.sendTX_cmd_Timer = CRepeatTimer(0.01, activateSend_TX )
         self.sendTX_cmd_Timer.start()
 
         while self.bRunning:
@@ -278,7 +285,7 @@ class CAgentSocketThread(QThread):
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-                    self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1
+                self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1 #???????????????????/
                 
                 self.agentNumberInited.emit( cmd.agentN )
                 self.agentN = cmd.agentN
@@ -295,7 +302,7 @@ class CAgentSocketThread(QThread):
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
             self.noRxTimer = time.time()
-            _processRxPacket( cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
+            _processRxPacket( self, cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
                               processAcceptedPacket=self.__processRxPacket )
             self.AgentLogUpdated.emit( False, self.agentN, cmd )
 
@@ -336,6 +343,7 @@ class CAgentSocketThread(QThread):
     def writeTo_Socket( self, cmd ):
         self.AgentLogUpdated.emit( True, self.agentN, cmd )
         self.tcpSocket.write( cmd.toTX_BStr() )
+        # print( cmd.toTX_BStr() )
 
     def sendTX_cmd( self ):
         self.writeTo_Socket( self.ACC_cmd )

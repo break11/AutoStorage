@@ -18,6 +18,22 @@ widthTypeToCommand   = { SGT.EWidthType.Narrow.name: 'N', SGT.EWidthType.Wide.na
 railHeightToCommand  = { RH_LOW: 'L', RH_HIGH:'H' }
 sensorSideToCommand  = { SGT.ESensorSide.SLeft.name: 'L', SGT.ESensorSide.SRight.name: 'R',
                          SGT.ESensorSide.SBoth.name: 'B', SGT.ESensorSide.SPassive.name:'P' }
+
+
+sensorSideToCommand  = { (SGT.ESensorSide.SLeft.name, 'F'):    'L',
+                         (SGT.ESensorSide.SLeft.name, 'R'):    'R',
+
+                         (SGT.ESensorSide.SRight.name, 'F'):   'R',
+                         (SGT.ESensorSide.SRight.name, 'R'):   'L',
+
+                         (SGT.ESensorSide.SBoth.name, 'F'):    'B',
+                         (SGT.ESensorSide.SPassive.name, 'F'): 'P',
+
+                         (SGT.ESensorSide.SBoth.name, 'R'):    'B',
+                         (SGT.ESensorSide.SPassive.name, 'R'): 'P'
+                        }
+
+
 curvatureToCommand   = { SGT.ECurvature.Straight.name: 'S', SGT.ECurvature.Curve.name: 'C' }
 widthTypeToLedgeSize = { SGT.EWidthType.Narrow.name: SGT.sensorNarr, SGT.EWidthType.Wide.name: SGT.sensorWide }
 dirToK               = { 'F' : 1, 'R' : -1, 'E' : 1}
@@ -220,7 +236,7 @@ class CRouteBuilder():
 
     def nodeListToRails(self, path):
         rails = []
-        if len(path) > 1:
+        if len(path) >= 1:
             for i in range(0, len(path) - 1):
                 n0 = path[i]
                 n1 = path[i + 1]
@@ -310,7 +326,7 @@ class CRouteBuilder():
         for rail in railList:
             lengthStr = ('{:06d}').format(int(rail.length))
             railHeightStr = railHeightToCommand[rail.railHeight]
-            sensorSideStr = sensorSideToCommand[rail.sensorSide]
+            sensorSideStr = sensorSideToCommand[ (rail.sensorSide, directionStr) ]
             curvatureStr = curvatureToCommand[rail.curvature]
             command = ('@DP:{:s},{:s},{:s},{:s},{:s}').format(lengthStr, directionStr, railHeightStr, sensorSideStr, curvatureStr)
             commands.append(command)

@@ -4,7 +4,7 @@ from .AgentServer_Event import EAgentServer_Event
 
 def getNextPacketN( n ): return ( 1 if n == 999 else n+1 )
 
-def _processRxPacket( cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacket=None ):
+def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacket=None ):
     if cmd.event == EAgentServer_Event.ClientAccepting:
         assert lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать ( иначе  )
 
@@ -16,6 +16,8 @@ def _processRxPacket( cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacke
                 # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
                 TX_FIFO.popleft()
                 cmd.status = EPacket_Status.Normal
+                ACS.bSendTX_cmd = True
+                ACS.nReSendTX_Counter = 0
             else:
                 #видимо, пришло повтороное подтверждение на команду
                 cmd.status = EPacket_Status.Duplicate 
@@ -40,6 +42,8 @@ def _processRxPacket( cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacke
             cmd.status = EPacket_Status.Normal
             if processAcceptedPacket is not None:
                 processAcceptedPacket( cmd )
+                ACS.bSendTX_cmd = True
+                ACS.nReSendTX_Counter = 0
         #если разница -1, это дубликат последней полученной команды
         elif delta == -1 or delta == 998:
             cmd.status = EPacket_Status.Duplicate

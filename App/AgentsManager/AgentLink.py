@@ -156,7 +156,7 @@ class CAgentLink():
         elif cmd.event == EAgentServer_Event.DistanceEnd:
             self.DE_IDX += 1
             self.segOD = 0
-        elif cmd.event == EAgentServer_Event.OdometerPassed:
+        elif cmd.event == EAgentServer_Event.OdometerDistance:
             agentNO = self.agentNO()
 
             tKey = agentNO.isOnTrack()
