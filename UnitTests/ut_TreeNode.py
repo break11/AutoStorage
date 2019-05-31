@@ -1,3 +1,4 @@
+#!/usr/bin/python3.7
 
 import unittest
 
@@ -21,7 +22,7 @@ c2_2_Node = CTreeNode( parent = c2_Node,  name = "c2_2" )
 c3_Node   = CTreeNode( parent = rootNode, name = "c3" )
 c3_1_Node = CTreeNode( parent = c3_Node,  name = "c3_1" )
 
-class TestTreeNode(unittest.TestCase):        
+class TestTreeNode(unittest.TestCase):
     def test_parent(self):
         self.assertEqual( c1_1_Node.parent , c1_Node )
 

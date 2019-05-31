@@ -1,3 +1,5 @@
+#!/usr/bin/python3.7
+
 import unittest
 
 import sys
@@ -67,6 +69,17 @@ class TestAgentServerPacket(unittest.TestCase):
 
         print( p1.toTX_BStr( appendLF=False ), p3 )
         self.assertEqual( p1.toTX_BStr( appendLF=False ), p3 )
+        ###################################################
+        # test space instead zero
+        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN=55, packetN=11, channelN=1, timeStamp=int("0xA", 16), data="017" )
+        p2 = CAgentServerPacket.fromRX_BStr( b" 11, 55,1,0000000a:@HW: 17" )
+
+        print( "int(data)=", int(p1.data), int(p2.data) )
+        self.assertEqual( int(p1.data), int(p2.data) )
+        print( "agentN=", p1.agentN, p2.agentN )
+        self.assertEqual( p1.agentN, p2.agentN )
+        print( "packetN=", p1.packetN, p2.packetN )
+        self.assertEqual( p1.packetN, p2.packetN )
         ###################################################
         # test return None value when can't parse string
         pNone = CAgentServerPacket.fromTX_BStr( b"Not supported cmd - 'COLON' symbol not present!" )

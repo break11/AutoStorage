@@ -1,3 +1,5 @@
+#!/usr/bin/python3.7
+
 import unittest
 
 import sys
@@ -87,7 +89,7 @@ class Test_processRxPacket(unittest.TestCase):
         TX_FIFO = deque()
         ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
         cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=0 )
-        # принимаем корректный CA первый раз - при старте обмена т.к. TX_FIFO будет пустым (инициализация посылки HW не идет через TX_FIFO) 
+        # принимаем корректный CA первый раз - при старте обмена т.к. TX_FIFO будет пустым (инициализация посылки HW не идет через TX_FIFO)
         # CA получит статус Duplicate - даже первый CA по HW
 
         _processRxPacket( cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0 )
@@ -104,7 +106,7 @@ class Test_processRxPacket(unittest.TestCase):
 
         self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус CA - Normal - распознан первых приход CA по этой команде
         self.assertEqual( len(TX_FIFO), 0 ) # очередь очистила отправленную команду, т.к. получила подтверждение по ней
-        self.assertEqual( ACC_cmd.packetN, 33 ) # номер 
+        self.assertEqual( ACC_cmd.packetN, 33 ) # номер
 
         # повторное получение CA будет распознаваться как дубликат
         _processRxPacket( cmd, ACC_cmd, TX_FIFO, lastTXpacketN=1 )

@@ -1,3 +1,5 @@
+#!/usr/bin/python3.7
+
 import unittest
 
 import sys
@@ -139,7 +141,7 @@ class TestMathFuncs(unittest.TestCase):
         self.assertTrue(   test_u_vec_from_225_deg  == u_vec_225   )
         self.assertTrue(   test_u_vec_from_270_deg  == u_vec_270   )
         self.assertTrue(   test_u_vec_from_315_deg  == u_vec_315   )
-        
+
         self.assertTrue(   test_u_vec_from_360_deg  == u_vec_0     )
         self.assertTrue(   test_u_vec_from_540_deg  == u_vec_180   )
 

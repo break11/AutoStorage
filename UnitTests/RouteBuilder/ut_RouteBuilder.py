@@ -1,3 +1,5 @@
+#!/usr/bin/python3.7
+
 import unittest
 import sys
 import os
@@ -51,7 +53,7 @@ class TestRouteBuilder(unittest.TestCase):
 
     def test_buildRoute(self):
         self.maxDiff = 3000
-        
+
         for case in routeCases:
 
             shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
