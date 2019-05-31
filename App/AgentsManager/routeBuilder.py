@@ -14,7 +14,7 @@ hysteresis = 30
 shiftFract = 10.0
 shiftLeast = 100
 
-widthTypeToCommand   = { SGT.EWidthType.Narrow.name: 'N', SGT.EWidthType.Wide.name: 'W' }
+widthTypeToChar   = { SGT.EWidthType.Narrow: 'N', SGT.EWidthType.Wide: 'W' }
 railHeightToCommand  = { RH_LOW: 'L', RH_HIGH:'H' }
 
 sensorSideToCommand  = { (SGT.ESensorSide.SLeft.name, 'F'):    'L',
@@ -31,8 +31,8 @@ sensorSideToCommand  = { (SGT.ESensorSide.SLeft.name, 'F'):    'L',
                         }
 
 
-curvatureToCommand   = { SGT.ECurvature.Straight.name: 'S', SGT.ECurvature.Curve.name: 'C' }
-widthTypeToLedgeSize = { SGT.EWidthType.Narrow.name: SGT.sensorNarr, SGT.EWidthType.Wide.name: SGT.sensorWide }
+curvatureToChar      = { SGT.ECurvature.Straight: 'S', SGT.ECurvature.Curve: 'C' }
+widthTypeToLedgeSize = { SGT.EWidthType.Narrow: SGT.sensorNarr, SGT.EWidthType.Wide: SGT.sensorWide }
 dirToK               = { 'F' : 1, 'R' : -1, 'E' : 1}
 
 SI_Item = namedtuple('SII' , 'length K')
@@ -47,7 +47,7 @@ class SRailSegment:
 
     def __repr__(self):
         return str({'length':self.length, 'railHeight':self.railHeight, 'sensorSide':self.sensorSide,
-                    'widthType':self.widthType, 'curvature':self.curvature})
+                    'widthType':self.widthType.name, 'curvature':self.curvature})
 
 class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
@@ -86,8 +86,8 @@ class CRouteBuilder():
             ledgeNode = self.findNodeForLedge(pathPart[-2], pathPart[-1])
             ledgeRailList = self.nodeListToRails([pathPart[-1], ledgeNode])
 
-            width = self.nxGraph[ pathPart[-2] ][ pathPart[-1] ] [ SGT.s_widthType ]
-            ledgeSize = widthTypeToLedgeSize[ width ]
+            widthType = SGT.EWidthType.fromString( self.nxGraph[ pathPart[-2] ][ pathPart[-1] ] [ SGT.s_widthType ] )
+            ledgeSize = widthTypeToLedgeSize[ widthType ]
 
             ledge = self.takeRailListPart(ledgeRailList, ledgeSize)
             railsWithLedge = rails + ledge
@@ -242,8 +242,8 @@ class CRouteBuilder():
                 highRailSizeTo   = edge[ SGT.s_highRailSizeTo   ]
                 edgeSize         = edge[ SGT.s_edgeSize         ]
                 sensorSide       = edge[ SGT.s_sensorSide       ]
-                widthType        = edge[ SGT.s_widthType        ]
-                curvature        = edge[ SGT.s_curvature        ]
+                widthType        = SGT.EWidthType.fromString( edge[ SGT.s_widthType ] )
+                curvature        = SGT.ECurvature.fromString( edge[ SGT.s_curvature ] )
 
                 if highRailSizeFrom > 0:
                     railSegment = SRailSegment(highRailSizeFrom, RH_HIGH, sensorSide, widthType, curvature)                    
@@ -315,18 +315,18 @@ class CRouteBuilder():
 
     def gluedRailListToCommands(self, railList, temp__directionStr):
         commands = []
-        widthTypeStr = widthTypeToCommand[railList[0].widthType]
+        widthTypeChar = widthTypeToChar[ railList[0].widthType ]
         directionStr = temp__directionStr
         commands.append('@SB')
-        commands.append(('@WO:{:s}').format(widthTypeStr))
+        commands.append( f"@WO:{widthTypeChar}" )
 
         for rail in railList:
             lengthStr = ('{:06d}').format(int(rail.length))
             railHeightStr = railHeightToCommand[rail.railHeight]
             sensorSideStr = sensorSideToCommand[ (rail.sensorSide, directionStr) ]
-            curvatureStr = curvatureToCommand[rail.curvature]
-            command = ('@DP:{:s},{:s},{:s},{:s},{:s}').format(lengthStr, directionStr, railHeightStr, sensorSideStr, curvatureStr)
-            commands.append(command)
+            curvatureChar = curvatureToChar[ rail.curvature ]
+            command = f"@DP:{lengthStr},{directionStr},{railHeightStr},{sensorSideStr},{curvatureChar}"
+            commands.append( command )
         
         commands.append('@SE')
         return commands

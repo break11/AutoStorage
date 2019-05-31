@@ -1,3 +1,16 @@
+
+from enum import Enum, auto
+
+class EWidthType( Enum ):
+    Narrow = auto()
+    Wide   = auto()
+
+    @classmethod
+    def test(cls): print( "test" )
+
+print( EWidthType[ "test" ] )
+EWidthType.test()
+
 # class FFF:
 #     def __init__(self):
 #         self.r = 1
@@ -12,16 +25,16 @@
 
 
 
-from __future__ import annotations
+# from __future__ import annotations
  
-class Tree:
-    def __init__(self, left: Tree, right: Tree) -> None:
-        self.left = left
-        self.right = right
+# class Tree:
+#     def __init__(self, left: Tree, right: Tree) -> None:
+#         self.left = left
+#         self.right = right
 
-a = Tree( 1, 2 )
+# a = Tree( 1, 2 )
 
-print( Tree, a )
+# print( Tree, a )
 
 # dir( test )
 

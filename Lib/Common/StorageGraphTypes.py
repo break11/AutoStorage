@@ -1,6 +1,7 @@
 
 from enum import Enum, auto
 from PyQt5.QtCore import (Qt)
+import Lib.Common.StrConsts as SC
 
 _graphAttrs = [
             "widthType",
@@ -53,12 +54,13 @@ class EWidthType( Enum ):
     Narrow = auto()
     Wide   = auto()
 
-def railType( sType ):
-    try:
-        railType = EWidthType[ sType ]
-    except:
-        railType = EWidthType.Narrow
-    return railType
+    def fromString( sType ):
+        try:
+            widthType = EWidthType[ sType ]
+        except:
+            print( f"{SC.sWarning} Unknown edge width type ={sType}, using Narrow!" )
+            widthType = EWidthType.Narrow
+        return widthType
 
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
@@ -82,6 +84,14 @@ def railWidth( sWidthType ):
 class ECurvature( Enum ):
     Curve    = auto()
     Straight = auto()
+
+    def fromString( sType ):
+        try:
+            curv = ECurvature[ sType ]
+        except:
+            print( f"{SC.sWarning} Unknown edge curvature ={sType}, using Straight!" )
+            curv = ECurvature.Straight
+        return curv
 
 class ESensorSide( Enum ):
     SLeft    = auto()
