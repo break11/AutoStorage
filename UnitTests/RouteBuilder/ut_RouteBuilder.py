@@ -27,13 +27,16 @@ class CRouteCase():
         self.agentAngle  = 0
         self.sCommands = ""
 
+    def toString(self):
+        return f"{self.startNode} {self.endNode} {self.agentAngle}|{self.sCommands}\n"
+
     def __str__(self):
         return f"{self.__class__.__name__}: {str( vars(self) )}"
 
 
 routeCases:list = []
 
-with open( sDir + "routeCases.txt" , 'r') as routes_file:
+with open( sDir + "routeCases_correct_698.txt" , 'r') as routes_file:
     for line in routes_file:
 
         route = line.split("|")
@@ -54,11 +57,13 @@ class TestRouteBuilder(unittest.TestCase):
     def test_buildRoute(self):
         self.maxDiff = 3000
 
+        # n = 0
+        # f = open( "./UnitTests/RouteBuilder/passed.txt", 'w' )
         for case in routeCases:
 
             shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
 
-            route, SLL = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
+            route, SII = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
 
             CommandsList = []
             for sequence in route:
@@ -68,8 +73,15 @@ class TestRouteBuilder(unittest.TestCase):
             route_str = ",".join( CommandsList )
 
             self.assertEqual( route_str, case.sCommands )
-            # status = "OK" if (route_str == case.sCommands) else "FAILED"
-            # print( f"RouteCase {case.UID}: {case.startNode} {case.endNode} {case.agentAngle} \t{status}" )
+            rString = { True : "OK", False : "FAILED" }
+
+            status = route_str == case.sCommands
+            # if status:
+            #     n += 1
+                # f.write( case.toString() )
+            # print( f"RouteCase {case.UID}: {case.startNode} {case.endNode} {case.agentAngle} \t{rString[status]}" )
+        # f.close()
+        # print( "Passed cases", n )
 
 if __name__ == '__main__':
     unittest.main()

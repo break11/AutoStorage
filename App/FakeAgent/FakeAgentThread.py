@@ -149,7 +149,7 @@ class CFakeAgentThread(QThread):
                                 self.odometryCounter = self.odometryCounter + DP_DELTA_PER_CYCLE
                             else:
                                 self.odometryCounter = self.odometryCounter - DP_DELTA_PER_CYCLE
-                            self.sendPacketToServer('@OP:{:d}'.format(self.odometryCounter).encode('utf-8'))
+                            self.sendPacketToServer('@OD:{:d}'.format(self.odometryCounter).encode('utf-8'))
                             if self.distanceToPass <= 0:
                                 self.distanceToPass = 0
                                 self.sendPacketToServer(b'@DE')
@@ -236,8 +236,8 @@ class CFakeAgentThread(QThread):
         if data.find(b'@TS') != -1:
             self.sendPacketToServer(b'@TS:24,29,29,29,29,25,25,25,25')
 
-        if data.find(b'@OP') != -1:
-            self.sendPacketToServer(b'@OP:U')
+        if data.find(b'@OD') != -1:
+            self.sendPacketToServer(b'@OD:U')
 
         # Periodic requests group end
 

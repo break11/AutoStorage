@@ -16,9 +16,6 @@ shiftLeast = 100
 
 widthTypeToCommand   = { SGT.EWidthType.Narrow.name: 'N', SGT.EWidthType.Wide.name: 'W' }
 railHeightToCommand  = { RH_LOW: 'L', RH_HIGH:'H' }
-sensorSideToCommand  = { SGT.ESensorSide.SLeft.name: 'L', SGT.ESensorSide.SRight.name: 'R',
-                         SGT.ESensorSide.SBoth.name: 'B', SGT.ESensorSide.SPassive.name:'P' }
-
 
 sensorSideToCommand  = { (SGT.ESensorSide.SLeft.name, 'F'):    'L',
                          (SGT.ESensorSide.SLeft.name, 'R'):    'R',
@@ -65,14 +62,14 @@ class CRouteBuilder():
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
         #TODO: not uses orientation at current moment
 
+        SegmentsInfoItems = []
         commands = []
         if len( nodeList ) < 2:
-            return commands
+            return commands, SegmentsInfoItems
 
         # 0) Split path by fractures
         pathParts = self.splitPathByFractures(nodeList)
 
-        SegmentsInfoItems = []
         angle = agent_angle
         for pathPart in pathParts:
             angle, directionStr = self.getDirection( (pathPart[0], pathPart[1]), angle )
@@ -120,7 +117,7 @@ class CRouteBuilder():
             for i in range( len(pathPart) -1  ):
                 angle, directionStr = self.getDirection( (pathPart[i], pathPart[i+1]), angle )
 
-        print( SegmentsInfoItems )
+        # print( SegmentsInfoItems )
 
         return commands, SegmentsInfoItems
 
