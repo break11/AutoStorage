@@ -46,8 +46,7 @@ class SRailSegment:
         self.curvature = curvature
 
     def __repr__(self):
-        return str({'length':self.length, 'railHeight':self.railHeight, 'sensorSide':self.sensorSide,
-                    'widthType':self.widthType.name, 'curvature':self.curvature})
+        return f"length:{self.length} railHeight:{self.railHeight} sensorSide:{self.sensorSide} widthType:{self.widthType.name} curvature:{self.curvature}"
 
 class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
