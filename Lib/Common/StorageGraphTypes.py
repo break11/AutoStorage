@@ -50,17 +50,20 @@ nodeColors = {
 
 #######################################################
 
+def _EnumFromString( enum, sValue, defValue ):
+        try:
+            rVal = enum[ sValue ]
+        except:
+            print( f"{SC.sWarning} Enum {enum} doesn't contain value for string = {sValue}, using {defValue.name}!" )
+            rVal = defValue
+        return rVal
+    
 class EWidthType( Enum ):
     Narrow = auto()
     Wide   = auto()
 
-    def fromString( sType ):
-        try:
-            widthType = EWidthType[ sType ]
-        except:
-            print( f"{SC.sWarning} Unknown edge width type ={sType}, using Narrow!" )
-            widthType = EWidthType.Narrow
-        return widthType
+    @staticmethod
+    def fromString( sType ): return _EnumFromString( EWidthType, sType, EWidthType.Narrow )
 
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
@@ -85,13 +88,8 @@ class ECurvature( Enum ):
     Curve    = auto()
     Straight = auto()
 
-    def fromString( sType ):
-        try:
-            curv = ECurvature[ sType ]
-        except:
-            print( f"{SC.sWarning} Unknown edge curvature ={sType}, using Straight!" )
-            curv = ECurvature.Straight
-        return curv
+    @staticmethod
+    def fromString( sType ): return _EnumFromString( ECurvature, sType, ECurvature.Straight )
 
 class ESensorSide( Enum ):
     SLeft    = auto()
@@ -99,3 +97,15 @@ class ESensorSide( Enum ):
     SBoth    = auto()
     SPassive = auto()
 
+    @staticmethod
+    def fromString( sType ): return _EnumFromString( ESensorSide, sType, ESensorSide.SBoth )
+
+class EDirection( Enum ):
+    Forward = auto()
+    Rear    = auto()
+    F       = Forward
+    R       = Rear
+    Error   = auto()
+
+    @staticmethod
+    def fromString( sType ): return _EnumFromString( EDirection, sType, ESensorSide.Error )

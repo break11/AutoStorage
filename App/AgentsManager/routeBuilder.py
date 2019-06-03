@@ -15,25 +15,32 @@ shiftFract = 10.0
 shiftLeast = 100
 
 widthTypeToChar   = { SGT.EWidthType.Narrow: 'N', SGT.EWidthType.Wide: 'W' }
-railHeightToCommand  = { RH_LOW: 'L', RH_HIGH:'H' }
+railHeightToChar  = { RH_LOW: 'L', RH_HIGH:'H' }
 
-sensorSideToCommand  = { (SGT.ESensorSide.SLeft.name, 'F'):    'L',
-                         (SGT.ESensorSide.SLeft.name, 'R'):    'R',
+sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.F): 'L',
+                      (SGT.ESensorSide.SLeft,    SGT.EDirection.R): 'R',
 
-                         (SGT.ESensorSide.SRight.name, 'F'):   'R',
-                         (SGT.ESensorSide.SRight.name, 'R'):   'L',
+                      (SGT.ESensorSide.SRight,   SGT.EDirection.F): 'R',
+                      (SGT.ESensorSide.SRight,   SGT.EDirection.R): 'L',
 
-                         (SGT.ESensorSide.SBoth.name, 'F'):    'B',
-                         (SGT.ESensorSide.SPassive.name, 'F'): 'P',
+                      (SGT.ESensorSide.SBoth,    SGT.EDirection.F): 'B',
+                      (SGT.ESensorSide.SPassive, SGT.EDirection.F): 'P',
 
-                         (SGT.ESensorSide.SBoth.name, 'R'):    'B',
-                         (SGT.ESensorSide.SPassive.name, 'R'): 'P'
-                        }
+                      (SGT.ESensorSide.SBoth,    SGT.EDirection.R): 'B',
+                      (SGT.ESensorSide.SPassive, SGT.EDirection.R): 'P'
+                    }
 
+directionToChar = { SGT.EDirection.F: "F",
+                    SGT.EDirection.R: "R",
+                    SGT.EDirection.Error: "E"
+                  }
 
 curvatureToChar      = { SGT.ECurvature.Straight: 'S', SGT.ECurvature.Curve: 'C' }
 widthTypeToLedgeSize = { SGT.EWidthType.Narrow: SGT.sensorNarr, SGT.EWidthType.Wide: SGT.sensorWide }
-dirToK               = { 'F' : 1, 'R' : -1, 'E' : 1}
+dirToK               = { SGT.EDirection.F : 1,
+                         SGT.EDirection.R : -1,
+                         SGT.EDirection.Error : 1
+                       }
 
 SI_Item = namedtuple('SII' , 'length K')
 
@@ -71,7 +78,7 @@ class CRouteBuilder():
 
         angle = agent_angle
         for pathPart in pathParts:
-            angle, directionStr = self.getDirection( (pathPart[0], pathPart[1]), angle )
+            angle, direction = self.getDirection( (pathPart[0], pathPart[1]), angle )
             """
             path part is a node sequence with constans rail width and direction of movement. 
             Shuttle should start to move at the beginning of pathPart, and do full stop at the end 
@@ -105,23 +112,23 @@ class CRouteBuilder():
 
             # 6) merge all the rails with the same shape
             gluedRailList = self.glueSameRailListParts(railListWithAdjustedCurvature)
-            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ directionStr ] ) for railSegment in gluedRailList ]
+            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ direction ] ) for railSegment in gluedRailList ]
 
             # 7) Add delta to rails when rail type change exists at the end of a segment
             railListWithAddedDelta = self.addDeltaToRailList(gluedRailList)
 
-            commands.append( self.gluedRailListToCommands(railListWithAddedDelta, directionStr))
+            commands.append( self.gluedRailListToCommands(railListWithAddedDelta, direction))
 
             # Доворачивание угла проходом по всем граням сиквенса, для корректного определения направления на след. итерации расчета
             for i in range( len(pathPart) -1  ):
-                angle, directionStr = self.getDirection( (pathPart[i], pathPart[i+1]), angle )
+                angle, direction = self.getDirection( (pathPart[i], pathPart[i+1]), angle )
 
         # print( SegmentsInfoItems )
 
         return commands, SegmentsInfoItems
 
     def getDirection(self, tEdgeKey, agent_angle):
-        DirDict = { True: "R", False: "F", None: "E" }
+        DirDict = { True: SGT.EDirection.R, False: SGT.EDirection.F, None: SGT.EDirection.Error }
         rAngle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
         return math.degrees(rAngle), DirDict[bReverse]
 
@@ -240,9 +247,9 @@ class CRouteBuilder():
                 highRailSizeFrom = edge[ SGT.s_highRailSizeFrom ]
                 highRailSizeTo   = edge[ SGT.s_highRailSizeTo   ]
                 edgeSize         = edge[ SGT.s_edgeSize         ]
-                sensorSide       = edge[ SGT.s_sensorSide       ]
-                widthType        = SGT.EWidthType.fromString( edge[ SGT.s_widthType ] )
-                curvature        = SGT.ECurvature.fromString( edge[ SGT.s_curvature ] )
+                sensorSide       = SGT.ESensorSide.fromString( edge[ SGT.s_sensorSide ] )
+                widthType        = SGT.EWidthType.fromString ( edge[ SGT.s_widthType  ] )
+                curvature        = SGT.ECurvature.fromString ( edge[ SGT.s_curvature  ] )
 
                 if highRailSizeFrom > 0:
                     railSegment = SRailSegment(highRailSizeFrom, RH_HIGH, sensorSide, widthType, curvature)                    
@@ -312,19 +319,20 @@ class CRouteBuilder():
         
         return railList
 
-    def gluedRailListToCommands(self, railList, temp__directionStr):
+    def gluedRailListToCommands(self, railList, temp__direction):
         commands = []
         widthTypeChar = widthTypeToChar[ railList[0].widthType ]
-        directionStr = temp__directionStr
+        direction = temp__direction
         commands.append('@SB')
         commands.append( f"@WO:{widthTypeChar}" )
 
         for rail in railList:
             lengthStr = ('{:06d}').format(int(rail.length))
-            railHeightStr = railHeightToCommand[rail.railHeight]
-            sensorSideStr = sensorSideToCommand[ (rail.sensorSide, directionStr) ]
+            railHeightStr = railHeightToChar[rail.railHeight]
+            sensorSideStr = sensorSideToChar[ (rail.sensorSide, direction) ]
             curvatureChar = curvatureToChar[ rail.curvature ]
-            command = f"@DP:{lengthStr},{directionStr},{railHeightStr},{sensorSideStr},{curvatureChar}"
+            directionChar = directionToChar[ direction ]
+            command = f"@DP:{lengthStr},{ directionChar },{railHeightStr},{sensorSideStr},{curvatureChar}"
             commands.append( command )
         
         commands.append('@SE')
