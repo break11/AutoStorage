@@ -3,7 +3,7 @@ from copy import deepcopy
 from collections import namedtuple
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import getAgentAngle
+from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -42,7 +42,18 @@ dirToK               = { SGT.EDirection.F : 1,
                          SGT.EDirection.Error : 1
                        }
 
-SI_Item = namedtuple('SII' , 'length K')
+# SI_Item = namedtuple('SII' , 'length K edge pos')
+
+class SI_Item:
+    def __init__( self, length= None, K= None, edge= None, pos= None ):
+        self.length = length
+        self.K      = K
+        self.edge   = edge
+        self.pos    = pos
+
+    def __repr__( self ):
+        return f"SII(length={self.length} K={self.K} edge={self.edge} pos={self.pos})"
+
 
 class SRailSegment:
     def __init__(self, length, railHeight, sensorSide, widthType, curvature):
@@ -112,7 +123,7 @@ class CRouteBuilder():
 
             # 6) merge all the rails with the same shape
             gluedRailList = self.glueSameRailListParts(railListWithAdjustedCurvature)
-            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ direction ] ) for railSegment in gluedRailList ]
+            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ direction ], edge="", pos=0 ) for railSegment in gluedRailList ]
 
             # 7) Add delta to rails when rail type change exists at the end of a segment
             railListWithAddedDelta = self.addDeltaToRailList(gluedRailList)
@@ -123,7 +134,23 @@ class CRouteBuilder():
             for i in range( len(pathPart) -1  ):
                 angle, direction = self.getDirection( (pathPart[i], pathPart[i+1]), angle )
 
-        # print( SegmentsInfoItems )
+        # выявление позиций для DE
+        edgesList = edgesListFromNodes( nodeList )
+        startEdgeIdx = 0
+        l = 0
+        for SII in SegmentsInfoItems:
+            l = l + SII.length
+            for i in range( startEdgeIdx, len(edgesList) ):
+                tKey = edgesList[ i ]
+                edgeSize = self.nxGraph.edges()[ tKey ] [ SGT.s_edgeSize ]
+                if edgeSize < l:
+                    l -= edgeSize
+                    continue
+                startEdgeIdx = i
+                SII.edge = tKey
+                SII.pos = l
+
+        print( SegmentsInfoItems, edgesList )
 
         return commands, SegmentsInfoItems
 

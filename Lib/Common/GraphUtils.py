@@ -10,6 +10,12 @@ import Lib.Common.StrConsts as SC
 
 # рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
 
+def edgesListFromNodes( nodesList ):
+    edgesList = []
+    for i in range( len(nodesList)-1 ):
+        edgesList.append( ( nodesList[ i ], nodesList[ i+1 ]) )
+    return edgesList
+
 def nodesList_FromStr( nodes_str ):
     pattern = " ,|,| |:|-"
     l = re.split(pattern, nodes_str)
