@@ -17,28 +17,25 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.FileUtils import agentsLog_Path
 from .AgentServerPacket import CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
-from .AgentProtocolUtils import getNextPacketN
+from .AgentProtocolUtils import getNextPacketN, agentLogString
 from .routeBuilder import CRouteBuilder
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
     def __init__(self, agentN):
-        now = datetime.datetime.now()
-        sD = now.strftime("%d-%m-%Y")
-        sT = now.strftime("%H-%M-%S")
-        self.log = f"Agent={agentN}, Created={sD}__{sT}"
-
-        self.sLogFName = agentsLog_Path() + f"{agentN}__{sD}.log.html"
-        br = "<br>" if os.path.isfile( self.sLogFName ) else ""
-
-        with open(self.sLogFName, 'a') as file:
-            file.write( br + self.log )
-
+        self.agentN = agentN
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
+        self.log = ""
 
-        self.agentN = agentN
+        now = datetime.datetime.now()
+        sD = now.strftime("%d-%m-%Y")
+        sT = now.strftime("%H-%M-%S")
+        self.sLogFName = agentsLog_Path() + f"{agentN}__{sD}.log.html"
+
+        agentLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
+
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state ##remove##
  

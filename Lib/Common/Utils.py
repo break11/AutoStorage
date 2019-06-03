@@ -29,3 +29,9 @@ def time_func( sMsg=None, threshold=0 ):
         return tmp
 
     return wrapper
+
+def wrapSpan( data, color, weight = 200 ):
+    return f"<span style=\" font-size:12pt; font-weight:{weight}; color:{color};\" >{data}</span>"
+        
+def wrapDiv( data ):
+    return f"<div>{data}</div>"

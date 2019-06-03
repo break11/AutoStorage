@@ -18,7 +18,7 @@ from Lib.Common.Agent_NetObject import CAgent_NO
 
 from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from .AgentServer_Event import EAgentServer_Event
-from .AgentProtocolUtils import getNextPacketN, _processRxPacket
+from .AgentProtocolUtils import getNextPacketN, _processRxPacket, agentLogPacket
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 
@@ -145,45 +145,10 @@ class CAgentsConnectionServer(QTcpServer):
     @pyqtSlot( bool, int, CAgentServerPacket )
     def thread_AgentLogUpdated( self, bTX_or_RX, agentN, packet ):
         agentLink = self.getAgentLink( agentN, bWarning=False )
-        data = packet.toBStr( bTX_or_RX=bTX_or_RX, appendLF=False ).decode()
-        if agentLink is None:
-            print( data )
-            return
-
-        if bTX_or_RX:
-            sTX_or_RX = "TX"
-            colorPrefix = "#ff0000"
-        else:
-            sTX_or_RX = "RX"
-            colorPrefix = "#283593"
-
-        if packet.status == EPacket_Status.Normal:
-            colorsByEvents = { EAgentServer_Event.BatteryState:     "#388E3C",
-                               EAgentServer_Event.TemperatureState: "#388E3C",
-                               EAgentServer_Event.TaskList:         "#388E3C",
-                               EAgentServer_Event.ClientAccepting:  "#1565C0",
-                               EAgentServer_Event.ServerAccepting:  "#FF3300", }
-
-            colorData = colorsByEvents.get( packet.event )
-            if colorData is None: colorData = "#000000"
-        elif packet.status == EPacket_Status.Duplicate:
-            colorData = "#999999"
-        elif packet.status == EPacket_Status.Error:
-            colorData = "#FF0000"
-
-        def bTag( color, weight = 200 ):
-            return f"<span style=\" font-size:12pt; font-weight:{weight}; color:{color};\" >"
-        eTag = "</span>"
-
-        data = f"{bTag( colorPrefix, 400 )}{sTX_or_RX}:{eTag} {bTag( colorData )}{data}{eTag}"
 
         thread = self.sender()
-        data = f"T:{ thread.UID } {data}"
-
-        agentLink.log = self.getAgentLink( agentN ).log + "<br>" + data
-        with open( agentLink.sLogFName, 'a' ) as file:
-            file.write( "<br>" + data )
-        
+        data = agentLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
+                    
         self.AgentLogUpdated.emit( agentN, data )
 
     #############################################################
