@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="curvature" attr.type="string" for="edge" id="d8" />
+  <key attr.name="widthType" attr.type="string" for="edge" id="d7" />
+  <key attr.name="sensorSide" attr.type="string" for="edge" id="d6" />
+  <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d5" />
+  <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d4" />
+  <key attr.name="edgeSize" attr.type="long" for="edge" id="d3" />
+  <key attr.name="nodeType" attr.type="string" for="node" id="d2" />
+  <key attr.name="y" attr.type="long" for="node" id="d1" />
+  <key attr.name="x" attr.type="long" for="node" id="d0" />
+  <graph edgedefault="directed">
+    <node id="a">
+      <data key="d0">0</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <node id="b">
+      <data key="d0">300</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <node id="c">
+      <data key="d0">600</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <node id="d">
+      <data key="d0">900</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <node id="e">
+      <data key="d0">1200</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <node id="f">
+      <data key="d0">1500</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <node id="g">
+      <data key="d0">1800</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <node id="i">
+      <data key="d0">2100</data>
+      <data key="d1">0</data>
+      <data key="d2">DummyNode</data>
+    </node>
+    <edge source="a" target="b">
+      <data key="d3">300</data>
+      <data key="d4">300</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="b" target="a">
+      <data key="d3">300</data>
+      <data key="d4">0</data>
+      <data key="d5">300</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="b" target="c">
+      <data key="d3">300</data>
+      <data key="d4">0</data>
+      <data key="d5">300</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="c" target="b">
+      <data key="d3">300</data>
+      <data key="d4">300</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="c" target="d">
+      <data key="d3">300</data>
+      <data key="d4">200</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="d" target="c">
+      <data key="d3">300</data>
+      <data key="d4">0</data>
+      <data key="d5">200</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="d" target="e">
+      <data key="d3">300</data>
+      <data key="d4">0</data>
+      <data key="d5">300</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="e" target="d">
+      <data key="d3">300</data>
+      <data key="d4">300</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="e" target="f">
+      <data key="d3">300</data>
+      <data key="d4">0</data>
+      <data key="d5">150</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="f" target="e">
+      <data key="d3">300</data>
+      <data key="d4">150</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="f" target="g">
+      <data key="d3">300</data>
+      <data key="d4">100</data>
+      <data key="d5">100</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="g" target="f">
+      <data key="d3">300</data>
+      <data key="d4">100</data>
+      <data key="d5">100</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="g" target="i">
+      <data key="d3">300</data>
+      <data key="d4">0</data>
+      <data key="d5">300</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+    <edge source="i" target="g">
+      <data key="d3">300</data>
+      <data key="d4">300</data>
+      <data key="d5">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+    </edge>
+  </graph>
+</graphml>
