@@ -75,6 +75,9 @@ class CRouteBuilder():
     def nxGraph(self):
         return self.graphRootNode().nxGraph
     
+    def edgeSize( self, tKey ):
+        return self.nxGraph.edges()[ tKey ][ SGT.s_edgeSize ]
+
     def LedgeSizeByEdge( self, tKey ):
         widthType = SGT.EWidthType.fromString( self.nxGraph.edges()[ tKey ][ SGT.s_widthType ] )
         ledgeSize = widthTypeToLedgeSize[ widthType ]
@@ -152,7 +155,7 @@ class CRouteBuilder():
             l = l + SII.length
             for i in range( startEdgeIdx, len(edgesList) ):
                 tKey = edgesList[ i ]
-                edgeSize = self.nxGraph.edges()[ tKey ] [ SGT.s_edgeSize ]
+                edgeSize = self.edgeSize( tKey )
                 if edgeSize < l:
                     l -= edgeSize
                     continue
@@ -342,18 +345,21 @@ class CRouteBuilder():
         return railList
 
     def shiftBack( self, edgesList, tKey, pos, delta ):
-        edgdeIDX = edgesList.index(tKey)
-        c = pos
+        startEdgdeIDX = edgesList.index(tKey)
 
-        while delta > 0:
-            delta = delta - c
-            if delta >= 0:
-                edgdeIDX = edgdeIDX - 1
-                c = self.nxGraph.edges()[ edgesList[edgdeIDX] ][ SGT.s_edgeSize ]
-        
-        pos = c + delta
+        for edgeIDX in range( startEdgdeIDX, 0-1, -1 ):
+            if pos >= delta:
+                pos = pos - delta
+                break
+            else:
+                delta = delta - pos
+                if edgeIDX >= 1:
+                    pos = self.edgeSize( edgesList[ edgeIDX - 1 ] )
+                else:
+                    pos = 0
+                    break
 
-        return edgesList[edgdeIDX], pos
+        return edgesList[ edgeIDX ], pos
 
 
     # def shiftPos(self, edgesList, tKey, pos, delta):

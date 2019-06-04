@@ -27,7 +27,7 @@ class CTestDE(unittest.TestCase):
     def test_shiftPos(self):
         edgesList = edgesListFromNodes(nodesList)
 
-        print( routeBuilder.shiftBack(edgesList=edgesList, tKey= ("c", "d"), pos = 200, delta = 300) )
+        print( routeBuilder.shiftBack(edgesList=edgesList, tKey= ("c", "d"), pos = 200, delta = 801) )
 
 
 if __name__ == '__main__':
