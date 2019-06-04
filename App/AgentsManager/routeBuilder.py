@@ -52,7 +52,7 @@ class SI_Item:
         self.pos    = pos
 
     def __repr__( self ):
-        return f"SII(length={self.length} K={self.K} edge={self.edge} pos={self.pos})"
+        return f"< SII (length={self.length} K={self.K} edge={self.edge} pos={self.pos}) >\n"
 
 
 class SRailSegment:
@@ -74,6 +74,11 @@ class CRouteBuilder():
     @property
     def nxGraph(self):
         return self.graphRootNode().nxGraph
+    
+    def LedgeSizeByEdge( self, tKey ):
+        widthType = SGT.EWidthType.fromString( self.nxGraph.edges()[ tKey ][ SGT.s_widthType ] )
+        ledgeSize = widthTypeToLedgeSize[ widthType ]
+        return ledgeSize
 
     def buildRoute(self, nodeList, agent_angle):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
@@ -103,11 +108,15 @@ class CRouteBuilder():
             ledgeNode = self.findNodeForLedge(pathPart[-2], pathPart[-1])
             ledgeRailList = self.nodeListToRails([pathPart[-1], ledgeNode])
 
-            widthType = SGT.EWidthType.fromString( self.nxGraph[ pathPart[-2] ][ pathPart[-1] ] [ SGT.s_widthType ] )
-            ledgeSize = widthTypeToLedgeSize[ widthType ]
+            # widthType = SGT.EWidthType.fromString( self.nxGraph[ pathPart[-2] ][ pathPart[-1] ] [ SGT.s_widthType ] )
+            # ledgeSize = widthTypeToLedgeSize[ widthType ]
+            ledgeSize = self.LedgeSizeByEdge( ( pathPart[-2], pathPart[-1] ) )
 
-            ledge = self.takeRailListPart(ledgeRailList, ledgeSize)
+            ledge = self.takeRailListPart( ledgeRailList, ledgeSize )
             railsWithLedge = rails + ledge
+
+            sourceRailList =  self.glueSameRailListParts(railsWithLedge)
+            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ direction ], edge="", pos=0 ) for railSegment in sourceRailList ]
 
             # 3) truncate the path by agen's width or length, depending on the current width, (because agents move by sensors)
             railListWithLedgeCuttedFromBegin = self.cutRailListFromBegin(railsWithLedge, ledgeSize)
@@ -123,10 +132,9 @@ class CRouteBuilder():
 
             # 6) merge all the rails with the same shape
             gluedRailList = self.glueSameRailListParts(railListWithAdjustedCurvature)
-            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ direction ], edge="", pos=0 ) for railSegment in gluedRailList ]
 
             # 7) Add delta to rails when rail type change exists at the end of a segment
-            railListWithAddedDelta = self.addDeltaToRailList(gluedRailList)
+            railListWithAddedDelta = self.addDeltaToRailList( gluedRailList )
 
             commands.append( self.gluedRailListToCommands(railListWithAddedDelta, direction))
 
@@ -136,7 +144,9 @@ class CRouteBuilder():
 
         # выявление позиций для DE
         edgesList = edgesListFromNodes( nodeList )
+        edgesList.append( (nodeList[-1], ledgeNode) )
         startEdgeIdx = 0
+        # l = self.LedgeSizeByEdge( edgesList[0] ) - hysteresis # стартовое смещение т.к. челнок пузом стоит на стартовой ноде
         l = 0
         for SII in SegmentsInfoItems:
             l = l + SII.length
@@ -149,8 +159,9 @@ class CRouteBuilder():
                 startEdgeIdx = i
                 SII.edge = tKey
                 SII.pos = l
+                break
 
-        print( SegmentsInfoItems, edgesList )
+        # print( SegmentsInfoItems, edgesList )
 
         return commands, SegmentsInfoItems
 
@@ -230,9 +241,9 @@ class CRouteBuilder():
                 outRailList.append(rail)
                 length = length - rail.length
             else:
-                cuttedRailSegment = deepcopy(rail)
+                cuttedRailSegment = deepcopy( rail )
                 cuttedRailSegment.length = length
-                outRailList.append(cuttedRailSegment)
+                outRailList.append( cuttedRailSegment )
                 return outRailList
         return outRailList
 
@@ -330,6 +341,40 @@ class CRouteBuilder():
 
         return railList
 
+    def shiftBack( self, edgesList, tKey, pos, delta ):
+        edgdeIDX = edgesList.index(tKey)
+        c = pos
+
+        while delta > 0:
+            delta = delta - c
+            if delta >= 0:
+                edgdeIDX = edgdeIDX - 1
+                c = self.nxGraph.edges()[ edgesList[edgdeIDX] ][ SGT.s_edgeSize ]
+        
+        pos = c + delta
+
+        return edgesList[edgdeIDX], pos
+
+
+    # def shiftPos(self, edgesList, tKey, pos, delta):
+    #     edgdeIDX = edgesList.index(tKey)
+    #     step = 1 if delta > 0 else -1
+
+    #     while (delta*step) > 0:
+    #         edgeSize = self.nxGraph.edges()[ edgesList[edgdeIDX] ][ SGT.s_edgeSize ]
+
+
+    #         if new_delta != 0:
+    #             delta = new_delta
+    #             edgdeIDX += step
+    #             pos = self.nxGraph.edges()[ edgesList[edgdeIDX] ][ SGT.s_edgeSize ] if step < 0 else 0
+    #             print(pos, delta)
+    #         else:
+    #             pos = pos + delta
+
+    #     return edgesList[edgdeIDX], pos
+
+    
     def addDeltaToRailList(self, railList):
         # adding delta to rail size to take into account possible wheels slippage, etc.
         # delta only should be added for rail segment with rail height change at the end

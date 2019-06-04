@@ -52,11 +52,9 @@ with open( sDir + "routeCases_correct_698.txt" , 'r') as routes_file:
 
 routeBuilder = CRouteBuilder()
 
-class TestRouteBuilder(unittest.TestCase):
+class CTestRouteBuilder(unittest.TestCase):
 
     def test_buildRoute(self):
-        self.maxDiff = 3000
-
         # n = 0
         # f = open( "./UnitTests/RouteBuilder/passed.txt", 'w' )
         for case in routeCases:
