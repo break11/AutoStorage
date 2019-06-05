@@ -51,6 +51,15 @@ class SI_Item:
         self.edge   = edge
         self.pos    = pos
 
+    def __eq__(self, other):
+        eq = True
+        eq = eq and self.length == other.length
+        eq = eq and self.K      == other.K
+        eq = eq and self.edge   == other.edge
+        eq = eq and self.pos    == other.pos
+
+        return eq
+
     def __repr__( self ):
         return f"< SII (length={self.length} K={self.K} edge={self.edge} pos={self.pos}) >\n"
 
@@ -160,8 +169,8 @@ class CRouteBuilder():
                     l -= edgeSize
                     continue
                 startEdgeIdx = i
-                SII.edge = tKey
-                SII.pos = l
+                
+                SII.edge, SII.pos = self.shiftPos( edgesList, tKey, l, -self.LedgeSizeByEdge( tKey ) )
                 break
 
         # print( SegmentsInfoItems, edgesList )
@@ -344,41 +353,28 @@ class CRouteBuilder():
 
         return railList
 
-    def shiftBack( self, edgesList, tKey, pos, delta ):
-        startEdgdeIDX = edgesList.index(tKey)
+    def shiftPos(self, edgesList, tKey, pos, delta ):
+        edgeIDX = edgesList.index(tKey)
+        while True:
+            pos = pos + delta
+            if pos <= 0:
+                delta = pos
+                edgeIDX -= 1
 
-        for edgeIDX in range( startEdgdeIDX, 0-1, -1 ):
-            if pos >= delta:
-                pos = pos - delta
-                break
+                if edgeIDX < 0: #если дельта меньше, чем расстояние до начала маршрута
+                    return ( edgesList[0], 0)
+                
+                pos =  self.edgeSize( edgesList[edgeIDX] )
+            elif pos > self.edgeSize(edgesList[edgeIDX]):
+
+                if edgeIDX == len(edgesList) - 1: #если дельта больше, чем расстояние до конца маршрута
+                    return (edgesList[edgeIDX], self.edgeSize(edgesList[edgeIDX]))
+                
+                delta = pos - self.edgeSize(edgesList[edgeIDX])
+                edgeIDX += 1
+                pos = 0
             else:
-                delta = delta - pos
-                if edgeIDX >= 1:
-                    pos = self.edgeSize( edgesList[ edgeIDX - 1 ] )
-                else:
-                    pos = 0
-                    break
-
-        return edgesList[ edgeIDX ], pos
-
-
-    # def shiftPos(self, edgesList, tKey, pos, delta):
-    #     edgdeIDX = edgesList.index(tKey)
-    #     step = 1 if delta > 0 else -1
-
-    #     while (delta*step) > 0:
-    #         edgeSize = self.nxGraph.edges()[ edgesList[edgdeIDX] ][ SGT.s_edgeSize ]
-
-
-    #         if new_delta != 0:
-    #             delta = new_delta
-    #             edgdeIDX += step
-    #             pos = self.nxGraph.edges()[ edgesList[edgdeIDX] ][ SGT.s_edgeSize ] if step < 0 else 0
-    #             print(pos, delta)
-    #         else:
-    #             pos = pos + delta
-
-    #     return edgesList[edgdeIDX], pos
+                return edgesList[edgeIDX], pos
 
     
     def addDeltaToRailList(self, railList):
