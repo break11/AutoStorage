@@ -5,8 +5,6 @@ import os
 from collections import deque
 
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QTabWidget, QLabel, QGridLayout,
-                             QVBoxLayout, QPushButton, QWidget)
 
 from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr, tEdgeKeyToStr, nodesList_FromStr
 from Lib.Common.Agent_NetObject import queryAgentNetObj, s_route
@@ -17,8 +15,9 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.FileUtils import agentsLog_Path
 from .AgentServerPacket import CAgentServerPacket
 from .AgentServer_Event import EAgentServer_Event
-from .AgentProtocolUtils import getNextPacketN, agentLogString
+from .AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
+from .AgentLogManager import CAgentLogManager
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
@@ -34,7 +33,7 @@ class CAgentLink():
         sT = now.strftime("%H-%M-%S")
         self.sLogFName = agentsLog_Path() + f"{agentN}__{sD}.log.html"
 
-        agentLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
+        CAgentLogManager.agentLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state ##remove##

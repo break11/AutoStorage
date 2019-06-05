@@ -18,7 +18,8 @@ from Lib.Common.Agent_NetObject import CAgent_NO
 
 from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from .AgentServer_Event import EAgentServer_Event
-from .AgentProtocolUtils import getNextPacketN, _processRxPacket, agentLogPacket
+from .AgentProtocolUtils import getNextPacketN, _processRxPacket
+from .AgentLogManager import CAgentLogManager
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 
@@ -147,7 +148,7 @@ class CAgentsConnectionServer(QTcpServer):
         agentLink = self.getAgentLink( agentN, bWarning=False )
 
         thread = self.sender()
-        data = agentLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
+        data = CAgentLogManager.agentLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
                     
         self.AgentLogUpdated.emit( agentN, data )
 
