@@ -73,7 +73,7 @@ class SRailSegment:
         self.curvature = curvature
 
     def __repr__(self):
-        return f"length:{self.length} railHeight:{self.railHeight} sensorSide:{self.sensorSide} widthType:{self.widthType.name} curvature:{self.curvature}"
+        return f"length:{self.length} railHeight:{self.railHeight} sensorSide:{self.sensorSide} widthType:{self.widthType.name} curvature:{self.curvature}\n"
 
 class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
@@ -120,19 +120,18 @@ class CRouteBuilder():
             ledgeNode = self.findNodeForLedge(pathPart[-2], pathPart[-1])
             ledgeRailList = self.nodeListToRails([pathPart[-1], ledgeNode])
 
-            # widthType = SGT.EWidthType.fromString( self.nxGraph[ pathPart[-2] ][ pathPart[-1] ] [ SGT.s_widthType ] )
-            # ledgeSize = widthTypeToLedgeSize[ widthType ]
             ledgeSize = self.LedgeSizeByEdge( ( pathPart[-2], pathPart[-1] ) )
 
             ledge = self.takeRailListPart( ledgeRailList, ledgeSize )
             railsWithLedge = rails + ledge
 
-            sourceRailList =  self.glueSameRailListParts(railsWithLedge)
-            SegmentsInfoItems = SegmentsInfoItems + [ SI_Item( length = railSegment.length, K = dirToK[ direction ], edge="", pos=0 ) for railSegment in sourceRailList ]
 
             # 3) truncate the path by agen's width or length, depending on the current width, (because agents move by sensors)
             railListWithLedgeCuttedFromBegin = self.cutRailListFromBegin(railsWithLedge, ledgeSize)
 
+            sourceRailList =  self.glueSameRailListParts(railListWithLedgeCuttedFromBegin)
+            SegmentsInfoItems_pathPart = [ SI_Item( length = railSegment.length, K = dirToK[ direction ], edge="", pos=0 ) for railSegment in sourceRailList ]
+            
             # 4) shift the path by hysteresis
             railListWithHystShift = self.shiftRailListByHyst( railListWithLedgeCuttedFromBegin )
             # railListWithHystShift = railListWithLedgeCuttedFromBegin
@@ -154,26 +153,26 @@ class CRouteBuilder():
             for i in range( len(pathPart) -1  ):
                 angle, direction = self.getDirection( (pathPart[i], pathPart[i+1]), angle )
 
-        # выявление позиций для DE
-        edgesList = edgesListFromNodes( nodeList )
-        edgesList.append( (nodeList[-1], ledgeNode) )
-        startEdgeIdx = 0
-        # l = self.LedgeSizeByEdge( edgesList[0] ) - hysteresis # стартовое смещение т.к. челнок пузом стоит на стартовой ноде
-        l = 0
-        for SII in SegmentsInfoItems:
-            l = l + SII.length
-            for i in range( startEdgeIdx, len(edgesList) ):
-                tKey = edgesList[ i ]
-                edgeSize = self.edgeSize( tKey )
-                if edgeSize < l:
-                    l -= edgeSize
-                    continue
-                startEdgeIdx = i
-                
-                SII.edge, SII.pos = self.shiftPos( edgesList, tKey, l, -self.LedgeSizeByEdge( tKey ) )
-                break
+            # выявление позиций для DE
+            edgesList = edgesListFromNodes( pathPart )
+            edgesList.append( (pathPart[-1], ledgeNode) )
+            startEdgeIdx = 0
 
-        # print( SegmentsInfoItems, edgesList )
+            l = ledgeSize
+            for SII in SegmentsInfoItems_pathPart:
+                l = l + SII.length
+                for i in range( startEdgeIdx, len(edgesList) ):
+                    tKey = edgesList[ i ]
+                    edgeSize = self.edgeSize( tKey )
+                    if edgeSize < l:
+                        l -= edgeSize
+                        continue
+                    startEdgeIdx = i
+                    
+                    SII.edge, SII.pos = self.shiftPos( edgesList, tKey, l, -ledgeSize )
+                    break
+
+            SegmentsInfoItems += SegmentsInfoItems_pathPart
 
         return commands, SegmentsInfoItems
 
