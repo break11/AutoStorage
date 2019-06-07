@@ -22,6 +22,9 @@ def nodesList_FromStr( nodes_str ):
 
     return l if len(l) > 1 else []
 
+def edgeSize(nxGraph,  tKey ):
+    return nxGraph.edges()[ tKey ][ SGT.s_edgeSize ]
+
 def tEdgeKeyFromStr( edge_str ):
     return tuple( nodesList_FromStr( edge_str) )
 

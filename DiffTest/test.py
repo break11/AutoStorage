@@ -1,15 +1,20 @@
 
-from enum import Enum, auto
 
-class EWidthType( Enum ):
-    Narrow = auto()
-    Wide   = auto()
+l = [1,2,3,3,2,1]
 
-    @classmethod
-    def test(cls): print( "test" )
+print( l.index(3,3) )
 
-print( EWidthType[ "test" ] )
-EWidthType.test()
+# from enum import Enum, auto
+
+# class EWidthType( Enum ):
+#     Narrow = auto()
+#     Wide   = auto()
+
+#     @classmethod
+#     def test(cls): print( "test" )
+
+# print( EWidthType[ "test" ] )
+# EWidthType.test()
 
 # class FFF:
 #     def __init__(self):

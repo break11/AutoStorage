@@ -36,7 +36,7 @@ class CRouteCase():
 
 routeCases:list = []
 
-with open( sDir + "routeCases_correct_698.txt" , 'r') as routes_file:
+with open( sDir + "routeCases_correct_700.txt" , 'r') as routes_file:
     for line in routes_file:
 
         route = line.split("|")

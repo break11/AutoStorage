@@ -6,7 +6,7 @@ from collections import deque
 
 from PyQt5.QtCore import QTimer
 
-from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr, tEdgeKeyToStr, nodesList_FromStr
+from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
 from Lib.Common.Agent_NetObject import queryAgentNetObj, s_route
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
@@ -91,6 +91,8 @@ class CAgentLink():
             nxGraph = self.graphRootNode().nxGraph
             seqList, self.SII = self.routeBuilder.buildRoute( nodeList = self.nodes_route, agent_angle = self.agentNO().angle )
 
+            print( self.SII )
+
             for seq in seqList:
                 for cmd in seq:
                     self.pushCmd_to_TX_FIFO( CAgentServerPacket.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
@@ -137,6 +139,8 @@ class CAgentLink():
         rAngle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
         agentNO.angle = math.degrees( rAngle )
     ####################
+    def currSII(self):
+        return self.SII[ self.DE_IDX ]
     
     def processRxPacket( self, cmd ):
 
@@ -150,8 +154,20 @@ class CAgentLink():
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
         elif cmd.event == EAgentServer_Event.DistanceEnd:
-            self.DE_IDX += 1
             self.segOD = 0
+            agentNO = self.agentNO()
+
+            agentNO.position = self.currSII().pos
+            tKey = self.currSII().edge
+            agentNO.edge     = tEdgeKeyToStr( tKey )
+
+            edges = edgesListFromNodes( self.nodes_route )
+            agentNO.route_idx = edges.index( tKey, agentNO.route_idx )
+            print( agentNO.route_idx, "33333333333333333333333" )
+
+            # if self.DE_IDX < len(self.SII):
+            self.DE_IDX += 1
+
         elif cmd.event == EAgentServer_Event.OdometerDistance:
             agentNO = self.agentNO()
 
@@ -159,39 +175,40 @@ class CAgentLink():
 
             if tKey is None: return
             if len(self.nodes_route) == 0: return
-
-            # print( len( self.SII ), self.DE_IDX, self.SII )
-            # последний DE приходит независимо от того была смена выс-низ рельс, поэтому число пришедших DE меньше числа сегментов
-            deIdx = self.DE_IDX if self.DE_IDX < len(self.SII) else len(self.SII)-1
-            segK = self.SII[ deIdx ].K
-            segLength = self.SII[ deIdx ].length
         
             new_od = int( cmd.data )
-            distance = segK * ( new_od - agentNO.odometer )
+            distance = self.currSII().K * ( new_od - agentNO.odometer )
             agentNO.odometer = new_od
-            edgeSize = nxGraph.edges[tKey][ SGT.s_edgeSize ]
+            edgeS = edgeSize( nxGraph, tKey )
 
-            if self.segOD + distance >= segLength :
-                distance = segLength - self.segOD
-
-            new_pos = distance + agentNO.position
             self.segOD += distance
-            
-            # переход через грань
-            if new_pos > edgeSize and agentNO.route_idx < len( self.nodes_route )-2:
-                newIDX = agentNO.route_idx + 1
+            if self.segOD < self.currSII().length:
+                new_pos = distance + agentNO.position
 
-                agentNO.position = new_pos % edgeSize
-                tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
-                agentNO.edge = tEdgeKeyToStr( tEdgeKey )
-                agentNO.route_idx = newIDX
+                # переход через грань
+                if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
+                    newIDX = agentNO.route_idx + 1
+
+                    agentNO.position = new_pos % edgeS
+                    tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
+                    agentNO.edge = tEdgeKeyToStr( tEdgeKey )
+                    agentNO.route_idx = newIDX
+                    print( agentNO.route_idx, "22222222222222" )
+                else:
+                    agentNO.position = new_pos
             else:
-                agentNO.position = new_pos
+                agentNO.position = self.currSII().pos
+                tKey = self.currSII().edge
+                agentNO.edge     = tEdgeKeyToStr( self.currSII().edge )
+
+                edges = edgesListFromNodes( self.nodes_route )
+                print( edges, "111111111111", agentNO.route_idx )
+                agentNO.route_idx = edges.index( tKey, agentNO.route_idx )
 
             self.calcAgentAngle( agentNO )
 
-            if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeSize:
-                agentNO.route = ""
+            # if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeSize:
+            #     agentNO.route = ""
 
 # def putToNode(self, node):
     #     self.temp__AssumedPosition = node

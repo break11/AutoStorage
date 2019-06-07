@@ -3,7 +3,7 @@ from copy import deepcopy
 from collections import namedtuple
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes
+from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes, edgeSize
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -85,7 +85,7 @@ class CRouteBuilder():
         return self.graphRootNode().nxGraph
     
     def edgeSize( self, tKey ):
-        return self.nxGraph.edges()[ tKey ][ SGT.s_edgeSize ]
+        return edgeSize( self.nxGraph, tKey )
 
     def LedgeSizeByEdge( self, tKey ):
         widthType = SGT.EWidthType.fromString( self.nxGraph.edges()[ tKey ][ SGT.s_widthType ] )
@@ -126,13 +126,13 @@ class CRouteBuilder():
 
             # 3) truncate the path by agen's width or length, depending on the current width, (because agents move by sensors)
             SegmentsWithLedgeCuttedFromBegin = self.cutSegmentsFromBegin(SegmentsWithLedge, ledgeSize)
-
-            sourceSegments =  self.mergeSameSegments(SegmentsWithLedgeCuttedFromBegin)
-            SegmentsInfoItems_Sequence = [ SI_Item( length = segment.length, K = dirToK[ direction ], edge="", pos=0 ) for segment in sourceSegments ]
-            
+ 
             # 4) shift the path by hysteresis
             SegmentsWithHystShift = self.shiftSegmentsByHyst( SegmentsWithLedgeCuttedFromBegin )
 
+            sourceSegments =  self.mergeSameSegments(SegmentsWithHystShift)
+            SegmentsInfoItems_Sequence = [ SI_Item( length = segment.length, K = dirToK[ direction ], edge="", pos=0 ) for segment in sourceSegments ]
+           
             # 5) adjust the curvature at the beggining of the path
             SegmentsWithAdjustedCurvature = SegmentsWithHystShift
 
@@ -161,7 +161,8 @@ class CRouteBuilder():
         edgesList.append( (single_sequence[-1], ledgeNode) )
         startEdgeIdx = 0
 
-        l = ledgeSize
+        l = ledgeSize - hysteresis
+        SII_Sequince[-1].length += hysteresis
         for SII in SII_Sequince:
             l = l + SII.length
             for i in range( startEdgeIdx, len(edgesList) ):
@@ -174,6 +175,7 @@ class CRouteBuilder():
                 
                 SII.edge, SII.pos = self.shiftPos( edgesList, tKey, l, -ledgeSize )
                 break
+        
 
     def getDirection(self, tEdgeKey, agent_angle):
         DirDict = { True: SGT.EDirection.R, False: SGT.EDirection.F, None: SGT.EDirection.Error }
