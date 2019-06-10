@@ -56,6 +56,7 @@ class CAgentLink():
         self.DE_IDX = 0
         self.segOD = 0
         self.nodes_route = []
+        self.edges_route = []
 
     def __del__(self):
         print( f"AgentLink {self.agentN} DESTROY!" )
@@ -82,6 +83,7 @@ class CAgentLink():
         if cmd.sPropName == s_route:
             agentNO.route_idx = 0
             self.nodes_route = nodesList_FromStr( cmd.value )
+            self.edges_route = edgesListFromNodes( self.nodes_route )
             self.DE_IDX = 0
             self.segOD = 0
             self.SII = []
@@ -96,6 +98,7 @@ class CAgentLink():
             for seq in seqList:
                 for cmd in seq:
                     self.pushCmd_to_TX_FIFO( CAgentServerPacket.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
+
     ##################
     def isConnected( self ):
         return len(self.socketThreads) > 0
@@ -158,12 +161,15 @@ class CAgentLink():
             agentNO = self.agentNO()
 
             agentNO.position = self.currSII().pos
+            agentNO.angle = self.currSII().angle
             tKey = self.currSII().edge
-            agentNO.edge     = tEdgeKeyToStr( tKey )
+            agentNO.edge = tEdgeKeyToStr( tKey )
+            agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
 
-            edges = edgesListFromNodes( self.nodes_route )
-            agentNO.route_idx = edges.index( tKey, agentNO.route_idx )
-            print( agentNO.route_idx, "33333333333333333333333" )
+
+            # if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeS:
+            if self.DE_IDX == len(self.SII)-1:
+                agentNO.route = ""
 
             # if self.DE_IDX < len(self.SII):
             self.DE_IDX += 1
@@ -183,32 +189,28 @@ class CAgentLink():
 
             self.segOD += distance
             if self.segOD < self.currSII().length:
-                new_pos = distance + agentNO.position
+                pass
+                # new_pos = distance + agentNO.position
 
-                # переход через грань
-                if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
-                    newIDX = agentNO.route_idx + 1
+                # # переход через грань
+                # if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
+                #     newIDX = agentNO.route_idx + 1
 
-                    agentNO.position = new_pos % edgeS
-                    tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
-                    agentNO.edge = tEdgeKeyToStr( tEdgeKey )
-                    agentNO.route_idx = newIDX
-                    print( agentNO.route_idx, "22222222222222" )
-                else:
-                    agentNO.position = new_pos
+                #     agentNO.position = new_pos % edgeS
+                #     tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
+                #     agentNO.edge = tEdgeKeyToStr( tEdgeKey )
+                #     agentNO.route_idx = newIDX
+                #     print( agentNO.route_idx, "22222222222222" )
+                # else:
+                #     agentNO.position = new_pos
             else:
                 agentNO.position = self.currSII().pos
+                agentNO.angle = self.currSII().angle
                 tKey = self.currSII().edge
-                agentNO.edge     = tEdgeKeyToStr( self.currSII().edge )
+                agentNO.edge = tEdgeKeyToStr( self.currSII().edge )
+                agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
 
-                edges = edgesListFromNodes( self.nodes_route )
-                print( edges, "111111111111", agentNO.route_idx )
-                agentNO.route_idx = edges.index( tKey, agentNO.route_idx )
-
-            self.calcAgentAngle( agentNO )
-
-            # if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeSize:
-            #     agentNO.route = ""
+            # self.calcAgentAngle( agentNO )
 
 # def putToNode(self, node):
     #     self.temp__AssumedPosition = node

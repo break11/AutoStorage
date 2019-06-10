@@ -1,25 +1,25 @@
 $( function() {
-$('body').append('<div class="dis" style="position: fixed; top: 50px;  left: 40%; width: 600px; height: 500px; margin: 0;">\
-    <div class="dis" style="float: left;">\
+$('body').append('<u  style="display: block; position: fixed; top: 50px;  left: 40%; width: 600px; height: 500px; margin: 0;">\
+    <u  style="display: block; float: left;">\
     <p style="width: 100%; text-align:center; margin: 0;">Filter</p>\
     <input type="text" name="filter-string"\
     style="background-color: rgba(250,250,220); border-radius: 5px; width: 200px;  padding: 2px; outline: none;">\
-    </div>\
-    <div class="dis" style="float: left; margin-top: 18;">\
+    </u>\
+    <u  style="display: block; float: left; margin-top: 18;">\
     <input type="button" name="filter-registr" value="aA"\
     style="background-color: rgb(250,250,220); margin: 0; margin-left: 5px;width: 30px; height: 25px; border-radius: 5px; outline: none;\
     text-aling: center;">\
-    </div>\
-    <div class="dis" style="float: left; text-aling:center;">\
+    </u>\
+    <u style="display: block; float: left; text-aling:center;">\
     <p style="width: 100%; text-align:center; margin: 0;">Find</p>\
     <input type="text" name="find-string" \
     style="background-color: rgba(200,250,250); border-radius: 5px; width: 200px;  padding: 2px; margin-left: 10px; outline: none;">\
-    </div>\
-    <div class="dis" style="float: left; margin-top: 18;f">\
+    </u>\
+    <u style="display: block; float: left; margin-top: 18;f">\
     <input type="button" name="find-registr" value="aA" \
     style="background-color: rgb(200,250,250); margin: 0; margin-left: 5px;width: 30px; height: 25px; border-radius: 5px; outline: none;">\
-    </div>\
-    </div>');
+    </u>\
+    </u>');
 
     filterString  = $("input[name='filter-string']");
     filterRegBut  = $("input[name='filter-registr']");
@@ -47,8 +47,6 @@ $('body').append('<div class="dis" style="position: fixed; top: 50px;  left: 40%
         if (target == 'filter-string')
         {
             $('div').each( function(index) {
-                if ($(this).attr('class')== 'dis'){return}
-
                 filterStr = $(this).text()
                 if (filterRegistr < 0) { filterStr = filterStr.toLowerCase() }
 
@@ -60,8 +58,6 @@ $('body').append('<div class="dis" style="position: fixed; top: 50px;  left: 40%
         else
         {
             $('div').each( function(index) {
-                if ($(this).attr('class')== 'dis'){return}
-
                 findStr = $(this).text()
                 if (findRegistr < 0) { findStr = findStr.toLowerCase() }
 

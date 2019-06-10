@@ -42,14 +42,13 @@ dirToK               = { SGT.EDirection.F : 1,
                          SGT.EDirection.Error : 1
                        }
 
-# SI_Item = namedtuple('SII' , 'length K edge pos')
-
 class SI_Item:
-    def __init__( self, length= None, K= None, edge= None, pos= None ):
+    def __init__( self, length= None, K= None, edge= None, pos= None, angle= None ):
         self.length = length
         self.K      = K
         self.edge   = edge
         self.pos    = pos
+        self.angle  = angle
 
     def __eq__(self, other):
         eq = True
@@ -61,7 +60,7 @@ class SI_Item:
         return eq
 
     def __repr__( self ):
-        return f"< SII (length={self.length} K={self.K} edge={self.edge} pos={self.pos}) >\n"
+        return f"< SII (length={self.length} K={self.K} edge={self.edge} pos={self.pos} angle={self.angle}) >\n"
 
 
 class CRailSegment:
@@ -131,7 +130,7 @@ class CRouteBuilder():
             SegmentsWithHystShift = self.shiftSegmentsByHyst( SegmentsWithLedgeCuttedFromBegin )
 
             sourceSegments =  self.mergeSameSegments(SegmentsWithHystShift)
-            SegmentsInfoItems_Sequence = [ SI_Item( length = segment.length, K = dirToK[ direction ], edge="", pos=0 ) for segment in sourceSegments ]
+            SegmentsInfoItems_Sequence = [ SI_Item( length = segment.length, K = dirToK[ direction ], edge="", pos=0, angle=0 ) for segment in sourceSegments ]
            
             # 5) adjust the curvature at the beggining of the path
             SegmentsWithAdjustedCurvature = SegmentsWithHystShift
@@ -146,16 +145,17 @@ class CRouteBuilder():
             SegmentsWithDelta = self.addDeltaToSegments( mergedSegments )
             commands.append( self.SegmentsToCommands( SegmentsWithDelta, direction ))
 
-            # Доворачивание угла проходом по всем граням сиквенса, для корректного определения направления на след. итерации расчета
-            for i in range( len(single_sequence) -1  ):
-                angle, direction = self.getDirection( (single_sequence[i], single_sequence[i+1]), angle )
-        
-            self.calc_DE_Pos( SegmentsInfoItems_Sequence, single_sequence, ledgeNode,  ledgeSize )
+            # # Доворачивание угла проходом по всем граням сиквенса, для корректного определения направления на след. итерации расчета
+            # for i in range( len(single_sequence) -1  ):
+            #     angle, direction = self.getDirection( (single_sequence[i], single_sequence[i+1]), angle )
+            #     SII[ i ].angle = angle
+
+            angle = self.calc_DE_Pos( SegmentsInfoItems_Sequence, single_sequence, ledgeNode, ledgeSize, angle )
             SegmentsInfoItems += SegmentsInfoItems_Sequence
         
         return commands, SegmentsInfoItems
 
-    def calc_DE_Pos(self, SII_Sequince, single_sequence, ledgeNode,  ledgeSize):
+    def calc_DE_Pos(self, SII_Sequince, single_sequence, ledgeNode,  ledgeSize, angle):
         # выявление позиций для DE
         edgesList = edgesListFromNodes( single_sequence )
         edgesList.append( (single_sequence[-1], ledgeNode) )
@@ -168,13 +168,17 @@ class CRouteBuilder():
             for i in range( startEdgeIdx, len(edgesList) ):
                 tKey = edgesList[ i ]
                 edgeSize = self.edgeSize( tKey )
+                # Доворачивание угла проходом по всем граням сиквенса, для корректного определения направления на след. итерации расчета
+                angle, direction = self.getDirection( (tKey[0], tKey[1]), angle )
                 if edgeSize < l:
                     l -= edgeSize
                     continue
+                SII.angle = angle # сохранение правильного довернутого угла в точке DE
                 startEdgeIdx = i
                 
                 SII.edge, SII.pos = self.shiftPos( edgesList, tKey, l, -ledgeSize )
                 break
+        return angle
         
 
     def getDirection(self, tEdgeKey, agent_angle):
