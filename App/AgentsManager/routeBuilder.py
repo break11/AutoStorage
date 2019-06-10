@@ -97,11 +97,11 @@ class CRouteBuilder():
 
         SegmentsInfoItems = []
         commands = []
-        if len( nodeList ) < 2:
-            return commands, SegmentsInfoItems
+        # if len( nodeList ) < 2:
+        #     return commands, SegmentsInfoItems
 
         # 0) Split path by fractures
-        Sequences = self.splitPathByFractures(nodeList)
+        Sequences = self.splitPathByFractures( nodeList )
 
         angle = agent_angle
         for single_sequence in Sequences:
@@ -190,8 +190,8 @@ class CRouteBuilder():
         fracturedPath = []
         fracturedPathSegment = []
         nodes_count = len(path)
-        if nodes_count > 2:
-            fracturedPathSegment.append(path[0])
+        if nodes_count >= 2:
+            fracturedPathSegment.append( path[0] )
             for i in range(1, nodes_count - 1):
                 np = path[i-1]
                 nc = path[i]

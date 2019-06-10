@@ -93,8 +93,6 @@ class CAgentLink():
             nxGraph = self.graphRootNode().nxGraph
             seqList, self.SII = self.routeBuilder.buildRoute( nodeList = self.nodes_route, agent_angle = self.agentNO().angle )
 
-            print( self.SII )
-
             for seq in seqList:
                 for cmd in seq:
                     self.pushCmd_to_TX_FIFO( CAgentServerPacket.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
@@ -164,7 +162,8 @@ class CAgentLink():
             agentNO.angle = self.currSII().angle
             tKey = self.currSII().edge
             agentNO.edge = tEdgeKeyToStr( tKey )
-            agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
+            # agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
+            agentNO.route_idx = self.edges_route.index( tKey )
 
 
             # if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeS:
@@ -189,28 +188,29 @@ class CAgentLink():
 
             self.segOD += distance
             if self.segOD < self.currSII().length:
-                pass
-                # new_pos = distance + agentNO.position
+                new_pos = distance + agentNO.position
 
-                # # переход через грань
-                # if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
-                #     newIDX = agentNO.route_idx + 1
+                # переход через грань
+                if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
+                    newIDX = agentNO.route_idx + 1
 
-                #     agentNO.position = new_pos % edgeS
-                #     tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
-                #     agentNO.edge = tEdgeKeyToStr( tEdgeKey )
-                #     agentNO.route_idx = newIDX
-                #     print( agentNO.route_idx, "22222222222222" )
-                # else:
-                #     agentNO.position = new_pos
+                    agentNO.position = new_pos % edgeS
+                    tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
+                    agentNO.edge = tEdgeKeyToStr( tEdgeKey )
+                    # agentNO.route_idx = newIDX
+                    print( agentNO.route_idx, "22222222222222" )
+                else:
+                    agentNO.position = new_pos
+
+                self.calcAgentAngle( agentNO )
             else:
                 agentNO.position = self.currSII().pos
                 agentNO.angle = self.currSII().angle
                 tKey = self.currSII().edge
                 agentNO.edge = tEdgeKeyToStr( self.currSII().edge )
-                agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
+                agentNO.route_idx = self.edges_route.index( tKey )
+                # agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
 
-            # self.calcAgentAngle( agentNO )
 
 # def putToNode(self, node):
     #     self.temp__AssumedPosition = node
