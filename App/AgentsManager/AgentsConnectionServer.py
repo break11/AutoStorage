@@ -5,7 +5,7 @@ import random
 import weakref
 import time
 
-from PyQt5.QtCore import (pyqtSignal, QDataStream, QIODevice, QThread, pyqtSlot)
+from PyQt5.QtCore import pyqtSignal, QDataStream, QIODevice, QThread, pyqtSlot, Qt
 from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSocket, QAbstractSocket
 
 from .AgentLink import CAgentLink
@@ -131,7 +131,12 @@ class CAgentsConnectionServer(QTcpServer):
         self.UnknownConnections_Threads.remove(thread)
 
         #add a ref of this thread to corresponding agent
-        self.getAgentLink(agentN).socketThreads.append(thread)
+        agentLink = self.getAgentLink( agentN )
+        agentLink.socketThreads.append( thread )
+
+        # протяжка заталкивания команды в сокет без очереди из другого потока
+        # agentLink.writeTo_Socket.connect( thread.writeTo_Socket, Qt.QueuedConnection )
+        agentLink.writeTo_Socket.connect( thread.writeTo_Socket, Qt.DirectConnection )
 
     @pyqtSlot( int )
     def thread_SocketError( self, error ):
@@ -230,7 +235,8 @@ class CAgentSocketThread(QThread):
         self.sendTX_cmd_Timer.start()
 
         while self.bRunning:
-            self.process()
+            self.tcpSocket.waitForReadyRead(1)
+            # self.process()
         
         self.sendTX_cmd_Timer.cancel()
 
@@ -251,7 +257,7 @@ class CAgentSocketThread(QThread):
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-                self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1 #???????????????????/
+                self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1
                 
                 self.agentNumberInited.emit( cmd.agentN )
                 self.agentN = cmd.agentN
@@ -306,10 +312,12 @@ class CAgentSocketThread(QThread):
             return None
     #################################
 
+    @pyqtSlot( CAgentServerPacket )
     def writeTo_Socket( self, cmd ):
         self.AgentLogUpdated.emit( True, self.agentN, cmd )
+        print("222")
         self.tcpSocket.write( cmd.toTX_BStr() )
-        # print( cmd.toTX_BStr() )
+        print("333")
 
     def sendTX_cmd( self ):
         self.writeTo_Socket( self.ACC_cmd )

@@ -1,14 +1,23 @@
 import time
 from threading import Timer
 
+def EnumFromString( enum, sValue, defValue ):
+    try:
+        rVal = enum[ sValue ]
+    except:
+        print( f"{SC.sWarning} Enum {enum} doesn't contain value for string = {sValue}, using {defValue.name}!" )
+        rVal = defValue
+    return rVal
+
 class CRepeatTimer(Timer):
     def run(self):
-        while not self.finished.wait(self.interval):
-            self.function(*self.args, **self.kwargs)
+        while not self.finished.wait( self.interval ):
+            if not self.finished.is_set():
+                self.function(*self.args, **self.kwargs)
         
     def cancel( self ):
-        self.function = None # для корректного завершения, чтобы не сохранились циклические ссылки на self владельца таймера
         super().cancel()
+        self.function = None # для корректного завершения, чтобы не сохранились циклические ссылки на self владельца таймера
 
 def time_func( sMsg=None, threshold=0 ):
     def wrapper(f):

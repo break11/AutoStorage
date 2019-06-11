@@ -8,14 +8,25 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.GraphUtils import tEdgeKeyFromStr
 from Lib.Common.Graph_NetObjects import graphNodeCache
 
+from enum import IntEnum, auto
+from .Utils import EnumFromString
+
+class EAgent_Status( IntEnum ):
+    Idle              = auto()
+    PositionSyncError = auto()
+
+    @staticmethod
+    def fromString( sType ): return EnumFromString( EAgent_Status, sType, EAgent_Status.Idle )
+
 s_edge      = "edge"
 s_position  = "position"
 s_route     = "route"
 s_route_idx = "route_idx"
 s_angle     = "angle"
 s_odometer  = "odometer"
+s_status    = "status"
 
-def_props = { s_edge: "", s_position: 0, s_route: "", s_route_idx: 0, s_angle : 0, s_odometer : 0 }
+def_props = { s_status: EAgent_Status.Idle.name, s_edge: "", s_position: 0, s_route: "", s_route_idx: 0, s_angle : 0, s_odometer : 0 }
 
 def agentsNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )

@@ -58,7 +58,7 @@ class CAgentLogManager():
         data = f"T:{ thread_UID } {data}"
         data = wrapDiv( data )
 
-        agentLink.log = agentLink.log + data
+        agentLink.log = agentLink.log + data # тормозит - надо переделать!
         cls.writeToLogFile( agentLink, data )
 
         return data

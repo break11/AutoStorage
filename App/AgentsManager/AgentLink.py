@@ -4,10 +4,10 @@ import math
 import os
 from collections import deque
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 
 from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
-from Lib.Common.Agent_NetObject import queryAgentNetObj, s_route
+from Lib.Common.Agent_NetObject import queryAgentNetObj, s_route, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
@@ -19,9 +19,12 @@ from .AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
 from .AgentLogManager import CAgentLogManager
 
-class CAgentLink():
+class CAgentLink( QObject ):
+    writeTo_Socket = pyqtSignal( CAgentServerPacket )
+
     """Class representing Agent (=shuttle) as seen from server side"""
     def __init__(self, agentN):
+        super().__init__()
         self.agentN = agentN
         self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
@@ -41,6 +44,7 @@ class CAgentLink():
         self.BS_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.BatteryState )
         self.TS_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.TemperatureState )
         self.TL_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.TaskList )
+        self.ES_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.EmergencyStop )
 
         self.requestTelemetry_Timer = QTimer()
         self.requestTelemetry_Timer.setInterval(1000)
@@ -113,8 +117,12 @@ class CAgentLink():
         if bPut_to_TX_FIFO:
             self.TX_Packets.append( cmd )
         else:
-            for thread in self.socketThreads:
-                thread.writeTo_Socket( cmd )
+            print( "111" )
+            self.writeTo_Socket.emit( cmd )
+            print( "444" )
+            ##remove##
+            # for thread in self.socketThreads:
+            #     thread.writeTo_Socket( cmd )
 
     def pushCmd_to_TX_FIFO( self, cmd ):
         self.pushCmd( cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True )
@@ -158,20 +166,12 @@ class CAgentLink():
             self.segOD = 0
             agentNO = self.agentNO()
 
-            agentNO.position = self.currSII().pos
-            agentNO.angle = self.currSII().angle
-            tKey = self.currSII().edge
-            agentNO.edge = tEdgeKeyToStr( tKey )
-            # agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
-            agentNO.route_idx = self.edges_route.index( tKey )
+            self.setPos_by_DE()
 
-
-            # if agentNO.route_idx == len( self.nodes_route )-2 and agentNO.position >= edgeS:
             if self.DE_IDX == len(self.SII)-1:
                 agentNO.route = ""
-
-            # if self.DE_IDX < len(self.SII):
-            self.DE_IDX += 1
+            else:
+                self.DE_IDX += 1
 
         elif cmd.event == EAgentServer_Event.OdometerDistance:
             agentNO = self.agentNO()
@@ -187,29 +187,35 @@ class CAgentLink():
             edgeS = edgeSize( nxGraph, tKey )
 
             self.segOD += distance
-            if self.segOD < self.currSII().length:
+
+            if self.segOD >= self.currSII().length:
+                self.setPos_by_DE()
+            else:
                 new_pos = distance + agentNO.position
 
                 # переход через грань
                 if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
                     newIDX = agentNO.route_idx + 1
-
                     agentNO.position = new_pos % edgeS
                     tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
                     agentNO.edge = tEdgeKeyToStr( tEdgeKey )
-                    # agentNO.route_idx = newIDX
-                    print( agentNO.route_idx, "22222222222222" )
+                    agentNO.route_idx = newIDX
                 else:
                     agentNO.position = new_pos
 
                 self.calcAgentAngle( agentNO )
-            else:
-                agentNO.position = self.currSII().pos
-                agentNO.angle = self.currSII().angle
-                tKey = self.currSII().edge
-                agentNO.edge = tEdgeKeyToStr( self.currSII().edge )
-                agentNO.route_idx = self.edges_route.index( tKey )
-                # agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
+
+    def setPos_by_DE( self ):
+        agentNO = self.agentNO()
+        agentNO.position  = self.currSII().pos
+        agentNO.angle     = self.currSII().angle
+        tKey              = self.currSII().edge
+        agentNO.edge      = tEdgeKeyToStr( tKey )
+        try:
+            agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
+        except ValueError:
+            self.pushCmd( self.ES_cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=True )
+            agentNO.status = EAgent_Status.PositionSyncError.name
 
 
 # def putToNode(self, node):

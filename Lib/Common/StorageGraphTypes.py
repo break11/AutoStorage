@@ -3,6 +3,8 @@ from enum import Enum, auto
 from PyQt5.QtCore import (Qt)
 import Lib.Common.StrConsts as SC
 
+from .Utils import EnumFromString
+
 _graphAttrs = [
             "widthType",
             "edgeSize",
@@ -49,21 +51,13 @@ nodeColors = {
 }
 
 #######################################################
-
-def _EnumFromString( enum, sValue, defValue ):
-        try:
-            rVal = enum[ sValue ]
-        except:
-            print( f"{SC.sWarning} Enum {enum} doesn't contain value for string = {sValue}, using {defValue.name}!" )
-            rVal = defValue
-        return rVal
     
 class EWidthType( Enum ):
     Narrow = auto()
     Wide   = auto()
 
     @staticmethod
-    def fromString( sType ): return _EnumFromString( EWidthType, sType, EWidthType.Narrow )
+    def fromString( sType ): return EnumFromString( EWidthType, sType, EWidthType.Narrow )
 
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
@@ -89,7 +83,7 @@ class ECurvature( Enum ):
     Straight = auto()
 
     @staticmethod
-    def fromString( sType ): return _EnumFromString( ECurvature, sType, ECurvature.Straight )
+    def fromString( sType ): return EnumFromString( ECurvature, sType, ECurvature.Straight )
 
 class ESensorSide( Enum ):
     SLeft    = auto()
@@ -98,7 +92,7 @@ class ESensorSide( Enum ):
     SPassive = auto()
 
     @staticmethod
-    def fromString( sType ): return _EnumFromString( ESensorSide, sType, ESensorSide.SBoth )
+    def fromString( sType ): return EnumFromString( ESensorSide, sType, ESensorSide.SBoth )
 
 class EDirection( Enum ):
     Forward = auto()
@@ -108,4 +102,4 @@ class EDirection( Enum ):
     Error   = auto()
 
     @staticmethod
-    def fromString( sType ): return _EnumFromString( EDirection, sType, ESensorSide.Error )
+    def fromString( sType ): return EnumFromString( EDirection, sType, ESensorSide.Error )
