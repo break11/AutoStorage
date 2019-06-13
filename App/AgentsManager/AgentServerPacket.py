@@ -55,8 +55,11 @@ class CAgentServerPacket:
         return sResult.encode()
 
     def toTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
-
     def toRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
+
+    def toStr( self, bTX_or_RX, appendLF=True ): return self.toBStr( bTX_or_RX, appendLF=appendLF ).decode()
+    def toRX_Str( self, appendLF=True ): return self.toRX_BStr( appendLF=appendLF ).decode()
+    def toTX_Str( self, appendLF=True ): return self.toTX_BStr( appendLF=appendLF ).decode()
 
     ############################################################
 

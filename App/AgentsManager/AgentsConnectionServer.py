@@ -134,10 +134,6 @@ class CAgentsConnectionServer(QTcpServer):
         agentLink = self.getAgentLink( agentN )
         agentLink.socketThreads.append( thread )
 
-        # протяжка заталкивания команды в сокет без очереди из другого потока
-        # agentLink.writeTo_Socket.connect( thread.writeTo_Socket, Qt.QueuedConnection )
-        agentLink.writeTo_Socket.connect( thread.writeTo_Socket, Qt.DirectConnection )
-
     @pyqtSlot( int )
     def thread_SocketError( self, error ):
         print( f"{SC.sError} Socket error={ socketErrorToString(error) }" )
@@ -236,7 +232,7 @@ class CAgentSocketThread(QThread):
 
         while self.bRunning:
             self.tcpSocket.waitForReadyRead(1)
-            # self.process()
+            self.process()
         
         self.sendTX_cmd_Timer.cancel()
 
@@ -264,6 +260,7 @@ class CAgentSocketThread(QThread):
                 self.ACC_cmd.packetN = cmd.packetN
 
     def process( self ):
+        self.sendExpressCMDs()
         if self.bSendTX_cmd:
             self.sendTX_cmd()
 
@@ -289,21 +286,16 @@ class CAgentSocketThread(QThread):
     def __processRxPacket( self, cmd ):
         self.processRxPacket.emit( self.agentN, cmd )
     #################################
-    def agentLink(self):
+    def agentLink(self, bWarning = True ):
         if self.agentN == UNINITED_AGENT_N:
             return None
         
-        return self.ACS().getAgentLink(self.agentN)
+        return self.ACS().getAgentLink( self.agentN, bWarning = bWarning )
 
     def getTX_FIFO(self):
-        if self.agentN == UNINITED_AGENT_N:
-            return None
-
-        agentLink = self.ACS().getAgentLink( self.agentN, bWarning = False)
-        if agentLink is None:
-            return None
-        
-        return agentLink.TX_Packets
+        agentLink = self.agentLink( bWarning = False )
+        if agentLink:
+            return agentLink.TX_Packets
     
     def currentTX_cmd( self ):
         try:
@@ -312,12 +304,18 @@ class CAgentSocketThread(QThread):
             return None
     #################################
 
-    @pyqtSlot( CAgentServerPacket )
     def writeTo_Socket( self, cmd ):
         self.AgentLogUpdated.emit( True, self.agentN, cmd )
-        print("222")
         self.tcpSocket.write( cmd.toTX_BStr() )
-        print("333")
+
+    def sendExpressCMDs( self ):
+        agentLink = self.agentLink( bWarning = False )
+        if not agentLink:
+            return
+
+        for cmd in agentLink.Express_TX_Packets:
+            self.writeTo_Socket( cmd )
+        agentLink.Express_TX_Packets.clear()
 
     def sendTX_cmd( self ):
         self.writeTo_Socket( self.ACC_cmd )

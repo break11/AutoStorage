@@ -19,14 +19,13 @@ from .AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
 from .AgentLogManager import CAgentLogManager
 
-class CAgentLink( QObject ):
-    writeTo_Socket = pyqtSignal( CAgentServerPacket )
-
+class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
     def __init__(self, agentN):
         super().__init__()
         self.agentN = agentN
-        self.TX_Packets = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
+        self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
+        self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
         self.log = ""
@@ -117,9 +116,7 @@ class CAgentLink( QObject ):
         if bPut_to_TX_FIFO:
             self.TX_Packets.append( cmd )
         else:
-            print( "111" )
-            self.writeTo_Socket.emit( cmd )
-            print( "444" )
+            self.Express_TX_Packets.append( cmd )
             ##remove##
             # for thread in self.socketThreads:
             #     thread.writeTo_Socket( cmd )

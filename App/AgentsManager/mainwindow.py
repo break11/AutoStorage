@@ -115,7 +115,7 @@ class CAM_MainWindow(QMainWindow):
         
         for cmd in cmd_list:
             agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
-            print( f"Send custom cmd={cmd} to agent={self.currAgentN()}" )
+            print( f"Send custom cmd={cmd.toTX_Str( appendLF=False )} to agent={self.currAgentN()}" )
 
     @pyqtSlot("bool")
     def on_btnRequestTelemetry_clicked( self, bVal ):
