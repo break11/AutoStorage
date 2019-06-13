@@ -232,7 +232,8 @@ class CStorageGraph_GScene_Manager( QObject ):
             return
         
         # берем смежные вершины и оставляем только те из них, для которых есть грань в edgeGItems,
-        # тк в случае удаления грани или вершины из графа они удаляются позже
+        # тк в случае удаления грани или вершины они сначала удаляются из edgeGItems(nodeGItems),
+        # а из графа удаляются позже и могут ещё присутствовать в графе
         NeighborsIDs = set( self.nxGraph.successors(nodeGItem.nodeID) ).union( set(self.nxGraph.predecessors(nodeGItem.nodeID)) )
         NeighborsIDs = [ ID for ID in NeighborsIDs if self.edgeGItems.get(frozenset((nodeGItem.nodeID, ID))) ]
         
@@ -245,11 +246,12 @@ class CStorageGraph_GScene_Manager( QObject ):
             return
         elif Neighbors_count == 1:
             x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[0] )
-            vec1 = Vector2 ( x2 - x1, - (y2 - y1) )
+            vec1 = Vector2 ( x2 - x1, - (y2 - y1) ) #для координаты "y" берем отрицательное значение, тк в сцене ось "y" направлена вниз
             nodeGItem.setMiddleLineAngle(  math.degrees(vec1.rotate(math.pi/2).selfAngle())  )
             return
         #если смежных вершин две и более, составляем дикт {угол:пара векторов}, исходящих из ноды nodeGItem
         else:
+            #собираем список пар, за счёт использования frozenset и set отфильтровываем дубликаты
             NodeIDs_Pairs = set( [frozenset ((nID1, nID2)) for nID1 in NeighborsIDs for nID2 in NeighborsIDs if nID1 != nID2] )
             dictByAngle = {}
             for nID1, nID2 in NodeIDs_Pairs:
