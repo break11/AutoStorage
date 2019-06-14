@@ -160,7 +160,6 @@ class CAgentsConnectionServer(QTcpServer):
 
         agentLink = CAgentLink( agentN )
         self.AgentLinks[ agentN ] = agentLink
-        self.AgentLogUpdated.emit( agentN, agentLink.log )
 
     def deleteAgentLink(self, agentN): del self.AgentLinks[agentN]
 

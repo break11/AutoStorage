@@ -79,7 +79,7 @@ class CAM_MainWindow(QMainWindow):
             self.pteAgentLog.clear()
             return
 
-        self.pteAgentLog.setHtml( agentLink.log )
+        self.pteAgentLog.setHtml( "".join(agentLink.log[-1000:]) )
         self.pteAgentLog.moveCursor( QTextCursor.End )
 
         self.updateAgentControls( agentLink )

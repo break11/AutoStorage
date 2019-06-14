@@ -2,7 +2,11 @@
 from .AgentServerPacket import EPacket_Status
 from .AgentServer_Event import EAgentServer_Event
 
-def getNextPacketN( n ): return ( 1 if n == 999 else n+1 )
+def getNextPacketN( n ):
+    import threading
+    print( threading.currentThread(), n  )
+
+    return ( 1 if n == 999 else n+1 )
 
 def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacket=None ):
     if cmd.event == EAgentServer_Event.ClientAccepting:

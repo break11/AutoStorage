@@ -28,7 +28,7 @@ class CAgentLink():
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
-        self.log = ""
+        self.log = []
 
         now = datetime.datetime.now()
         sD = now.strftime("%d-%m-%Y")
@@ -117,9 +117,6 @@ class CAgentLink():
             self.TX_Packets.append( cmd )
         else:
             self.Express_TX_Packets.append( cmd )
-            ##remove##
-            # for thread in self.socketThreads:
-            #     thread.writeTo_Socket( cmd )
 
     def pushCmd_to_TX_FIFO( self, cmd ):
         self.pushCmd( cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True )
@@ -149,7 +146,6 @@ class CAgentLink():
         return self.SII[ self.DE_IDX ]
     
     def processRxPacket( self, cmd ):
-
         nxGraph = self.graphRootNode().nxGraph
 
         def getDirection( tEdgeKey, agent_angle):
@@ -211,7 +207,7 @@ class CAgentLink():
         try:
             agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
         except ValueError:
-            self.pushCmd( self.ES_cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=True )
+            self.pushCmd( self.ES_cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True )
             agentNO.status = EAgent_Status.PositionSyncError.name
 
 

@@ -22,6 +22,8 @@ DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_
 
 START_PACKET_NUMBER = 11 # временно ставим номер пакета отличный от 0 - чтобы легче отличать "переговорку" с сервером
 
+taskCommands = [b'@BA',b'@SB',b'@SE',b'@CM',b'@WO',b'@BL',b'@BU',b'@DP']
+
 class CFakeAgentThread(QThread):
     threadFinished = pyqtSignal(int)
     def __init__(self, agentN, host, port, parent):
@@ -256,29 +258,19 @@ class CFakeAgentThread(QThread):
         if data.find(b'@PD') != -1:
             self.sendPacketToServer(b'@NT:ID')
 
-        if data.find(b'@BA') != -1:
+        if data[:3] in taskCommands:
             self.tasksList.append(data)
 
-        if data.find(b'@SB') != -1:
-            self.tasksList.append(data)
 
-        if data.find(b'@SE') != -1:
-            self.tasksList.append(data)
-
-        if data.find(b'@CM') != -1:
-            self.tasksList.append(data)
-
-        if data.find(b'@WO') != -1:
-            self.tasksList.append(data)
-
-        if data.find(b'@BL') != -1:
-            self.tasksList.append(data)
-
-        if data.find(b'@BU') != -1:
-            self.tasksList.append(data)
-
-        if data.find(b'@DP') != -1:
-            self.tasksList.append(data)
+        # if ( ( data.find(b'@BA') != -1 ) or
+        #      ( data.find(b'@SB') != -1 ) or
+        #      ( data.find(b'@SE') != -1 ) or
+        #      ( data.find(b'@CM') != -1 ) or
+        #      ( data.find(b'@WO') != -1 ) or
+        #      ( data.find(b'@BL') != -1 ) or
+        #      ( data.find(b'@BU') != -1 ) or
+        #      ( data.find(b'@DP') != -1 ) ):
+        #     self.tasksList.append(data)
 
     def startNextTask(self):
         if len(self.tasksList):
