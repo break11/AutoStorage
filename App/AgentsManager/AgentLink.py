@@ -13,7 +13,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.FileUtils import agentsLog_Path
-from .AgentServerPacket import CAgentServerPacket
+from .AgentServerPacket import CAgentServerPacket as ASP
 from .AgentServer_Event import EAgentServer_Event
 from .AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
@@ -40,10 +40,9 @@ class CAgentLink():
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.currentRxPacketN = 1000 #uninited state ##remove##
  
-        self.BS_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.BatteryState )
-        self.TS_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.TemperatureState )
-        self.TL_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.TaskList )
-        self.ES_cmd = CAgentServerPacket( agentN=self.agentN, event=EAgentServer_Event.EmergencyStop )
+        self.BS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.BatteryState )
+        self.TS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.TemperatureState )
+        self.TL_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.TaskList )
 
         self.requestTelemetry_Timer = QTimer()
         self.requestTelemetry_Timer.setInterval(1000)
@@ -98,7 +97,7 @@ class CAgentLink():
 
             for seq in seqList:
                 for cmd in seq:
-                    self.pushCmd_to_TX_FIFO( CAgentServerPacket.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
+                    self.pushCmd_to_TX_FIFO( ASP.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
 
     ##################
     def isConnected( self ):
@@ -108,7 +107,7 @@ class CAgentLink():
         if not self.isConnected():
             print( cmd )
             return
-        
+
         if bReMap_PacketN:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = getNextPacketN( self.genTxPacketN )
@@ -207,7 +206,8 @@ class CAgentLink():
         try:
             agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
         except ValueError:
-            self.pushCmd( self.ES_cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True )
+            ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
+            self.pushCmd( ES_cmd )
             agentNO.status = EAgent_Status.PositionSyncError.name
 
 

@@ -18,7 +18,7 @@ from Lib.Common.Agent_NetObject import CAgent_NO
 
 from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from .AgentServer_Event import EAgentServer_Event
-from .AgentProtocolUtils import getNextPacketN, _processRxPacket
+from .AgentProtocolUtils import _processRxPacket
 from .AgentLogManager import CAgentLogManager
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
@@ -323,7 +323,7 @@ class CAgentSocketThread(QThread):
         if TX_cmd is not None:
             self.writeTo_Socket( TX_cmd )
             self.agentLink().lastTXpacketN = TX_cmd.packetN
-        
+
         self.bSendTX_cmd = False
 
     def disconnected(self):
