@@ -204,6 +204,7 @@ class CAgentLink():
         tKey              = self.currSII().edge
         agentNO.edge      = tEdgeKeyToStr( tKey )
         try:
+            print ( "3333333333333333333333333", tKey, agentNO.route_idx )
             agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
         except ValueError:
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )

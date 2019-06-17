@@ -22,7 +22,7 @@ DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_
 
 START_PACKET_NUMBER = 11 # временно ставим номер пакета отличный от 0 - чтобы легче отличать "переговорку" с сервером
 
-taskCommands = [b'@BA',b'@SB',b'@SE',b'@CM',b'@WO',b'@BL',b'@BU',b'@DP']
+taskCommands = [b'@BA',b'@SB',b'@SE',b'@CM',b'@WO',b'@BL',b'@BU',b'@DP', b'@ES']
 
 class CFakeAgentThread(QThread):
     threadFinished = pyqtSignal(int)
@@ -32,7 +32,7 @@ class CFakeAgentThread(QThread):
         self.host = host
         self.port = port
 
-        self.rxfifo = deque([])
+##remove##        self.rxfifo = deque([])
         self.commandToParse = []
 
         self.currentRxPacketN = 1000 # 1000 means that numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message.
@@ -56,6 +56,8 @@ class CFakeAgentThread(QThread):
         self.dpTicksDivider = 0
 
         self.connected = False
+
+        self.bEmergencyStop = False
 
     def run(self):
         print ('Socket thread run')
@@ -82,6 +84,15 @@ class CFakeAgentThread(QThread):
         print('Socket thread finish')
         self.threadFinished.emit(self) #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
 
+    def detectESinTaskList( self ):
+        bES = False
+        for task in self.tasksList:
+            if task.find( b'@ES' ) != -1:
+                bES = True
+                break
+        return bES
+
+
     def timerTick(self):
 
         if self.ackSendCounter > 0:
@@ -98,6 +109,16 @@ class CFakeAgentThread(QThread):
             if self.currentTxPacketWithNumbering :
                 self.writeBytestrToSocket(self.currentTxPacketWithNumbering)
                 self.packetResendCounter = 500/TIMER_PERIOD
+
+        if self.detectESinTaskList():
+            self.tasksList.clear()
+            self.currentTask = ''
+            self.bEmergencyStop
+            print('EmergencyStop !')
+            self.bEmergencyStop = True
+
+        if self.bEmergencyStop:
+            return
 
         if len(self.txFifo):
             # there is some packet to send
@@ -244,6 +265,7 @@ class CFakeAgentThread(QThread):
         # Periodic requests group end
 
         if data.find(b'@BR') != -1:
+            self.bEmergencyStop = False
             self.sendPacketToServer(b'@BR:FW')
 
         if data.find(b'@PE') != -1:
@@ -260,17 +282,6 @@ class CFakeAgentThread(QThread):
 
         if data[:3] in taskCommands:
             self.tasksList.append(data)
-
-
-        # if ( ( data.find(b'@BA') != -1 ) or
-        #      ( data.find(b'@SB') != -1 ) or
-        #      ( data.find(b'@SE') != -1 ) or
-        #      ( data.find(b'@CM') != -1 ) or
-        #      ( data.find(b'@WO') != -1 ) or
-        #      ( data.find(b'@BL') != -1 ) or
-        #      ( data.find(b'@BU') != -1 ) or
-        #      ( data.find(b'@DP') != -1 ) ):
-        #     self.tasksList.append(data)
 
     def startNextTask(self):
         if len(self.tasksList):

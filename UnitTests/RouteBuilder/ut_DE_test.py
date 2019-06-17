@@ -30,7 +30,7 @@ class CTestDE(unittest.TestCase):
     def test_DE( self ):
         ###############################################################################################
 
-        SII_Narrow = [ SI_Item (length=458, K=1, edge=('b', 'c'), pos=158),
+        SII_Narrow = [ SI_Item (length=488, K=1, edge=('b', 'c'), pos=158),
                        SI_Item (length=100, K=1, edge=('b', 'c'), pos=258),
                        SI_Item (length=300, K=1, edge=('c', 'd'), pos=258),
                        SI_Item (length=150, K=1, edge=('d', 'e'), pos=108),
@@ -45,7 +45,7 @@ class CTestDE(unittest.TestCase):
 
         ###############################################################################################
 
-        SII_Wide_1 = [ SI_Item (length=400, K=-1, edge=('q', 's'), pos=400),
+        SII_Wide_1 = [ SI_Item (length=430, K=-1, edge=('q', 's'), pos=400),
                      SI_Item (length=380, K=-1, edge=('s', 'k'), pos=180),
                      SI_Item (length=360, K=-1, edge=('s', 'k'), pos=540),
                      SI_Item (length=380, K=-1, edge=('k', 'l'), pos=360),
@@ -59,7 +59,7 @@ class CTestDE(unittest.TestCase):
 
         ###############################################################################################
 
-        SII_Wide_2 = [ SI_Item (length=360, K=-1, edge=('k', 'l'), pos=360),
+        SII_Wide_2 = [ SI_Item (length=390, K=-1, edge=('k', 'l'), pos=360),
                        SI_Item (length=800, K=-1, edge=('l', 'm'), pos=600),
                      ]
 
@@ -69,10 +69,10 @@ class CTestDE(unittest.TestCase):
 
         ##############################################################################################
 
-        SII_Mix_1 = [ SI_Item(length=63,  K=1,  edge=('j', 'k'), pos=63),
+        SII_Mix_1 = [ SI_Item(length=93,  K=1,  edge=('j', 'k'), pos=63),
                       SI_Item(length=614, K=1,  edge=('j', 'k'), pos=677),
                       SI_Item(length=35,  K=1,  edge=('j', 'k'), pos=712),
-                      SI_Item(length=360, K=-1, edge=('k', 'l'), pos=360),
+                      SI_Item(length=390, K=-1, edge=('k', 'l'), pos=360),
                       SI_Item(length=200, K=-1, edge=('k', 'l'), pos=560),
                     ]
 
@@ -81,11 +81,11 @@ class CTestDE(unittest.TestCase):
 
         #############################################################################################
 
-        SII_Mix_2 = [ SI_Item (length=258, K=1, edge=('i', 'j'), pos=258),
+        SII_Mix_2 = [ SI_Item (length=288, K=1, edge=('i', 'j'), pos=258),
                       SI_Item (length=405, K=1, edge=('j', 'k'), pos=63),
                       SI_Item (length=614, K=1, edge=('j', 'k'), pos=677),
                       SI_Item (length=35,  K=1, edge=('j', 'k'), pos=712),
-                      SI_Item (length=360, K=1, edge=('k', 's'), pos=360),
+                      SI_Item (length=390, K=1, edge=('k', 's'), pos=360),
                       SI_Item (length=800, K=1, edge=('s', 'q'), pos=600),
                     ]
 
@@ -94,11 +94,10 @@ class CTestDE(unittest.TestCase):
 
         #############################################################################################
 
-        SII_Mix_3 = [ SI_Item (length=400, K=1, edge=('q', 's'), pos=400),
+        SII_Mix_3 = [ SI_Item (length=430, K=1, edge=('q', 's'), pos=400),
                       SI_Item (length=380, K=1, edge=('s', 'k'), pos=180),
-                      SI_Item (length=360, K=1, edge=('s', 'k'), pos=540),
-                      SI_Item (length=20,  K=1, edge=('s', 'k'), pos=560),
-                      SI_Item (length=370, K=1, edge=('k', 'j'), pos=370),
+                      SI_Item (length=380, K=1, edge=('s', 'k'), pos=560),
+                      SI_Item (length=400, K=1, edge=('k', 'j'), pos=370),
                       SI_Item (length=600, K=1, edge=('j', 'i'), pos=258),
                       SI_Item (length=400, K=1, edge=('i', 'g'), pos=58),
                       SI_Item (length=100, K=1, edge=('i', 'g'), pos=158),
@@ -127,15 +126,6 @@ class CTestDE(unittest.TestCase):
         self.assertEqual( routeBuilder.shiftPos(edgesList=narrowEdgesList, tKey= ("c","d"), pos = 200, delta = 500),     ( ('e','f'), 100) )
         self.assertEqual( routeBuilder.shiftPos(edgesList=narrowEdgesList, tKey= ("c","d"), pos = 200, delta = 700),     ( ('e','f'), 300) )
         self.assertEqual( routeBuilder.shiftPos(edgesList=narrowEdgesList, tKey= ("c","d"), pos = 200, delta = 2000),    ( ('g','i'), 300) )
-
-    # def test_Route1(self):
-    #     nodeList = [ 8,9,10,11,12,13,14,15,60,16,17,18,19,20,29,30,31,34,35,36,37,38,43,44,45,46,47,48,49 ]
-    #     nodeList = [ str(n) for n in nodeList ]
-
-
-    #     route, SII = routeBuilder.buildRoute( nodeList = nodeList, agent_angle = 0 )
-
-    #     print(SII)
 
 
 if __name__ == '__main__':

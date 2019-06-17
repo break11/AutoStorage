@@ -23,7 +23,7 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from .AgentServerPacket import CAgentServerPacket
@@ -162,21 +162,32 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.isOnTrack() is None:
             agentNO.edge = tEdgeKeyToStr(edge)
         elif agentNO.route == "":
-            current_edge = tEdgeKeyFromStr( agentNO.edge )
-            startNode = current_edge[0]
+            tKey = tEdgeKeyFromStr( agentNO.edge )
+            startNode = tKey[0]
+
             if startNode == targetNode:
                 return
+            
             nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+            curEdgeSize = edgeSize( nxGraph, tKey )
 
+            print("000000000000000000", tKey, (nodes_route[0], nodes_route[1]) )
             # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
-            if ( nodes_route[0], nodes_route[1] ) != current_edge:
-                tKey = tuple( reversed(current_edge) )
+            if ( nodes_route[0], nodes_route[1] ) != tKey:
+                tKey = tuple( reversed(tKey) )
                 agentNO.edge = tEdgeKeyToStr( tKey )
-                edgeSize = nxGraph.edges[ tKey ][ SGT.s_edgeSize ]
-                agentNO.position = edgeSize - agentNO.position
-                nodes_route.insert(0, current_edge[1] )
+                curEdgeSize = edgeSize( nxGraph, tKey )
+                agentNO.position = curEdgeSize - agentNO.position
+                nodes_route.insert(0, tKey[0] )
+            elif ( agentNO.position / curEdgeSize ) > 0.5:
+                nodes_route = nodes_route[1:]
+                # tKey = ( nodes_route[0], nodes_route[1] )
+                # agentNO.edge = tEdgeKeyToStr( tKey )
+                # agentNO.pos = 0
 
+            print("1111111111111",agentNO.edge ,nodes_route)
             agentNO.route = ",".join( nodes_route )
+
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
