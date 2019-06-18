@@ -38,7 +38,6 @@ class CAgentLink():
         CAgentLogManager.agentLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
-        self.currentRxPacketN = 1000 #uninited state ##remove##
  
         self.BS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.BatteryState )
         self.TS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.TemperatureState )
@@ -92,7 +91,6 @@ class CAgentLink():
 
             if not cmd.value: return
 
-            nxGraph = self.graphRootNode().nxGraph
             seqList, self.SII = self.routeBuilder.buildRoute( nodeList = self.nodes_route, agent_angle = self.agentNO().angle )
 
             for seq in seqList:
@@ -145,13 +143,6 @@ class CAgentLink():
         return self.SII[ self.DE_IDX ]
     
     def processRxPacket( self, cmd ):
-        nxGraph = self.graphRootNode().nxGraph
-
-        def getDirection( tEdgeKey, agent_angle):
-            DirDict = { True: -1, False: 1, None: 1 }
-            rAngle, bReverse = getAgentAngle(nxGraph, tEdgeKey, agent_angle)
-            return DirDict[ bReverse ]
-
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
         elif cmd.event == EAgentServer_Event.DistanceEnd:
@@ -166,6 +157,11 @@ class CAgentLink():
                 self.DE_IDX += 1
 
         elif cmd.event == EAgentServer_Event.OdometerDistance:
+            nxGraph = self.graphRootNode().nxGraph
+            if nxGraph is None:
+                print( f"{SC.sWarning} No Graph loaded." )
+                return
+
             agentNO = self.agentNO()
 
             tKey = agentNO.isOnTrack()
@@ -204,13 +200,11 @@ class CAgentLink():
         tKey              = self.currSII().edge
         agentNO.edge      = tEdgeKeyToStr( tKey )
         try:
-            print ( "3333333333333333333333333", tKey, agentNO.route_idx )
             agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
         except ValueError:
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
             self.pushCmd( ES_cmd )
             agentNO.status = EAgent_Status.PositionSyncError.name
-
 
 # def putToNode(self, node):
     #     self.temp__AssumedPosition = node

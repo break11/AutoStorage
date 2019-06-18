@@ -25,6 +25,9 @@ def nodesList_FromStr( nodes_str ):
 def edgeSize(nxGraph,  tKey ):
     return nxGraph.edges()[ tKey ][ SGT.s_edgeSize ]
 
+def nodeType(nxGraph, nodeID):
+    return nxGraph.nodes()[ nodeID ][ SGT.s_nodeType ]
+
 def tEdgeKeyFromStr( edge_str ):
     return tuple( nodesList_FromStr( edge_str) )
 

@@ -23,7 +23,7 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from .AgentServerPacket import CAgentServerPacket
@@ -149,45 +149,41 @@ class CAM_MainWindow(QMainWindow):
             self.SimpleAgentTest_Timer.stop()
 
     def AgentTestMoving(self, agentNO):
+        if agentNO.isOnTrack() is None: return
+        if agentNO.route != "": return
+
         nxGraph = self.graphRootNode().nxGraph
 
         l = len( nxGraph.nodes )
         nodes = list( nxGraph.nodes )
-        targetNode = nodes[ random.randint(0, l-1) ]
-        edges = nxGraph.out_edges( targetNode )
-        if len( edges ) == 0:
-            return
-        edge = list(edges)[0]
 
-        if agentNO.isOnTrack() is None:
-            agentNO.edge = tEdgeKeyToStr(edge)
-        elif agentNO.route == "":
-            tKey = tEdgeKeyFromStr( agentNO.edge )
-            startNode = tKey[0]
+        tKey = tEdgeKeyFromStr( agentNO.edge )
+        startNode = tKey[0]
 
-            if startNode == targetNode:
-                return
+        while True:
+            targetNode = nodes[ random.randint(0, l-1) ]
+            if startNode == targetNode: continue
+            if nodeType(nxGraph, targetNode) == SGT.ENodeTypes.Terminal.name: continue
+            break
             
-            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+        nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+        curEdgeSize = edgeSize( nxGraph, tKey )
+
+        # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
+        if ( nodes_route[0], nodes_route[1] ) != tKey:
+            tKey = tuple( reversed(tKey) )
+            agentNO.edge = tEdgeKeyToStr( tKey )
             curEdgeSize = edgeSize( nxGraph, tKey )
-
-            print("000000000000000000", tKey, (nodes_route[0], nodes_route[1]) )
-            # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
-            if ( nodes_route[0], nodes_route[1] ) != tKey:
-                tKey = tuple( reversed(tKey) )
-                agentNO.edge = tEdgeKeyToStr( tKey )
-                curEdgeSize = edgeSize( nxGraph, tKey )
-                agentNO.position = curEdgeSize - agentNO.position
-                nodes_route.insert(0, tKey[0] )
-            elif ( agentNO.position / curEdgeSize ) > 0.5:
+            agentNO.position = curEdgeSize - agentNO.position
+            nodes_route.insert(0, tKey[0] )
+        elif ( agentNO.position / curEdgeSize ) > 0.5:
+            if len( nodes_route ) > 2:
                 nodes_route = nodes_route[1:]
-                # tKey = ( nodes_route[0], nodes_route[1] )
-                # agentNO.edge = tEdgeKeyToStr( tKey )
-                # agentNO.pos = 0
+                tKey = ( nodes_route[0], nodes_route[1] )
+                agentNO.edge = tEdgeKeyToStr( tKey )
+                agentNO.position = 0
 
-            print("1111111111111",agentNO.edge ,nodes_route)
-            agentNO.route = ",".join( nodes_route )
-
+        agentNO.route = ",".join( nodes_route )
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
