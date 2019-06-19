@@ -23,9 +23,12 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
+from Lib.Common.GraphUtils import getEdgeCoords, getNodeCoords
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Common.Vectors import Vector2
+
 
 class EGManagerMode (Flag):
     View      = auto()
@@ -230,8 +233,54 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bDrawSpecialLines = bVal
         self.gScene.update()
 
-    #рассчет средней линии для нод
     def calcNodeMiddleLine(self, nodeGItem):        
+        if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
+            return
+        
+        # берем смежные вершины и оставляем только те из них, для которых есть грань в edgeGItems,
+        # тк в случае удаления грани или вершины они сначала удаляются из edgeGItems(nodeGItems),
+        # а из графа удаляются позже и могут ещё присутствовать в графе
+        NeighborsIDs = set( self.nxGraph.successors(nodeGItem.nodeID) ).union( set(self.nxGraph.predecessors(nodeGItem.nodeID)) )
+        NeighborsIDs = [ ID for ID in NeighborsIDs if self.edgeGItems.get(frozenset((nodeGItem.nodeID, ID))) ]
+        
+        Neighbors_count = len(NeighborsIDs)
+        x1, y1 = getNodeCoords( self.nxGraph, nodeGItem.nodeID )
+
+        #если нет смежных вершин или смежная вершина одна
+        if Neighbors_count == 0:
+            nodeGItem.setMiddleLineAngle( 0 )
+            return
+        elif Neighbors_count == 1:
+            x2, y2 = getNodeCoords( self.nxGraph, NeighborsIDs[0] )
+            vec1 = Vector2 ( x2 - x1, - (y2 - y1) ) #для координаты "y" берем отрицательное значение, тк в сцене ось "y" направлена вниз
+            nodeGItem.setMiddleLineAngle(  math.degrees(vec1.rotate(math.pi/2).selfAngle())  )
+            return
+        #если смежных вершин две и более, составляем дикт {угол:пара векторов}, исходящих из ноды nodeGItem
+        else:
+            #собираем список пар, за счёт использования frozenset и set отфильтровываем дубликаты
+            NodeIDs_Pairs = set( [frozenset ((nID1, nID2)) for nID1 in NeighborsIDs for nID2 in NeighborsIDs if nID1 != nID2] )
+            dictByAngle = {}
+            for nID1, nID2 in NodeIDs_Pairs:
+                x2, y2 = getNodeCoords( self.nxGraph, nID1 )
+                vec1 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
+
+                x2, y2 = getNodeCoords( self.nxGraph, nID2 )
+                vec2 = Vector2 ( x2 - x1, - (y2 - y1) ).unit()
+
+                angle = vec1.angle( vec2 )
+                dictByAngle[angle] = ( vec1, vec2 )
+            
+            vec1, vec2 = dictByAngle[ max(dictByAngle.keys()) ]
+            r_vec = vec1 + vec2
+
+            #если вектора противоположнонаправлены, r_vec будет нулевым вектором,
+            # тогда результирующий вектор берём как перпендикуляр vec1 или vec2
+            r_vec = r_vec if r_vec else vec1.rotate(math.pi/2)
+
+            nodeGItem.setMiddleLineAngle ( math.degrees(r_vec.selfAngle()) )
+
+    #рассчет средней линии для нод
+    def calcNodeMiddleLine_OLD(self, nodeGItem):        
         if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
             return
         incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
@@ -268,7 +317,8 @@ class CStorageGraph_GScene_Manager( QObject ):
             r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
             r2 = e2.rotateAngle() if (e2.nodeID_1 == nodeGItem.nodeID) else (e2.rotateAngle() + 180) % 360
 
-        nodeGItem.setMiddleLineAngle( min(r1, r2) + abs(r1-r2)/2 )
+        MiddleLineAngle = min(r1, r2) + abs(r1-r2)/2        
+        nodeGItem.setMiddleLineAngle( MiddleLineAngle )
 
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
@@ -285,8 +335,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bHasChanges = True
 
         NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
-        nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
-        nodeGItemsNeighbors.append (nodeGItem)
+        nodeGItemsNeighbors = set ( [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ] )
+        nodeGItemsNeighbors.add (nodeGItem)
 
         for nodeGItem in nodeGItemsNeighbors:
             self.calcNodeMiddleLine(nodeGItem)
@@ -464,8 +514,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
                 attr = deepcopy (self.default_Node_Props)
-                attr[ SGT.s_x ] = self.gView.mapToScene(event.pos()).x()
-                attr[ SGT.s_y ] = self.gView.mapToScene(event.pos()).y()
+                attr[ SGT.s_x ] = round (self.gView.mapToScene(event.pos()).x())
+                attr[ SGT.s_y ] = round (self.gView.mapToScene(event.pos()).y())
 
                 CGraphNode_NO( name=self.genStrNodeID(), parent=self.graphRootNode().nodesNode(), props=attr )
 

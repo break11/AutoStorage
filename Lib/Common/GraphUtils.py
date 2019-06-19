@@ -48,6 +48,16 @@ def getEdgeCoords (nxGraph, tEdgeKey):
 
     return x1, y1, x2, y2
 
+def getNodeCoords (nxGraph, nodeID):
+
+    if not nxGraph.has_node( nodeID ):
+        return
+
+    x = nxGraph.nodes()[ nodeID ][SGT.s_x]
+    y = nxGraph.nodes()[ nodeID ][SGT.s_y]
+    
+    return x, y
+
 def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
 
     edgeCoords = getEdgeCoords( nxGraph, tEdgeKey )
