@@ -114,3 +114,18 @@ def loadGraphML_File( sFName ):
     del nxGraph.graph["edge_default"]
 
     return nxGraph
+
+def vecsFromNodes( nxGraph, nodeID, NeighborsIDs):
+        
+    Neighbors_count = len(NeighborsIDs)
+    x1, y1 = getNodeCoords( nxGraph, nodeID )
+
+    vecList = []
+
+    for ID in NeighborsIDs:
+        x2, y2 = getNodeCoords( self.nxGraph, ID )
+        vec = Vector2 ( x2 - x1, - (y2 - y1) ).unit() #для координаты "y" берем отрицательное значение, тк в сцене ось "y" направлена вниз
+
+        vecList.append(vec)
+
+    return vecList
