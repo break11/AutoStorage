@@ -32,6 +32,15 @@ class CAM_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
+
+        # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
+        self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/Common/Agent_Cmd_Log_Form.ui" )
+        assert self.agent_CMD_Log_Container is not None
+        assert self.agent_CMD_Log_Container.layout() is not None
+        self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
+        self.ACL_Form.lePushCMD.returnPressed.connect( self.pushCMD_to_Agent )
+        self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch )
+
         # CAgents_Move_Manager.init()
 
         self.SimpleAgentTest_Timer = QTimer( self )
@@ -76,37 +85,37 @@ class CAM_MainWindow(QMainWindow):
     def CurrentAgentChanged( self, current, previous):
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
         if agentLink is None:
-            self.pteAgentLog.clear()
+            self.ACL_Form.pteAgentLog.clear()
             return
 
-        self.pteAgentLog.setHtml( "".join(agentLink.log[-1000:]) )
-        self.pteAgentLog.moveCursor( QTextCursor.End )
+        self.ACL_Form.pteAgentLog.setHtml( "".join(agentLink.log[-1000:]) )
+        self.ACL_Form.pteAgentLog.moveCursor( QTextCursor.End )
 
         self.updateAgentControls( agentLink )
 
+    ################################################################
+
     def updateAgentControls( self, agentLink ):
-        self.btnRequestTelemetry.setChecked( agentLink.requestTelemetry_Timer.isActive() )
-        self.sbAgentN.setValue( agentLink.agentN )
+        self.ACL_Form.btnRequestTelemetry.setChecked( agentLink.requestTelemetry_Timer.isActive() )
+        self.ACL_Form.sbAgentN.setValue( agentLink.agentN )
 
     def AgentLogUpdated( self, agentN, data ):
         if self.currAgentN() != agentN:
             return
 
-        self.pteAgentLog.append( data )
+        self.ACL_Form.pteAgentLog.append( data )
 
-    ################################################################
+    def pushCMD_to_Agent( self ):
+        agentN = self.ACL_Form.sbAgentN.value()
 
-    def on_lePushCMD_returnPressed( self ):
-        if not self.currAgentN(): return
-
-        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        agentLink = self.AgentsConnectionServer.getAgentLink( agentN, bWarning = False )
         if agentLink is None: return
 
-        l = self.lePushCMD.text().split(" ")
+        l = self.ACL_Form.lePushCMD.text().split(" ")
         cmd_list = []
 
         for item in l:
-            sCMD = f"{self.sbPacketN.value():03d},{self.sbAgentN.value():03d}:{item}"
+            sCMD = f"{self.ACL_Form.sbPacketN.value():03d},{agentN:03d}:{item}"
             cmd_list.append( CAgentServerPacket.fromTX_Str( sCMD ) )
 
         if None in cmd_list:
@@ -118,7 +127,7 @@ class CAM_MainWindow(QMainWindow):
             print( f"Send custom cmd={cmd.toTX_Str( appendLF=False )} to agent={self.currAgentN()}" )
 
     @pyqtSlot("bool")
-    def on_btnRequestTelemetry_clicked( self, bVal ):
+    def Agent_RequestTelemetry_switch( self, bVal ):
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
         if agentLink is None: return
 

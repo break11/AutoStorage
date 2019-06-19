@@ -1,12 +1,19 @@
 
 import math
 
-from PyQt5.QtWidgets import QGraphicsView 
+from PyQt5.QtWidgets import QGraphicsView, QProxyStyle, QStyle
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt, QRectF, QByteArray
 
 import Lib.Common.StrConsts as SC
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
+
+# Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
+class CNoAltMenu_Style( QProxyStyle ):
+    def styleHint( self, stylehint, opt, widget, returnData):
+        if (stylehint == QStyle.SH_MenuBar_AltKeyNavigation):
+            return 0
+        return QProxyStyle.styleHint( self, stylehint, opt, widget, returnData)
 
 windowDefSettings = {
                         SC.s_geometry: "", # type: ignore

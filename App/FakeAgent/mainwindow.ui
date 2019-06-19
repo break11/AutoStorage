@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AM_MainWindow</class>
- <widget class="QMainWindow" name="AM_MainWindow">
+ <class>FA_MainWindow</class>
+ <widget class="QMainWindow" name="FA_MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AgentsManager</string>
+   <string>Fake Agent's</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -34,16 +34,6 @@
         </property>
         <property name="shortcut">
          <string>Del</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnSimpleAgent_Test">
-        <property name="text">
-         <string>Simple Agent Test</string>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
         </property>
        </widget>
       </item>

@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget, QProxyStyle, QStyle
+from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget
 from PyQt5.QtCore import QTimer, Qt
 
 from .SettingsManager import CSettingsManager as CSM
@@ -11,13 +11,7 @@ from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO
-
-# Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
-class CNoAltMenu_Style( QProxyStyle ):
-    def styleHint( self, stylehint, opt, widget, returnData):
-        if (stylehint == QStyle.SH_MenuBar_AltKeyNavigation):
-            return 0
-        return QProxyStyle.styleHint( self, stylehint, opt, widget, returnData)
+from Lib.Common.GuiUtils import CNoAltMenu_Style
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType

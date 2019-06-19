@@ -2,9 +2,25 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 from .FakeAgent_ConnectForm import CFakeAgent_ConnectForm
+from .mainwindow import CFA_MainWindow
+from Lib.Common.SettingsManager import CSettingsManager as CSM
+from .def_settings import FA_DefSet
+from Lib.Common.GuiUtils import CNoAltMenu_Style
 
 def main():
+    CSM.loadSettings( default=FA_DefSet )
+
     app = QApplication(sys.argv)
-    FakeAgent_Form = CFakeAgent_ConnectForm()
+    app.setStyle( CNoAltMenu_Style() )
+
+    FakeAgent_Form = CFA_MainWindow()
     FakeAgent_Form.show()
-    sys.exit(app.exec_())
+
+    FakeAgent_Form__ = CFakeAgent_ConnectForm()
+    FakeAgent_Form__.show()
+
+    r = app.exec_()
+
+    CSM.saveSettings()
+
+    sys.exit( r )
