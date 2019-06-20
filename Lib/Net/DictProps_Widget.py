@@ -2,8 +2,8 @@
 import os
 from .images_rc import *
 from PyQt5 import uic
-from PyQt5.Qt import ( QInputDialog, Qt )
-from PyQt5.QtGui import (QStandardItemModel, QStandardItem)
+from PyQt5.Qt import QInputDialog, Qt
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import CNetObj_Widget

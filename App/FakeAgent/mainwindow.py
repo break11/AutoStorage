@@ -7,10 +7,12 @@ import time
 import weakref
 from copy import deepcopy
 
+from PyQt5.Qt import QInputDialog, Qt
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction
 from PyQt5 import uic
+from PyQt5.QtNetwork import QAbstractSocket, QNetworkInterface
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 # from Lib.Common import StorageGraphTypes as SGT
@@ -18,7 +20,7 @@ from Lib.Common import FileUtils
 import Lib.Common.StrConsts as SC
 # from Lib.Common.Utils import time_func
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
-# from .AgentsList_Model import CAgentsList_Model
+from .AgentsList_Model import CAgentsList_Model
 # from .AgentsConnectionServer import CAgentsConnectionServer
 # from .AgentServerPacket import CAgentServerPacket
 
@@ -28,6 +30,10 @@ class CFA_MainWindow(QMainWindow):
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
         load_Window_State_And_Geometry( self )
 
+        for ipAddress in QNetworkInterface.allAddresses():
+            if ipAddress.toIPv4Address() != 0:
+                self.cbServerIP.addItem( ipAddress.toString() )
+
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
         self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/Common/Agent_Cmd_Log_Form.ui" )
         assert self.agent_CMD_Log_Container is not None
@@ -36,8 +42,8 @@ class CFA_MainWindow(QMainWindow):
         # self.ACL_Form.lePushCMD.returnPressed.connect( self.pushCMD_to_Agent )
         # self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch )
 
-        # self.Agents_Model = CAgentsList_Model( parent = self )
-        # self.tvAgents.setModel( self.Agents_Model )
+        self.Agents_Model = CAgentsList_Model( parent = self )
+        self.tvAgents.setModel( self.Agents_Model )
         # self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
         # self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
                 
@@ -112,9 +118,15 @@ class CFA_MainWindow(QMainWindow):
     ################################################################
 
     def on_btnAddAgent_released( self ):
-        pass
+        text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')
+        if not ok: return
+
+        self.Agents_Model.addAgent( int(text) )
 
     def on_btnDelAgent_released( self ):
-        pass
+        # ci = self.tvAgents.currentIndex()
+        # if not ci.isValid(): return
+
+        self.Agents_Model.delAgent( 555 )
 
     ###################################################
