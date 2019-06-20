@@ -40,6 +40,9 @@ class Vector2():
 
     def __bool__ (self): return not ( math.isclose( self.x, 0, abs_tol=1e-9 ) and math.isclose( self.y, 0, abs_tol=1e-9 ) )
 
+    def __hash__(self):
+        return hash( (self.x, self.y) )
+
     def add(self, number): return Vector2( self.x + number, self.y + number )
 
     def multiply(self, number): return Vector2( self.x * number, self.y * number )

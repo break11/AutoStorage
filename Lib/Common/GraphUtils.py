@@ -123,9 +123,26 @@ def vecsFromNodes( nxGraph, nodeID, NeighborsIDs):
     vecList = []
 
     for ID in NeighborsIDs:
-        x2, y2 = getNodeCoords( self.nxGraph, ID )
+        x2, y2 = getNodeCoords( nxGraph, ID )
         vec = Vector2 ( x2 - x1, - (y2 - y1) ).unit() #для координаты "y" берем отрицательное значение, тк в сцене ось "y" направлена вниз
 
         vecList.append(vec)
 
     return vecList
+
+
+def vecsPair_withMaxAngle(vecs):
+
+    vecs_Pairs = []
+    c = len( vecs )
+
+    for i in range( c ):
+        for j in range (i+1, c):
+            vecs_Pairs.append( (vecs[i], vecs[j]) )
+
+    dictByAngle = {}
+    for vec1, vec2 in vecs_Pairs:
+        angle = vec1.angle( vec2 )
+        dictByAngle[angle] = ( vec1, vec2 )
+            
+    return dictByAngle[ max(dictByAngle.keys()) ]
