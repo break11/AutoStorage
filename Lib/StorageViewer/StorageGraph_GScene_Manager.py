@@ -243,7 +243,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         NeighborsIDs = set( self.nxGraph.successors(nodeGItem.nodeID) ).union( set(self.nxGraph.predecessors(nodeGItem.nodeID)) )
         NeighborsIDs = [ ID for ID in NeighborsIDs if self.edgeGItems.get( frozenset((nodeGItem.nodeID, ID)) ) ]
         
-        nodeVecs = vecsFromNodes( nxGraph = self.nxGraph, nodeID = nodeGItem.nodeID, NeighborsIDs = NeighborsIDs )
+        nodeVecs = vecsFromNodes( nxGraph = self.nxGraph, baseNodeID = nodeGItem.nodeID, NeighborsIDs = NeighborsIDs )
         vecs_count = len(nodeVecs)
 
         r_vec = Vector2(1, 0)

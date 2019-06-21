@@ -115,10 +115,10 @@ def loadGraphML_File( sFName ):
 
     return nxGraph
 
-def vecsFromNodes( nxGraph, nodeID, NeighborsIDs):
+def vecsFromNodes( nxGraph, baseNodeID, NeighborsIDs):
         
     Neighbors_count = len(NeighborsIDs)
-    x1, y1 = getNodeCoords( nxGraph, nodeID )
+    x1, y1 = getNodeCoords( nxGraph, baseNodeID )
 
     vecList = []
 
@@ -135,6 +135,8 @@ def vecsPair_withMaxAngle(vecs):
 
     vecs_Pairs = []
     c = len( vecs )
+
+    if c < 2: return None
 
     for i in range( c ):
         for j in range (i+1, c):

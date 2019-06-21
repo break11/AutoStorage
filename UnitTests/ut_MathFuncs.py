@@ -11,6 +11,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 import Lib.Common.GraphUtils as gu
 from Lib.Common.Vectors import Vector2
+from Lib.Common import StorageGraphTypes as SGT
 
 #доверенные значения
 cos_45 = math.sqrt(2)/2
@@ -36,23 +37,12 @@ deg_315 = 315.0
 deg_360 = 360.0
 deg_540 = 540.0
 
-nxGraph = nx.DiGraph()
+nxGraph = gu.loadGraphML_File( "./GraphML/math_unit_tests.graphml" )
 
-nodeID1 = "ID1"
-nodeID2 = "ID2"
-
-nodeID3 = "ID3"
-nodeID4 = "ID4"
-
-tEdgeKey12 = (nodeID1, nodeID2)
-tEdgeKey21 = (nodeID2, nodeID1)
-
-x1, x2, y1, y2 = 10, -20, 30, -40
-
-nxGraph.add_node(nodeID1, x=x1, y=y1)
-nxGraph.add_node(nodeID2, x=x2, y=y2)
-nxGraph.add_edge(nodeID1, nodeID2)
-nxGraph.add_edge(nodeID2, nodeID1)
+tEdgeKey12 = ("1", "2")
+tEdgeKey21 = ("2", "1")
+nodeID1 = "1"
+nodeID2 = "2"
 
 #тестируемые значения
 test_u_vec_0   = Vector2(10,    0).unit()
@@ -147,12 +137,45 @@ class TestMathFuncs(unittest.TestCase):
 
 
     def test_getEdgeCoords(self):
+        x1, y1 = nxGraph.nodes()[nodeID1][ SGT.s_x ], nxGraph.nodes()[nodeID1][ SGT.s_y ]
+        x2, y2 = nxGraph.nodes()[nodeID2][ SGT.s_x ], nxGraph.nodes()[nodeID2][ SGT.s_y ]
+
         test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey12)
         self.assertEqual( (test_x1, test_y1, test_x2, test_y2), (x1, y1, x2, y2)  )
 
         test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey21)
         self.assertEqual( (test_x1, test_y1, test_x2, test_y2), (x2, y2, x1, y1)  )
 
+    def test_vecsFromNodes(self):
+        nodeID = "3"
+        NeighborsIDs = [ "4", "5", "6", "7", "8" ]
+        compare_vecs = [ u_vec_270, u_vec_90, u_vec_0, u_vec_180, u_vec_45 ]
+
+        test_vecs = gu.vecsFromNodes( nxGraph = nxGraph, baseNodeID = nodeID, NeighborsIDs = NeighborsIDs )
+        self.assertEqual( test_vecs, compare_vecs )
+
+        test_vecs = gu.vecsFromNodes( nxGraph = nxGraph, baseNodeID = nodeID, NeighborsIDs = [] )
+        self.assertEqual( test_vecs, [] )
+
+    def test_vecsPair_withMaxAngle(self):
+
+        vecs = [ u_vec_0, u_vec_45 ]        
+        self.assertEqual ( frozenset( gu.vecsPair_withMaxAngle( vecs ) ), frozenset( (u_vec_0, u_vec_45) ) )
+
+        vecs = [ u_vec_0, u_vec_45, u_vec_90]
+        self.assertEqual ( frozenset( gu.vecsPair_withMaxAngle( vecs ) ), frozenset( (u_vec_0, u_vec_90) ) )
+
+        vecs = [ u_vec_90, u_vec_135, u_vec_180, u_vec_225, u_vec_270 ]
+        self.assertEqual ( frozenset( gu.vecsPair_withMaxAngle( vecs ) ), frozenset( (u_vec_90, u_vec_270) ) )
+
+        vecs = [ u_vec_45, u_vec_90, u_vec_135, u_vec_180, u_vec_225 ]
+        self.assertEqual ( frozenset( gu.vecsPair_withMaxAngle( vecs ) ), frozenset( (u_vec_45, u_vec_225) ) )
+
+        vecs = []
+        self.assertEqual ( gu.vecsPair_withMaxAngle( vecs ), None )
+
+        vecs = [ u_vec_0 ]
+        self.assertEqual ( gu.vecsPair_withMaxAngle( vecs ), None )
 
 class TestStrFuncs(unittest.TestCase):
 
