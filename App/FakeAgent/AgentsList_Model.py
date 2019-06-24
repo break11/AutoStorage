@@ -23,7 +23,15 @@ class CAgentsList_Model( QAbstractTableModel ):
     def columnCount( self, parentIndex=QModelIndex() ):
         return len( self.propList )
     
-    def data( self, index, role ):
+    def agentN( self, row ):
+        col = self.propList.index( s_agentN )
+        index = self.index( row, col )
+
+        if not index.isValid(): return None
+
+        return self.data( index )
+
+    def data( self, index, role = Qt.DisplayRole ):
         if not index.isValid(): return None
 
         agentN = self.agentsList[ index.row() ]

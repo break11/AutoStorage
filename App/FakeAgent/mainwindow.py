@@ -124,9 +124,11 @@ class CFA_MainWindow(QMainWindow):
         self.Agents_Model.addAgent( int(text) )
 
     def on_btnDelAgent_released( self ):
-        # ci = self.tvAgents.currentIndex()
-        # if not ci.isValid(): return
+        ci = self.tvAgents.currentIndex()
+        if not ci.isValid(): return
 
-        self.Agents_Model.delAgent( 555 )
+        agentN = self.Agents_Model.agentN( ci.row() )
+
+        self.Agents_Model.delAgent( agentN )
 
     ###################################################
