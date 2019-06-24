@@ -1,8 +1,8 @@
+import  Lib.Common.StrConsts as SC
+from    Lib.Common.GuiUtils import windowDefSettings
+from    .AgentsList_Model import s_agents_list, def_agent_list
 
-# import Lib.Net.NetObj_Manager as mgr
-# import Lib.Net.NetObj_Monitor as mon
-
-FA_DefSet = {}
-                    # mgr.s_Redis_opt   : mgr.redisDefSettings,
-                    # mon.s_obj_monitor : mon.objMonDefSettings,
-                #    }
+FA_DefSet = {
+                SC.s_main_window  : windowDefSettings,     # type: ignore
+                s_agents_list     : def_agent_list
+            }

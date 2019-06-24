@@ -9,14 +9,6 @@ _strList = [
             "main_window",
             "geometry",
             "state",
-            "grid_size",
-            "draw_grid",
-            "draw_info_rails",
-            "draw_main_rail",
-            "scene",
-            "snap_to_grid",
-            "draw_bbox",
-            "draw_special_lines",
           ]
           
 # Экспортируем "короткие" алиасы строковых констант

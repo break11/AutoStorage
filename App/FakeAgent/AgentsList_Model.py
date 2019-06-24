@@ -6,8 +6,13 @@ from Lib.Common.Agent_NetObject import s_edge, s_position, s_route, s_route_idx,
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
+from Lib.Common.SettingsManager import CSettingsManager as CSM
 
 s_agentN = "agentN"
+
+s_agents_list = "agents_list"
+def_agent_list = [ 555 ]
+
 
 class CAgentsList_Model( QAbstractTableModel ):
     propList = [ s_agentN ]
@@ -16,6 +21,14 @@ class CAgentsList_Model( QAbstractTableModel ):
         super().__init__( parent=parent)
 
         self.agentsList = []
+
+    def loadAgentsList( self ):
+        agentsList = CSM.rootOpt( s_agents_list, default = def_agent_list )
+        print( agentsList )
+        pass
+
+    def saveAgentsList( self ):
+        pass
 
     def rowCount( self, parentIndex=QModelIndex() ):
         return len( self.agentsList )

@@ -25,15 +25,25 @@ from .Node_SGItem import CNode_SGItem
 from .images_rc import *
 from enum import IntEnum, auto
 
+s_scene              = "scene"
+s_grid_size          = "grid_size"
+s_draw_grid          = "draw_grid"
+s_draw_info_rails    = "draw_info_rails"
+s_draw_main_rail     = "draw_main_rail"
+s_snap_to_grid       = "snap_to_grid"
+s_draw_bbox          = "draw_bbox"
+s_draw_special_lines = "draw_special_lines"
+
+
 ###########################################
 sceneDefSettings = {
-                    SC.s_grid_size           : 400,   # type: ignore
-                    SC.s_draw_grid           : False, # type: ignore
-                    SC.s_draw_info_rails     : False, # type: ignore
-                    SC.s_draw_main_rail      : False, # type: ignore
-                    SC.s_snap_to_grid        : False, # type: ignore
-                    SC.s_draw_bbox           : False, # type: ignore
-                    SC.s_draw_special_lines  : False, # type: ignore
+                    s_grid_size           : 400,   # type: ignore
+                    s_draw_grid           : False, # type: ignore
+                    s_draw_info_rails     : False, # type: ignore
+                    s_draw_main_rail      : False, # type: ignore
+                    s_snap_to_grid        : False, # type: ignore
+                    s_draw_bbox           : False, # type: ignore
+                    s_draw_special_lines  : False, # type: ignore
                    }
 ###########################################
 
@@ -116,15 +126,15 @@ class CViewerWindow(QMainWindow):
     def loadSettings( self ):
         load_Window_State_And_Geometry( self )
 
-        sceneSettings = CSM.rootOpt( SC.s_scene, default=sceneDefSettings )
+        sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
 
-        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, SC.s_grid_size,    default = self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, SC.s_draw_grid,    default = self.StorageMap_Scene.bDrawGrid )
-        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, SC.s_snap_to_grid, default = self.StorageMap_Scene.bSnapToGrid)
-        self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SC.s_draw_main_rail,     default = self.SGM.bDrawMainRail ) )
-        self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SC.s_draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
-        self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, SC.s_draw_bbox,          default = self.SGM.bDrawBBox ) )
-        self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SC.s_draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
+        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, s_grid_size,    default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, s_draw_grid,    default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, s_snap_to_grid, default = self.StorageMap_Scene.bSnapToGrid)
+        self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, s_draw_main_rail,     default = self.SGM.bDrawMainRail ) )
+        self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, s_draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
+        self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, s_draw_bbox,          default = self.SGM.bDrawBBox ) )
+        self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, s_draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
 
         #setup ui
         self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
@@ -138,15 +148,15 @@ class CViewerWindow(QMainWindow):
     def saveSettings( self ):
         save_Window_State_And_Geometry( self )
 
-        CSM.options[SC.s_scene] =   {
-                                        SC.s_grid_size           : self.StorageMap_Scene.gridSize,
-                                        SC.s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
-                                        SC.s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
-                                        SC.s_draw_info_rails     : self.SGM.bDrawInfoRails,
-                                        SC.s_draw_main_rail      : self.SGM.bDrawMainRail,
-                                        SC.s_draw_bbox           : self.SGM.bDrawBBox,
-                                        SC.s_draw_special_lines  : self.SGM.bDrawSpecialLines,
-                                    }
+        CSM.options[ s_scene ] =   {
+                                    s_grid_size           : self.StorageMap_Scene.gridSize,
+                                    s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
+                                    s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
+                                    s_draw_info_rails     : self.SGM.bDrawInfoRails,
+                                    s_draw_main_rail      : self.SGM.bDrawMainRail,
+                                    s_draw_bbox           : self.SGM.bDrawBBox,
+                                    s_draw_special_lines  : self.SGM.bDrawSpecialLines,
+                                   }
     #############################################################################
 
     def viewPortAreaChanged(self, value):

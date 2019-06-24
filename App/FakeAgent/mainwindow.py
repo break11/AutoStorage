@@ -43,12 +43,14 @@ class CFA_MainWindow(QMainWindow):
         # self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch )
 
         self.Agents_Model = CAgentsList_Model( parent = self )
+        self.Agents_Model.loadAgentsList()
         self.tvAgents.setModel( self.Agents_Model )
         # self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
         # self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
                 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
+        self.Agents_Model.saveAgentsList()
 
     ################################################################
     # текущий агент выделенный в таблице
