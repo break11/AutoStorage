@@ -183,6 +183,58 @@ class TestMathFuncs(unittest.TestCase):
         vecs = [ u_vec_0 ]
         self.assertEqual ( gu.vecsPair_withMaxAngle( vecs ), None )
 
+    def test_rotateToRightSector(self):
+
+        vec = gu.rotateToRightSector( u_vec_0 )
+        self.assertEqual( vec, u_vec_0 )
+
+        vec = gu.rotateToRightSector( u_vec_45 )
+        self.assertEqual( vec, u_vec_45 )
+        
+        vec = gu.rotateToRightSector( u_vec_90 )
+        self.assertEqual( vec, u_vec_270 )
+
+        vec = gu.rotateToRightSector( u_vec_135 )
+        self.assertEqual( vec, u_vec_315 )
+
+        vec = gu.rotateToRightSector( u_vec_180 )
+        self.assertEqual( vec, u_vec_0 )
+
+        vec = gu.rotateToRightSector( u_vec_225 )
+        self.assertEqual( vec, u_vec_225 )
+        
+        vec = gu.rotateToRightSector( u_vec_270 )
+        self.assertEqual( vec, u_vec_270 )
+
+        vec = gu.rotateToRightSector( u_vec_315 )
+        self.assertEqual( vec, u_vec_315 )
+
+    def test_rotateToLeftSector(self):
+
+        vec = gu.rotateToLeftSector( u_vec_0 )
+        self.assertEqual( vec, u_vec_180 )
+
+        vec = gu.rotateToLeftSector( u_vec_45 )
+        self.assertEqual( vec, u_vec_45 )
+        
+        vec = gu.rotateToLeftSector( u_vec_90 )
+        self.assertEqual( vec, u_vec_90 )
+
+        vec = gu.rotateToLeftSector( u_vec_135 )
+        self.assertEqual( vec, u_vec_135 )
+
+        vec = gu.rotateToLeftSector( u_vec_180 )
+        self.assertEqual( vec, u_vec_180 )
+
+        vec = gu.rotateToLeftSector( u_vec_225 )
+        self.assertEqual( vec, u_vec_225 )
+        
+        vec = gu.rotateToLeftSector( u_vec_270 )
+        self.assertEqual( vec, u_vec_90 )
+
+        vec = gu.rotateToLeftSector( u_vec_315 )
+        self.assertEqual( vec, u_vec_135 )
+
 class TestStrFuncs(unittest.TestCase):
 
     def test_tEdgeKeyFromStr(self):

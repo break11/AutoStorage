@@ -23,7 +23,7 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
-from Lib.Common.GraphUtils import getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle
+from Lib.Common.GraphUtils import getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle, rotateToRightSector
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -253,12 +253,14 @@ class CStorageGraph_GScene_Manager( QObject ):
             r_vec = vec1 + vec2
 
             #если вектора противоположнонаправлены, r_vec будет нулевым вектором,
-            # тогда результирующий вектор берём как перпендикуляр vec1 или vec2
-            r_vec = r_vec if r_vec else vec1.rotate( math.pi/2 )
+            # тогда результирующий вектор берём как перпендикуляр vec1 или vec2 (выбираем вектор с меньшим углом)
+            if  not r_vec:
+                r_vec = vec1.rotate( math.pi/2 ) if ( vec1.selfAngle() < vec2.selfAngle() ) else vec2.rotate( math.pi/2 )
 
         elif vecs_count == 1:
             r_vec = nodeVecs[0].rotate( math.pi/2 )
         
+        r_vec = rotateToRightSector( r_vec )
         res_angle = math.degrees( r_vec.selfAngle() )
         nodeGItem.setMiddleLineAngle( res_angle )
 
