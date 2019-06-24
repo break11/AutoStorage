@@ -37,7 +37,7 @@ class CFakeAgentThread(QThread):
 
         self.currentRxPacketN = 1000 # 1000 means that numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message.
         self.currentTxPacketN = START_PACKET_NUMBER
-        self.currentAgentN = agentN
+        self.agentN = agentN
 
         self.txFifo = deque([]) #packet-wise tx fifo
         self.ackNumberToSend = 1000
@@ -92,9 +92,7 @@ class CFakeAgentThread(QThread):
                 break
         return bES
 
-
     def timerTick(self):
-
         if self.ackSendCounter > 0:
             self.ackSendCounter = self.ackSendCounter - 1
         else:
@@ -126,7 +124,7 @@ class CFakeAgentThread(QThread):
                 # last packet transmittion was successfull, clear to send next packet
 
                 packetWithoutNumbering = self.txFifo.popleft()
-                self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.currentAgentN, packetWithoutNumbering.decode())
+                self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.agentN, packetWithoutNumbering.decode())
                 self.packetResendCounter = 0
                 self.serverAckReceived = 0
                 self.ackNumberToWait = self.currentTxPacketN
@@ -223,7 +221,7 @@ class CFakeAgentThread(QThread):
                     self.currentRxPacketN = 0
                 self.processStringCommand(data)
 
-            elif agentN == self.currentAgentN:
+            elif agentN == self.agentN:
                 packet_number_correct = False
                 if self.currentRxPacketN == 0:
                     packet_number_correct = True # numeration in "pick next packet number as correct" state

@@ -3,12 +3,9 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
 
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Agent_NetObject import s_edge, s_position, s_route, s_route_idx, s_angle, s_odometer
-from Lib.Net.NetObj import CNetObj
+from Lib.Net.NetObj import CNetObj, s_name, s_UID
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-
-s_name = "name"
-s_UID  = "UID"
 
 class CAgentsList_Model( QAbstractTableModel ):
     propList = [ s_name, s_UID, s_angle, s_edge, s_position, s_route, s_route_idx, s_odometer ]

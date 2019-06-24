@@ -7,28 +7,37 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.SettingsManager import CSettingsManager as CSM
+from .FakeAgentThread import CFakeAgentThread
 
 s_agentN = "agentN"
+s_connected = "connected"
 
 s_agents_list = "agents_list"
 def_agent_list = [ 555 ]
 
 
+class CFakeAgentDesc:
+    def __init__( self, agentN ):
+        self.agentN = agentN
+        self.bConnected = False
+        self.socketThread = None
+
 class CAgentsList_Model( QAbstractTableModel ):
-    propList = [ s_agentN ]
+    propList = [ s_agentN, s_connected ]
 
     def __init__( self, parent ):
         super().__init__( parent=parent)
 
         self.agentsList = []
+        self.agentsDict = {}
 
     def loadAgentsList( self ):
         agentsList = CSM.rootOpt( s_agents_list, default = def_agent_list )
-        print( agentsList )
-        pass
+        for agentN in agentsList:
+            self.addAgent( agentN )
 
     def saveAgentsList( self ):
-        pass
+        CSM.options[ s_agents_list ] = self.agentsList
 
     def rowCount( self, parentIndex=QModelIndex() ):
         return len( self.agentsList )
@@ -48,9 +57,15 @@ class CAgentsList_Model( QAbstractTableModel ):
         if not index.isValid(): return None
 
         agentN = self.agentsList[ index.row() ]
+        propName = self.propList[ index.column() ]
 
-        if role == Qt.DisplayRole or role == Qt.EditRole:            
-            return agentN
+        agentDesc = self.agentsDict[ agentN ]
+
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            if propName == s_agentN:
+                return agentN
+            elif propName == s_connected:
+                return agentDesc.socketThread is not None
 
     def headerData( self, section, orientation, role ):
         if role != Qt.DisplayRole: return
@@ -72,7 +87,11 @@ class CAgentsList_Model( QAbstractTableModel ):
 
         idx = len( self.agentsList )
         self.beginInsertRows( QModelIndex(), idx, idx )
+
         self.agentsList.append( agentN )
+        agentDesc = CFakeAgentDesc( agentN )
+        self.agentsDict[ agentN ] = agentDesc
+
         self.endInsertRows()
 
     def delAgent( self, agentN ):
@@ -81,8 +100,43 @@ class CAgentsList_Model( QAbstractTableModel ):
         idx = self.agentsList.index( agentN )
         self.beginRemoveRows( QModelIndex(), idx, idx )
         del self.agentsList[ idx ]
+        del self.agentsDict[ agentN ]
         self.endRemoveRows()
 
+    def connect( self, agentN, ip, port ):
+        agentDesc = self.agentsDict[ agentN ]
+        agentDesc.socketThread = CFakeAgentThread( agentN, ip, port, self)
+        agentDesc.socketThread.threadFinished.connect( self.threadFinihsedSlot )
+        agentDesc.socketThread.start()
+
+        row = self.agentsList.index( agentN )
+        col = self.propList.index( s_connected )
+        idx = self.index( row, col )
+        self.dataChanged.emit( idx, idx )
+
+    def disconnect( self, agentN ):
+        agentDesc = self.agentsDict[ agentN ]
+        agentDesc.socketThread.disconnectFromServer()
+        agentDesc.socketThread = None
+
+        row = self.agentsList.index( agentN )
+        col = self.propList.index( s_connected )
+        idx = self.index( row, col )
+        self.dataChanged.emit( idx, idx )
+
+    # disconnected from other side
+    def threadFinihsedSlot( self ):
+        thread = self.sender()
+        agentN = thread.agentN
+        agentDesc = self.agentsDict[ agentN ]
+        agentDesc.socketThread = None
+
+        thread.deleteLater()
+        
+        row = self.agentsList.index( agentN )
+        col = self.propList.index( s_connected )
+        idx = self.index( row, col )
+        self.dataChanged.emit( idx, idx )
 
     # def agentNO_from_Index( self, index ):
     #     UID = self.agentsList[ index.row() ]

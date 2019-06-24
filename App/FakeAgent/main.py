@@ -1,7 +1,6 @@
 
 import sys
 from PyQt5.QtWidgets import QApplication
-from .FakeAgent_ConnectForm import CFakeAgent_ConnectForm
 from .mainwindow import CFA_MainWindow
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from .def_settings import FA_DefSet
@@ -15,9 +14,6 @@ def main():
 
     FakeAgent_Form = CFA_MainWindow()
     FakeAgent_Form.show()
-
-    FakeAgent_Form__ = CFakeAgent_ConnectForm()
-    FakeAgent_Form__.show()
 
     r = app.exec_()
 

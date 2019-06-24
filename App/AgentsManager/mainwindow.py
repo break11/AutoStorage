@@ -141,6 +141,10 @@ class CAM_MainWindow(QMainWindow):
         agentNO = CAgent_NO( parent=self.agentsNode(), props=props )
 
     def on_btnDelAgent_released( self ):
+        # agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        # if agentLink is None or agentLink.isConnected(): return
+        
+
         ### del Agent NetObj
         ci = self.tvAgents.currentIndex()
         if not ci.isValid(): return

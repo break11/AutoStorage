@@ -8,6 +8,9 @@ import  Lib.Common.StrConsts as SC
 from  Lib.Common.TreeNode import CTreeNode
 import weakref
 
+s_name       = "name"
+s_UID        = "UID"
+
 class CNetObj( CTreeNode ):
     __s_Name       = "name"
     __s_ChildCount = "ChildCount"
