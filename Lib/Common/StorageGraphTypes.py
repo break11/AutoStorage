@@ -102,4 +102,13 @@ class EDirection( Enum ):
     Error   = auto()
 
     @staticmethod
-    def fromString( sType ): return EnumFromString( EDirection, sType, ESensorSide.Error )
+    def fromString( sType ): return EnumFromString( EDirection, sType, EDirection.Error )
+
+class ESide( Enum ):
+    Left            = auto()
+    Right           = auto()
+    ChargeSideLeft  = Left
+    ChargeSideRight = Right
+
+    @staticmethod
+    def fromString( sType ): return EnumFromString( ESide, sType, ESide.Right )

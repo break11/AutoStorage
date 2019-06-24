@@ -1,6 +1,7 @@
 import math
 from copy import deepcopy
 from collections import namedtuple
+import networkx as nx
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes, edgeSize
@@ -90,6 +91,16 @@ class CRouteBuilder():
         widthType = SGT.EWidthType.fromString( self.nxGraph.edges()[ tKey ][ SGT.s_widthType ] )
         ledgeSize = widthTypeToLedgeSize[ widthType ]
         return ledgeSize
+
+    def makeNodesRoute( self, startNode, targetNode, agentAngle, targetSide = None ):
+        
+        if targetSide is None:
+            return nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+        
+        if targetSide == SGT.ESide.Left:
+            pass
+        elif targetSide == SGT.ESide.Right:
+            pass
 
     def buildRoute(self, nodeList, agent_angle):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""

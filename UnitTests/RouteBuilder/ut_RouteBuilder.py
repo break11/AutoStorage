@@ -10,6 +10,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from App.AgentsManager.routeBuilder import CRouteBuilder
+from Lib.Common import StorageGraphTypes as SGT
 
 sDir = "./UnitTests/RouteBuilder/"
 
@@ -36,7 +37,7 @@ class CRouteCase():
 
 routeCases:list = []
 
-with open( sDir + "routeCases_correct_700.txt" , 'r') as routes_file:
+with open( sDir + "routeCases_correct_700.txt" , "r") as routes_file:
     for line in routes_file:
 
         route = line.split("|")
@@ -56,7 +57,7 @@ class CTestRouteBuilder(unittest.TestCase):
 
     def test_buildRoute(self):
         # n = 0
-        # f = open( "./UnitTests/RouteBuilder/passed.txt", 'w' )
+        # f = open( "./UnitTests/RouteBuilder/passed.txt", "w" )
         for case in routeCases:
 
             shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
@@ -81,5 +82,31 @@ class CTestRouteBuilder(unittest.TestCase):
         # f.close()
         # print( "Passed cases", n )
 
-if __name__ == '__main__':
+    def test_makeNodesRoute(self):
+        
+        ###################################################################################################################
+        nodes_route = ["26", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = None )
+        self.assertEqual ( nodes_route, test_nodes_route )
+        
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = None )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Right )
+        # self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Left )
+        # self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route = ["26", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Left )
+        # self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
+        # self.assertEqual ( nodes_route, test_nodes_route )
+
+if __name__ == "__main__":
     unittest.main()
