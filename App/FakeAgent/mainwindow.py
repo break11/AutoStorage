@@ -144,6 +144,12 @@ class CFA_MainWindow(QMainWindow):
 
         self.Agents_Model.connect( agentN=agentN, ip=self.cbServerIP.currentText(), port=int(self.cbServerPort.currentText()) )
 
+    def on_btnReConnect_released( self ):
+        agentN = self.currAgentN()
+        if not agentN: return
+
+        self.Agents_Model.connect( agentN=agentN, ip=self.cbServerIP.currentText(), port=int(self.cbServerPort.currentText()), bReConnect=True )
+
     def on_btnDisconnect_released( self ):
         agentN = self.currAgentN()
         if not agentN: return

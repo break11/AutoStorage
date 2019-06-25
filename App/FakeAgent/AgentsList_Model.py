@@ -21,6 +21,7 @@ class CFakeAgentDesc:
         self.agentN = agentN
         self.bConnected = False
         self.socketThread = None
+        self.save_last_RX_packetN = None
 
 class CAgentsList_Model( QAbstractTableModel ):
     propList = [ s_agentN, s_connected ]
@@ -103,9 +104,17 @@ class CAgentsList_Model( QAbstractTableModel ):
         del self.agentsDict[ agentN ]
         self.endRemoveRows()
 
-    def connect( self, agentN, ip, port ):
+    def connect( self, agentN, ip, port, bReConnect=False ):
         agentDesc = self.agentsDict[ agentN ]
+        if agentDesc.socketThread is not None: return
+
         agentDesc.socketThread = CFakeAgentThread( agentN, ip, port, self)
+
+        # bReConnect - параметр указывающий, что агент подключится с сохранением прежнего номера последнего полученного пакета от сервера
+        # то есть это не настоящий дисконнект был, а лишь временная потеря соединения
+        if bReConnect and agentDesc.save_last_RX_packetN is not None:
+            agentDesc.socketThread.currentRxPacketN = agentDesc.save_last_RX_packetN
+
         agentDesc.socketThread.threadFinished.connect( self.threadFinihsedSlot )
         agentDesc.socketThread.start()
 
@@ -116,7 +125,11 @@ class CAgentsList_Model( QAbstractTableModel ):
 
     def disconnect( self, agentN ):
         agentDesc = self.agentsDict[ agentN ]
+        if agentDesc.socketThread is None: return
+
         agentDesc.socketThread.disconnectFromServer()
+        # сохраняем номер последнего полученного пакета на случай реконнекта (теста его работы)
+        agentDesc.save_last_RX_packetN = agentDesc.socketThread.currentRxPacketN
         agentDesc.socketThread = None
 
         row = self.agentsList.index( agentN )
@@ -127,9 +140,12 @@ class CAgentsList_Model( QAbstractTableModel ):
     # disconnected from other side
     def threadFinihsedSlot( self ):
         thread = self.sender()
+
         agentN = thread.agentN
         agentDesc = self.agentsDict[ agentN ]
         agentDesc.socketThread = None
+        # сохраняем номер последнего полученного пакета на случай реконнекта (теста его работы)
+        agentDesc.save_last_RX_packetN = thread.currentRxPacketN
 
         thread.deleteLater()
         

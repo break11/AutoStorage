@@ -149,7 +149,7 @@ class CAgentsConnectionServer(QTcpServer):
         agentLink = self.getAgentLink( agentN, bWarning=False )
 
         thread = self.sender()
-        data = CAgentLogManager.agentLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
+        data = CAgentLogManager.decorateLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
                     
         self.AgentLogUpdated.emit( agentN, data )
 
@@ -266,8 +266,9 @@ class CAgentSocketThread(QThread):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
         self.tcpSocket.waitForReadyRead(1)
 
-        if self.tcpSocket.canReadLine():
+        while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
+
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
             self.noRxTimer = time.time()
             _processRxPacket( self, cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,

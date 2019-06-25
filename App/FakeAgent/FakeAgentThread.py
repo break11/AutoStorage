@@ -56,7 +56,6 @@ class CFakeAgentThread(QThread):
         self.dpTicksDivider = 0
 
         self.connected = False
-
         self.bEmergencyStop = False
 
     def run(self):
@@ -71,15 +70,9 @@ class CFakeAgentThread(QThread):
         self.connected = True
 
         while self.connected:
-
-            self.tcpSocket.waitForReadyRead(TIMER_PERIOD)  # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
-
-            line = self.tcpSocket.readLine() # try to read line (ended with '\n') from socket. Will return empty list if there is no full line in buffer present
-            if line:
-                # some line (ended with '\n') present in socket rx buffer, let's process it
-                self.processRxPacket(line.data())
-
-            self.timerTick() # do all polling logic
+            # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
+            self.tcpSocket.waitForReadyRead(TIMER_PERIOD) 
+            self.process() # do all polling logic
 
         print('Socket thread finish')
         self.threadFinished.emit(self) #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
@@ -92,7 +85,12 @@ class CFakeAgentThread(QThread):
                 break
         return bES
 
-    def timerTick(self):
+    def process(self):
+        line = self.tcpSocket.readLine() # try to read line (ended with '\n') from socket. Will return empty list if there is no full line in buffer present
+        if line:
+            # some line (ended with '\n') present in socket rx buffer, let's process it
+            self.processRxPacket(line.data())
+
         if self.ackSendCounter > 0:
             self.ackSendCounter = self.ackSendCounter - 1
         else:

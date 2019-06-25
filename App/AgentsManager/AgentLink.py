@@ -35,7 +35,7 @@ class CAgentLink():
         sT = now.strftime("%H-%M-%S")
         self.sLogFName = agentsLog_Path() + f"{agentN}__{sD}.log.html"
 
-        CAgentLogManager.agentLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
+        CAgentLogManager.decorateLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
  

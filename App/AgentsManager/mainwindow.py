@@ -27,6 +27,7 @@ from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, node
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from .AgentServerPacket import CAgentServerPacket
+import App.AgentsManager.AgentLogManager as ALM
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -88,7 +89,8 @@ class CAM_MainWindow(QMainWindow):
             self.ACL_Form.pteAgentLog.clear()
             return
 
-        self.ACL_Form.pteAgentLog.setHtml( "".join(agentLink.log[-1000:]) )
+        # self.ACL_Form.pteAgentLog.setHtml( "".join(agentLink.log[-1000:]) )
+        self.ACL_Form.pteAgentLog.setHtml( "".join(agentLink.log) )
         self.ACL_Form.pteAgentLog.moveCursor( QTextCursor.End )
 
         self.updateAgentControls( agentLink )
@@ -104,6 +106,13 @@ class CAM_MainWindow(QMainWindow):
             return
 
         self.ACL_Form.pteAgentLog.append( data )
+
+        agentLink = self.AgentsConnectionServer.getAgentLink( agentN, bWarning = False )
+        if agentLink is None: return
+
+        if self.ACL_Form.pteAgentLog.document().lineCount() > ALM.LogCount:
+            self.ACL_Form.pteAgentLog.setHtml( "".join( agentLink.log ) )
+            self.ACL_Form.pteAgentLog.moveCursor( QTextCursor.End )
 
     def pushCMD_to_Agent( self ):
         agentN = self.ACL_Form.sbAgentN.value()
@@ -141,10 +150,6 @@ class CAM_MainWindow(QMainWindow):
         agentNO = CAgent_NO( parent=self.agentsNode(), props=props )
 
     def on_btnDelAgent_released( self ):
-        # agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-        # if agentLink is None or agentLink.isConnected(): return
-        
-
         ### del Agent NetObj
         ci = self.tvAgents.currentIndex()
         if not ci.isValid(): return

@@ -4,6 +4,8 @@ from Lib.Common.Utils import wrapSpan, wrapDiv
 from .AgentServerPacket import EPacket_Status
 from .AgentServer_Event import EAgentServer_Event
 
+LogCount = 1000
+
 class CAgentLogManager():
     @classmethod
     def writeToLogFile( cls, agentLink, data ):
@@ -16,14 +18,20 @@ class CAgentLogManager():
             file.write( data )
 
     @classmethod
-    def agentLogString( cls, agentLink, data ):
-        data = wrapDiv( data )
+    def __appendLog_with_Cut( cls, agentLink, data ):
         agentLink.log.append( data )
+        if len( agentLink.log ) > LogCount:
+            agentLink.log = agentLink.log[ LogCount // 2: ]
+
+    @classmethod
+    def decorateLogString( cls, agentLink, data ):
+        data = wrapDiv( data )
+        cls.__appendLog_with_Cut( agentLink, data )
         cls.writeToLogFile( agentLink, data )
         return data
 
     @classmethod
-    def agentLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX ):
+    def decorateLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX ):
         data = packet.toBStr( bTX_or_RX=bTX_or_RX, appendLF=False ).decode()
         if agentLink is None:
             print( data )
@@ -58,7 +66,7 @@ class CAgentLogManager():
         data = f"T:{ thread_UID } {data}"
         data = wrapDiv( data )
 
-        agentLink.log.append( data )
+        cls.__appendLog_with_Cut( agentLink, data )
         cls.writeToLogFile( agentLink, data )
 
         return data
