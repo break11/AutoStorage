@@ -23,7 +23,7 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
-from Lib.Common.GraphUtils import getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle, rotateToRightSector
+from Lib.Common.GraphUtils import getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle, rotateToRightSector, rotateToLeftSector
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -177,7 +177,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         # self.init()
         # не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
 
-        self.bGraphLoading = True # For block "calcNodeMiddleLine()" on Edge creating while loading ( 5 sec overhead on "40 000 with edges" )
+        self.bGraphLoading = True # For block "updateNodeMiddleLine()" on Edge creating while loading ( 5 sec overhead on "40 000 with edges" )
 
         if not loadGraphML_to_NetObj( sFName, bReload=True ):
             self.bGraphLoading = False
@@ -187,7 +187,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         # после создания граней перерасчитываем линии расположения мест хранения
         for nodeID, nodeGItem in self.nodeGItems.items():
-            self.calcNodeMiddleLine( nodeGItem )
+            self.updateNodeMiddleLine( nodeGItem )
         
         ##remove## gvFitToPage( self.gView ) - не нужно т.к. выполоняется как реакция на GraphNet_Obj
         self.bHasChanges = False  # сбрасываем признак изменения сцены после загрузки
@@ -233,10 +233,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bDrawSpecialLines = bVal
         self.gScene.update()
 
-    def calcNodeMiddleLine(self, nodeGItem):        
-        if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
-            return
-        
+    def __calcNodeMiddleLine (self, nodeGItem):
         # берем смежные вершины и оставляем только те из них, для которых есть грань в edgeGItems,
         # тк в случае удаления грани или вершины они сначала удаляются из edgeGItems(nodeGItems),
         # а из графа удаляются позже и могут ещё присутствовать в графе
@@ -260,7 +257,22 @@ class CStorageGraph_GScene_Manager( QObject ):
         elif vecs_count == 1:
             r_vec = nodeVecs[0].rotate( math.pi/2 )
         
-        r_vec = rotateToRightSector( r_vec )
+        return r_vec
+
+    def updateNodeMiddleLine(self, nodeGItem):        
+        
+        if nodeGItem.nodeType == SGT.ENodeTypes.StorageSingle:
+            r_vec = self.__calcNodeMiddleLine( nodeGItem )
+            r_vec = rotateToRightSector( r_vec )
+
+        elif nodeGItem.nodeType == SGT.ENodeTypes.ServiceStation:
+            r_vec = self.__calcNodeMiddleLine( nodeGItem )
+
+            eSide = SGT.ESide.fromString( nodeGItem.netObj().chargeSide )
+            r_vec = rotateToLeftSector( r_vec ) if eSide == SGT.ESide.Left else rotateToRightSector( r_vec )
+        else:
+            return
+
         res_angle = math.degrees( r_vec.selfAngle() )
         nodeGItem.setMiddleLineAngle( res_angle )
 
@@ -283,7 +295,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         nodeGItemsNeighbors.add (nodeGItem)
 
         for nodeGItem in nodeGItemsNeighbors:
-            self.calcNodeMiddleLine(nodeGItem)
+            self.updateNodeMiddleLine(nodeGItem)
 
     def updateMaxNodeID(self):
         maxNodeID = 0
@@ -350,8 +362,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bHasChanges = True
 
         if not self.bGraphLoading:
-            self.calcNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_1() ] )
-            self.calcNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_2() ] )
+            self.updateNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_1() ] )
+            self.updateNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_2() ] )
 
         return True
     
@@ -404,7 +416,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         for nodeID in fsEdgeKey:
             nodeGItem = self.nodeGItems.get( nodeID )
             if nodeGItem is not None:
-                self.calcNodeMiddleLine( nodeGItem )
+                self.updateNodeMiddleLine( nodeGItem )
 
         self.bHasChanges = True
 
