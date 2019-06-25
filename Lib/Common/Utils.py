@@ -1,6 +1,8 @@
 import time
 from threading import Timer
 
+import Lib.Common.StrConsts as SC
+
 def EnumFromString( enum, sValue, defValue ):
     try:
         rVal = enum[ sValue ]

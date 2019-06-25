@@ -37,6 +37,9 @@ class ENodeTypes( Enum ):
     ServiceStation = auto()
     Terminal       = auto()
 
+    @staticmethod
+    def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.UnknownType )
+
 nodeColors = {
     ENodeTypes.NoneType       : Qt.darkGray,
     ENodeTypes.UnknownType    : Qt.darkRed,

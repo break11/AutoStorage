@@ -5,6 +5,7 @@ import sys
 import os
 import networkx as nx
 import math
+import weakref
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
@@ -12,6 +13,8 @@ sys.path.append( os.path.abspath(os.curdir)  )
 # from PyQt5.QtWidgets import QApplication
 
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GraphUtils import loadGraphML_File
 sDir = "./GraphML/"
@@ -19,45 +22,53 @@ sDir = "./GraphML/"
 # Dummy-классы для имитиции окружения StorageGraph_GScene_Manager
 
 class CNode_SGItem_Dummy:
-    def __init__(self, nodeID):
-        self.nodeID = nodeID
+    def __init__(self, nodeNetObj):
         self.nodeType = SGT.ENodeTypes.NoneType
         self.middleLineAngle = None
+        self.netObj = weakref.ref( nodeNetObj )
 
     def setMiddleLineAngle(self, fVal):
         self.middleLineAngle = fVal
+
+    @property
+    def nodeID( self ): return self.netObj().name
 
 class CSGM_Dummy:
     def __init__(self, sFName):
         self.nodeGItems = {}
         self.edgeGItems = {}
-        self.nxGraph    = loadGraphML_File(sFName)
 
-        for nodeID in self.nxGraph.nodes():
-            self.addNode( nodeID )
+        CNetObj_Manager.initRoot()
+        loadGraphML_to_NetObj( sFName = sFName, bReload = False)
+        self.graphRootNode = graphNodeCache()
+
+        for nodeNetObj in self.graphRootNode().nodesNode().children:
+            self.addNode( nodeNetObj )
 
         for tKey in self.nxGraph.edges():
             self.addEdge( tKey )
 
-    def addNode(self, nodeID):
-        dummyNodeItem = CNode_SGItem_Dummy(nodeID)
+    @property
+    def nxGraph(self): return self.graphRootNode().nxGraph
+
+    def addNode(self, nodeNetObj):
+        dummyNodeItem = CNode_SGItem_Dummy(nodeNetObj)
+        nodeID = nodeNetObj.name
         self.nodeGItems[nodeID] = dummyNodeItem
         try:
-            if self.nxGraph.nodes()[nodeID][SGT.s_nodeType] == SGT.ENodeTypes.StorageSingle.name:
-                dummyNodeItem.nodeType = SGT.ENodeTypes.StorageSingle
+            sType = self.nxGraph.nodes()[nodeID][SGT.s_nodeType]
+            dummyNodeItem.nodeType = SGT.ENodeTypes.fromString( sType )
         except:
-            pass
+            dummyNodeItem.nodeType = SGT.ENodeTypes.NoneType
 
     def addEdge(self, tKey):
+        #пока для тестирования достаточно чтобы дикт граней был просто заполнен
         self.edgeGItems[ frozenset(tKey) ] = True
 
     def __getattr__(self, name):
-        attr = CStorageGraph_GScene_Manager.__getattribute__(CStorageGraph_GScene_Manager, name)
-
-        def wrapped_func (*args, **kwars ):
-            return attr(self, *args, **kwars)
-
-        return wrapped_func
+        #для перенаправления вызова функции "name" к функции CStorageGraph_GScene_Manager
+        SGM_Func = CStorageGraph_GScene_Manager.__getattribute__(CStorageGraph_GScene_Manager, name)
+        return lambda *args, **kwargs : SGM_Func(self, *args, **kwargs)
 
 
 SGM = CSGM_Dummy ( sDir + "test_storage_rotation.graphml" )
@@ -70,6 +81,7 @@ class Test_SGM_Funcs(unittest.TestCase):
         for dummyNodeItem in SGM.nodeGItems.values():
             SGM.updateNodeMiddleLine( dummyNodeItem )
 
+        # StorageSingle
         self.assertTrue(    math.isclose( SGM.nodeGItems["n0"].middleLineAngle, 225.0, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["2"].middleLineAngle,  360.0, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["5"].middleLineAngle,  270.0, abs_tol=1e-9 )    )
@@ -79,52 +91,14 @@ class Test_SGM_Funcs(unittest.TestCase):
         self.assertTrue(    math.isclose( SGM.nodeGItems["19"].middleLineAngle, 251.565051177078, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["21"].middleLineAngle, 247.499999999999, abs_tol=1e-9 )    )
         
+        # ServiceStation
+        self.assertTrue(    math.isclose( SGM.nodeGItems["24"].middleLineAngle, 180.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["27"].middleLineAngle, 360.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["29"].middleLineAngle,  90.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["33"].middleLineAngle, 270.0, abs_tol=1e-9 )    )
+
+        # NoneType
         self.assertEqual(   SGM.nodeGItems["nLU"].middleLineAngle, None    )
-
-        # удаление грани
-        ###############################################################
-        del SGM.edgeGItems[ frozenset( ("14", "15") ) ]
-
-        SGM.updateNodeMiddleLine( SGM.nodeGItems["14"] )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["14"].middleLineAngle,  324.4623222080256, abs_tol=1e-9 )    )
-
-
-        # удаление ноды
-        #! удаление ноды из графа происходит после перерасчета средней линии
-        ###############################################################
-        del SGM.nodeGItems["12"]
-        del SGM.edgeGItems[ frozenset( ("11", "12") ) ]
-
-        SGM.updateNodeMiddleLine( SGM.nodeGItems["11"] )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["11"].middleLineAngle, 341.565051177078, abs_tol=1e-9 )    )
-        SGM.nxGraph.remove_node("12")
-
-        ###############################################################
-        del SGM.nodeGItems["10"]
-        del SGM.edgeGItems[ frozenset( ("11", "10") ) ]
-
-        SGM.updateNodeMiddleLine( SGM.nodeGItems["11"] )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["11"].middleLineAngle, 0.0, abs_tol=1e-9 )    )
-        SGM.nxGraph.remove_node("10")
-
-        ###############################################################
-        del SGM.nodeGItems["9"]
-        del SGM.edgeGItems[ frozenset( ("9", "8") ) ]
-
-        SGM.updateNodeMiddleLine( SGM.nodeGItems["8"] )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["8"].middleLineAngle, 263.6400056854672, abs_tol=1e-9 )    )
-        SGM.nxGraph.remove_node("9")
-
-
-        # добавление ноды
-        ###############################################################
-        SGM.nxGraph.add_node( "9", x = 1800, y = 3200 )
-        SGM.addNode( "9" )
-        SGM.nxGraph.add_edge( "8", "9" )
-        SGM.addEdge( ("9", "8") )
-
-        SGM.updateNodeMiddleLine( SGM.nodeGItems["8"] )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["8"].middleLineAngle,  315.0, abs_tol=1e-9 )    )
 
 if __name__ == "__main__":
     unittest.main()

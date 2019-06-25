@@ -96,6 +96,15 @@ class CNode_SGItem(QGraphicsItem):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
         font = QFont()
 
+        if self.nodeType == SGT.ENodeTypes.ServiceStation:
+            if self.SGM.bDrawSpecialLines:
+                #сторона зарядки
+                pen = QPen( Qt.black )
+                pen.setWidth( 8 )
+                painter.setPen( pen )
+                l = QLineF (0,0, 50, 0)
+                painter.drawLine(l)
+
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
             if self.SGM.bDrawSpecialLines:
                 #прямая пропорциональности
