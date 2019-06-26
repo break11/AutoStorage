@@ -1,7 +1,6 @@
 
 from enum import Enum, auto
 from PyQt5.QtCore import (Qt)
-import Lib.Common.StrConsts as SC
 
 from .Utils import EnumFromString
 
@@ -36,6 +35,8 @@ class ENodeTypes( Enum ):
     PickStationOut = auto()
     ServiceStation = auto()
     Terminal       = auto()
+    @staticmethod
+    def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.NoneType )
 
 nodeColors = {
     ENodeTypes.NoneType       : Qt.darkGray,

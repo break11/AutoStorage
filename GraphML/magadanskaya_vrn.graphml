@@ -144,12 +144,12 @@
     <node id="26">
       <data key="d0">1012</data>
       <data key="d1">9300</data>
-      <data key="d2">PickstationOut</data>
+      <data key="d2">PickStationOut</data>
     </node>
     <node id="27">
       <data key="d0">1012</data>
       <data key="d1">11075</data>
-      <data key="d2">PickstationIn</data>
+      <data key="d2">PickStationIn</data>
     </node>
     <node id="28">
       <data key="d0">1012</data>

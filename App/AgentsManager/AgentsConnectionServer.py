@@ -252,7 +252,7 @@ class CAgentSocketThread(QThread):
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                         self.msleep(10)
                     # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-                self.ACS().getAgentLink( cmd.agentN ).genTxPacketN = int(cmd.data) + 1
+                self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
                 
                 self.agentNumberInited.emit( cmd.agentN )
                 self.agentN = cmd.agentN

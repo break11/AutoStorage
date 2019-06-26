@@ -166,6 +166,12 @@ class CAM_MainWindow(QMainWindow):
         else:
             self.SimpleAgentTest_Timer.stop()
 
+    enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
+                           SGT.ENodeTypes.PickStation,
+                           SGT.ENodeTypes.PickStationIn,
+                           SGT.ENodeTypes.PickStationOut,
+                           SGT.ENodeTypes.ServiceStation ]
+                           
     def AgentTestMoving(self, agentNO):
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
@@ -181,8 +187,9 @@ class CAM_MainWindow(QMainWindow):
         while True:
             targetNode = nodes[ random.randint(0, l-1) ]
             if startNode == targetNode: continue
-            if nodeType(nxGraph, targetNode) == SGT.ENodeTypes.Terminal.name: continue
-            break
+            nType = SGT.ENodeTypes.fromString( nodeType(nxGraph, targetNode) )
+            if nType in self.enabledTargetNodes:
+                break
             
         nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
         curEdgeSize = edgeSize( nxGraph, tKey )

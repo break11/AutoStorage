@@ -13,6 +13,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.FileUtils import agentsLog_Path
+import Lib.Common.StrConsts as SC
 from .AgentServerPacket import CAgentServerPacket as ASP
 from .AgentServer_Event import EAgentServer_Event
 from .AgentProtocolUtils import getNextPacketN
@@ -205,6 +206,12 @@ class CAgentLink():
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
             self.pushCmd( ES_cmd )
             agentNO.status = EAgent_Status.PositionSyncError.name
+
+    def remapPacketsNumbers( self, startPacketN ):
+        self.genTxPacketN = startPacketN
+        for cmd in self.TX_Packets:
+            cmd.packetN = self.genTxPacketN
+            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
 
 # def putToNode(self, node):
     #     self.temp__AssumedPosition = node
