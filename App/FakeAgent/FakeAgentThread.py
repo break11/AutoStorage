@@ -11,7 +11,7 @@ from collections import deque
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot)
 import datetime
-
+import weakref
 
 
 CHANNEL_TEST = 0
@@ -20,14 +20,13 @@ TX_RX_VERBOSE = 1
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
 
-START_PACKET_NUMBER = 11 # временно ставим номер пакета отличный от 0 - чтобы легче отличать "переговорку" с сервером
-
 taskCommands = [b'@BA',b'@SB',b'@SE',b'@CM',b'@WO',b'@BL',b'@BU',b'@DP', b'@ES']
 
 class CFakeAgentThread(QThread):
     threadFinished = pyqtSignal(int)
-    def __init__(self, agentN, host, port, parent):
-        super(CFakeAgentThread, self).__init__(parent)
+
+    def __init__( self, agentDesc, host, port ):
+        super().__init__()
         print('Socket thread init')
         self.host = host
         self.port = port
@@ -35,9 +34,11 @@ class CFakeAgentThread(QThread):
 ##remove##        self.rxfifo = deque([])
         self.commandToParse = []
 
-        self.currentRxPacketN = 1000 # 1000 means that numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message.
-        self.currentTxPacketN = START_PACKET_NUMBER
-        self.agentN = agentN
+        ##remove## self.currentRxPacketN = 1000 # 1000 means that numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message.
+        
+        self.currentTxPacketN = 11
+        ##remove## # self.agentN = agentN
+        self.agentDesc = weakref.ref( agentDesc )
 
         self.txFifo = deque([]) #packet-wise tx fifo
         self.ackNumberToSend = 1000
@@ -122,7 +123,7 @@ class CFakeAgentThread(QThread):
                 # last packet transmittion was successfull, clear to send next packet
 
                 packetWithoutNumbering = self.txFifo.popleft()
-                self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.agentN, packetWithoutNumbering.decode())
+                self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.agentDesc().agentN, packetWithoutNumbering.decode())
                 self.packetResendCounter = 0
                 self.serverAckReceived = 0
                 self.ackNumberToWait = self.currentTxPacketN
@@ -214,35 +215,35 @@ class CFakeAgentThread(QThread):
             # 2) Check for broadcast mesage (with agentN = 0):
             if agentN == 0:
                 print ('Broadcast packet received')
-                if self.currentRxPacketN == 1000:
+                if self.agentDesc().last_RX_packetN == 1000:
                     # numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message
-                    self.currentRxPacketN = 0
+                    self.agentDesc().last_RX_packetN = 0
                 self.processStringCommand(data)
 
-            elif agentN == self.agentN:
+            elif agentN == self.agentDesc().agentN:
                 packet_number_correct = False
-                if self.currentRxPacketN == 0:
+                if self.agentDesc().last_RX_packetN == 0:
                     packet_number_correct = True # numeration in "pick next packet number as correct" state
                 else :
-                    if packetN == self.currentRxPacketN+1:
+                    if packetN == self.agentDesc().last_RX_packetN+1:
                         packet_number_correct = True
-                    if (packetN == 1) and (self.currentRxPacketN == 999):
+                    if (packetN == 1) and (self.agentDesc().last_RX_packetN == 999):
                         packet_number_correct = True
 
                 if packet_number_correct:
-                    self.currentRxPacketN = packetN
+                    self.agentDesc().last_RX_packetN = packetN
                     self.processStringCommand(data)
                 else:
-                    if self.currentRxPacketN == packetN:
+                    if self.agentDesc().last_RX_packetN == packetN:
                         print ("--------- packet retransmit detected ----------")
                     else:
-                        print ('--------- packet numbering error: expected {:d}, received {:d} ----------'.format(self.currentRxPacketN+1, packetN))
+                        print ('--------- packet numbering error: expected {:d}, received {:d} ----------'.format(self.agentDesc().last_RX_packetN+1, packetN))
 
     def processStringCommand(self, data):
         #print("processing string command:{:s}".format(data.decode()))
 
         if data.find(b'@HW') != -1:
-            self.sendPacketToServer('@HW:{:03d}'.format(self.currentRxPacketN).encode('utf-8'))
+            self.sendPacketToServer('@HW:{:03d}'.format(self.agentDesc().last_RX_packetN).encode('utf-8'))
 
         # Periodic requests group start
 

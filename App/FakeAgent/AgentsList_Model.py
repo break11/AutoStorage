@@ -21,7 +21,7 @@ class CFakeAgentDesc:
         self.agentN = agentN
         self.bConnected = False
         self.socketThread = None
-        self.save_last_RX_packetN = None
+        self.last_RX_packetN = 1000
 
 class CAgentsList_Model( QAbstractTableModel ):
     propList = [ s_agentN, s_connected ]
@@ -108,12 +108,12 @@ class CAgentsList_Model( QAbstractTableModel ):
         agentDesc = self.agentsDict[ agentN ]
         if agentDesc.socketThread is not None: return
 
-        agentDesc.socketThread = CFakeAgentThread( agentN, ip, port, self)
-
         # bReConnect - параметр указывающий, что агент подключится с сохранением прежнего номера последнего полученного пакета от сервера
         # то есть это не настоящий дисконнект был, а лишь временная потеря соединения
-        if bReConnect and agentDesc.save_last_RX_packetN is not None:
-            agentDesc.socketThread.currentRxPacketN = agentDesc.save_last_RX_packetN
+        if bReConnect == False:
+            agentDesc.last_RX_packetN = 0
+
+        agentDesc.socketThread = CFakeAgentThread( agentDesc, ip, port )
 
         agentDesc.socketThread.threadFinished.connect( self.threadFinihsedSlot )
         agentDesc.socketThread.start()
@@ -128,28 +128,23 @@ class CAgentsList_Model( QAbstractTableModel ):
         if agentDesc.socketThread is None: return
 
         agentDesc.socketThread.disconnectFromServer()
-        # сохраняем номер последнего полученного пакета на случай реконнекта (теста его работы)
-        agentDesc.save_last_RX_packetN = agentDesc.socketThread.currentRxPacketN
-        agentDesc.socketThread = None
-
-        row = self.agentsList.index( agentN )
-        col = self.propList.index( s_connected )
-        idx = self.index( row, col )
-        self.dataChanged.emit( idx, idx )
 
     # disconnected from other side
     def threadFinihsedSlot( self ):
         thread = self.sender()
 
-        agentN = thread.agentN
-        agentDesc = self.agentsDict[ agentN ]
+        # agentN = thread.agentN
+        # agentDesc = self.agentsDict[ agentN ]
+        agentDesc = thread.agentDesc()
         agentDesc.socketThread = None
+        # agentDesc.socketThread = None
+
         # сохраняем номер последнего полученного пакета на случай реконнекта (теста его работы)
-        agentDesc.save_last_RX_packetN = thread.currentRxPacketN
+        ##remove##agentDesc.last_RX_packetN = thread.currentRxPacketN
 
         thread.deleteLater()
         
-        row = self.agentsList.index( agentN )
+        row = self.agentsList.index( agentDesc.agentN )
         col = self.propList.index( s_connected )
         idx = self.index( row, col )
         self.dataChanged.emit( idx, idx )
