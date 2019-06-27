@@ -3,6 +3,7 @@ import weakref
 import math
 import os
 from collections import deque
+import subprocess
 
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 
@@ -12,7 +13,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.FileUtils import agentsLog_Path
+import Lib.Common.FileUtils as FileUtils
 import Lib.Common.StrConsts as SC
 from .AgentServerPacket import CAgentServerPacket as ASP
 from .AgentServer_Event import EAgentServer_Event
@@ -34,7 +35,7 @@ class CAgentLink():
         now = datetime.datetime.now()
         sD = now.strftime("%d-%m-%Y")
         sT = now.strftime("%H-%M-%S")
-        self.sLogFName = agentsLog_Path() + f"{agentN}__{sD}.log.html"
+        self.sLogFName = FileUtils.agentsLog_Path() + f"{agentN}__{sD}.log.html"
 
         CAgentLogManager.decorateLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
 
@@ -48,6 +49,11 @@ class CAgentLink():
         self.requestTelemetry_Timer.setInterval(1000)
         self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
         # self.requestTelemetry_Timer.start() # временно для отладки отключаем
+
+        self.ChargeTimer = QTimer()
+        self.ChargeTimer.setInterval(20000)
+        self.ChargeTimer.setSingleShot( True )
+        self.ChargeTimer.timeout.connect( self.chargeOff )
 
         self.agentNO = weakref.ref( queryAgentNetObj( str( agentN ) ) )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
@@ -154,6 +160,8 @@ class CAgentLink():
 
             if self.DE_IDX == len(self.SII)-1:
                 agentNO.route = ""
+                if agentNO.status == EAgent_Status.GoToCharge.name:
+                    self.startCharging()
             else:
                 self.DE_IDX += 1
 
@@ -212,6 +220,19 @@ class CAgentLink():
         for cmd in self.TX_Packets:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = getNextPacketN( self.genTxPacketN )
+
+    def startCharging( self ):
+        self.agentNO().status = EAgent_Status.Charging.name
+
+        print( "Start Charging!" )
+        subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "on"] )
+        self.ChargeTimer.start()
+
+    def chargeOff( self ):
+        subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "off"] )
+        self.agentNO().status = EAgent_Status.Idle.name
+        print( "Stop Charging!" )
+
 
 # def putToNode(self, node):
     #     self.temp__AssumedPosition = node

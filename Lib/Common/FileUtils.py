@@ -15,6 +15,9 @@ def correctFNameToDir( path, sDir ):
 def correctFNameToProjectDir( sFName ):
     return correctFNameToDir( sFName, projectDir() )
 
+def powerBankDir():
+    return projectDir() + "PowerBank/"
+
 def graphML_Path():
     return projectDir() + "GraphML/"
 

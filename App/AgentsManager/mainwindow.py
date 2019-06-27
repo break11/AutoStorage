@@ -15,7 +15,7 @@ from PyQt5 import uic
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common import FileUtils
-from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps
+from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps, EAgent_Status
 import Lib.Common.StrConsts as SC
 from Lib.Common.Utils import time_func
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -50,6 +50,8 @@ class CAM_MainWindow(QMainWindow):
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
+
+        self.route_count = 0
                 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -169,12 +171,13 @@ class CAM_MainWindow(QMainWindow):
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
                            SGT.ENodeTypes.PickStation,
                            SGT.ENodeTypes.PickStationIn,
-                           SGT.ENodeTypes.PickStationOut,
-                           SGT.ENodeTypes.ServiceStation ]
+                           SGT.ENodeTypes.PickStationOut ]
                            
-    def AgentTestMoving(self, agentNO):
+    def AgentTestMoving(self, agentNO, targetNode = None):
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
+        if agentNO.status == EAgent_Status.Charging.name: return
+
 
         nxGraph = self.graphRootNode().nxGraph
 
@@ -184,13 +187,19 @@ class CAM_MainWindow(QMainWindow):
         tKey = tEdgeKeyFromStr( agentNO.edge )
         startNode = tKey[0]
 
-        while True:
-            targetNode = nodes[ random.randint(0, l-1) ]
-            if startNode == targetNode: continue
-            nType = SGT.ENodeTypes.fromString( nodeType(nxGraph, targetNode) )
-            if nType in self.enabledTargetNodes:
-                break
-            
+        if targetNode is None:
+            if self.route_count == 2:
+                targetNode = "40" ## Hard Code -- remove !!
+                self.route_count = -1
+                agentNO.status = EAgent_Status.GoToCharge.name
+            else:
+                while True:
+                    targetNode = nodes[ random.randint(0, l-1) ]
+                    if startNode == targetNode: continue
+                    nType = SGT.ENodeTypes.fromString( nodeType(nxGraph, targetNode) )
+                    if nType in self.enabledTargetNodes:
+                        break
+                
         nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
         curEdgeSize = edgeSize( nxGraph, tKey )
 
@@ -207,8 +216,11 @@ class CAM_MainWindow(QMainWindow):
                 tKey = ( nodes_route[0], nodes_route[1] )
                 agentNO.edge = tEdgeKeyToStr( tKey )
                 agentNO.position = 0
+            else:
+                return
 
         agentNO.route = ",".join( nodes_route )
+        self.route_count += 1
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
@@ -216,3 +228,20 @@ class CAM_MainWindow(QMainWindow):
 
         for agentNO in self.agentsNode().children:
             self.AgentTestMoving( agentNO )
+    
+    def on_leTargetNode_returnPressed(self):
+        if self.btnSimpleAgent_Test.isChecked():
+            return
+
+        agentNO = self.agentsNode().childByName( str(self.currAgentN()) )
+        if agentNO is None: return
+
+        self.AgentTestMoving( agentNO, targetNode = self.leTargetNode.text() )
+        nxGraph = self.graphRootNode().nxGraph
+
+    # ******************************************************
+    def on_btnCharge_released( self ):
+        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        if agentLink is None: return
+
+        agentLink.startCharging()

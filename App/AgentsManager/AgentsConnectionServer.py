@@ -245,6 +245,8 @@ class CAgentSocketThread(QThread):
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
 
+            self.writeTo_Socket( CAgentServerPacket( packetN=cmd.packetN, event=EAgentServer_Event.ServerAccepting ) )
+
             self.AgentLogUpdated.emit( False, self.agentN, cmd )
             if (cmd is not None) and ( cmd.event == EAgentServer_Event.HelloWorld ) :
                 if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):

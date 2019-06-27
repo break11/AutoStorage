@@ -14,6 +14,8 @@ from .Utils import EnumFromString
 class EAgent_Status( IntEnum ):
     Idle              = auto()
     PositionSyncError = auto()
+    GoToCharge        = auto()
+    Charging          = auto()
 
     @staticmethod
     def fromString( sType ): return EnumFromString( EAgent_Status, sType, EAgent_Status.Idle )
