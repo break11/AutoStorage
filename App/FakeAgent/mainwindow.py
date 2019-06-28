@@ -35,7 +35,7 @@ class CFA_MainWindow(QMainWindow):
                 self.cbServerIP.addItem( ipAddress.toString() )
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
-        self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/Common/Agent_Cmd_Log_Form.ui" )
+        self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/AppWidgets/Agent_Cmd_Log_Form.ui" )
         assert self.agent_CMD_Log_Container is not None
         assert self.agent_CMD_Log_Container.layout() is not None
         self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )

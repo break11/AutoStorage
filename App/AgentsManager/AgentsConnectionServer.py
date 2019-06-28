@@ -24,7 +24,7 @@ from .AgentLogManager import CAgentLogManager
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 
 class CAgentsConnectionServer(QTcpServer):
-    AgentLogUpdated  = pyqtSignal( int, str )
+    AgentLogUpdated  = pyqtSignal( CAgentLink, CAgentServerPacket, str )
 
     """
     QTcpServer wrapper to listen for incoming connections.
@@ -151,7 +151,8 @@ class CAgentsConnectionServer(QTcpServer):
         thread = self.sender()
         data = CAgentLogManager.decorateLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
                     
-        self.AgentLogUpdated.emit( agentN, data )
+        if agentLink:
+            self.AgentLogUpdated.emit( agentLink, packet, data )
 
     #############################################################
 

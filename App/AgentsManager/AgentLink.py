@@ -104,7 +104,7 @@ class CAgentLink():
 
     def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):
         if not self.isConnected():
-            print( cmd )
+            ##remove##print( cmd )
             return
 
         if bReMap_PacketN:

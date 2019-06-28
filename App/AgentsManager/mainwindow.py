@@ -24,10 +24,10 @@ from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType
+from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from .AgentServerPacket import CAgentServerPacket
-import App.AgentsManager.AgentLogManager as ALM
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -35,7 +35,8 @@ class CAM_MainWindow(QMainWindow):
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
-        self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/Common/Agent_Cmd_Log_Form.ui" )
+        # self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/AppWidgets/Agent_Cmd_Log_Form.ui" )
+        self.ACL_Form = CAgent_Cmd_Log_Form()
         assert self.agent_CMD_Log_Container is not None
         assert self.agent_CMD_Log_Container.layout() is not None
         self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
@@ -89,31 +90,17 @@ class CAM_MainWindow(QMainWindow):
             self.ACL_Form.pteAgentLog.clear()
             return
 
-        # self.ACL_Form.pteAgentLog.setHtml( "".join(agentLink.log[-1000:]) )
-        self.ACL_Form.pteAgentLog.setHtml( "".join(agentLink.log) )
-        self.ACL_Form.pteAgentLog.moveCursor( QTextCursor.End )
-
-        self.updateAgentControls( agentLink )
+        self.ACL_Form.fillAgentLog( agentLink )
+        self.ACL_Form.updateAgentControls( agentLink )
 
     ################################################################
 
-    def updateAgentControls( self, agentLink ):
-        self.ACL_Form.btnRequestTelemetry.setChecked( agentLink.requestTelemetry_Timer.isActive() )
-        self.ACL_Form.sbAgentN.setValue( agentLink.agentN )
-
-    def AgentLogUpdated( self, agentN, data ):
-        if self.currAgentN() != agentN:
+    def AgentLogUpdated( self, agentLink, cmd, data ):
+        if self.currAgentN() != agentLink.agentN:
             return
 
-        self.ACL_Form.pteAgentLog.append( data )
-
-        agentLink = self.AgentsConnectionServer.getAgentLink( agentN, bWarning = False )
-        if agentLink is None: return
-
-        if self.ACL_Form.pteAgentLog.document().lineCount() > ALM.LogCount:
-            self.ACL_Form.pteAgentLog.setHtml( "".join( agentLink.log ) )
-            self.ACL_Form.pteAgentLog.moveCursor( QTextCursor.End )
-
+        self.ACL_Form.AgentLogUpdated( agentLink, cmd, data )
+    
     def pushCMD_to_Agent( self ):
         agentN = self.ACL_Form.sbAgentN.value()
 
@@ -131,9 +118,10 @@ class CAM_MainWindow(QMainWindow):
             print( f"{SC.sWarning} invalid command in command list: {cmd_list}" )
             return
         
-        for cmd in cmd_list:
-            agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
-            print( f"Send custom cmd={cmd.toTX_Str( appendLF=False )} to agent={self.currAgentN()}" )
+        if agentLink.isConnected():
+            for cmd in cmd_list:
+                agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
+                print( f"Send custom cmd={cmd.toTX_Str( appendLF=False )} to agent={self.currAgentN()}" )
 
     @pyqtSlot("bool")
     def Agent_RequestTelemetry_switch( self, bVal ):

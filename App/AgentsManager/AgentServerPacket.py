@@ -29,10 +29,12 @@ class CAgentServerPacket:
         self.status    = status
 
     def __repr__( self ):
-        return f"event={self.event.toStr()} agentN={self.agentN} packetN={self.packetN} channelN={self.channelN} timeStamp={self.timeStamp} data={self.data}"
+        return self.toTX_Str()
+        # return f"event={self.event.toStr()} agentN={self.agentN} packetN={self.packetN} channelN={self.channelN} timeStamp={self.timeStamp} data={self.data}"
 
     def __str__( self ):
-        return f"event={self.event.toStr()} agentN={self.agentN} packetN={self.packetN} channelN={self.channelN} timeStamp={self.timeStamp} data={self.data}"
+        return self.toTX_Str()
+        # return f"event={self.event.toStr()} agentN={self.agentN} packetN={self.packetN} channelN={self.channelN} timeStamp={self.timeStamp} data={self.data}"
 
     def toBStr( self, bTX_or_RX, appendLF=True ):
         Event_Sign = EAgentServer_Event.toStr( self.event )
