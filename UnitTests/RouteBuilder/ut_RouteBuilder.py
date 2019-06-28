@@ -96,10 +96,10 @@ class CTestRouteBuilder(unittest.TestCase):
         self.assertEqual ( nodes_route, test_nodes_route )
 
         test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Right )
-        # self.assertEqual ( nodes_route, test_nodes_route )
+        self.assertEqual ( nodes_route, test_nodes_route )
 
         test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Left )
-        # self.assertEqual ( nodes_route, test_nodes_route )
+        self.assertEqual ( nodes_route, test_nodes_route )
 
         ###################################################################################################################
         nodes_route = ["26", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]

@@ -1,5 +1,6 @@
 
 from enum import Enum, auto
+import math
 from PyQt5.QtCore import (Qt)
 import Lib.Common.StrConsts as SC
 
@@ -115,3 +116,12 @@ class ESide( Enum ):
 
     @staticmethod
     def fromString( sType ): return EnumFromString( ESide, sType, ESide.Right )
+
+    @staticmethod
+    def fromAngle( angle ):
+        angle = angle % (2 * math.pi)
+
+        if angle > math.pi/4 and angle < math.pi * (5/4):
+            return ESide.Left
+        else:
+            return ESide.Right

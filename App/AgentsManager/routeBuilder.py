@@ -4,7 +4,7 @@ from collections import namedtuple
 import networkx as nx
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes, edgeSize, calcNodeMiddleLine
+from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, calcNodeMiddleLine
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -99,10 +99,12 @@ class CRouteBuilder():
         if targetSide is None:
             return dijkstra_path
         
-        if targetSide == SGT.ESide.Left:
-            pass
-        elif targetSide == SGT.ESide.Right:
-            pass
+        final_agentAngle = getFinalAgentAngle( nxGraph = self.nxGraph, agent_angle = agentAngle, nodes_route = dijkstra_path )
+        eAgentSide = SGT.ESide.fromAngle( math.radians( final_agentAngle ) )
+
+        # print( targetSide, eAgentSide )
+        if targetSide == eAgentSide:
+            return dijkstra_path
 
     def buildRoute(self, nodeList, agent_angle):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
