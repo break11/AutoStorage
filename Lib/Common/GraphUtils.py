@@ -88,8 +88,14 @@ def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
     elif AgentEdgeAngle > math.pi * 3/4:
         return r_vec.rotate( math.pi ).selfAngle(), True
     else:
-        return agent_angle, None
+        return agent_angle, None # ??? переводить agent_angle в радианы для однообразия
 
+def getFinalAgentAngle(nxGraph, agent_angle, nodes_route):
+    for i in range( len(nodes_route) - 1  ):
+        tKey = (nodes_route[i], nodes_route[i+1])
+        agent_angle, direction = getAgentAngle( nxGraph, tKey, agent_angle )
+        agent_angle = math.degrees( agent_angle )
+    return agent_angle
 
 def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 

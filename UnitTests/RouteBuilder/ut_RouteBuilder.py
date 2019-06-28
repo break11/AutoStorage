@@ -11,6 +11,8 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from App.AgentsManager.routeBuilder import CRouteBuilder
 from Lib.Common import StorageGraphTypes as SGT
+import Lib.Common.GraphUtils as gu
+
 
 sDir = "./UnitTests/RouteBuilder/"
 
@@ -107,6 +109,21 @@ class CTestRouteBuilder(unittest.TestCase):
 
         test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
         # self.assertEqual ( nodes_route, test_nodes_route )
+
+        ## temp testing ##
+        # import networkx as nx
+
+        # nxGraph = graphRootNode().nxGraph
+
+        # cycle1 = ['19', '18', '17', '16', '24', '25', '23', '22', '21', '20'] 
+        # cycle2 = ['19', '20', '21', '22', '23', '25', '24', '16', '17', '18']
+        # shortest_path = ['26', '25', '23', '22', '21', '20', '29', '30', '31', '34', '35', '36', '37', '38', '39', '40']
+
+        # sub = nxGraph.subgraph( cycle1 + cycle2 + shortest_path )
+        # paths = nx.all_simple_paths( nxGraph, "26", "40" )
+
+        # print ( list(paths) )
+        # print ( gu.getFinalAgentAngle( nxGraph, 180, shortest_path ) )
 
 if __name__ == "__main__":
     unittest.main()
