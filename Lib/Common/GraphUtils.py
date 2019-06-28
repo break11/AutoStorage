@@ -168,3 +168,32 @@ def rotateToLeftSector(vec):
         vec = vec.rotate( math.pi )
 
     return vec
+
+def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
+
+    nodeVecs = vecsFromNodes( nxGraph = nxGraph, baseNodeID = nodeID, NeighborsIDs = NeighborsIDs )
+    vecs_count = len(nodeVecs)
+
+    r_vec = Vector2(1, 0)
+    
+    if vecs_count > 1:
+        vec1, vec2 = vecsPair_withMaxAngle( nodeVecs )
+        r_vec = vec1 + vec2
+
+        #если вектора противоположнонаправлены, r_vec будет нулевым вектором,
+        # тогда результирующий вектор берём как перпендикуляр vec1 или vec2 (выбираем вектор с меньшим углом)
+        if  not r_vec:
+            r_vec = vec1.rotate( math.pi/2 ) if ( vec1.selfAngle() < vec2.selfAngle() ) else vec2.rotate( math.pi/2 )
+
+    elif vecs_count == 1:
+        r_vec = nodeVecs[0].rotate( math.pi/2 )
+    
+    eNodeType = SGT.ENodeTypes.fromString( nxGraph.nodes[ nodeID ][ SGT.s_nodeType ] )
+    
+    if eNodeType == SGT.ENodeTypes.StorageSingle:
+        r_vec = rotateToRightSector( r_vec )
+    elif eNodeType == SGT.ENodeTypes.ServiceStation:
+        eSide = SGT.ESide.fromString( nxGraph.nodes[ nodeID ][ SGT.s_chargeSide ] )
+        r_vec = rotateToLeftSector( r_vec ) if eSide == SGT.ESide.Left else rotateToRightSector( r_vec )
+    
+    return r_vec

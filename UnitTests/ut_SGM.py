@@ -100,5 +100,7 @@ class Test_SGM_Funcs(unittest.TestCase):
         # NoneType
         self.assertEqual(   SGM.nodeGItems["nLU"].middleLineAngle, None    )
 
+        #TODO: вернуть проверку, что при удалении из листов self.nodeGItems, self.edgeGItems корректно считается средняя линия
+
 if __name__ == "__main__":
     unittest.main()

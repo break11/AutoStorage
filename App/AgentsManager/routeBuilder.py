@@ -4,7 +4,7 @@ from collections import namedtuple
 import networkx as nx
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes, edgeSize
+from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes, edgeSize, calcNodeMiddleLine
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -94,8 +94,10 @@ class CRouteBuilder():
 
     def makeNodesRoute( self, startNode, targetNode, agentAngle, targetSide = None ):
         
+        dijkstra_path = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+
         if targetSide is None:
-            return nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+            return dijkstra_path
         
         if targetSide == SGT.ESide.Left:
             pass

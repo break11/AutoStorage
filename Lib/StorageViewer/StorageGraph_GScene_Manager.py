@@ -23,7 +23,8 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
-from Lib.Common.GraphUtils import getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle, rotateToRightSector, rotateToLeftSector
+from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
+                                    rotateToRightSector, rotateToLeftSector, calcNodeMiddleLine)
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -54,6 +55,8 @@ class CStorageGraph_GScene_Manager( QObject ):
                             SGT.s_y: 0,                                    # type: ignore
                             SGT.s_nodeType: SGT.ENodeTypes.DummyNode.name, # type: ignore
                         }
+
+    nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StorageSingle, SGT.ENodeTypes.ServiceStation]
 
     @property
     def nxGraph(self): return self.graphRootNode().nxGraph
@@ -233,45 +236,16 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bDrawSpecialLines = bVal
         self.gScene.update()
 
-    def __calcNodeMiddleLine (self, nodeGItem):
+    def updateNodeMiddleLine(self, nodeGItem):
+        if nodeGItem.nodeType not in CStorageGraph_GScene_Manager.nodeTypes_ForMiddleLine_calc: return
+        
         # берем смежные вершины и оставляем только те из них, для которых есть грань в edgeGItems,
         # тк в случае удаления грани или вершины они сначала удаляются из edgeGItems(nodeGItems),
         # а из графа удаляются позже и могут ещё присутствовать в графе
         NeighborsIDs = set( self.nxGraph.successors(nodeGItem.nodeID) ).union( set(self.nxGraph.predecessors(nodeGItem.nodeID)) )
         NeighborsIDs = [ ID for ID in NeighborsIDs if self.edgeGItems.get( frozenset((nodeGItem.nodeID, ID)) ) ]
         
-        nodeVecs = vecsFromNodes( nxGraph = self.nxGraph, baseNodeID = nodeGItem.nodeID, NeighborsIDs = NeighborsIDs )
-        vecs_count = len(nodeVecs)
-
-        r_vec = Vector2(1, 0)
-        
-        if vecs_count > 1:
-            vec1, vec2 = vecsPair_withMaxAngle( nodeVecs )
-            r_vec = vec1 + vec2
-
-            #если вектора противоположнонаправлены, r_vec будет нулевым вектором,
-            # тогда результирующий вектор берём как перпендикуляр vec1 или vec2 (выбираем вектор с меньшим углом)
-            if  not r_vec:
-                r_vec = vec1.rotate( math.pi/2 ) if ( vec1.selfAngle() < vec2.selfAngle() ) else vec2.rotate( math.pi/2 )
-
-        elif vecs_count == 1:
-            r_vec = nodeVecs[0].rotate( math.pi/2 )
-        
-        return r_vec
-
-    def updateNodeMiddleLine(self, nodeGItem):        
-        
-        if nodeGItem.nodeType == SGT.ENodeTypes.StorageSingle:
-            r_vec = self.__calcNodeMiddleLine( nodeGItem )
-            r_vec = rotateToRightSector( r_vec )
-
-        elif nodeGItem.nodeType == SGT.ENodeTypes.ServiceStation:
-            r_vec = self.__calcNodeMiddleLine( nodeGItem )
-
-            eSide = SGT.ESide.fromString( nodeGItem.netObj().chargeSide )
-            r_vec = rotateToLeftSector( r_vec ) if eSide == SGT.ESide.Left else rotateToRightSector( r_vec )
-        else:
-            return
+        r_vec = calcNodeMiddleLine( self.nxGraph, nodeGItem.nodeID, NeighborsIDs )
 
         res_angle = math.degrees( r_vec.selfAngle() )
         nodeGItem.setMiddleLineAngle( res_angle )
