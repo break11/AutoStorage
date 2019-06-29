@@ -28,6 +28,10 @@ class EAgentServer_Event( IntEnum ):
     def fromBStr( cls, data ):
         return _AgentServer_Event_from_BStr.get( data )
 
+    @classmethod
+    def fromStr( cls, data ):
+        return cls.fromBStr( data.encode() )
+        
     def toStr( self ):
         return _AgentServer_Event_to_Str[ self ]
 
