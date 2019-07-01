@@ -1,3 +1,7 @@
+from collections import deque
+import datetime
+import weakref
+import sys, time
 
 from PyQt5.QtCore import QDataStream, QSettings, QTimer
 from PyQt5.QtGui import QIntValidator
@@ -7,12 +11,13 @@ from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog,
 from PyQt5.QtNetwork import (QAbstractSocket, QHostInfo, QNetworkConfiguration,
         QNetworkConfigurationManager, QNetworkInterface, QNetworkSession,
         QTcpSocket)
-from collections import deque
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot)
-import datetime
-import weakref
 
+from Lib.Common.Utils import CRepeatTimer
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
+from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
 
 CHANNEL_TEST = 0
 TIMER_PERIOD = 1
@@ -22,25 +27,30 @@ DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_
 
 taskCommands = [b'@BA',b'@SB',b'@SE',b'@CM',b'@WO',b'@BL',b'@BU',b'@DP', b'@ES']
 
-class CFakeAgentThread(QThread):
-    threadFinished = pyqtSignal(int)
+s_FA_Socket_thread = "FA Socket thread"
+
+class CFakeAgentThread( QThread ):
+    threadFinished = pyqtSignal()
+    AgentLogUpdated = pyqtSignal( bool, int, CAgentServerPacket )
 
     def __init__( self, agentDesc, host, port ):
         super().__init__()
-        print('Socket thread init')
         self.host = host
         self.port = port
+        self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting )
+        self.HW_Answer_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN = agentDesc.agentN )
+        print(f"{s_FA_Socket_thread} INIT")
 
 ##remove##        self.rxfifo = deque([])
         self.commandToParse = []
 
         ##remove## self.currentRxPacketN = 1000 # 1000 means that numeration was in undefined state after reboot. After HW receive numeration will be picked up from next correct server message.
         
-        self.currentTxPacketN = 11
+        ##remove## self.currentTxPacketN = 11
         ##remove## # self.agentN = agentN
         self.agentDesc = weakref.ref( agentDesc )
 
-        self.txFifo = deque([]) #packet-wise tx fifo
+        ##remove##self.txFifo = deque()
         self.ackNumberToSend = 1000
         self.ackSendCounter = 0
         self.ackNumberToWait = 1000
@@ -56,11 +66,14 @@ class CFakeAgentThread(QThread):
         self.distanceToPass = 0
         self.dpTicksDivider = 0
 
-        self.connected = False
+        self.bRunning = False
         self.bEmergencyStop = False
 
+    def __del__(self):
+        print(f"{s_FA_Socket_thread} DONE")
+
     def run(self):
-        print ('Socket thread run')
+        print(f"{s_FA_Socket_thread} RUN")
         self.tcpSocket = QTcpSocket()
         #self.tcpSocket.readyRead.connect(self.socketReadyRead)
         #self.tcpSocket.error.connect(self.displayError) #can't do signal connect because of "Make sure 'QAbstractSocket::SocketError' is registered using qRegisterMetaType()"
@@ -68,15 +81,32 @@ class CFakeAgentThread(QThread):
         self.tcpSocket.disconnected.connect(self.socketDisconnected)
 
         self.tcpSocket.connectToHost(self.host, int(self.port))
-        self.connected = True
+        self.bRunning = True
 
-        while self.connected:
+        self.bSendTX_cmd = False # флаг для разруливания межпоточных обращений к сокету, т.к. таймер - это отдельный поток
+        self.nReSendTX_Counter = 0
+
+        def activateSend_TX():
+            self.nReSendTX_Counter += 1
+            if self.nReSendTX_Counter > 49:
+                self.nReSendTX_Counter = 0
+                self.bSendTX_cmd = True
+
+        self.sendTX_cmd_Timer = CRepeatTimer(0.01, activateSend_TX )
+        self.sendTX_cmd_Timer.start()
+
+        while self.bRunning:
             # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
-            self.tcpSocket.waitForReadyRead(TIMER_PERIOD) 
-            self.process() # do all polling logic
+            self.tcpSocket.waitForReadyRead(1)
+            self.process()
 
-        print('Socket thread finish')
-        self.threadFinished.emit(self) #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
+        self.sendTX_cmd_Timer.cancel()
+
+        self.tcpSocket.disconnectFromHost()
+        #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
+        self.threadFinished.emit() 
+        self.tcpSocket = None
+        print(f"{s_FA_Socket_thread} FINISH")
 
     def detectESinTaskList( self ):
         bES = False
@@ -86,103 +116,151 @@ class CFakeAgentThread(QThread):
                 break
         return bES
 
-    def process(self):
-        line = self.tcpSocket.readLine() # try to read line (ended with '\n') from socket. Will return empty list if there is no full line in buffer present
-        if line:
-            # some line (ended with '\n') present in socket rx buffer, let's process it
-            self.processRxPacket(line.data())
+    def process( self ):
+        if self.bSendTX_cmd:
+            self.sendTX_cmd()
 
-        if self.ackSendCounter > 0:
-            self.ackSendCounter = self.ackSendCounter - 1
-        else:
-            if self.ackNumberToSend < 1000:
-                # there is some ack to send
-                self.writeBytestrToSocket('@CA:{:03d}'.format(self.ackNumberToSend).encode('utf-8'))
-                self.ackSendCounter = 500/TIMER_PERIOD
+        # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
+        self.tcpSocket.waitForReadyRead(1)
 
-        if self.packetResendCounter > 0:
-            self.packetResendCounter = self.packetResendCounter - 1
-        else:
-            if self.currentTxPacketWithNumbering :
-                self.writeBytestrToSocket(self.currentTxPacketWithNumbering)
-                self.packetResendCounter = 500/TIMER_PERIOD
+        while self.tcpSocket.canReadLine():
+            line = self.tcpSocket.readLine()
 
-        if self.detectESinTaskList():
-            self.tasksList.clear()
-            self.currentTask = ''
-            self.bEmergencyStop
-            print('EmergencyStop !')
-            self.bEmergencyStop = True
+            cmd = CAgentServerPacket.fromCRX_BStr( line.data() )
+            if cmd is None: continue
+            _processRxPacket( self, cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.agentDesc().TX_Packets,
+                              lastTXpacketN=self.agentDesc().lastTXpacketN,
+                              processAcceptedPacket=self.processRxPacket )
+            self.AgentLogUpdated.emit( False, self.agentDesc().agentN, cmd )
 
-        if self.bEmergencyStop:
-            return
+    # местная ф-я обработки пакета, если он признан актуальным
+    def processRxPacket(self, cmd):
+        if cmd.event == EAgentServer_Event.HelloWorld:
+            self.pushCmd( self.HW_Answer_Cmd )
 
-        if len(self.txFifo):
-            # there is some packet to send
-            if self.serverAckReceived == 1:
-                # last packet transmittion was successfull, clear to send next packet
+    def pushCmd( self, cmd ):
+        cmd.packetN = self.agentDesc().genTxPacketN
+        self.agentDesc().genTxPacketN = getNextPacketN( self.agentDesc().genTxPacketN )
+        
+        self.agentDesc().TX_Packets.append( cmd )
+        
+    def currentTX_cmd( self ):
+        try:
+            return self.agentDesc().TX_Packets[ 0 ]
+        except:
+            return None
 
-                packetWithoutNumbering = self.txFifo.popleft()
-                self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.agentDesc().agentN, packetWithoutNumbering.decode())
-                self.packetResendCounter = 0
-                self.serverAckReceived = 0
-                self.ackNumberToWait = self.currentTxPacketN
-                self.currentTxPacketN = self.currentTxPacketN +1
-                if self.currentTxPacketN == 1000:
-                    self.currentTxPacketN = 1
+    def sendTX_cmd( self ):
+        self.writeTo_Socket( self.ACC_cmd )
 
-        if self.currentTask:
-            # there is some task to complete
-            task = self.currentTask
-            if task.find(b'@SB') != -1:
-                if self.findInTasksList(b'SE'):
-                    self.startNextTask()
+        TX_cmd = self.currentTX_cmd()
+        if TX_cmd is not None:
+            self.writeTo_Socket( TX_cmd )
+            self.agentDesc().lastTXpacketN = TX_cmd.packetN
 
-            if task.find(b'@SE') != -1:
-                self.startNextTask()
+        self.bSendTX_cmd = False
 
-            if task.find(b'@BL') != -1:
-                self.sendPacketToServer(b'@NT:BL,L')
-                self.startNextTask()
+    def writeTo_Socket( self, cmd ):
+        self.AgentLogUpdated.emit( True, self.agentDesc().agentN, cmd )
+        self.tcpSocket.write( cmd.toCTX_BStr() )
 
-            if task.find(b'@BU') != -1:
-                self.sendPacketToServer(b'@NT:BU,L')
-                self.startNextTask()
+    # def process(self):
+    #     line = self.tcpSocket.readLine() # try to read line (ended with '\n') from socket. Will return empty list if there is no full line in buffer present
+    #     if line:
+    #         # some line (ended with '\n') present in socket rx buffer, let's process it
+    #         self.processRxPacket(line.data())
 
-            if task.find(b'@WO') != -1:
-                newWheelsOrientation = task[4:4+1]
-                self.odometryCounter = 0
-                self.sendPacketToServer(b'@OZ') # send an "odometry resetted" to server
+    #     if self.ackSendCounter > 0:
+    #         self.ackSendCounter = self.ackSendCounter - 1
+    #     else:
+    #         if self.ackNumberToSend < 1000:
+    #             # there is some ack to send
+    #             self.writeBytestrToSocket('@CA:{:03d}'.format(self.ackNumberToSend).encode('utf-8'))
+    #             self.ackSendCounter = 500/TIMER_PERIOD
 
-                self.currentWheelsOrientation = task[4:4+1] # will be b'N' for narrow, b'W' for wide, or emtpy if uninited
-                self.sendPacketToServer(b'@NT:WO')
-                self.startNextTask()
+    #     if self.packetResendCounter > 0:
+    #         self.packetResendCounter = self.packetResendCounter - 1
+    #     else:
+    #         if self.currentTxPacketWithNumbering :
+    #             self.writeBytestrToSocket(self.currentTxPacketWithNumbering)
+    #             self.packetResendCounter = 500/TIMER_PERIOD
 
-            if task.find(b'@DP') != -1:
-                if self.dpTicksDivider<DP_TICKS_PER_CYCLE:
-                    self.dpTicksDivider = self.dpTicksDivider + 1
-                    if self.dpTicksDivider == DP_TICKS_PER_CYCLE:
-                        self.dpTicksDivider = 0
-                        if self.distanceToPass > 0:
-                            self.distanceToPass = self.distanceToPass - DP_DELTA_PER_CYCLE
-                            if self.currentDirection == b'F':
-                                self.odometryCounter = self.odometryCounter + DP_DELTA_PER_CYCLE
-                            else:
-                                self.odometryCounter = self.odometryCounter - DP_DELTA_PER_CYCLE
-                            self.sendPacketToServer('@OD:{:d}'.format(self.odometryCounter).encode('utf-8'))
-                            if self.distanceToPass <= 0:
-                                self.distanceToPass = 0
-                                self.sendPacketToServer(b'@DE')
-                                self.startNextTask()
+    #     if self.detectESinTaskList():
+    #         self.tasksList.clear()
+    #         self.currentTask = ''
+    #         self.bEmergencyStop
+    #         print('EmergencyStop !')
+    #         self.bEmergencyStop = True
 
-            if task.find(b'@CM') != -1:
-                self.sendPacketToServer(b'@CB')
-                self.sendPacketToServer(b'@CE')
-                self.startNextTask()
+    #     if self.bEmergencyStop:
+    #         return
 
-        if len(self.tasksList):
-            if not self.currentTask:
-                self.startNextTask()
+    #     if len(self.txFifo):
+    #         # there is some packet to send
+    #         if self.serverAckReceived == 1:
+    #             # last packet transmittion was successfull, clear to send next packet
+
+    #             packetWithoutNumbering = self.txFifo.popleft()
+    #             self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.agentDesc().agentN, packetWithoutNumbering.decode())
+    #             self.packetResendCounter = 0
+    #             self.serverAckReceived = 0
+    #             self.ackNumberToWait = self.currentTxPacketN
+    #             self.currentTxPacketN = self.currentTxPacketN +1
+    #             if self.currentTxPacketN == 1000:
+    #                 self.currentTxPacketN = 1
+
+    #     if self.currentTask:
+    #         # there is some task to complete
+    #         task = self.currentTask
+    #         if task.find(b'@SB') != -1:
+    #             if self.findInTasksList(b'SE'):
+    #                 self.startNextTask()
+
+    #         if task.find(b'@SE') != -1:
+    #             self.startNextTask()
+
+    #         if task.find(b'@BL') != -1:
+    #             self.sendPacketToServer(b'@NT:BL,L')
+    #             self.startNextTask()
+
+    #         if task.find(b'@BU') != -1:
+    #             self.sendPacketToServer(b'@NT:BU,L')
+    #             self.startNextTask()
+
+    #         if task.find(b'@WO') != -1:
+    #             newWheelsOrientation = task[4:4+1]
+    #             self.odometryCounter = 0
+    #             self.sendPacketToServer(b'@OZ') # send an "odometry resetted" to server
+
+    #             self.currentWheelsOrientation = task[4:4+1] # will be b'N' for narrow, b'W' for wide, or emtpy if uninited
+    #             self.sendPacketToServer(b'@NT:WO')
+    #             self.startNextTask()
+
+    #         if task.find(b'@DP') != -1:
+    #             if self.dpTicksDivider<DP_TICKS_PER_CYCLE:
+    #                 self.dpTicksDivider = self.dpTicksDivider + 1
+    #                 if self.dpTicksDivider == DP_TICKS_PER_CYCLE:
+    #                     self.dpTicksDivider = 0
+    #                     if self.distanceToPass > 0:
+    #                         self.distanceToPass = self.distanceToPass - DP_DELTA_PER_CYCLE
+    #                         if self.currentDirection == b'F':
+    #                             self.odometryCounter = self.odometryCounter + DP_DELTA_PER_CYCLE
+    #                         else:
+    #                             self.odometryCounter = self.odometryCounter - DP_DELTA_PER_CYCLE
+    #                         self.sendPacketToServer('@OD:{:d}'.format(self.odometryCounter).encode('utf-8'))
+    #                         if self.distanceToPass <= 0:
+    #                             self.distanceToPass = 0
+    #                             self.sendPacketToServer(b'@DE')
+    #                             self.startNextTask()
+
+    #         if task.find(b'@CM') != -1:
+    #             self.sendPacketToServer(b'@CB')
+    #             self.sendPacketToServer(b'@CE')
+    #             self.startNextTask()
+
+    #     if len(self.tasksList):
+    #         if not self.currentTask:
+    #             self.startNextTask()
 
     def processRxPacket(self, packet):
 
@@ -303,16 +381,16 @@ class CFakeAgentThread(QThread):
         return False
 
     def disconnectFromServer(self):
-        self.connected = False
+        self.bRunning = False
 
     @pyqtSlot()
     def socketDisconnected(self):
-        print (" ----- DISCONNECTED ------")
-        self.connected = False
+        print ("----- FA DISCONNECTED ------")
+        self.bRunning = False
 
     @pyqtSlot()
     def socketConnected(self):
-        print(" ----- CONNECTED ------")
+        print("----- FA CONNECTED ------")
 
     #@pyqtSlot(str)
     #doesn't work :(
@@ -338,7 +416,7 @@ class CFakeAgentThread(QThread):
                 print(block)
 
         else:
-            self.connected = False #stop thread
+            self.bRunning = False #stop thread
 
 
     def parseServerPacketWithNumbering(self, packet):

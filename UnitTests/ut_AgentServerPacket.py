@@ -7,8 +7,8 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-from App.AgentsManager.AgentServer_Event import EAgentServer_Event
-from App.AgentsManager.AgentServerPacket import CAgentServerPacket
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 
 class TestAgentServerPacket(unittest.TestCase):
 

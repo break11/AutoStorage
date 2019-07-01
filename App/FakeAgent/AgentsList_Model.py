@@ -1,3 +1,5 @@
+import sys
+from collections import deque
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
 
@@ -23,11 +25,28 @@ class CFakeAgentDesc:
         self.socketThread = None
         self.last_RX_packetN = 1000
 
+        self.genTxPacketN  = 0
+        self.lastTXpacketN = 0
+        self.TX_Packets    = deque()
+
 class CAgentsList_Model( QAbstractTableModel ):
     propList = [ s_agentN, s_connected ]
 
     def __init__( self, parent ):
         super().__init__( parent=parent)
+
+        self.agentsList = []
+        self.agentsDict = {}
+
+    def __del__( self ):
+
+        for desc in self.agentsDict.values():
+            if desc.socketThread is None: continue
+            desc.socketThread.bRunning = False
+            desc.socketThread.exit()
+            while not desc.socketThread.isFinished():
+                pass # waiting thread stop
+            desc.socketThread = None
 
         self.agentsList = []
         self.agentsDict = {}
@@ -114,7 +133,7 @@ class CAgentsList_Model( QAbstractTableModel ):
             agentDesc.last_RX_packetN = 0
 
         agentDesc.socketThread = CFakeAgentThread( agentDesc, ip, port )
-
+                    
         agentDesc.socketThread.threadFinished.connect( self.threadFinihsedSlot )
         agentDesc.socketThread.start()
 
@@ -133,32 +152,12 @@ class CAgentsList_Model( QAbstractTableModel ):
     def threadFinihsedSlot( self ):
         thread = self.sender()
 
-        # agentN = thread.agentN
-        # agentDesc = self.agentsDict[ agentN ]
         agentDesc = thread.agentDesc()
         agentDesc.socketThread = None
-        # agentDesc.socketThread = None
 
-        # сохраняем номер последнего полученного пакета на случай реконнекта (теста его работы)
-        ##remove##agentDesc.last_RX_packetN = thread.currentRxPacketN
-
-        thread.deleteLater()
+        self.sender().deleteLater()
         
         row = self.agentsList.index( agentDesc.agentN )
         col = self.propList.index( s_connected )
         idx = self.index( row, col )
         self.dataChanged.emit( idx, idx )
-
-    # def agentNO_from_Index( self, index ):
-    #     UID = self.agentsList[ index.row() ]
-    #     agentNO = CNetObj_Manager.accessObj( UID, genAssert=True ) 
-    #     return agentNO
-
-    # def agentNO_to_Index( self, agentNO, sPropName="name" ):
-    #     try:
-    #         row = self.agentsList.index( agentNO.UID )
-    #         column = self.propList.index( sPropName )
-    #     except ValueError:
-    #         return QModelIndex()
-
-    #     return self.createIndex( row, column )

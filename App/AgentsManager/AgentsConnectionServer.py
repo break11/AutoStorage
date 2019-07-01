@@ -16,9 +16,9 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Agent_NetObject import CAgent_NO
 
-from .AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
-from .AgentServer_Event import EAgentServer_Event
-from .AgentProtocolUtils import _processRxPacket
+from Lib.AgentProtocol.AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket
 from .AgentLogManager import CAgentLogManager
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
@@ -192,7 +192,9 @@ class CAgentSocketThread(QThread):
         self.agentN = UNINITED_AGENT_N
         self.socketDescriptor = socketDescriptor
 
-        self.noRxTimer = 0 # timer to ckeck if there is no incoming data - thread will be closed if no activity on socket for more than 5 secs or so
+        # timer to ckeck if there is no incoming data - thread will be closed if no activity on socket for more than 5 secs or so
+        self.noRxTimer = 0
+
         self.HW_Cmd  = CAgentServerPacket( event=EAgentServer_Event.HelloWorld )
         self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
         self.Off_5S_Cmd = CAgentServerPacket( event=EAgentServer_Event.Warning_, data="#Thread will closed with no activity for 5 secs." )
@@ -212,6 +214,7 @@ class CAgentSocketThread(QThread):
 
         self.tcpSocket.disconnected.connect( self.disconnected )
 
+        # self.noRxTimer = time.time()
         # send HW cmd and wait HW answer from Agent for init agentN
         while self.bRunning and self.agentN == UNINITED_AGENT_N:
             self.initHW()
@@ -239,15 +242,15 @@ class CAgentSocketThread(QThread):
     def initHW( self ):
         self.writeTo_Socket( self.HW_Cmd )
         self.tcpSocket.waitForReadyRead(1)
-
-        # self.msleep( 3000 )
-
-        if self.tcpSocket.canReadLine():
+        
+        while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
-
+            # self.noRxTimer = time.time()
+            if cmd is None: continue
+            
             self.AgentLogUpdated.emit( False, self.agentN, cmd )
-            if (cmd is not None) and ( cmd.event == EAgentServer_Event.HelloWorld ) :
+            if cmd.event == EAgentServer_Event.HelloWorld:
                 if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
                     self.newAgent.emit( cmd.agentN )
                     while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
@@ -258,6 +261,14 @@ class CAgentSocketThread(QThread):
                 self.agentNumberInited.emit( cmd.agentN )
                 self.agentN = cmd.agentN
                 self.ACC_cmd.packetN = cmd.packetN
+
+        # # отключение соединения если в течении 5 секунд не было ответа
+        # t = (time.time() - self.noRxTimer)
+        # print( t, "1111111111111111111111" )
+        # if t > 5:
+        #     self.AgentLogUpdated.emit( False, self.agentN, self.Off_5S_Cmd )
+        #     self.bRunning = False
+
 
     def process( self ):
         self.sendExpressCMDs()
@@ -271,15 +282,15 @@ class CAgentSocketThread(QThread):
             line = self.tcpSocket.readLine()
 
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
+            if cmd is None: continue
+
             self.noRxTimer = time.time()
             _processRxPacket( self, cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
                               processAcceptedPacket=self.__processRxPacket )
             self.AgentLogUpdated.emit( False, self.agentN, cmd )
 
-        #################################
-
+        # отключение соединения если в течении 5 секунд не было ответа
         t = (time.time() - self.noRxTimer)
-
         if t > 5:
             self.AgentLogUpdated.emit( False, self.agentN, self.Off_5S_Cmd )
             self.bRunning = False

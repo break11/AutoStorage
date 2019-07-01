@@ -1,5 +1,5 @@
 
-from .AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
 UNINITED_AGENT_N = 0
 
@@ -59,12 +59,21 @@ class CAgentServerPacket:
                 
         return sResult.encode()
 
-    def toTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
-    def toRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
-
     def toStr( self, bTX_or_RX, appendLF=True ): return self.toBStr( bTX_or_RX, appendLF=appendLF ).decode()
-    def toRX_Str( self, appendLF=True ): return self.toRX_BStr( appendLF=appendLF ).decode()
-    def toTX_Str( self, appendLF=True ): return self.toTX_BStr( appendLF=appendLF ).decode()
+
+    def toRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
+    def toTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True,  appendLF=appendLF ).decode()
+
+    def toRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
+    def toTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True,  appendLF=appendLF )
+
+    # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
+
+    # def toCRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF ).decode()
+    # def toCTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
+
+    # def toCRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
+    # def toCTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
 
     ############################################################
 
@@ -128,13 +137,24 @@ class CAgentServerPacket:
 
     @classmethod
     def fromStr( cls, data, bTX_or_RX, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=bTX_or_RX, removeLF=removeLF )
+
     @classmethod
     def fromRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
     @classmethod
     def fromTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
 
     @classmethod
+    def fromRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=False, removeLF=removeLF )
+    @classmethod
     def fromTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
 
+    # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
     @classmethod
-    def fromRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=False, removeLF=removeLF )
+    def fromRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
+    @classmethod
+    def fromTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
+
+    @classmethod
+    def fromCRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
+    @classmethod
+    def fromCTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=False, removeLF=removeLF )

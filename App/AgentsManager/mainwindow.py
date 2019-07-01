@@ -27,7 +27,7 @@ from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, node
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
-from .AgentServerPacket import CAgentServerPacket
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):

@@ -1,8 +1,8 @@
 import os
 
 from Lib.Common.Utils import wrapSpan, wrapDiv
-from .AgentServerPacket import EPacket_Status
-from .AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
 LogCount = 1000
 

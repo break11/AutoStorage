@@ -14,9 +14,9 @@ from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.FileUtils import agentsLog_Path
 import Lib.Common.StrConsts as SC
-from .AgentServerPacket import CAgentServerPacket as ASP
-from .AgentServer_Event import EAgentServer_Event
-from .AgentProtocolUtils import getNextPacketN
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
 from .AgentLogManager import CAgentLogManager
 
@@ -103,6 +103,7 @@ class CAgentLink():
         return len(self.socketThreads) > 0
 
     def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):
+        ##remove## возможно очередь команд должна набиваться и когда нет соединения с челноком ?????????????
         if not self.isConnected():
             ##remove##print( cmd )
             return
@@ -143,6 +144,7 @@ class CAgentLink():
     def currSII(self):
         return self.SII[ self.DE_IDX ]
     
+    # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0

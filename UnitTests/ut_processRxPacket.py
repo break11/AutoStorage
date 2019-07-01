@@ -8,9 +8,9 @@ from collections import deque
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-from App.AgentsManager.AgentServer_Event import EAgentServer_Event
-from App.AgentsManager.AgentServerPacket import CAgentServerPacket, EPacket_Status
-from App.AgentsManager.AgentProtocolUtils import _processRxPacket
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
+from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket
 
 class CDummyACS:
     bSendTX_cmd = False

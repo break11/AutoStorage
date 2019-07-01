@@ -1,6 +1,6 @@
 
-from .AgentServerPacket import EPacket_Status
-from .AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
 def getNextPacketN( n ):
     return ( 1 if n == 999 else n+1 )

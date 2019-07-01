@@ -22,7 +22,7 @@ import Lib.Common.StrConsts as SC
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from .AgentsList_Model import CAgentsList_Model
 # from .AgentsConnectionServer import CAgentsConnectionServer
-# from .AgentServerPacket import CAgentServerPacket
+# from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 
 class CFA_MainWindow(QMainWindow):
     def __init__(self):

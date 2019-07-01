@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QCheckBox
 from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
 
-from App.AgentsManager.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 import App.AgentsManager.AgentLogManager as ALM
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 
