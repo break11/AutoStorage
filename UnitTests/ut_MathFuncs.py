@@ -38,6 +38,7 @@ deg_360 = 360.0
 deg_540 = 540.0
 
 nxGraph = gu.loadGraphML_File( "./GraphML/math_unit_tests.graphml" )
+nxGraph_mag = gu.loadGraphML_File( "./GraphML/magadanskaya.graphml" )
 
 tEdgeKey12 = ("1", "2")
 tEdgeKey21 = ("2", "1")
@@ -234,6 +235,49 @@ class TestMathFuncs(unittest.TestCase):
 
         vec = gu.rotateToLeftSector( u_vec_315 )
         self.assertEqual( vec, u_vec_135 )
+
+    def test_closestCycleNode(self):
+        cycle = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21"]
+        
+        nodeID = gu.closestCycleNode( nxGraph_mag, "38", cycle )
+        self.assertEqual( nodeID, "20" )
+
+        nodeID = gu.closestCycleNode( nxGraph_mag, "10", cycle )
+        self.assertEqual( nodeID, "16" )
+
+        nodeID = gu.closestCycleNode( nxGraph_mag, "26", cycle )
+        self.assertEqual( nodeID, "25" )
+
+        nodeID = gu.closestCycleNode( nxGraph_mag, "18", cycle )
+        self.assertEqual( nodeID, "18" )
+
+    def test_remapCycle(self):
+        cycle = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21"]
+
+        remaped_cycle = ["16", "24", "25", "23", "22", "21", "20", "19", "18", "17"]
+        test_cycle = gu.remapCycle( "16", cycle )
+        self.assertEqual( remaped_cycle, test_cycle )
+
+        remaped_cycle = ["23", "22", "21", "20", "19", "18", "17", "16", "24", "25"]
+        test_cycle = gu.remapCycle( "23", cycle )
+        self.assertEqual( remaped_cycle, test_cycle )
+
+    def test_mergeCycleWithPath(self):
+        simple_path = [ 0,1,2,3,4,5 ]
+         
+        cycle =  [1,2,3,71,70]  
+        merged = [0, 1, 2, 3, 71, 70, 1, 2, 3, 4, 5]
+        test_merged = gu.mergeCycleWithPath( cycle, simple_path )
+
+        self.assertEqual(  test_merged, merged  )
+        # print( test_merged )
+         
+        cycle_reverse =  [1,70,71,3,2]  
+        merged = [0, 1, 70, 71, 3, 4, 5]
+        test_merged = gu.mergeCycleWithPath( cycle_reverse, simple_path )
+        self.assertEqual(  test_merged, merged  )
+        # print( test_merged )
+        
 
 class TestStrFuncs(unittest.TestCase):
 

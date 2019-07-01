@@ -197,3 +197,71 @@ def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
         r_vec = rotateToLeftSector( r_vec ) if eSide == SGT.ESide.Left else rotateToRightSector( r_vec )
     
     return r_vec
+
+def pathsIntersections( path_1, path_2 ):
+    intersections = []
+    i_path = []
+    for nodeID in path_1:
+        if nodeID in path_2:
+            i_path.append( nodeID )
+        elif len(i_path) > 0:
+            intersections.append( i_path )
+            i_path = []
+
+    if len(i_path): intersections.append( i_path )
+    return intersections
+
+def closestCycleNode( nxGraph, nodeID, cycle ):
+    if nodeID in cycle: return nodeID
+    
+    path = nx.dijkstra_path( nxGraph, nodeID, cycle[0] )
+
+    i = pathsIntersections( path, cycle )
+    
+    if len(i): return i[0][0]
+
+def remapCycle( targetStartNodeID, cycle ):
+    start_idx = cycle.index( targetStartNodeID )
+    cycle = cycle[start_idx:] + cycle[:start_idx]
+    return cycle
+
+def mergeCycleWithPath( cycle, simple_path ):
+    s_cycle = set(cycle)
+    s_simple_path = set(simple_path)
+
+    assert len(simple_path) == len(s_simple_path), f"{SC.sAssert} {simple_path} not a simple path (contains dublicates)."
+
+    if len( s_cycle.intersection( s_simple_path ) ) == 0: return None
+
+    # simple_path = [ 0,1,2,3,4,5 ]  cycle =  [1,2,3,71,70]  merged = [0, 1, 2, 3, 71, 70, 1, 2, 3, 4, 5]
+    # simple_path = [ 0,1,2,3,4,5 ]  cycle =  [1,70,71,3,2]  merged = [0, 1, 70, 71, 3, 4, 5]
+    
+    i = pathsIntersections( simple_path, cycle )
+    if len(i) > 1: return None
+
+    enterNode = i[0][0]
+    outNode   = i[0][-1]
+    cycle = remapCycle(enterNode, cycle )
+
+    path_e_idx = simple_path.index(enterNode)
+    path_o_idx = simple_path.index( outNode )
+
+    cy_e_idx = cycle.index(enterNode)
+    cy_o_idx = cycle.index( outNode )
+    
+    if cycle[1] in simple_path: # направление цикла совпадает с направлением пути
+        merged = simple_path[:path_o_idx] + cycle[cy_o_idx:] + simple_path[path_e_idx:]
+    else:
+        merged = simple_path[:path_e_idx] + cycle[:cy_o_idx] + simple_path[path_o_idx:]
+
+    return merged
+
+
+# def longestPathInCycle( nxGraph, startNode, targetNode, cycle, weight='weight' ):
+
+#     subGraph = nxGraph.subgraph( cycle )
+#     paths = nx.all_simple_paths( nxGraph, startNode, targetNode )
+
+#     calcPathWeight = lambda path: nx.dijkstra_path_length( subGraph, path[0], path[-1], weight = weight )
+
+#     return max( paths, key = calcPathWeight )
