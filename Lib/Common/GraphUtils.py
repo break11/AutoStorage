@@ -237,7 +237,7 @@ def mergeCycleWithPath( cycle, simple_path ):
     # simple_path = [ 0,1,2,3,4,5 ]  cycle =  [1,70,71,3,2]  merged = [0, 1, 70, 71, 3, 4, 5]
     
     i = pathsIntersections( simple_path, cycle )
-    if len(i) > 1: return None
+    if len(i) > 1: return None #не рассматриваем варианты если цикл пересекается с путём несколько раз, значит есть более короткие циклы
 
     enterNode = i[0][0]
     outNode   = i[0][-1]
@@ -255,13 +255,3 @@ def mergeCycleWithPath( cycle, simple_path ):
         merged = simple_path[:path_e_idx] + cycle[:cy_o_idx] + simple_path[path_o_idx:]
 
     return merged
-
-
-# def longestPathInCycle( nxGraph, startNode, targetNode, cycle, weight='weight' ):
-
-#     subGraph = nxGraph.subgraph( cycle )
-#     paths = nx.all_simple_paths( nxGraph, startNode, targetNode )
-
-#     calcPathWeight = lambda path: nx.dijkstra_path_length( subGraph, path[0], path[-1], weight = weight )
-
-#     return max( paths, key = calcPathWeight )

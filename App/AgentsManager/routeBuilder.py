@@ -4,7 +4,7 @@ from collections import namedtuple
 import networkx as nx
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize
+from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, mergeCycleWithPath
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -100,11 +100,27 @@ class CRouteBuilder():
             return dijkstra_path
         
         final_agentAngle = getFinalAgentAngle( nxGraph = self.nxGraph, agent_angle = agentAngle, nodes_route = dijkstra_path )
-        eAgentSide = SGT.ESide.fromAngle( math.radians( final_agentAngle ) )
+        eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
 
         # print( targetSide, eAgentSide )
         if targetSide == eAgentSide:
             return dijkstra_path
+
+        it_cycles = nx.simple_cycles( self.nxGraph )
+        cycles = [ c for c in it_cycles if len(c) > 3 ] #циклы с кратными гранями (a->b->a) отбрасываем
+        
+        merged_paths = [ mergeCycleWithPath( cycle = cycle, simple_path = dijkstra_path ) for cycle in cycles   ]
+        paths_correct_side = []
+
+        for path in merged_paths:
+            final_agentAngle = getFinalAgentAngle( nxGraph = self.nxGraph, agent_angle = agentAngle, nodes_route = path )
+            eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
+            
+            if targetSide == eAgentSide:
+                paths_correct_side.append( path )
+
+        final_path = min( paths_correct_side, key = lambda path: len(path) )
+        return final_path
 
     def buildRoute(self, nodeList, agent_angle):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""

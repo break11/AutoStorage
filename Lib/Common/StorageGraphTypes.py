@@ -119,9 +119,9 @@ class ESide( Enum ):
 
     @staticmethod
     def fromAngle( angle ):
-        angle = angle % (2 * math.pi)
+        angle = angle % 360
 
-        if angle > math.pi/4 and angle < math.pi * (5/4):
+        if angle > 45 and angle < 225:
             return ESide.Left
         else:
             return ESide.Right
