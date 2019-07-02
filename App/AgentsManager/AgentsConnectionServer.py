@@ -149,7 +149,7 @@ class CAgentsConnectionServer(QTcpServer):
         agentLink = self.getAgentLink( agentN, bWarning=False )
 
         thread = self.sender()
-        data = CAgentLogManager.decorateLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
+        data = CAgentLogManager.doLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
                     
         if agentLink:
             self.AgentLogUpdated.emit( agentLink, packet, data )

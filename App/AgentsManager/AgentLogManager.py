@@ -4,7 +4,7 @@ from Lib.Common.Utils import wrapSpan, wrapDiv
 from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
-LogCount = 1000
+LogCount = 10000
 
 class CAgentLogManager():
     @classmethod
@@ -23,9 +23,27 @@ class CAgentLogManager():
         if len( agentLink.log ) > LogCount:
             agentLink.log = agentLink.log[ LogCount // 2: ]
 
+    ###############
+
+    @classmethod
+    def doLogString( cls, agentLink, data ):
+        data = cls.decorateLogString( agentLink, data )
+        cls.__appendLog_with_Cut( agentLink, data )
+        cls.writeToLogFile( agentLink, data )
+        
     @classmethod
     def decorateLogString( cls, agentLink, data ):
-        data = wrapDiv( data )
+        return wrapDiv( data )
+
+    ###############
+
+    @classmethod
+    def doLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX ):
+        if agentLink is None:
+            print( packet )
+            return
+        
+        data = cls.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX )
         cls.__appendLog_with_Cut( agentLink, data )
         cls.writeToLogFile( agentLink, data )
         return data
@@ -33,9 +51,6 @@ class CAgentLogManager():
     @classmethod
     def decorateLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX ):
         data = packet.toBStr( bTX_or_RX=bTX_or_RX, appendLF=False ).decode()
-        if agentLink is None:
-            print( data )
-            return data
 
         if bTX_or_RX is None:
             sTX_or_RX = ""
@@ -65,8 +80,5 @@ class CAgentLogManager():
 
         data = f"T:{ thread_UID } {data}"
         data = wrapDiv( data )
-
-        cls.__appendLog_with_Cut( agentLink, data )
-        cls.writeToLogFile( agentLink, data )
 
         return data

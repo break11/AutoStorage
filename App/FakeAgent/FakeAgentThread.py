@@ -37,7 +37,6 @@ class CFakeAgentThread( QThread ):
         super().__init__()
         self.host = host
         self.port = port
-        self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting )
         self.HW_Answer_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN = agentDesc.agentN )
         print(f"{s_FA_Socket_thread} INIT")
 
@@ -128,14 +127,17 @@ class CFakeAgentThread( QThread ):
 
             cmd = CAgentServerPacket.fromCRX_BStr( line.data() )
             if cmd is None: continue
-            _processRxPacket( self, cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.agentDesc().TX_Packets,
-                              lastTXpacketN=self.agentDesc().lastTXpacketN,
-                              processAcceptedPacket=self.processRxPacket )
+            _processRxPacket( self, cmd, ACC_cmd = self.agentDesc().ACC_cmd, TX_FIFO=self.agentDesc().TX_Packets,
+                              lastTXpacketN = self.agentDesc().lastTXpacketN,
+                              processAcceptedPacket = self.processRxPacket,
+                              ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
+            print( cmd.status, self.agentDesc().last_RX_packetN, self.agentDesc().ACC_cmd.packetN )
             self.AgentLogUpdated.emit( False, self.agentDesc().agentN, cmd )
 
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket(self, cmd):
         if cmd.event == EAgentServer_Event.HelloWorld:
+            self.HW_Answer_Cmd.data = str( self.agentDesc().last_RX_packetN )
             self.pushCmd( self.HW_Answer_Cmd )
 
     def pushCmd( self, cmd ):
@@ -151,7 +153,7 @@ class CFakeAgentThread( QThread ):
             return None
 
     def sendTX_cmd( self ):
-        self.writeTo_Socket( self.ACC_cmd )
+        self.writeTo_Socket( self.agentDesc().ACC_cmd )
 
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:
@@ -262,7 +264,7 @@ class CFakeAgentThread( QThread ):
     #         if not self.currentTask:
     #             self.startNextTask()
 
-    def processRxPacket(self, packet):
+    def __processRxPacket(self, packet):
 
         # All processing below based on bytestr
 

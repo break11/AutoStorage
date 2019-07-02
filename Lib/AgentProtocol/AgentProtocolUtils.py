@@ -5,9 +5,9 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 def getNextPacketN( n ):
     return ( 1 if n == 999 else n+1 )
 
-def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacket=None ):
-    if cmd.event == EAgentServer_Event.ClientAccepting:
-        assert lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать ( иначе  )
+def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacket=None, ACC_Event_OtherSide=EAgentServer_Event.ClientAccepting ):
+    if cmd.event == ACC_Event_OtherSide:
+        assert lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
 
         delta = cmd.packetN - lastTXpacketN
 
@@ -36,6 +36,10 @@ def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAccepted
         # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
         wantedPacketN = getNextPacketN( ACC_cmd.packetN )
         delta = cmd.packetN - wantedPacketN
+
+        # прием всех пакетов с кодом 0 - как нормальные
+        if cmd.packetN == 0:
+            delta = 0
 
         #если 0, то всё корректно 
         if  delta == 0:

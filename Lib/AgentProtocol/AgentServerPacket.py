@@ -29,12 +29,15 @@ class CAgentServerPacket:
         self.status    = status
 
     def __repr__( self ):
-        return self.toTX_Str()
-        # return f"event={self.event.toStr()} agentN={self.agentN} packetN={self.packetN} channelN={self.channelN} timeStamp={self.timeStamp} data={self.data}"
+        if self.event in [ EAgentServer_Event.ClientAccepting, EAgentServer_Event.ServerAccepting ]:
+            return f"{self.packetN:03d},{ EAgentServer_Event.toStr( self.event ) }"
+        else:
+            sResult = f"{self.packetN:03d},{self.agentN:03d}:{ EAgentServer_Event.toStr( self.event ) }"
 
-    def __str__( self ):
-        return self.toTX_Str()
-        # return f"event={self.event.toStr()} agentN={self.agentN} packetN={self.packetN} channelN={self.channelN} timeStamp={self.timeStamp} data={self.data}"
+        if self.data:
+            sResult = f"{sResult}:{self.data}"
+
+        return sResult
 
     def toBStr( self, bTX_or_RX, appendLF=True ):
         Event_Sign = EAgentServer_Event.toStr( self.event )
@@ -68,12 +71,11 @@ class CAgentServerPacket:
     def toTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True,  appendLF=appendLF )
 
     # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
+    def toCRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF ).decode()
+    def toCTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
 
-    # def toCRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF ).decode()
-    # def toCTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
-
-    # def toCRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
-    # def toCTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
+    def toCRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
+    def toCTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
 
     ############################################################
 
@@ -150,9 +152,9 @@ class CAgentServerPacket:
 
     # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
     @classmethod
-    def fromRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
+    def fromCRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
     @classmethod
-    def fromTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
+    def fromCTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
 
     @classmethod
     def fromCRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )

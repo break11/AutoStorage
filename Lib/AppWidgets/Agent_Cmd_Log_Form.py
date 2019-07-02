@@ -46,7 +46,9 @@ class CAgent_Cmd_Log_Form(QWidget):
         filterSet = ALC_Form_set[ s_filter_settings ]
         for eS, value in filterSet.items():
             e = EAgentServer_Event.fromStr( eS )
-            self.enabledLogEvents[ e ].setChecked( value )
+            # если прописать команду только в настройки не прописывая в baseFilterSet, то она не будет появляться кнопкой фильтрации
+            if e in self.enabledLogEvents:
+                self.enabledLogEvents[ e ].setChecked( value )
 
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки

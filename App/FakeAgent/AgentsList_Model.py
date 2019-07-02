@@ -9,6 +9,8 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.SettingsManager import CSettingsManager as CSM
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from .FakeAgentThread import CFakeAgentThread
 
 s_agentN = "agentN"
@@ -17,17 +19,23 @@ s_connected = "connected"
 s_agents_list = "agents_list"
 def_agent_list = [ 555 ]
 
-
 class CFakeAgentDesc:
+    @property
+    def last_RX_packetN( self ) : return self.ACC_cmd.packetN
+
+    @last_RX_packetN.setter
+    def last_RX_packetN( self, value ):
+        self.ACC_cmd.packetN = value
+
     def __init__( self, agentN ):
         self.agentN = agentN
         self.bConnected = False
         self.socketThread = None
-        self.last_RX_packetN = 1000
-
         self.genTxPacketN  = 0
         self.lastTXpacketN = 0
         self.TX_Packets    = deque()
+        # self.last_RX_packetN = 1000 # Now as property
+        self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN = 1000, agentN = self.agentN )
 
 class CAgentsList_Model( QAbstractTableModel ):
     propList = [ s_agentN, s_connected ]
@@ -39,7 +47,6 @@ class CAgentsList_Model( QAbstractTableModel ):
         self.agentsDict = {}
 
     def __del__( self ):
-
         for desc in self.agentsDict.values():
             if desc.socketThread is None: continue
             desc.socketThread.bRunning = False
@@ -129,8 +136,8 @@ class CAgentsList_Model( QAbstractTableModel ):
 
         # bReConnect - параметр указывающий, что агент подключится с сохранением прежнего номера последнего полученного пакета от сервера
         # то есть это не настоящий дисконнект был, а лишь временная потеря соединения
-        if bReConnect == False:
-            agentDesc.last_RX_packetN = 0
+        # if bReConnect == False:
+        #     agentDesc.last_RX_packetN = 0
 
         agentDesc.socketThread = CFakeAgentThread( agentDesc, ip, port )
                     
@@ -153,6 +160,9 @@ class CAgentsList_Model( QAbstractTableModel ):
         thread = self.sender()
 
         agentDesc = thread.agentDesc()
+        agentDesc.socketThread.exit()
+        while not agentDesc.socketThread.isFinished():
+            pass # waiting thread stop
         agentDesc.socketThread = None
 
         self.sender().deleteLater()
