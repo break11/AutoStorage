@@ -263,20 +263,44 @@ class TestMathFuncs(unittest.TestCase):
         self.assertEqual( remaped_cycle, test_cycle )
 
     def test_mergeCycleWithPath(self):
+        #################################################### 
         simple_path = [ 0,1,2,3,4,5 ]
-         
-        cycle =  [1,2,3,71,70]  
+        cycle =  [1,2,3,71,70]
+        cycle_reverse =  [1,70,71,3,2]  
+
         merged = [0, 1, 2, 3, 71, 70, 1, 2, 3, 4, 5]
         test_merged = gu.mergeCycleWithPath( cycle, simple_path )
-
         self.assertEqual(  test_merged, merged  )
-        # print( test_merged )
-         
-        cycle_reverse =  [1,70,71,3,2]  
+        
         merged = [0, 1, 70, 71, 3, 4, 5]
         test_merged = gu.mergeCycleWithPath( cycle_reverse, simple_path )
         self.assertEqual(  test_merged, merged  )
-        # print( test_merged )
+        ####################################################
+        simple_path = [ 3,4,5 ]
+
+        merged = [3, 71, 70, 1, 2, 3, 4, 5]
+        test_merged = gu.mergeCycleWithPath( cycle, simple_path )
+        self.assertEqual( test_merged, merged )
+
+        merged = [3, 2, 1, 70, 71, 3, 4, 5]
+        test_merged = gu.mergeCycleWithPath( cycle_reverse, simple_path )
+        self.assertEqual( test_merged, merged )
+        ####################################################
+        simple_path = [ 4,5 ]
+
+        merged = None
+        test_merged = gu.mergeCycleWithPath( cycle, simple_path )
+        self.assertEqual( test_merged, merged )
+
+    def test_pathWeight(self):
+        path = [ "20", "29", "30", "31" ]
+        weight = 550 + 2760 + 712
+
+        test_weight = gu.pathWeight( nxGraph_mag, path )
+        self.assertEqual( weight, test_weight )
+
+        test_weight = gu.pathWeight( nxGraph_mag, path, weight=None )
+        self.assertEqual( 3, test_weight )
         
 
 class TestStrFuncs(unittest.TestCase):

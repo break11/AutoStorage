@@ -110,5 +110,53 @@ class CTestRouteBuilder(unittest.TestCase):
         test_nodes_route = routeBuilder.makeNodesRoute( startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
         self.assertEqual ( nodes_route, test_nodes_route )
 
+        ###################################################################################################################
+        nodes_route = ["25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "25", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "25", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route = ["20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "20", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "20", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route_1 = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+        nodes_route_2 = ["20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "20", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "20", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        ###################################################################################################################
+        nodes_route = ["19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "19", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "19", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route_1 = ["44", "43", "38", "37", "36", "35", "34", "31", "30", "29", "20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+        nodes_route_2 = ["44", "43", "38", "37", "36", "35", "34", "31", "30", "29", "20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "44", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "44", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -226,32 +226,74 @@ def remapCycle( targetStartNodeID, cycle ):
     return cycle
 
 def mergeCycleWithPath( cycle, simple_path ):
-    s_cycle = set(cycle)
-    s_simple_path = set(simple_path)
+    assert len(simple_path) == len( set(simple_path) ), f"{SC.sAssert} {simple_path} not a simple path (contains dublicates)."
 
-    assert len(simple_path) == len(s_simple_path), f"{SC.sAssert} {simple_path} not a simple path (contains dublicates)."
-
-    if len( s_cycle.intersection( s_simple_path ) ) == 0: return None
-
-    # simple_path = [ 0,1,2,3,4,5 ]  cycle =  [1,2,3,71,70]  merged = [0, 1, 2, 3, 71, 70, 1, 2, 3, 4, 5]
-    # simple_path = [ 0,1,2,3,4,5 ]  cycle =  [1,70,71,3,2]  merged = [0, 1, 70, 71, 3, 4, 5]
-    
     i = pathsIntersections( simple_path, cycle )
-    if len(i) > 1: return None #не рассматриваем варианты если цикл пересекается с путём несколько раз, значит есть более короткие циклы
 
+    # не расматриваем вариант, если нет пересечений
+    # не рассматриваем варианты если цикл пересекается с путём несколько раз (значит есть более короткие циклы)
+    if len( i ) != 1: return None
+    
     enterNode = i[0][0]
     outNode   = i[0][-1]
     cycle = remapCycle(enterNode, cycle )
 
-    path_e_idx = simple_path.index(enterNode)
+    path_e_idx = simple_path.index( enterNode )
     path_o_idx = simple_path.index( outNode )
 
     cy_e_idx = cycle.index(enterNode)
     cy_o_idx = cycle.index( outNode )
     
-    if cycle[1] in simple_path: # направление цикла совпадает с направлением пути
+    # пример
+    # simple_path = [ 0,1,2,3,4,5 ]  cycle =  [1,2,3,71,70]  merged = [0, 1, 2, 3, 71, 70, 1, 2, 3, 4, 5]
+    # simple_path = [ 0,1,2,3,4,5 ]  cycle =  [1,70,71,3,2]  merged = [0, 1, 70, 71, 3, 4, 5]
+    
+    if (cycle[1] in simple_path) or (enterNode == outNode): # направление цикла совпадает с направлением пути или пересечение - одна нода
         merged = simple_path[:path_o_idx] + cycle[cy_o_idx:] + simple_path[path_e_idx:]
     else:
         merged = simple_path[:path_e_idx] + cycle[:cy_o_idx] + simple_path[path_o_idx:]
 
     return merged
+
+def pathWithTargetCycle(nxGraph, startNodeID, targetNodeID, cycle):
+    
+    enterNode = closestCycleNode( nxGraph, startNodeID, cycle )
+
+    pathToCycle   = nx.dijkstra_path( nxGraph, startNodeID, enterNode )
+    pathFromCycle = nx.dijkstra_path( nxGraph, enterNode, targetNodeID )
+    cycle = remapCycle( enterNode, cycle )
+
+    finalPath = pathToCycle + cycle[1:] + pathFromCycle
+
+    return finalPath
+
+def pathsThroughCycles( nxGraph, simple_path ):
+    
+    it_cycles = nx.simple_cycles( nxGraph )
+    cycles = [ c for c in it_cycles if len(c) > 3 ] #циклы с кратными гранями (a->b->a) отбрасываем
+    
+    paths_through_cycles = []
+
+    for c in cycles:
+        path = mergeCycleWithPath( c, simple_path )
+        
+        if path is None:
+            startNodeID, targetNodeID = simple_path[0], simple_path[-1]
+            path = pathWithTargetCycle( nxGraph, startNodeID, targetNodeID, c )
+
+        paths_through_cycles.append( path )
+
+    return paths_through_cycles
+
+def pathWeight( nxGraph, path, weight = SGT.s_edgeSize):
+
+    if weight is None:
+        return( len(path) - 1 )
+    
+    edges = edgesListFromNodes( path )
+    path_weight = 0
+    
+    for tEdgeKey in edges:
+        path_weight += nxGraph.edges()[ tEdgeKey ].get( weight )
+
+    return path_weight
