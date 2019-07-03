@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>27</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -147,6 +147,8 @@
    <addaction name="acAddEdge"/>
    <addaction name="acDelMultiEdge"/>
    <addaction name="acReverseEdges"/>
+   <addaction name="acAlignVertical"/>
+   <addaction name="acAlignHorisontal"/>
   </widget>
   <widget class="QDockWidget" name="dkObjectProps">
    <property name="enabled">
@@ -595,6 +597,30 @@
    </property>
    <property name="toolTip">
     <string>Generate test graph</string>
+   </property>
+  </action>
+  <action name="acAlignVertical">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/align_v.png</normaloff>:/images/align_v.png</iconset>
+   </property>
+   <property name="text">
+    <string>Align vertical</string>
+   </property>
+   <property name="toolTip">
+    <string>Align nodes vertically, base node - first selected node.</string>
+   </property>
+  </action>
+  <action name="acAlignHorisontal">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/align_h.png</normaloff>:/images/align_h.png</iconset>
+   </property>
+   <property name="text">
+    <string>Align horisontal</string>
+   </property>
+   <property name="toolTip">
+    <string>Align nodes horisontally, base node - first selected node.</string>
    </property>
   </action>
  </widget>

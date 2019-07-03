@@ -93,6 +93,8 @@ class CViewerWindow(QMainWindow):
         self.acAddEdge_direct.setVisible( b )
         self.acAddEdge_reverse.setVisible( b )
         self.acGenTestGraph.setVisible( b )
+        self.acAlignHorisontal.setVisible( b )
+        self.acAlignVertical.setVisible( b )
         self.menuGraph_Edit.setEnabled( b )
 
         self.lbWorkedArea = QLabel()
@@ -318,6 +320,14 @@ class CViewerWindow(QMainWindow):
         selectionPath = QPainterPath()
         selectionPath.addRect( self.StorageMap_Scene.itemsBoundingRect() )
         self.StorageMap_Scene.setSelectionArea( selectionPath )
+
+    @pyqtSlot()
+    def on_acAlignVertical_triggered(self):
+        self.SGM.alignNodesVertical()
+    
+    @pyqtSlot()
+    def on_acAlignHorisontal_triggered(self):
+        self.SGM.alignNodesHorisontal()
 
     @pyqtSlot()
     def on_sbGridSize_editingFinished(self):

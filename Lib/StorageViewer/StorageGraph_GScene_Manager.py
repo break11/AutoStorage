@@ -434,6 +434,16 @@ class CStorageGraph_GScene_Manager( QObject ):
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
 
+    def alignNodesVertical(self):
+        nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
+        for nodeGItem in nodeGItems:
+            nodeGItem.netObj()[SGT.s_x] = nodeGItems[0].netObj()[SGT.s_x]
+
+    def alignNodesHorisontal(self):
+        nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
+        for nodeGItem in nodeGItems:
+            nodeGItem.netObj()[SGT.s_y] = nodeGItems[0].netObj()[SGT.s_y]
+
     #############################################################
 
     def eventFilter(self, object, event):
