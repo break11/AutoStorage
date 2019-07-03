@@ -37,13 +37,11 @@ def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAccepted
         wantedPacketN = getNextPacketN( ACC_cmd.packetN )
         delta = cmd.packetN - wantedPacketN
 
-        # прием всех пакетов с кодом 0 - как нормальные
-        if cmd.packetN == 0:
-            delta = 0
-
-        #если 0, то всё корректно 
-        if  delta == 0:
-            ACC_cmd.packetN = cmd.packetN
+        # если разница в номерах пакетов 0, то всё корректно
+        # так же считаем корректным пакет с входящим кодом 0
+        if  delta == 0 or cmd.packetN == 0:
+            if cmd.packetN != 0:
+                ACC_cmd.packetN = cmd.packetN
             cmd.status = EPacket_Status.Normal
             if processAcceptedPacket is not None:
                 processAcceptedPacket( cmd )

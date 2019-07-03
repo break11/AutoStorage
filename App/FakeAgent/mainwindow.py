@@ -15,14 +15,10 @@ from PyQt5 import uic
 from PyQt5.QtNetwork import QAbstractSocket, QNetworkInterface
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
-# from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common import FileUtils
 import Lib.Common.StrConsts as SC
-# from Lib.Common.Utils import time_func
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
-from .AgentsList_Model import CAgentsList_Model
-# from .AgentsConnectionServer import CAgentsConnectionServer
-# from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
+from .FakeAgentsList_Model import CFakeAgentsList_Model
 
 class CFA_MainWindow(QMainWindow):
     def __init__(self):
@@ -42,7 +38,7 @@ class CFA_MainWindow(QMainWindow):
         # self.ACL_Form.lePushCMD.returnPressed.connect( self.pushCMD_to_Agent )
         # self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch )
 
-        self.Agents_Model = CAgentsList_Model( parent = self )
+        self.Agents_Model = CFakeAgentsList_Model( parent = self )
         self.Agents_Model.loadAgentsList()
         self.tvAgents.setModel( self.Agents_Model )
         # self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
@@ -155,5 +151,12 @@ class CFA_MainWindow(QMainWindow):
         if not agentN: return
 
         self.Agents_Model.disconnect( agentN )
+        
+    def on_btnDisconnectLostSignal_released( self ):
+        agentN = self.currAgentN()
+        if not agentN: return
+
+        self.Agents_Model.disconnect( agentN, bLostSignal = True )
+
 
     ###################################################

@@ -30,14 +30,22 @@ taskCommands = [b'@BA',b'@SB',b'@SE',b'@CM',b'@WO',b'@BL',b'@BU',b'@DP', b'@ES']
 s_FA_Socket_thread = "FA Socket thread"
 
 class CFakeAgentThread( QThread ):
+    genUID = 0
     threadFinished = pyqtSignal()
     AgentLogUpdated = pyqtSignal( bool, int, CAgentServerPacket )
 
-    def __init__( self, agentDesc, host, port ):
+    def __init__( self, fakeAgentLink, host, port ):
         super().__init__()
+
+        self.UID = CFakeAgentThread.genUID
+        CFakeAgentThread.genUID = CFakeAgentThread.genUID + 1
+
         self.host = host
         self.port = port
-        self.HW_Answer_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN = agentDesc.agentN )
+        self.HW_Answer_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN = fakeAgentLink.agentN )
+        # поле для имитации отключения по потере сигнала (имитация 5 сек таймера отключения на сервере - 
+        # не делаем дисконнект сокета со стороны фейк агента по окончании работы потока)
+        self.bExitByLostSignal = False
         print(f"{s_FA_Socket_thread} INIT")
 
 ##remove##        self.rxfifo = deque([])
@@ -47,7 +55,7 @@ class CFakeAgentThread( QThread ):
         
         ##remove## self.currentTxPacketN = 11
         ##remove## # self.agentN = agentN
-        self.agentDesc = weakref.ref( agentDesc )
+        self.fakeAgentLink = weakref.ref( fakeAgentLink )
 
         ##remove##self.txFifo = deque()
         self.ackNumberToSend = 1000
@@ -101,10 +109,13 @@ class CFakeAgentThread( QThread ):
 
         self.sendTX_cmd_Timer.cancel()
 
-        self.tcpSocket.disconnectFromHost()
+        if self.bExitByLostSignal == False:
+            self.tcpSocket.disconnectFromHost()
+            self.tcpSocket = None
+
         #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
         self.threadFinished.emit() 
-        self.tcpSocket = None
+
         print(f"{s_FA_Socket_thread} FINISH")
 
     def detectESinTaskList( self ):
@@ -127,43 +138,42 @@ class CFakeAgentThread( QThread ):
 
             cmd = CAgentServerPacket.fromCRX_BStr( line.data() )
             if cmd is None: continue
-            _processRxPacket( self, cmd, ACC_cmd = self.agentDesc().ACC_cmd, TX_FIFO=self.agentDesc().TX_Packets,
-                              lastTXpacketN = self.agentDesc().lastTXpacketN,
+            _processRxPacket( self, cmd, ACC_cmd = self.fakeAgentLink().ACC_cmd, TX_FIFO=self.fakeAgentLink().TX_Packets,
+                              lastTXpacketN = self.fakeAgentLink().lastTXpacketN,
                               processAcceptedPacket = self.processRxPacket,
                               ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
-            print( cmd.status, self.agentDesc().last_RX_packetN, self.agentDesc().ACC_cmd.packetN )
-            self.AgentLogUpdated.emit( False, self.agentDesc().agentN, cmd )
+            self.AgentLogUpdated.emit( False, self.fakeAgentLink().agentN, cmd )
 
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket(self, cmd):
         if cmd.event == EAgentServer_Event.HelloWorld:
-            self.HW_Answer_Cmd.data = str( self.agentDesc().last_RX_packetN )
+            self.HW_Answer_Cmd.data = str( self.fakeAgentLink().last_RX_packetN )
             self.pushCmd( self.HW_Answer_Cmd )
 
     def pushCmd( self, cmd ):
-        cmd.packetN = self.agentDesc().genTxPacketN
-        self.agentDesc().genTxPacketN = getNextPacketN( self.agentDesc().genTxPacketN )
+        cmd.packetN = self.fakeAgentLink().genTxPacketN
+        self.fakeAgentLink().genTxPacketN = getNextPacketN( self.fakeAgentLink().genTxPacketN )
         
-        self.agentDesc().TX_Packets.append( cmd )
+        self.fakeAgentLink().TX_Packets.append( cmd )
         
     def currentTX_cmd( self ):
         try:
-            return self.agentDesc().TX_Packets[ 0 ]
+            return self.fakeAgentLink().TX_Packets[ 0 ]
         except:
             return None
 
     def sendTX_cmd( self ):
-        self.writeTo_Socket( self.agentDesc().ACC_cmd )
+        self.writeTo_Socket( self.fakeAgentLink().ACC_cmd )
 
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:
             self.writeTo_Socket( TX_cmd )
-            self.agentDesc().lastTXpacketN = TX_cmd.packetN
+            self.fakeAgentLink().lastTXpacketN = TX_cmd.packetN
 
         self.bSendTX_cmd = False
 
     def writeTo_Socket( self, cmd ):
-        self.AgentLogUpdated.emit( True, self.agentDesc().agentN, cmd )
+        self.AgentLogUpdated.emit( True, self.fakeAgentLink().agentN, cmd )
         self.tcpSocket.write( cmd.toCTX_BStr() )
 
     # def process(self):
@@ -203,7 +213,7 @@ class CFakeAgentThread( QThread ):
     #             # last packet transmittion was successfull, clear to send next packet
 
     #             packetWithoutNumbering = self.txFifo.popleft()
-    #             self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.agentDesc().agentN, packetWithoutNumbering.decode())
+    #             self.currentTxPacketWithNumbering = '{:03d},{:03d},1,00000010:{:s}'.format(self.currentTxPacketN, self.fakeAgentLink().agentN, packetWithoutNumbering.decode())
     #             self.packetResendCounter = 0
     #             self.serverAckReceived = 0
     #             self.ackNumberToWait = self.currentTxPacketN

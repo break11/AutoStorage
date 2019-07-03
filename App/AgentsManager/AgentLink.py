@@ -12,13 +12,13 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.FileUtils import agentsLog_Path
+from Lib.Common.FileUtils import appLogPath
 import Lib.Common.StrConsts as SC
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
-from .AgentLogManager import CAgentLogManager
+from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
 
 class CAgentLink():
     """Class representing Agent (=shuttle) as seen from server side"""
@@ -29,12 +29,12 @@ class CAgentLink():
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
-        self.log = []
 
+        self.log = []
         now = datetime.datetime.now()
         sD = now.strftime("%d-%m-%Y")
         sT = now.strftime("%H-%M-%S")
-        self.sLogFName = agentsLog_Path() + f"{agentN}__{sD}.log.html"
+        self.sLogFName = appLogPath() + f"{agentN}__{sD}.log.html"
 
         CAgentLogManager.doLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
 

@@ -19,7 +19,7 @@ from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.AgentProtocol.AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket
-from .AgentLogManager import CAgentLogManager
+from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 

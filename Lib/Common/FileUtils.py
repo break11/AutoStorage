@@ -17,12 +17,17 @@ def correctFNameToProjectDir( sFName ):
 
 def graphML_Path():
     return projectDir() + "GraphML/"
-
-def agentsLog_Path():
-    return projectDir() + "Log/Agents/"
     
 def mainAppBaseName():
     return os.path.basename( baseFName ).replace( ".py", "" )
+
+def appLogPath():
+    sLogDir = projectDir() + "Log/" + mainAppBaseName()
+
+    if not os.path.exists( sLogDir ):
+        os.mkdir( sLogDir )
+
+    return sLogDir + "/"
 
 def execScript(app):
     bProfile = "--profile" in sys.argv

@@ -1,7 +1,6 @@
 import sys
-from collections import deque
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSlot
 
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Agent_NetObject import s_edge, s_position, s_route, s_route_idx, s_angle, s_odometer
@@ -11,7 +10,10 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
+from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
+
 from .FakeAgentThread import CFakeAgentThread
+from .FakeAgentLink import CFakeAgentLink
 
 s_agentN = "agentN"
 s_connected = "connected"
@@ -19,44 +21,26 @@ s_connected = "connected"
 s_agents_list = "agents_list"
 def_agent_list = [ 555 ]
 
-class CFakeAgentDesc:
-    @property
-    def last_RX_packetN( self ) : return self.ACC_cmd.packetN
-
-    @last_RX_packetN.setter
-    def last_RX_packetN( self, value ):
-        self.ACC_cmd.packetN = value
-
-    def __init__( self, agentN ):
-        self.agentN = agentN
-        self.bConnected = False
-        self.socketThread = None
-        self.genTxPacketN  = 0
-        self.lastTXpacketN = 0
-        self.TX_Packets    = deque()
-        # self.last_RX_packetN = 1000 # Now as property
-        self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN = 1000, agentN = self.agentN )
-
-class CAgentsList_Model( QAbstractTableModel ):
+class CFakeAgentsList_Model( QAbstractTableModel ):
     propList = [ s_agentN, s_connected ]
 
     def __init__( self, parent ):
         super().__init__( parent=parent)
 
-        self.agentsList = []
-        self.agentsDict = {}
+        self.FA_List = []
+        self.FA_Dict = {}
 
     def __del__( self ):
-        for desc in self.agentsDict.values():
-            if desc.socketThread is None: continue
-            desc.socketThread.bRunning = False
-            desc.socketThread.exit()
-            while not desc.socketThread.isFinished():
+        for desc in self.FA_Dict.values():
+            if desc.FA_Thread is None: continue
+            desc.FA_Thread.bRunning = False
+            desc.FA_Thread.exit()
+            while not desc.FA_Thread.isFinished():
                 pass # waiting thread stop
-            desc.socketThread = None
+            desc.FA_Thread = None
 
-        self.agentsList = []
-        self.agentsDict = {}
+        self.FA_List = []
+        self.FA_Dict = {}
 
     def loadAgentsList( self ):
         agentsList = CSM.rootOpt( s_agents_list, default = def_agent_list )
@@ -64,10 +48,10 @@ class CAgentsList_Model( QAbstractTableModel ):
             self.addAgent( agentN )
 
     def saveAgentsList( self ):
-        CSM.options[ s_agents_list ] = self.agentsList
+        CSM.options[ s_agents_list ] = self.FA_List
 
     def rowCount( self, parentIndex=QModelIndex() ):
-        return len( self.agentsList )
+        return len( self.FA_List )
 
     def columnCount( self, parentIndex=QModelIndex() ):
         return len( self.propList )
@@ -83,16 +67,16 @@ class CAgentsList_Model( QAbstractTableModel ):
     def data( self, index, role = Qt.DisplayRole ):
         if not index.isValid(): return None
 
-        agentN = self.agentsList[ index.row() ]
+        agentN = self.FA_List[ index.row() ]
         propName = self.propList[ index.column() ]
 
-        agentDesc = self.agentsDict[ agentN ]
+        fakeAgentLink = self.FA_Dict[ agentN ]
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
             if propName == s_agentN:
                 return agentN
             elif propName == s_connected:
-                return agentDesc.socketThread is not None
+                return fakeAgentLink.FA_Thread is not None
 
     def headerData( self, section, orientation, role ):
         if role != Qt.DisplayRole: return
@@ -110,64 +94,78 @@ class CAgentsList_Model( QAbstractTableModel ):
     ################################
 
     def addAgent( self, agentN ):
-        if agentN in self.agentsList: return
+        if agentN in self.FA_List: return
 
-        idx = len( self.agentsList )
+        idx = len( self.FA_List )
         self.beginInsertRows( QModelIndex(), idx, idx )
 
-        self.agentsList.append( agentN )
-        agentDesc = CFakeAgentDesc( agentN )
-        self.agentsDict[ agentN ] = agentDesc
+        self.FA_List.append( agentN )
+        fakeAgentLink = CFakeAgentLink( agentN )
+        self.FA_Dict[ agentN ] = fakeAgentLink
 
         self.endInsertRows()
 
     def delAgent( self, agentN ):
-        if agentN not in self.agentsList: return
+        if agentN not in self.FA_List: return
 
-        idx = self.agentsList.index( agentN )
+        idx = self.FA_List.index( agentN )
         self.beginRemoveRows( QModelIndex(), idx, idx )
-        del self.agentsList[ idx ]
-        del self.agentsDict[ agentN ]
+        del self.FA_List[ idx ]
+        del self.FA_Dict[ agentN ]
         self.endRemoveRows()
 
     def connect( self, agentN, ip, port, bReConnect=False ):
-        agentDesc = self.agentsDict[ agentN ]
-        if agentDesc.socketThread is not None: return
+        fakeAgentLink = self.FA_Dict[ agentN ]
+        if fakeAgentLink.FA_Thread is not None: return
 
         # bReConnect - параметр указывающий, что агент подключится с сохранением прежнего номера последнего полученного пакета от сервера
         # то есть это не настоящий дисконнект был, а лишь временная потеря соединения
-        # if bReConnect == False:
-        #     agentDesc.last_RX_packetN = 0
+        if bReConnect == False:
+            fakeAgentLink.last_RX_packetN = 0
 
-        agentDesc.socketThread = CFakeAgentThread( agentDesc, ip, port )
+        fakeAgentLink.FA_Thread = CFakeAgentThread( fakeAgentLink, ip, port )
                     
-        agentDesc.socketThread.threadFinished.connect( self.threadFinihsedSlot )
-        agentDesc.socketThread.start()
+        fakeAgentLink.FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
+        fakeAgentLink.FA_Thread.AgentLogUpdated.connect( self.thread_AgentLogUpdated )
+        fakeAgentLink.FA_Thread.start()
 
-        row = self.agentsList.index( agentN )
+        row = self.FA_List.index( agentN )
         col = self.propList.index( s_connected )
         idx = self.index( row, col )
         self.dataChanged.emit( idx, idx )
 
-    def disconnect( self, agentN ):
-        agentDesc = self.agentsDict[ agentN ]
-        if agentDesc.socketThread is None: return
+    def disconnect( self, agentN, bLostSignal = False ):
+        fakeAgentLink = self.FA_Dict[ agentN ]
+        if fakeAgentLink.FA_Thread is None: return
 
-        agentDesc.socketThread.disconnectFromServer()
+        fakeAgentLink.FA_Thread.bExitByLostSignal = bLostSignal
+        fakeAgentLink.FA_Thread.disconnectFromServer() 
 
     # disconnected from other side
-    def threadFinihsedSlot( self ):
+    def thread_FinihsedSlot( self ):
         thread = self.sender()
 
-        agentDesc = thread.agentDesc()
-        agentDesc.socketThread.exit()
-        while not agentDesc.socketThread.isFinished():
+        fakeAgentLink = thread.fakeAgentLink()
+        fakeAgentLink.FA_Thread.exit()
+        while not fakeAgentLink.FA_Thread.isFinished():
             pass # waiting thread stop
-        agentDesc.socketThread = None
+        fakeAgentLink.FA_Thread = None
 
         self.sender().deleteLater()
         
-        row = self.agentsList.index( agentDesc.agentN )
+        row = self.FA_List.index( fakeAgentLink.agentN )
         col = self.propList.index( s_connected )
         idx = self.index( row, col )
         self.dataChanged.emit( idx, idx )
+
+    @pyqtSlot( bool, int, CAgentServerPacket )
+    def thread_AgentLogUpdated( self, bTX_or_RX, agentN, packet ):
+        fakeAgentLink = self.FA_Dict[ agentN ]
+
+        thread = self.sender()
+        data = CAgentLogManager.doLogPacket( fakeAgentLink, thread.UID, packet, not bTX_or_RX )
+                    
+        # if agentLink:
+        #     self.AgentLogUpdated.emit( agentLink, packet, data )
+
+        print( bTX_or_RX, agentN, packet )
