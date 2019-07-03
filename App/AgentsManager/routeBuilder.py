@@ -92,35 +92,6 @@ class CRouteBuilder():
         ledgeSize = widthTypeToLedgeSize[ widthType ]
         return ledgeSize
 
-    def makeNodesRoute( self, startNode, targetNode, agentAngle, targetSide = None ):
-        
-        dijkstra_path = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
-
-        if targetSide is None:
-            return dijkstra_path
-        
-        final_agentAngle = getFinalAgentAngle( nxGraph = self.nxGraph, agent_angle = agentAngle, nodes_route = dijkstra_path )
-        eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
-
-        if targetSide == eAgentSide:
-            return dijkstra_path
-
-        paths_through_cycles = pathsThroughCycles( self.nxGraph, dijkstra_path )
-        paths_correct_side = []
-
-        for path in paths_through_cycles:
-            final_agentAngle = getFinalAgentAngle( nxGraph = self.nxGraph, agent_angle = agentAngle, nodes_route = path )
-            eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
-
-            if targetSide == eAgentSide:
-                paths_correct_side.append( path )
-
-        if len( paths_correct_side ) == 0:
-            return None
-
-        nodes_route = min(  paths_correct_side, key = lambda path: pathWeight( self.nxGraph, path )  )
-        return nodes_route
-
     def buildRoute(self, nodeList, agent_angle):
         """Main function to call. Gnerates a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
         #TODO: not uses orientation at current moment

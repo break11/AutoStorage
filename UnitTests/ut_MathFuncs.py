@@ -37,8 +37,8 @@ deg_315 = 315.0
 deg_360 = 360.0
 deg_540 = 540.0
 
-nxGraph = gu.loadGraphML_File( "./GraphML/math_unit_tests.graphml" )
-nxGraph_mag = gu.loadGraphML_File( "./GraphML/magadanskaya.graphml" )
+nxGraph         = gu.loadGraphML_File( "./GraphML/math_unit_tests.graphml" )
+nxGraph_mag_ext = gu.loadGraphML_File( "./GraphML/magadanskaya_ext_unit_tests.graphml" )
 
 tEdgeKey12 = ("1", "2")
 tEdgeKey21 = ("2", "1")
@@ -239,16 +239,16 @@ class TestMathFuncs(unittest.TestCase):
     def test_closestCycleNode(self):
         cycle = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21"]
         
-        nodeID = gu.closestCycleNode( nxGraph_mag, "38", cycle )
+        nodeID = gu.closestCycleNode( nxGraph_mag_ext, "38", cycle )
         self.assertEqual( nodeID, "20" )
 
-        nodeID = gu.closestCycleNode( nxGraph_mag, "10", cycle )
+        nodeID = gu.closestCycleNode( nxGraph_mag_ext, "10", cycle )
         self.assertEqual( nodeID, "16" )
 
-        nodeID = gu.closestCycleNode( nxGraph_mag, "26", cycle )
+        nodeID = gu.closestCycleNode( nxGraph_mag_ext, "26", cycle )
         self.assertEqual( nodeID, "25" )
 
-        nodeID = gu.closestCycleNode( nxGraph_mag, "18", cycle )
+        nodeID = gu.closestCycleNode( nxGraph_mag_ext, "18", cycle )
         self.assertEqual( nodeID, "18" )
 
     def test_remapCycle(self):
@@ -296,12 +296,125 @@ class TestMathFuncs(unittest.TestCase):
         path = [ "20", "29", "30", "31" ]
         weight = 550 + 2760 + 712
 
-        test_weight = gu.pathWeight( nxGraph_mag, path )
+        test_weight = gu.pathWeight( nxGraph_mag_ext, path )
         self.assertEqual( weight, test_weight )
 
-        test_weight = gu.pathWeight( nxGraph_mag, path, weight=None )
+        test_weight = gu.pathWeight( nxGraph_mag_ext, path, weight=None )
         self.assertEqual( 3, test_weight )
+
+
+    def test_makeNodesRoute(self):
         
+        ###################################################################################################################
+        nodes_route = ["26", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = None )
+        self.assertEqual ( nodes_route, test_nodes_route )
+        
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = None )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route = ["26", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route = ["25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "25", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "25", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route = ["20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route_1 = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+        nodes_route_2 = ["20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        ###################################################################################################################
+        nodes_route = ["19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "19", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "19", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( nodes_route, test_nodes_route )
+
+        ###################################################################################################################
+        nodes_route_1 = ["44", "43", "38", "37", "36", "35", "34", "31", "30", "29", "20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+        nodes_route_2 = ["44", "43", "38", "37", "36", "35", "34", "31", "30", "29", "20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "44", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "44", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        ###################################################################################################################
+        nodes_route_1 = ["29", "20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29"]
+        nodes_route_2 = ["29", "20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        ###################################################################################################################
+        nodes_route_1 = ["61", "62", "77", "78", "68", "76", "67", "66", "71", "70", "64", "69", "75", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
+        nodes_route_2 = ["61", "62", "75", "69", "64", "70", "71", "66", "67", "76", "68", "78", "77", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "61", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "61", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        ###################################################################################################################
+        nodes_route = ["29"]
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 0.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 180.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        ###################################################################################################################
+        nodes_route_1 = ['40', '39', '38', '37', '36', '35', '34', '31', '30', '29', '20', '21', '22', '23', '25', '24', '16', '17', '18', '19', '20', '29', '30', '31', '34', '35', '36', '37', '38', '39', '40']
+        nodes_route_2 = ['40', '39', '38', '37', '36', '35', '34', '31', '30', '29', '20', '19', '18', '17', '16', '24', '25', '23', '22', '21', '20', '29', '30', '31', '34', '35', '36', '37', '38', '39', '40']
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "40", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = gu.makeNodesRoute( nxGraph_mag_ext, startNode = "40", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
 
 class TestStrFuncs(unittest.TestCase):
 
@@ -331,8 +444,8 @@ class TestStrFuncs(unittest.TestCase):
 
 #         nxGraph = gu.loadGraphML_File( sFName = "./GraphML/magadanskaya.graphml" )
 
-#         tEdgeKey = ('31', '34')
+#         tEdgeKey = ("31", "34")
 #         rAngle, bReverse = gu.getAgentAngle(nxGraph = nxGraph, tEdgeKey = tEdgeKey, agent_angle = 0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

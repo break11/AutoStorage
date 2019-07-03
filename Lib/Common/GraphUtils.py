@@ -271,7 +271,7 @@ def pathsThroughCycles( nxGraph, simple_path ):
     
     it_cycles = nx.simple_cycles( nxGraph )
     cycles = [ c for c in it_cycles if len(c) > 3 ] #циклы с кратными гранями (a->b->a) отбрасываем
-    
+
     paths_through_cycles = []
 
     for c in cycles:
@@ -297,3 +297,33 @@ def pathWeight( nxGraph, path, weight = SGT.s_edgeSize):
         path_weight += nxGraph.edges()[ tEdgeKey ].get( weight )
 
     return path_weight
+
+
+def makeNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
+    
+    dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, startNode, targetNode)
+
+    if targetSide is None:
+        return dijkstra_path
+    
+    final_agentAngle = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle, nodes_route = dijkstra_path )
+    eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
+
+    if targetSide == eAgentSide:
+        return dijkstra_path
+
+    paths_through_cycles = pathsThroughCycles( nxGraph, dijkstra_path )
+    paths_correct_side = []
+
+    for path in paths_through_cycles:
+        final_agentAngle = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle, nodes_route = path )
+        eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
+
+        if targetSide == eAgentSide:
+            paths_correct_side.append( path )
+
+    if len( paths_correct_side ) == 0:
+        return None
+
+    nodes_route = min(  paths_correct_side, key = lambda path: pathWeight( nxGraph, path )  )
+    return nodes_route
