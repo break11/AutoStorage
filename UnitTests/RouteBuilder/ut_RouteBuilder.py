@@ -157,6 +157,25 @@ class CTestRouteBuilder(unittest.TestCase):
         test_nodes_route = routeBuilder.makeNodesRoute( startNode = "44", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
+        ###################################################################################################################
+        nodes_route_1 = ["29", "20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29"]
+        nodes_route_2 = ["29", "20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "29", targetNode = "29", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "29", targetNode = "29", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
+
+        ###################################################################################################################
+        nodes_route = ["29"]
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "29", targetNode = "29", agentAngle = 0.0, targetSide = SGT.ESide.Right )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        test_nodes_route = routeBuilder.makeNodesRoute( startNode = "29", targetNode = "29", agentAngle = 180.0, targetSide = SGT.ESide.Left )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
 
 if __name__ == "__main__":
     unittest.main()

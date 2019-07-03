@@ -102,7 +102,6 @@ class CRouteBuilder():
         final_agentAngle = getFinalAgentAngle( nxGraph = self.nxGraph, agent_angle = agentAngle, nodes_route = dijkstra_path )
         eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
 
-        # print( targetSide, eAgentSide )
         if targetSide == eAgentSide:
             return dijkstra_path
 
@@ -115,6 +114,9 @@ class CRouteBuilder():
 
             if targetSide == eAgentSide:
                 paths_correct_side.append( path )
+
+        if len( paths_correct_side ) == 0:
+            return None
 
         nodes_route = min(  paths_correct_side, key = lambda path: pathWeight( self.nxGraph, path )  )
         return nodes_route
