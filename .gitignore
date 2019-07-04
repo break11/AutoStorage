@@ -1,4 +1,5 @@
-Log/Agents/*.log.html
+Log/AgentsManager/*.log.html
+Log/FakeAgent/*.log.html
 .vscode/
 .mypy_cache/
 __pycache__/

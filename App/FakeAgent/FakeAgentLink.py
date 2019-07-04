@@ -7,6 +7,8 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
 
+s_FakeAgentLink = "FakeAgentLink"
+
 class CFakeAgentLink:
     @property
     def last_RX_packetN( self ):
@@ -27,9 +29,8 @@ class CFakeAgentLink:
         self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, agentN = self.agentN )
 
         self.log = []
-        now = datetime.datetime.now()
-        sD = now.strftime("%d-%m-%Y")
-        sT = now.strftime("%H-%M-%S")
-        self.sLogFName = appLogPath() + f"{agentN}__{sD}.log.html"
+        self.sLogFName = CAgentLogManager.genAgentLogFName( agentN )
+        CAgentLogManager.doLogString( self, f"{s_FakeAgentLink}={agentN} Created" )
 
-        CAgentLogManager.doLogString( self, f"FakeAgent={agentN}, Created={sD}__{sT}" )
+    def __del__(self):
+        CAgentLogManager.doLogString( self, f"{s_FakeAgentLink}={self.agentN} Destroyed" )

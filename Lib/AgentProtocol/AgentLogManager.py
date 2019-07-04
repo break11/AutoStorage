@@ -1,6 +1,8 @@
 import os
+import datetime
 
 from Lib.Common.Utils import wrapSpan, wrapDiv
+from Lib.Common.FileUtils import appLogPath
 from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
@@ -8,13 +10,19 @@ LogCount = 10000
 
 class CAgentLogManager():
     @classmethod
-    def writeToLogFile( cls, agentLink, data ):
-        if not os.path.exists( agentLink.sLogFName ):
-            with open( agentLink.sLogFName, 'a' ) as file:
+    def genAgentLogFName( cls, agentN ):
+        now = datetime.datetime.now()
+        sD = now.strftime("%d-%m-%Y")
+        return appLogPath() + f"{agentN}__{sD}.log.html"
+
+    @classmethod
+    def writeToLogFile( cls, sLogFName, data ):
+        if not os.path.exists( sLogFName ):
+            with open( sLogFName, 'a' ) as file:
                 file.write( "<script src=\"./Common/jquery-3.4.1.min.js\"></script>" )
                 file.write( "<script src=\"./Common/filter-find.js\"></script>" )
 
-        with open( agentLink.sLogFName, 'a' ) as file:
+        with open( sLogFName, 'a' ) as file:
             file.write( data )
 
     @classmethod
@@ -29,10 +37,15 @@ class CAgentLogManager():
     def doLogString( cls, agentLink, data ):
         data = cls.decorateLogString( agentLink, data )
         cls.__appendLog_with_Cut( agentLink, data )
-        cls.writeToLogFile( agentLink, data )
+        cls.writeToLogFile( agentLink.sLogFName, data )
         
     @classmethod
     def decorateLogString( cls, agentLink, data ):
+        now = datetime.datetime.now()
+        sD = now.strftime("%d-%m-%Y")
+        sT = now.strftime("%H-%M-%S")
+        data = f"{sD}:{sT} {data}"
+
         return wrapDiv( data )
 
     ###############
@@ -45,7 +58,7 @@ class CAgentLogManager():
         
         data = cls.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX )
         cls.__appendLog_with_Cut( agentLink, data )
-        cls.writeToLogFile( agentLink, data )
+        cls.writeToLogFile( agentLink.sLogFName, data )
         return data
 
     @classmethod

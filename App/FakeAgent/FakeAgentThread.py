@@ -430,7 +430,6 @@ class CFakeAgentThread( QThread ):
         else:
             self.bRunning = False #stop thread
 
-
     def parseServerPacketWithNumbering(self, packet):
         try:
             packetN = int(packet[0:0+3])

@@ -233,6 +233,7 @@ class CAgentSocketThread(QThread):
         self.sendTX_cmd_Timer = CRepeatTimer(0.01, activateSend_TX )
         self.sendTX_cmd_Timer.start()
 
+        self.noRxTimer = time.time()
         while self.bRunning:
             self.tcpSocket.waitForReadyRead(1)
             self.process()

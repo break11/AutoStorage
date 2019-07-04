@@ -19,6 +19,7 @@ from Lib.Common import FileUtils
 import Lib.Common.StrConsts as SC
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from .FakeAgentsList_Model import CFakeAgentsList_Model
+from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 
 class CFA_MainWindow(QMainWindow):
     def __init__(self):
@@ -31,7 +32,7 @@ class CFA_MainWindow(QMainWindow):
                 self.cbServerIP.addItem( ipAddress.toString() )
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
-        self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/AppWidgets/Agent_Cmd_Log_Form.ui" )
+        self.ACL_Form = CAgent_Cmd_Log_Form()
         assert self.agent_CMD_Log_Container is not None
         assert self.agent_CMD_Log_Container.layout() is not None
         self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
@@ -44,6 +45,8 @@ class CFA_MainWindow(QMainWindow):
         # self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
         # self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
                 
+        self.Agents_Model.AgentLogUpdated.connect( self.AgentLogUpdated )
+
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
         self.Agents_Model.saveAgentsList()
@@ -121,6 +124,22 @@ class CFA_MainWindow(QMainWindow):
         agentN = self.Agents_Model.agentN( ci.row() )
 
         return agentN
+
+    def CurrentAgentChanged( self, current, previous):
+        fakeAgentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        if fakeAgentLink is None:
+            self.ACL_Form.pteAgentLog.clear()
+            return
+
+        self.ACL_Form.fillAgentLog( fakeAgentLink )
+        self.ACL_Form.updateAgentControls( fakeAgentLink )
+
+    def AgentLogUpdated( self, fakeAgentLink, cmd, data ):
+        if self.currAgentN() != fakeAgentLink.agentN:
+            return
+
+        self.ACL_Form.AgentLogUpdated( fakeAgentLink, cmd, data )
+    ################################################################
 
     def on_btnAddAgent_released( self ):
         text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')

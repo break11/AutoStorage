@@ -20,8 +20,9 @@ from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
 from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
 
+s_AgentLink = "AgentLink"
+
 class CAgentLink():
-    """Class representing Agent (=shuttle) as seen from server side"""
     def __init__(self, agentN):
         super().__init__()
         self.agentN = agentN
@@ -31,12 +32,8 @@ class CAgentLink():
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
 
         self.log = []
-        now = datetime.datetime.now()
-        sD = now.strftime("%d-%m-%Y")
-        sT = now.strftime("%H-%M-%S")
-        self.sLogFName = appLogPath() + f"{agentN}__{sD}.log.html"
-
-        CAgentLogManager.doLogString( self, f"Agent={agentN}, Created={sD}__{sT}" )
+        self.sLogFName = CAgentLogManager.genAgentLogFName( agentN )
+        CAgentLogManager.doLogString( self, f"{s_AgentLink}={agentN} Created" )
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
  
@@ -61,7 +58,7 @@ class CAgentLink():
         self.edges_route = []
 
     def __del__(self):
-        print( f"AgentLink {self.agentN} DESTROY!" )
+        CAgentLogManager.doLogString( self, f"{s_AgentLink}={self.agentN} Destroyed" )
         self.done()
 
     def done( self ):

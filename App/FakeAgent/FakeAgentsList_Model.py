@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSlot
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSlot, pyqtSignal
 
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Agent_NetObject import s_edge, s_position, s_route, s_route_idx, s_angle, s_odometer
@@ -22,6 +22,7 @@ s_agents_list = "agents_list"
 def_agent_list = [ 555 ]
 
 class CFakeAgentsList_Model( QAbstractTableModel ):
+    AgentLogUpdated = pyqtSignal( CFakeAgentLink, CAgentServerPacket, str )
     propList = [ s_agentN, s_connected ]
 
     def __init__( self, parent ):
@@ -165,7 +166,4 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         thread = self.sender()
         data = CAgentLogManager.doLogPacket( fakeAgentLink, thread.UID, packet, not bTX_or_RX )
                     
-        # if agentLink:
-        #     self.AgentLogUpdated.emit( agentLink, packet, data )
-
-        print( bTX_or_RX, agentN, packet )
+        self.AgentLogUpdated.emit( fakeAgentLink, packet, data )

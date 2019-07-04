@@ -35,7 +35,6 @@ class CAM_MainWindow(QMainWindow):
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
-        # self.ACL_Form = uic.loadUi( FileUtils.projectDir() + "Lib/AppWidgets/Agent_Cmd_Log_Form.ui" )
         self.ACL_Form = CAgent_Cmd_Log_Form()
         assert self.agent_CMD_Log_Container is not None
         assert self.agent_CMD_Log_Container.layout() is not None
