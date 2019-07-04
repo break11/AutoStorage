@@ -99,10 +99,10 @@ class CNode_SGItem(QGraphicsItem):
         if self.nodeType == SGT.ENodeTypes.ServiceStation:
             if self.SGM.bDrawSpecialLines:
                 #сторона зарядки
-                pen = QPen( Qt.black )
+                pen = QPen( Qt.darkRed )
                 pen.setWidth( 8 )
                 painter.setPen( pen )
-                l = QLineF (0,0, 50, 0)
+                l = QLineF (0,0, 75, 0)
                 painter.drawLine(l)
 
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
