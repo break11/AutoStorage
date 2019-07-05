@@ -23,9 +23,13 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
+from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
+                                    rotateToRightSector, rotateToLeftSector, calcNodeMiddleLine)
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Common.Vectors import Vector2
+
 
 class EGManagerMode (Flag):
     View      = auto()
@@ -51,6 +55,8 @@ class CStorageGraph_GScene_Manager( QObject ):
                             SGT.s_y: 0,                                    # type: ignore
                             SGT.s_nodeType: SGT.ENodeTypes.DummyNode.name, # type: ignore
                         }
+
+    nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StorageSingle, SGT.ENodeTypes.ServiceStation]
 
     @property
     def nxGraph(self): return self.graphRootNode().nxGraph
@@ -174,7 +180,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         # self.init()
         # не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
 
-        self.bGraphLoading = True # For block "calcNodeMiddleLine()" on Edge creating while loading ( 5 sec overhead on "40 000 with edges" )
+        self.bGraphLoading = True # For block "updateNodeMiddleLine()" on Edge creating while loading ( 5 sec overhead on "40 000 with edges" )
 
         if not loadGraphML_to_NetObj( sFName, bReload=True ):
             self.bGraphLoading = False
@@ -184,7 +190,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         # после создания граней перерасчитываем линии расположения мест хранения
         for nodeID, nodeGItem in self.nodeGItems.items():
-            self.calcNodeMiddleLine( nodeGItem )
+            self.updateNodeMiddleLine( nodeGItem )
         
         ##remove## gvFitToPage( self.gView ) - не нужно т.к. выполоняется как реакция на GraphNet_Obj
         self.bHasChanges = False  # сбрасываем признак изменения сцены после загрузки
@@ -230,45 +236,19 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bDrawSpecialLines = bVal
         self.gScene.update()
 
-    #рассчет средней линии для нод
-    def calcNodeMiddleLine(self, nodeGItem):        
-        if nodeGItem.nodeType != SGT.ENodeTypes.StorageSingle:
-            return
-        incEdges = list( self.nxGraph.out_edges( nodeGItem.nodeID ) ) +  list( self.nxGraph.in_edges( nodeGItem.nodeID ) )
-        dictEdges = {}
-        for key in incEdges:
-            fsEdgeKey = frozenset( key )
-            edgeGItem = self.edgeGItems.get( fsEdgeKey )
-            if edgeGItem is not None:
-                dictEdges[ fsEdgeKey ] = edgeGItem # оставляем только некратные грани
+    def updateNodeMiddleLine(self, nodeGItem):
+        if nodeGItem.nodeType not in CStorageGraph_GScene_Manager.nodeTypes_ForMiddleLine_calc: return
         
-        listEdges = dictEdges.values()
-        AllPairEdges = [ (e1, e2) for e1 in listEdges for e2 in listEdges ]
-        dictDeltaAngles={} #составляем дикт, где ключ - острый угол между гранями, значение - кортеж из двух граней
-
-        for e1, e2 in AllPairEdges:
-            delta_angle = int( abs(e1.rotateAngle() - e2.rotateAngle()) )
-            delta_angle = delta_angle if delta_angle <= 180 else (360-delta_angle)
-            dictDeltaAngles[ delta_angle ] = (e1, e2)
+        # берем смежные вершины и оставляем только те из них, для которых есть грань в edgeGItems,
+        # тк в случае удаления грани или вершины они сначала удаляются из edgeGItems(nodeGItems),
+        # а из графа удаляются позже и могут ещё присутствовать в графе
+        NeighborsIDs = set( self.nxGraph.successors(nodeGItem.nodeID) ).union( set(self.nxGraph.predecessors(nodeGItem.nodeID)) )
+        NeighborsIDs = [ ID for ID in NeighborsIDs if self.edgeGItems.get( frozenset((nodeGItem.nodeID, ID)) ) ]
         
-        if len(dictDeltaAngles) == 0:
-            nodeGItem.setMiddleLineAngle( 0 )
-            return
+        r_vec = calcNodeMiddleLine( self.nxGraph, nodeGItem.nodeID, NeighborsIDs )
 
-        max_angle = max(dictDeltaAngles.keys())
-
-        #вычисляем средний угол между гранями, если грань исходит не из nodeGItem, поворачиваем на 180
-        if len (dictDeltaAngles) == 1:
-            e1 = dictDeltaAngles[ max_angle ][0]
-            r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
-            r2 = r1 + 180
-        else:
-            e1 = dictDeltaAngles[ max_angle ][0]
-            e2 = dictDeltaAngles[ max_angle ][1]
-            r1 = e1.rotateAngle() if (e1.nodeID_1 == nodeGItem.nodeID) else (e1.rotateAngle() + 180) % 360
-            r2 = e2.rotateAngle() if (e2.nodeID_1 == nodeGItem.nodeID) else (e2.rotateAngle() + 180) % 360
-
-        nodeGItem.setMiddleLineAngle( min(r1, r2) + abs(r1-r2)/2 )
+        res_angle = math.degrees( r_vec.selfAngle() )
+        nodeGItem.setMiddleLineAngle( res_angle )
 
     # перестроение связанных с нодой граней
     def updateNodeIncEdges(self, nodeGItem):
@@ -285,11 +265,11 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bHasChanges = True
 
         NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
-        nodeGItemsNeighbors = [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ]
-        nodeGItemsNeighbors.append (nodeGItem)
+        nodeGItemsNeighbors = set ( [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ] )
+        nodeGItemsNeighbors.add (nodeGItem)
 
         for nodeGItem in nodeGItemsNeighbors:
-            self.calcNodeMiddleLine(nodeGItem)
+            self.updateNodeMiddleLine(nodeGItem)
 
     def updateMaxNodeID(self):
         maxNodeID = 0
@@ -356,8 +336,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bHasChanges = True
 
         if not self.bGraphLoading:
-            self.calcNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_1() ] )
-            self.calcNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_2() ] )
+            self.updateNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_1() ] )
+            self.updateNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_2() ] )
 
         return True
     
@@ -410,7 +390,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         for nodeID in fsEdgeKey:
             nodeGItem = self.nodeGItems.get( nodeID )
             if nodeGItem is not None:
-                self.calcNodeMiddleLine( nodeGItem )
+                self.updateNodeMiddleLine( nodeGItem )
 
         self.bHasChanges = True
 
@@ -454,6 +434,16 @@ class CStorageGraph_GScene_Manager( QObject ):
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
 
+    def alignNodesVertical(self):
+        nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
+        for nodeGItem in nodeGItems:
+            nodeGItem.netObj()[SGT.s_x] = nodeGItems[0].netObj()[SGT.s_x]
+
+    def alignNodesHorisontal(self):
+        nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
+        for nodeGItem in nodeGItems:
+            nodeGItem.netObj()[SGT.s_y] = nodeGItems[0].netObj()[SGT.s_y]
+
     #############################################################
 
     def eventFilter(self, object, event):
@@ -464,8 +454,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
                 attr = deepcopy (self.default_Node_Props)
-                attr[ SGT.s_x ] = self.gView.mapToScene(event.pos()).x()
-                attr[ SGT.s_y ] = self.gView.mapToScene(event.pos()).y()
+                attr[ SGT.s_x ] = round (self.gView.mapToScene(event.pos()).x())
+                attr[ SGT.s_y ] = round (self.gView.mapToScene(event.pos()).y())
 
                 CGraphNode_NO( name=self.genStrNodeID(), parent=self.graphRootNode().nodesNode(), props=attr )
 

@@ -30,14 +30,18 @@ class CAgent_SGItem(QGraphicsItem):
         w = SGT.wide_Rail_Width
         h = SGT.narrow_Rail_Width
 
-        sx = -w / 2 # start x - верхний леый угол
-        sy = -h / 2 # start y - верхний леый угол
+        self.sx = -w / 2 # start x - верхний леый угол 
+        self.sy = -h / 2 # start y - верхний леый угол
+
         c  = 80    # срез правого верхнего угла (катет)
         ln = 80    # длина линий
 
         of_sx = w/2 - SGT.sensorNarr
         of_sy = h/2 - SGT.sensorWide
         
+        sx = self.sx
+        sy = self.sy
+
         self.__BBoxRect = QRectF( sx, sy, w, h )
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
 
@@ -137,8 +141,13 @@ class CAgent_SGItem(QGraphicsItem):
             text = f"ID: {self.__agentNetObj().name}\n{self.status}"
 
             painter.drawPolygon( self.polygon )
+
+            painter.fillRect(self.sx + 5, -150, 20, 300, Qt.darkBlue)
+            painter.fillRect(-self.sx - 25, -150, 20, 300, Qt.darkRed)
+            
             painter.drawLines( self.lines )
             painter.fillRect(-10, -10, 20, 20, Qt.black)
+
 
             #поворот текста для удобства чтения, если итем челнока перевернут
             if ( 95 < abs( self.rotation() ) < 265 ):

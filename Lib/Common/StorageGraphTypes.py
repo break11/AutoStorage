@@ -1,5 +1,6 @@
 
 from enum import Enum, auto
+import math
 from PyQt5.QtCore import (Qt)
 
 from .Utils import EnumFromString
@@ -37,6 +38,9 @@ class ENodeTypes( Enum ):
     Terminal       = auto()
     @staticmethod
     def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.NoneType )
+
+    @staticmethod
+    def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.UnknownType )
 
 nodeColors = {
     ENodeTypes.NoneType       : Qt.darkGray,
@@ -103,4 +107,22 @@ class EDirection( Enum ):
     Error   = auto()
 
     @staticmethod
-    def fromString( sType ): return EnumFromString( EDirection, sType, ESensorSide.Error )
+    def fromString( sType ): return EnumFromString( EDirection, sType, EDirection.Error )
+
+class ESide( Enum ):
+    Left            = auto()
+    Right           = auto()
+    ChargeSideLeft  = Left
+    ChargeSideRight = Right
+
+    @staticmethod
+    def fromString( sType ): return EnumFromString( ESide, sType, ESide.Right )
+
+    @staticmethod
+    def fromAngle( angle ):
+        angle = angle % 360
+
+        if angle > 45 and angle < 225:
+            return ESide.Left
+        else:
+            return ESide.Right
