@@ -241,7 +241,6 @@ def mergeCycleWithPath( cycle, simple_path ):
     path_e_idx = simple_path.index( enterNode )
     path_o_idx = simple_path.index( outNode )
 
-    cy_e_idx = cycle.index(enterNode)
     cy_o_idx = cycle.index( outNode )
     
     # пример
@@ -298,19 +297,21 @@ def pathWeight( nxGraph, path, weight = SGT.s_edgeSize):
 
     return path_weight
 
+def findNodes( nxGraph, prop, value ):
+    return [ node[0] for node in nxGraph.nodes( data = prop ) if node[1] == value ]
 
-def makeNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
+def makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
     
     dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, startNode, targetNode)
 
     if targetSide is None:
-        return dijkstra_path
+        return [dijkstra_path]
     
     final_agentAngle = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle, nodes_route = dijkstra_path )
     eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
 
     if targetSide == eAgentSide:
-        return dijkstra_path
+        return [dijkstra_path]
 
     paths_through_cycles = pathsThroughCycles( nxGraph, dijkstra_path )
     paths_correct_side = []
@@ -322,8 +323,26 @@ def makeNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = Non
         if targetSide == eAgentSide:
             paths_correct_side.append( path )
 
-    if len( paths_correct_side ) == 0:
-        return None
+    return paths_correct_side
 
-    nodes_route = min(  paths_correct_side, key = lambda path: pathWeight( nxGraph, path )  )
-    return nodes_route
+def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
+
+    nodes_routes = makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
+    l = len( nodes_routes )
+
+    if l > 1:
+        return min( nodes_routes, key = lambda path: pathWeight( nxGraph, path )  )
+    elif l == 1:
+        return nodes_routes[0]
+
+def shortestNodesRoute_MultiTarget( nxGraph, startNode, targetNodes, agentAngle, targetSide = None ):
+    
+    nodes_routes = []
+
+    for targetNode in targetNodes:
+        nodes_routes += makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
+
+    if l > 1:
+        return min( nodes_routes, key = lambda path: pathWeight( nxGraph, path )  )
+    elif l == 1:
+        return nodes_routes[0]
