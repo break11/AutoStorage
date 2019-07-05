@@ -42,79 +42,12 @@ class CFA_MainWindow(QMainWindow):
         self.Agents_Model = CFakeAgentsList_Model( parent = self )
         self.Agents_Model.loadAgentsList()
         self.tvAgents.setModel( self.Agents_Model )
-        # self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
-        # self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
-                
-        self.Agents_Model.AgentLogUpdated.connect( self.AgentLogUpdated )
+        self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
+        self.Agents_Model.AgentLogUpdated.connect( self.ACL_Form.AgentLogUpdated )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
         self.Agents_Model.saveAgentsList()
-
-    ################################################################
-    # текущий агент выделенный в таблице
-    # def currAgentN( self ):
-    #     if not self.tvAgents.selectionModel().currentIndex().isValid():
-    #         return
-
-    #     agentNO = self.Agents_Model.agentNO_from_Index( self.tvAgents.selectionModel().currentIndex() )
-    #     if agentNO is None:
-    #         return
-        
-    #     agentN = int( agentNO.name )
-    #     return agentN
-
-    # def CurrentAgentChanged( self, current, previous):
-    #     agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-    #     if agentLink is None:
-    #         self.pteAgentLog.clear()
-    #         return
-
-    #     self.pteAgentLog.setHtml( "".join(agentLink.log[-1000:]) )
-    #     self.pteAgentLog.moveCursor( QTextCursor.End )
-
-    #     self.updateAgentControls( agentLink )
-
-    # def updateAgentControls( self, agentLink ):
-    #     self.btnRequestTelemetry.setChecked( agentLink.requestTelemetry_Timer.isActive() )
-    #     self.sbAgentN.setValue( agentLink.agentN )
-
-    # def AgentLogUpdated( self, agentN, data ):
-    #     if self.currAgentN() != agentN:
-    #         return
-
-    #     self.pteAgentLog.append( data )
-
-    ################################################################
-
-    # def on_lePushCMD_returnPressed( self ):
-    #     if not self.currAgentN(): return
-
-    #     agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-    #     if agentLink is None: return
-
-    #     l = self.lePushCMD.text().split(" ")
-    #     cmd_list = []
-
-    #     for item in l:
-    #         sCMD = f"{self.sbPacketN.value():03d},{self.sbAgentN.value():03d}:{item}"
-    #         cmd_list.append( CAgentServerPacket.fromTX_Str( sCMD ) )
-
-    #     if None in cmd_list:
-    #         print( f"{SC.sWarning} invalid command in command list: {cmd_list}" )
-    #         return
-        
-    #     for cmd in cmd_list:
-    #         agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
-    #         print( f"Send custom cmd={cmd.toTX_Str( appendLF=False )} to agent={self.currAgentN()}" )
-
-    # @pyqtSlot("bool")
-    # def on_btnRequestTelemetry_clicked( self, bVal ):
-    #     agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-    #     if agentLink is None: return
-
-    #     if bVal: agentLink.requestTelemetry_Timer.start()
-    #     else: agentLink.requestTelemetry_Timer.stop()
 
     ################################################################
     def currAgentN( self ):
@@ -126,19 +59,13 @@ class CFA_MainWindow(QMainWindow):
         return agentN
 
     def CurrentAgentChanged( self, current, previous):
-        fakeAgentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-        if fakeAgentLink is None:
-            self.ACL_Form.pteAgentLog.clear()
-            return
+        fakeAgentLink = self.Agents_Model.getAgentLink( self.currAgentN() )
+        # if fakeAgentLink is None:
+        #     self.ACL_Form.pteAgentLog.clear()
+        #     return
 
-        self.ACL_Form.fillAgentLog( fakeAgentLink )
-        self.ACL_Form.updateAgentControls( fakeAgentLink )
+        self.ACL_Form.setAgentLink( fakeAgentLink )
 
-    def AgentLogUpdated( self, fakeAgentLink, cmd, data ):
-        if self.currAgentN() != fakeAgentLink.agentN:
-            return
-
-        self.ACL_Form.AgentLogUpdated( fakeAgentLink, cmd, data )
     ################################################################
 
     def on_btnAddAgent_released( self ):

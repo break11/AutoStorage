@@ -18,6 +18,7 @@ from Lib.Common.Utils import CRepeatTimer
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
+from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
 
 CHANNEL_TEST = 0
 TIMER_PERIOD = 1
@@ -42,7 +43,6 @@ class CFakeAgentThread( QThread ):
 
         self.host = host
         self.port = port
-        self.HW_Answer_Cmd = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, agentN = fakeAgentLink.agentN )
         # поле для имитации отключения по потере сигнала (имитация 5 сек таймера отключения на сервере - 
         # не делаем дисконнект сокета со стороны фейк агента по окончании работы потока)
         self.bExitByLostSignal = False
@@ -74,6 +74,7 @@ class CFakeAgentThread( QThread ):
         self.dpTicksDivider = 0
 
         self.bRunning = False
+        self.bConnected = False
         self.bEmergencyStop = False
 
     def __del__(self):
@@ -127,6 +128,7 @@ class CFakeAgentThread( QThread ):
         return bES
 
     def process( self ):
+        if not self.bConnected: return
         if self.bSendTX_cmd:
             self.sendTX_cmd()
 
@@ -147,8 +149,9 @@ class CFakeAgentThread( QThread ):
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket(self, cmd):
         if cmd.event == EAgentServer_Event.HelloWorld:
-            self.HW_Answer_Cmd.data = str( self.fakeAgentLink().last_RX_packetN )
-            self.pushCmd( self.HW_Answer_Cmd )
+            HW_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, agentN = self.fakeAgentLink().agentN,
+                                                data = str( self.fakeAgentLink().last_RX_packetN ) )
+            self.pushCmd( HW_Answer_Cmd )
 
     def pushCmd( self, cmd ):
         cmd.packetN = self.fakeAgentLink().genTxPacketN
@@ -397,12 +400,14 @@ class CFakeAgentThread( QThread ):
 
     @pyqtSlot()
     def socketDisconnected(self):
-        print ("----- FA DISCONNECTED ------")
+        CAgentLogManager.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA DISCONNECTED ------" )
+        self.bConnected = False
         self.bRunning = False
 
     @pyqtSlot()
     def socketConnected(self):
-        print("----- FA CONNECTED ------")
+        self.bConnected = True
+        CAgentLogManager.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA CONNECTED ------" )
 
     #@pyqtSlot(str)
     #doesn't work :(

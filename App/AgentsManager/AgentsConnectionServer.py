@@ -19,12 +19,12 @@ from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.AgentProtocol.AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket
-from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
+from Lib.AgentProtocol.AgentLogManager import CAgentLogManager, CLogRow
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 
 class CAgentsConnectionServer(QTcpServer):
-    AgentLogUpdated  = pyqtSignal( CAgentLink, CAgentServerPacket, str )
+    AgentLogUpdated  = pyqtSignal( CAgentLink, CLogRow )
 
     """
     QTcpServer wrapper to listen for incoming connections.
@@ -149,10 +149,10 @@ class CAgentsConnectionServer(QTcpServer):
         agentLink = self.getAgentLink( agentN, bWarning=False )
 
         thread = self.sender()
-        data = CAgentLogManager.doLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
+        logRow = CAgentLogManager.doLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
                     
         if agentLink:
-            self.AgentLogUpdated.emit( agentLink, packet, data )
+            self.AgentLogUpdated.emit( agentLink, logRow )
 
     #############################################################
 
@@ -244,7 +244,7 @@ class CAgentSocketThread(QThread):
         self.writeTo_Socket( self.HW_Cmd )
         self.tcpSocket.waitForReadyRead(1)
         
-        while self.tcpSocket.canReadLine():
+        while self.tcpSocket.canReadLine() and self.agentN == UNINITED_AGENT_N:
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
             # self.noRxTimer = time.time()

@@ -60,7 +60,7 @@ class CAM_MainWindow(QMainWindow):
 
             self.AgentsConnectionServer = CAgentsConnectionServer()
             self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
-            self.AgentsConnectionServer.AgentLogUpdated.connect( self.AgentLogUpdated )
+            self.AgentsConnectionServer.AgentLogUpdated.connect( self.ACL_Form.AgentLogUpdated )
 
             # для всех загруженных из редис Agent_NetObj создаем AgentLink-и
             for row in range( self.Agents_Model.rowCount() ):
@@ -85,20 +85,13 @@ class CAM_MainWindow(QMainWindow):
 
     def CurrentAgentChanged( self, current, previous):
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-        if agentLink is None:
-            self.ACL_Form.pteAgentLog.clear()
-            return
+        # if agentLink is None:
+        #     self.ACL_Form.pteAgentLog.clear()
+        #     return
 
-        self.ACL_Form.fillAgentLog( agentLink )
-        self.ACL_Form.updateAgentControls( agentLink )
+        self.ACL_Form.setAgentLink( agentLink )
 
     ################################################################
-
-    def AgentLogUpdated( self, agentLink, cmd, data ):
-        if self.currAgentN() != agentLink.agentN:
-            return
-
-        self.ACL_Form.AgentLogUpdated( agentLink, cmd, data )
     
     def pushCMD_to_Agent( self ):
         agentN = self.ACL_Form.sbAgentN.value()

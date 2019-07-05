@@ -12,7 +12,9 @@ def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAccepted
         delta = cmd.packetN - lastTXpacketN
 
         #всё корректно, пришло CA по текущей активной команде - сносим ее из очереди отправки ( lastTX_N=000 CA_N=000 )
-        if delta == 0:
+        if delta == 0 or cmd.packetN == 0:
+            # if cmd.packetN == 0:
+            #     cmd.status = EPacket_Status.Normal
             if len(TX_FIFO) and TX_FIFO[0].packetN == cmd.packetN:
                 # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
                 TX_FIFO.popleft()

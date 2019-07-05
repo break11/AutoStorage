@@ -10,7 +10,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
-from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
+from Lib.AgentProtocol.AgentLogManager import CAgentLogManager, CLogRow
 
 from .FakeAgentThread import CFakeAgentThread
 from .FakeAgentLink import CFakeAgentLink
@@ -22,7 +22,7 @@ s_agents_list = "agents_list"
 def_agent_list = [ 555 ]
 
 class CFakeAgentsList_Model( QAbstractTableModel ):
-    AgentLogUpdated = pyqtSignal( CFakeAgentLink, CAgentServerPacket, str )
+    AgentLogUpdated = pyqtSignal( CFakeAgentLink, CLogRow )
     propList = [ s_agentN, s_connected ]
 
     def __init__( self, parent ):
@@ -64,6 +64,9 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         if not index.isValid(): return None
 
         return self.data( index )
+    
+    def getAgentLink( self, agentN ):
+        return self.FA_Dict.get( agentN )
 
     def data( self, index, role = Qt.DisplayRole ):
         if not index.isValid(): return None
@@ -164,6 +167,6 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         fakeAgentLink = self.FA_Dict[ agentN ]
 
         thread = self.sender()
-        data = CAgentLogManager.doLogPacket( fakeAgentLink, thread.UID, packet, not bTX_or_RX )
+        logRow = CAgentLogManager.doLogPacket( fakeAgentLink, thread.UID, packet, bTX_or_RX, isAgent=True )
                     
-        self.AgentLogUpdated.emit( fakeAgentLink, packet, data )
+        self.AgentLogUpdated.emit( fakeAgentLink, logRow )
