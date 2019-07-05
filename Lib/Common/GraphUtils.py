@@ -342,6 +342,8 @@ def shortestNodesRoute_MultiTarget( nxGraph, startNode, targetNodes, agentAngle,
     for targetNode in targetNodes:
         nodes_routes += makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
 
+    l = len( nodes_routes )
+    
     if l > 1:
         return min( nodes_routes, key = lambda path: pathWeight( nxGraph, path )  )
     elif l == 1:

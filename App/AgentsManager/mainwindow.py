@@ -23,7 +23,7 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType, findNodes, shortestNodesRoute_MultiTarget
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from .AgentServerPacket import CAgentServerPacket
@@ -169,9 +169,9 @@ class CAM_MainWindow(QMainWindow):
             self.SimpleAgentTest_Timer.stop()
 
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
-                           SGT.ENodeTypes.PickStation,
-                           SGT.ENodeTypes.PickStationIn,
-                           SGT.ENodeTypes.PickStationOut ]
+                           SGT.ENodeTypes.Pickstation,
+                           SGT.ENodeTypes.PickstationIn,
+                           SGT.ENodeTypes.PickstationOut ]
                            
     def AgentTestMoving(self, agentNO, targetNode = None):
         if agentNO.isOnTrack() is None: return
@@ -189,7 +189,9 @@ class CAM_MainWindow(QMainWindow):
 
         if targetNode is None:
             if self.route_count == 2:
-                targetNode = "40" ## Hard Code -- remove !!
+                # targetNode = "40" ## Hard Code -- remove !!
+                charge_nodes = findNodes( nxGraph, SGT.s_nodeType, SGT.ENodeTypes.ServiceStation.name )
+                nodes_route = shortestNodesRoute_MultiTarget( nxGraph, startNode, charge_nodes, agentNO.angle, targetSide=SGT.ESide.Left )
                 self.route_count = -1
                 agentNO.status = EAgent_Status.GoToCharge.name
             else:
@@ -200,7 +202,7 @@ class CAM_MainWindow(QMainWindow):
                     if nType in self.enabledTargetNodes:
                         break
                 
-        nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+                nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
         curEdgeSize = edgeSize( nxGraph, tKey )
 
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута

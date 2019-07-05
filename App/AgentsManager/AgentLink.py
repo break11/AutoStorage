@@ -51,7 +51,7 @@ class CAgentLink():
         # self.requestTelemetry_Timer.start() # временно для отладки отключаем
 
         self.ChargeTimer = QTimer()
-        self.ChargeTimer.setInterval(20000)
+        self.ChargeTimer.setInterval(2000)
         self.ChargeTimer.setSingleShot( True )
         self.ChargeTimer.timeout.connect( self.chargeOff )
 
