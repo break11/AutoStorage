@@ -43,7 +43,6 @@ class CFA_MainWindow(QMainWindow):
         self.Agents_Model.loadAgentsList()
         self.tvAgents.setModel( self.Agents_Model )
         self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
-        self.Agents_Model.AgentLogUpdated.connect( self.ACL_Form.AgentLogUpdated )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )

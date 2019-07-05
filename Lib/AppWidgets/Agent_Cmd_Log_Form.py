@@ -52,6 +52,11 @@ class CAgent_Cmd_Log_Form(QWidget):
             if e in self.filterLogEvents:
                 self.filterLogEvents[ e ].setChecked( value )
 
+        ALM.CAgentLogManager.AgentLogUpdated.connect( self.AgentLogUpdated )
+
+    def test( self, agentLink, logRow ):
+        print( agentLink, logRow )
+
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки
         ALC_Form_set = CSM.options[ s_agent_log_cmd_form ]

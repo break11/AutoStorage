@@ -2,6 +2,8 @@ import os
 import datetime
 from collections import namedtuple
 
+from PyQt5.QtCore import QObject, pyqtSignal
+
 from Lib.Common.Utils import wrapSpan, wrapDiv
 from Lib.Common.FileUtils import appLogPath
 from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
@@ -11,7 +13,11 @@ LogCount = 10000
 
 CLogRow = namedtuple('CLogRow' , 'data event')
 
-class CAgentLogManager():
+class CAgentLogManager__( QObject ):
+    AgentLogUpdated = pyqtSignal( object, CLogRow )
+    def __init__( self ):
+        super().__init__()
+
     @classmethod
     def genAgentLogFName( cls, agentN ):
         now = datetime.datetime.now()
@@ -36,13 +42,14 @@ class CAgentLogManager():
 
     ###############
 
-    @classmethod
-    def doLogString( cls, agentLink, data ):
-        data = cls.decorateLogString( agentLink, data )
+    def doLogString( self, agentLink, data ):
+        data = self.decorateLogString( agentLink, data )
         logRow = CLogRow( data=data, event=None )
-        cls.__appendLog_with_Cut( agentLink, logRow )
-        cls.writeToLogFile( agentLink.sLogFName, logRow )
-        
+        self.__appendLog_with_Cut( agentLink, logRow )
+        self.writeToLogFile( agentLink.sLogFName, logRow )
+
+        self.AgentLogUpdated.emit( agentLink, logRow )
+
     @classmethod
     def decorateLogString( cls, agentLink, data ):
         now = datetime.datetime.now()
@@ -54,16 +61,18 @@ class CAgentLogManager():
 
     ###############
 
-    @classmethod
-    def doLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
+    def doLogPacket( self, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
         if agentLink is None:
             print( packet )
             return
         
-        data = cls.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
+        data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
         logRow = CLogRow( data=data, event=packet.event )
-        cls.__appendLog_with_Cut( agentLink, logRow )
-        cls.writeToLogFile( agentLink.sLogFName, logRow )
+        self.__appendLog_with_Cut( agentLink, logRow )
+        self.writeToLogFile( agentLink.sLogFName, logRow )
+
+        self.AgentLogUpdated.emit( agentLink, logRow )
+
         return logRow
 
     @classmethod
@@ -100,3 +109,5 @@ class CAgentLogManager():
         data = wrapDiv( data )
 
         return data
+
+CAgentLogManager = CAgentLogManager__()

@@ -33,7 +33,6 @@ s_FA_Socket_thread = "FA Socket thread"
 class CFakeAgentThread( QThread ):
     genUID = 0
     threadFinished = pyqtSignal()
-    AgentLogUpdated = pyqtSignal( bool, int, CAgentServerPacket )
 
     def __init__( self, fakeAgentLink, host, port ):
         super().__init__()
@@ -144,7 +143,7 @@ class CFakeAgentThread( QThread ):
                               lastTXpacketN = self.fakeAgentLink().lastTXpacketN,
                               processAcceptedPacket = self.processRxPacket,
                               ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
-            self.AgentLogUpdated.emit( False, self.fakeAgentLink().agentN, cmd )
+            CAgentLogManager.doLogPacket( self.fakeAgentLink(), self.UID, cmd, False, isAgent=True )
 
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket(self, cmd):
@@ -176,7 +175,7 @@ class CFakeAgentThread( QThread ):
         self.bSendTX_cmd = False
 
     def writeTo_Socket( self, cmd ):
-        self.AgentLogUpdated.emit( True, self.fakeAgentLink().agentN, cmd )
+        CAgentLogManager.doLogPacket( self.fakeAgentLink(), self.UID, cmd, True, isAgent=True )
         self.tcpSocket.write( cmd.toCTX_BStr() )
 
     # def process(self):

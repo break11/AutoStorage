@@ -22,7 +22,6 @@ s_agents_list = "agents_list"
 def_agent_list = [ 555 ]
 
 class CFakeAgentsList_Model( QAbstractTableModel ):
-    AgentLogUpdated = pyqtSignal( CFakeAgentLink, CLogRow )
     propList = [ s_agentN, s_connected ]
 
     def __init__( self, parent ):
@@ -130,7 +129,6 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         fakeAgentLink.FA_Thread = CFakeAgentThread( fakeAgentLink, ip, port )
                     
         fakeAgentLink.FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
-        fakeAgentLink.FA_Thread.AgentLogUpdated.connect( self.thread_AgentLogUpdated )
         fakeAgentLink.FA_Thread.start()
 
         row = self.FA_List.index( agentN )
@@ -161,12 +159,3 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         col = self.propList.index( s_connected )
         idx = self.index( row, col )
         self.dataChanged.emit( idx, idx )
-
-    @pyqtSlot( bool, int, CAgentServerPacket )
-    def thread_AgentLogUpdated( self, bTX_or_RX, agentN, packet ):
-        fakeAgentLink = self.FA_Dict[ agentN ]
-
-        thread = self.sender()
-        logRow = CAgentLogManager.doLogPacket( fakeAgentLink, thread.UID, packet, bTX_or_RX, isAgent=True )
-                    
-        self.AgentLogUpdated.emit( fakeAgentLink, logRow )
