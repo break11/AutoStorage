@@ -36,8 +36,6 @@ class ENodeTypes( Enum ):
     PickStationOut = auto()
     ServiceStation = auto()
     Terminal       = auto()
-    @staticmethod
-    def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.NoneType )
 
     @staticmethod
     def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.UnknownType )

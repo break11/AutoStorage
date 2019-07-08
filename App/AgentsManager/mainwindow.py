@@ -23,7 +23,7 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType, findNodes, shortestNodesRoute_MultiTarget
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType, findNodes, routeToServiceStation
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from .AgentServerPacket import CAgentServerPacket
@@ -179,14 +179,12 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.status == EAgent_Status.Charging.name: return
 
         nxGraph = self.graphRootNode().nxGraph
-        tKey = tEdgeKeyFromStr( agentNO.edge )
-        startNode = tKey[0]
+        tKey = tEdgeKeyFromStr( agentNO.edge ) # 44 45
+        startNode = tKey[0] #44
 
         if targetNode is None:
-            if self.route_count == 2:
-                # targetNode = "40" ## Hard Code -- remove !!
-                charge_nodes = findNodes( nxGraph, SGT.s_nodeType, SGT.ENodeTypes.ServiceStation.name )
-                nodes_route = shortestNodesRoute_MultiTarget( nxGraph, startNode, charge_nodes, agentNO.angle, targetSide=SGT.ESide.Left )
+            if self.route_count == 3: # False
+                route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
                 self.route_count = -1
                 agentNO.status = EAgent_Status.GoToCharge.name
             else:
@@ -211,7 +209,8 @@ class CAM_MainWindow(QMainWindow):
             curEdgeSize = edgeSize( nxGraph, tKey )
             agentNO.position = curEdgeSize - agentNO.position
             nodes_route.insert(0, tKey[0] )
-        elif ( agentNO.position / curEdgeSize ) > 0.5:
+        
+        if ( agentNO.position / curEdgeSize ) > 0.5:
             if len( nodes_route ) > 2:
                 nodes_route = nodes_route[1:]
                 tKey = ( nodes_route[0], nodes_route[1] )

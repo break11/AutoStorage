@@ -328,23 +328,19 @@ def makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = No
 def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
 
     nodes_routes = makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
-    l = len( nodes_routes )
-
-    if l > 1:
-        return min( nodes_routes, key = lambda path: pathWeight( nxGraph, path )  )
-    elif l == 1:
-        return nodes_routes[0]
-
-def shortestNodesRoute_MultiTarget( nxGraph, startNode, targetNodes, agentAngle, targetSide = None ):
+    nodes_routes_weighted = [ (pathWeight(nxGraph, route), route) for route in nodes_routes ]
     
-    nodes_routes = []
+    return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
 
-    for targetNode in targetNodes:
-        nodes_routes += makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
+def routeToServiceStation( nxGraph, startNode, agentAngle ):
 
-    l = len( nodes_routes )
+    charge_nodes = findNodes( nxGraph, SGT.s_nodeType, SGT.ENodeTypes.ServiceStation.name )
+    nodes_routes_weighted = []
+
+    for targetNode in charge_nodes:
+        targetSide = SGT.ESide.fromString( nxGraph.nodes()[ targetNode ][ SGT.s_chargeSide ] )
+        weighted_route = shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
+
+        nodes_routes_weighted.append( weighted_route )
     
-    if l > 1:
-        return min( nodes_routes, key = lambda path: pathWeight( nxGraph, path )  )
-    elif l == 1:
-        return nodes_routes[0]
+    return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
