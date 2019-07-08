@@ -169,9 +169,9 @@ class CAM_MainWindow(QMainWindow):
             self.SimpleAgentTest_Timer.stop()
 
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
-                           SGT.ENodeTypes.Pickstation,
-                           SGT.ENodeTypes.PickstationIn,
-                           SGT.ENodeTypes.PickstationOut ]
+                           SGT.ENodeTypes.PickStation,
+                           SGT.ENodeTypes.PickStationIn,
+                           SGT.ENodeTypes.PickStationOut ]
                            
     def AgentTestMoving(self, agentNO, targetNode = None):
         if agentNO.isOnTrack() is None: return
