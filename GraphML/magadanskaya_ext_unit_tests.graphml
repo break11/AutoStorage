@@ -330,12 +330,12 @@
     <node id="70">
       <data key="d0">10600</data>
       <data key="d1">12577</data>
-      <data key="d2">DummyNode</data>
+      <data key="d2">StorageSingle</data>
     </node>
     <node id="71">
       <data key="d0">10600</data>
       <data key="d1">13577</data>
-      <data key="d2">DummyNode</data>
+      <data key="d2">StorageSingle</data>
     </node>
     <node id="72">
       <data key="d0">6400</data>
@@ -350,7 +350,7 @@
     <node id="74">
       <data key="d0">7107</data>
       <data key="d1">15337</data>
-      <data key="d2">Terminal</data>
+      <data key="d2">DummyNode</data>
     </node>
     <node id="75">
       <data key="d0">7912</data>
@@ -380,12 +380,12 @@
     <node id="80">
       <data key="d0">20300</data>
       <data key="d1">3782</data>
-      <data key="d2">DummyNode</data>
+      <data key="d2">StorageSingle</data>
     </node>
     <node id="81">
       <data key="d0">20300</data>
       <data key="d1">4902</data>
-      <data key="d2">DummyNode</data>
+      <data key="d2">StorageSingle</data>
     </node>
     <node id="82">
       <data key="d0">19800</data>
@@ -405,7 +405,7 @@
     <node id="85">
       <data key="d0">17800</data>
       <data key="d1">6799</data>
-      <data key="d2">Terminal</data>
+      <data key="d2">DummyNode</data>
     </node>
     <node id="86">
       <data key="d0">18627</data>
@@ -431,6 +431,28 @@
       <data key="d0">17800</data>
       <data key="d1">5005</data>
       <data key="d2">DummyNode</data>
+    </node>
+    <node id="91">
+      <data key="d0">7107</data>
+      <data key="d1">16063</data>
+      <data key="d2">ServiceStation</data>
+      <data key="d3">ChargeSideRight</data>
+    </node>
+    <node id="92">
+      <data key="d0">7107</data>
+      <data key="d1">16975</data>
+      <data key="d2">Terminal</data>
+    </node>
+    <node id="93">
+      <data key="d0">17800</data>
+      <data key="d1">7628</data>
+      <data key="d2">ServiceStation</data>
+      <data key="d3">ChargeSideRight</data>
+    </node>
+    <node id="94">
+      <data key="d0">17800</data>
+      <data key="d1">8431</data>
+      <data key="d2">Terminal</data>
     </node>
     <edge source="0" target="1">
       <data key="d4">500</data>
@@ -1274,7 +1296,7 @@
     </edge>
     <edge source="51" target="52">
       <data key="d4">4500</data>
-      <data key="d5">0</data>
+      <data key="d5">540</data>
       <data key="d6">0</data>
       <data key="d7">SBoth</data>
       <data key="d8">Narrow</data>
@@ -1283,7 +1305,7 @@
     <edge source="52" target="51">
       <data key="d4">4500</data>
       <data key="d5">0</data>
-      <data key="d6">0</data>
+      <data key="d6">540</data>
       <data key="d7">SBoth</data>
       <data key="d8">Narrow</data>
       <data key="d9">Straight</data>
@@ -1552,6 +1574,14 @@
       <data key="d8">Wide</data>
       <data key="d9">Straight</data>
     </edge>
+    <edge source="74" target="91">
+      <data key="d4">500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
     <edge source="75" target="62">
       <data key="d4">712</data>
       <data key="d5">405</data>
@@ -1688,6 +1718,14 @@
       <data key="d8">Wide</data>
       <data key="d9">Straight</data>
     </edge>
+    <edge source="85" target="93">
+      <data key="d4">500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
     <edge source="86" target="79">
       <data key="d4">700</data>
       <data key="d5">0</data>
@@ -1722,6 +1760,54 @@
     </edge>
     <edge source="90" target="89">
       <data key="d4">1500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
+    <edge source="91" target="74">
+      <data key="d4">500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
+    <edge source="91" target="92">
+      <data key="d4">500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
+    <edge source="92" target="91">
+      <data key="d4">500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
+    <edge source="93" target="85">
+      <data key="d4">500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
+    <edge source="93" target="94">
+      <data key="d4">500</data>
+      <data key="d5">0</data>
+      <data key="d6">0</data>
+      <data key="d7">SBoth</data>
+      <data key="d8">Wide</data>
+      <data key="d9">Straight</data>
+    </edge>
+    <edge source="94" target="93">
+      <data key="d4">500</data>
       <data key="d5">0</data>
       <data key="d6">0</data>
       <data key="d7">SBoth</data>

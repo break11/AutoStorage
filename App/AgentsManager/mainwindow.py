@@ -178,12 +178,7 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.route != "": return
         if agentNO.status == EAgent_Status.Charging.name: return
 
-
         nxGraph = self.graphRootNode().nxGraph
-
-        l = len( nxGraph.nodes )
-        nodes = list( nxGraph.nodes )
-
         tKey = tEdgeKeyFromStr( agentNO.edge )
         startNode = tKey[0]
 
@@ -195,14 +190,18 @@ class CAM_MainWindow(QMainWindow):
                 self.route_count = -1
                 agentNO.status = EAgent_Status.GoToCharge.name
             else:
+                nodes = list( nxGraph.nodes )
                 while True:
-                    targetNode = nodes[ random.randint(0, l-1) ]
+                    targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
                     if startNode == targetNode: continue
                     nType = SGT.ENodeTypes.fromString( nodeType(nxGraph, targetNode) )
                     if nType in self.enabledTargetNodes:
                         break
                 
                 nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+        else:
+            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+
         curEdgeSize = edgeSize( nxGraph, tKey )
 
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута

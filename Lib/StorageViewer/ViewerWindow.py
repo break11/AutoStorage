@@ -301,6 +301,7 @@ class CViewerWindow(QMainWindow):
     def on_acSpecialLines_triggered(self, bChecked):
         self.SGM.setDrawSpecialLines( bChecked )
 
+    @pyqtSlot(bool)
     def on_acLockEditing_triggered(self):
         self.SGM.setModeFlags( self.SGM.Mode ^ EGManagerMode.EditScene )
 
