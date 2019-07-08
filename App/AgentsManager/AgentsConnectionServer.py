@@ -8,7 +8,7 @@ import time
 from PyQt5.QtCore import pyqtSignal, QDataStream, QIODevice, QThread, pyqtSlot, Qt
 from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSocket, QAbstractSocket
 
-from .AgentLink import CAgentLink
+from .AgentLink import CAgentLink, s_AgentLink
 import Lib.Common.StrConsts as SC
 from Lib.Common.NetUtils import socketErrorToString
 from Lib.Common.Utils import CRepeatTimer
@@ -19,13 +19,13 @@ from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.AgentProtocol.AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket
-from Lib.AgentProtocol.AgentLogManager import CAgentLogManager, CLogRow
+from Lib.AgentProtocol.AgentLogManager import ALM, CLogRow
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 
-class CAgentsConnectionServer(QTcpServer):
-    AgentLogUpdated  = pyqtSignal( CAgentLink, CLogRow )
+s_Off_5S = "Thread will closed with no activity for 5 secs."
 
+class CAgentsConnectionServer(QTcpServer):
     """
     QTcpServer wrapper to listen for incoming connections.
     When new connection detected - creates a corresponding thread and adds it to self.unknownAgentThreadPool
@@ -90,7 +90,6 @@ class CAgentsConnectionServer(QTcpServer):
         thread.agentNumberInited.   connect( self.thread_AgentNumberInited )
         thread.socketError.         connect( self.thread_SocketError )
         thread.newAgent.            connect( self.thread_NewAgent )
-        thread.AgentLogUpdated.     connect( self.thread_AgentLogUpdated )
         thread.processRxPacket.     connect( self.thread_processRxPacket )
         thread.start()
 
@@ -144,16 +143,6 @@ class CAgentsConnectionServer(QTcpServer):
         if agentLink:
             agentLink.processRxPacket( cmd )
 
-    @pyqtSlot( bool, int, CAgentServerPacket )
-    def thread_AgentLogUpdated( self, bTX_or_RX, agentN, packet ):
-        agentLink = self.getAgentLink( agentN, bWarning=False )
-
-        thread = self.sender()
-        logRow = CAgentLogManager.doLogPacket( agentLink, thread.UID, packet, bTX_or_RX )
-                    
-        if agentLink:
-            self.AgentLogUpdated.emit( agentLink, logRow )
-
     #############################################################
 
     def createAgentLink( self, agentN ):
@@ -177,7 +166,6 @@ class CAgentSocketThread(QThread):
     socketError       = pyqtSignal( int )
     newAgent          = pyqtSignal( int )
     agentNumberInited = pyqtSignal( int )
-    AgentLogUpdated   = pyqtSignal( bool, int, CAgentServerPacket )
     processRxPacket   = pyqtSignal( int, CAgentServerPacket )
 
     def __init__(self, socketDescriptor, parent):
@@ -197,7 +185,6 @@ class CAgentSocketThread(QThread):
 
         self.HW_Cmd  = CAgentServerPacket( event=EAgentServer_Event.HelloWorld )
         self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
-        self.Off_5S_Cmd = CAgentServerPacket( event=EAgentServer_Event.Warning_, data="#Thread will closed with no activity for 5 secs." )
 
     def __del__(self):
         self.tcpSocket.close()
@@ -242,7 +229,7 @@ class CAgentSocketThread(QThread):
 
     def initHW( self ):
         self.writeTo_Socket( self.HW_Cmd )
-        self.tcpSocket.waitForReadyRead(1)
+        self.tcpSocket.waitForReadyRead()
         
         while self.tcpSocket.canReadLine() and self.agentN == UNINITED_AGENT_N:
             line = self.tcpSocket.readLine()
@@ -250,7 +237,7 @@ class CAgentSocketThread(QThread):
             # self.noRxTimer = time.time()
             if cmd is None: continue
             
-            self.AgentLogUpdated.emit( False, self.agentN, cmd )
+            ALM.doLogPacket( self.agentLink(), self.UID, cmd, False )
             if cmd.event == EAgentServer_Event.HelloWorld:
                 if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
                     self.newAgent.emit( cmd.agentN )
@@ -265,9 +252,8 @@ class CAgentSocketThread(QThread):
 
         # # отключение соединения если в течении 5 секунд не было ответа
         # t = (time.time() - self.noRxTimer)
-        # print( t, "1111111111111111111111" )
         # if t > 5:
-        #     self.AgentLogUpdated.emit( False, self.agentN, self.Off_5S_Cmd )
+        #     ALM.doLogString( self.agentLink(), f"{s_AgentLink}={self.agentN} {s_Off_5S}" )
         #     self.bRunning = False
 
 
@@ -288,12 +274,12 @@ class CAgentSocketThread(QThread):
             self.noRxTimer = time.time()
             _processRxPacket( self, cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
                               processAcceptedPacket=self.__processRxPacket )
-            self.AgentLogUpdated.emit( False, self.agentN, cmd )
+            ALM.doLogPacket( self.agentLink(), self.UID, cmd, False )
 
         # отключение соединения если в течении 5 секунд не было ответа
         t = (time.time() - self.noRxTimer)
         if t > 5:
-            self.AgentLogUpdated.emit( False, self.agentN, self.Off_5S_Cmd )
+            ALM.doLogString( self.agentLink(), f"{s_AgentLink}={self.agentN} {s_Off_5S}" )
             self.bRunning = False
 
     def __processRxPacket( self, cmd ):
@@ -318,7 +304,7 @@ class CAgentSocketThread(QThread):
     #################################
 
     def writeTo_Socket( self, cmd ):
-        self.AgentLogUpdated.emit( True, self.agentN, cmd )
+        ALM.doLogPacket( self.agentLink(), self.UID, cmd, True )
         self.tcpSocket.write( cmd.toTX_BStr() )
 
     def sendExpressCMDs( self ):

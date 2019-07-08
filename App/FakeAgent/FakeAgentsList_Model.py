@@ -10,7 +10,6 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
-from Lib.AgentProtocol.AgentLogManager import CAgentLogManager, CLogRow
 
 from .FakeAgentThread import CFakeAgentThread
 from .FakeAgentLink import CFakeAgentLink

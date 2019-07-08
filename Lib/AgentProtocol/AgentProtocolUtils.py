@@ -13,8 +13,6 @@ def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAccepted
 
         #всё корректно, пришло CA по текущей активной команде - сносим ее из очереди отправки ( lastTX_N=000 CA_N=000 )
         if delta == 0 or cmd.packetN == 0:
-            # if cmd.packetN == 0:
-            #     cmd.status = EPacket_Status.Normal
             if len(TX_FIFO) and TX_FIFO[0].packetN == cmd.packetN:
                 # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
                 TX_FIFO.popleft()
@@ -24,6 +22,8 @@ def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAccepted
             else:
                 #видимо, пришло повтороное подтверждение на команду
                 cmd.status = EPacket_Status.Duplicate 
+            if cmd.packetN == 0:
+                cmd.status = EPacket_Status.Normal
         #если разница -1 или 999, это дубликат последней полученной команды ( lastTX_N=001 CA_N=000 ), ( lastTX_N=000 CA_N=999 )
         elif delta == -1 or delta == 998:
             cmd.status = EPacket_Status.Duplicate

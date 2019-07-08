@@ -18,7 +18,7 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
-from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
+from Lib.AgentProtocol.AgentLogManager import ALM
 
 s_AgentLink = "AgentLink"
 
@@ -32,8 +32,8 @@ class CAgentLink():
         self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
 
         self.log = []
-        self.sLogFName = CAgentLogManager.genAgentLogFName( agentN )
-        CAgentLogManager.doLogString( self, f"{s_AgentLink}={agentN} Created" )
+        self.sLogFName = ALM.genAgentLogFName( agentN )
+        ALM.doLogString( self, f"{s_AgentLink}={agentN} Created" )
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
  
@@ -58,7 +58,7 @@ class CAgentLink():
         self.edges_route = []
 
     def __del__(self):
-        CAgentLogManager.doLogString( self, f"{s_AgentLink}={self.agentN} Destroyed" )
+        ALM.doLogString( self, f"{s_AgentLink}={self.agentN} Destroyed" )
         self.done()
 
     def done( self ):

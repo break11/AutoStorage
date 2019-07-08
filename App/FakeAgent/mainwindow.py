@@ -59,9 +59,6 @@ class CFA_MainWindow(QMainWindow):
 
     def CurrentAgentChanged( self, current, previous):
         fakeAgentLink = self.Agents_Model.getAgentLink( self.currAgentN() )
-        # if fakeAgentLink is None:
-        #     self.ACL_Form.pteAgentLog.clear()
-        #     return
 
         self.ACL_Form.setAgentLink( fakeAgentLink )
 

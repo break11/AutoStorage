@@ -13,7 +13,7 @@ LogCount = 10000
 
 CLogRow = namedtuple('CLogRow' , 'data event')
 
-class CAgentLogManager__( QObject ):
+class CAgentLogManager( QObject ):
     AgentLogUpdated = pyqtSignal( object, CLogRow )
     def __init__( self ):
         super().__init__()
@@ -110,4 +110,4 @@ class CAgentLogManager__( QObject ):
 
         return data
 
-CAgentLogManager = CAgentLogManager__()
+ALM = CAgentLogManager()

@@ -18,7 +18,7 @@ from Lib.Common.Utils import CRepeatTimer
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
-from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
+from Lib.AgentProtocol.AgentLogManager import ALM
 
 CHANNEL_TEST = 0
 TIMER_PERIOD = 1
@@ -143,7 +143,7 @@ class CFakeAgentThread( QThread ):
                               lastTXpacketN = self.fakeAgentLink().lastTXpacketN,
                               processAcceptedPacket = self.processRxPacket,
                               ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
-            CAgentLogManager.doLogPacket( self.fakeAgentLink(), self.UID, cmd, False, isAgent=True )
+            ALM.doLogPacket( self.fakeAgentLink(), self.UID, cmd, False, isAgent=True )
 
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket(self, cmd):
@@ -151,6 +151,10 @@ class CFakeAgentThread( QThread ):
             HW_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, agentN = self.fakeAgentLink().agentN,
                                                 data = str( self.fakeAgentLink().last_RX_packetN ) )
             self.pushCmd( HW_Answer_Cmd )
+        elif cmd.event == EAgentServer_Event.TaskList:
+            TL_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.TaskList, agentN = self.fakeAgentLink().agentN,
+                                                data = str( len( self.tasksList ) ) )
+            self.pushCmd( TL_Answer_Cmd )
 
     def pushCmd( self, cmd ):
         cmd.packetN = self.fakeAgentLink().genTxPacketN
@@ -175,7 +179,7 @@ class CFakeAgentThread( QThread ):
         self.bSendTX_cmd = False
 
     def writeTo_Socket( self, cmd ):
-        CAgentLogManager.doLogPacket( self.fakeAgentLink(), self.UID, cmd, True, isAgent=True )
+        ALM.doLogPacket( self.fakeAgentLink(), self.UID, cmd, True, isAgent=True )
         self.tcpSocket.write( cmd.toCTX_BStr() )
 
     # def process(self):
@@ -334,13 +338,13 @@ class CFakeAgentThread( QThread ):
     def processStringCommand(self, data):
         #print("processing string command:{:s}".format(data.decode()))
 
-        if data.find(b'@HW') != -1:
-            self.sendPacketToServer('@HW:{:03d}'.format(self.agentDesc().last_RX_packetN).encode('utf-8'))
+        # if data.find(b'@HW') != -1:
+        #     self.sendPacketToServer('@HW:{:03d}'.format(self.agentDesc().last_RX_packetN).encode('utf-8'))
 
-        # Periodic requests group start
+        # # Periodic requests group start
 
-        if data.find(b'@TL') != -1:
-            self.sendPacketToServer('@TL:{:03d}'.format(len(self.tasksList)).encode('utf-8'))
+        # if data.find(b'@TL') != -1:
+        #     self.sendPacketToServer('@TL:{:03d}'.format(len(self.tasksList)).encode('utf-8'))
 
         if data.find(b'@BS') != -1:
             self.sendPacketToServer(b'@BS:S,43.2V,39.31V,47.43V,-0.06A')
@@ -399,14 +403,14 @@ class CFakeAgentThread( QThread ):
 
     @pyqtSlot()
     def socketDisconnected(self):
-        CAgentLogManager.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA DISCONNECTED ------" )
+        ALM.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA DISCONNECTED ------" )
         self.bConnected = False
         self.bRunning = False
 
     @pyqtSlot()
     def socketConnected(self):
         self.bConnected = True
-        CAgentLogManager.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA CONNECTED ------" )
+        ALM.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA CONNECTED ------" )
 
     #@pyqtSlot(str)
     #doesn't work :(

@@ -101,7 +101,7 @@ class Test_processRxPacket(unittest.TestCase):
         # CA получит статус Duplicate - даже первый CA по HW
 
         _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0 )
-        self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+        self.assertEqual( cmd.status, EPacket_Status.Normal )
 
     def test_CA_Normal_and_Duplicate_in_WorkLoop(self):
         TX_FIFO = deque()
@@ -151,7 +151,7 @@ class Test_processRxPacket(unittest.TestCase):
         self.assertEqual( cmd.status, EPacket_Status.Error )
         cmd.packetN = 0 # случай с переходом
         _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=999 )
-        self.assertEqual( cmd.status, EPacket_Status.Error )
+        self.assertEqual( cmd.status, EPacket_Status.Normal )
         cmd.packetN = 1 # случай с переходом
         _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=999 )
         self.assertEqual( cmd.status, EPacket_Status.Error )

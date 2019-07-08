@@ -28,6 +28,7 @@ from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
+from Lib.AgentProtocol.AgentLogManager import ALM
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -60,7 +61,6 @@ class CAM_MainWindow(QMainWindow):
 
             self.AgentsConnectionServer = CAgentsConnectionServer()
             self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
-            self.AgentsConnectionServer.AgentLogUpdated.connect( self.ACL_Form.AgentLogUpdated )
 
             # для всех загруженных из редис Agent_NetObj создаем AgentLink-и
             for row in range( self.Agents_Model.rowCount() ):
@@ -85,9 +85,6 @@ class CAM_MainWindow(QMainWindow):
 
     def CurrentAgentChanged( self, current, previous):
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-        # if agentLink is None:
-        #     self.ACL_Form.pteAgentLog.clear()
-        #     return
 
         self.ACL_Form.setAgentLink( agentLink )
 
@@ -113,7 +110,7 @@ class CAM_MainWindow(QMainWindow):
         if agentLink.isConnected():
             for cmd in cmd_list:
                 agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
-                print( f"Send custom cmd={cmd.toTX_Str( appendLF=False )} to agent={self.currAgentN()}" )
+                ALM.doLogString( agentLink, f"Send custom cmd={cmd.toTX_Str( appendLF=False )}" )
 
     @pyqtSlot("bool")
     def Agent_RequestTelemetry_switch( self, bVal ):

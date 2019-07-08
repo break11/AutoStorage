@@ -5,7 +5,7 @@ from Lib.Common.FileUtils import appLogPath
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentLogManager import CAgentLogManager
+from Lib.AgentProtocol.AgentLogManager import ALM
 
 s_FakeAgentLink = "FakeAgentLink"
 
@@ -29,8 +29,8 @@ class CFakeAgentLink:
         self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, agentN = self.agentN )
 
         self.log = []
-        self.sLogFName = CAgentLogManager.genAgentLogFName( agentN )
-        CAgentLogManager.doLogString( self, f"{s_FakeAgentLink}={agentN} Created" )
+        self.sLogFName = ALM.genAgentLogFName( agentN )
+        ALM.doLogString( self, f"{s_FakeAgentLink}={agentN} Created" )
 
     def __del__(self):
-        CAgentLogManager.doLogString( self, f"{s_FakeAgentLink}={self.agentN} Destroyed" )
+        ALM.doLogString( self, f"{s_FakeAgentLink}={self.agentN} Destroyed" )

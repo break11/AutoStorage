@@ -6,7 +6,7 @@ from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-import Lib.AgentProtocol.AgentLogManager as ALM
+from Lib.AgentProtocol.AgentLogManager import ALM, LogCount
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
@@ -52,7 +52,7 @@ class CAgent_Cmd_Log_Form(QWidget):
             if e in self.filterLogEvents:
                 self.filterLogEvents[ e ].setChecked( value )
 
-        ALM.CAgentLogManager.AgentLogUpdated.connect( self.AgentLogUpdated )
+        ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
 
     def test( self, agentLink, logRow ):
         print( agentLink, logRow )
@@ -103,11 +103,17 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         self.pteAgentLog.append( logRow.data )
 
-        if self.pteAgentLog.document().lineCount() > ALM.LogCount:
+        if self.pteAgentLog.document().lineCount() > LogCount:
             self.fillAgentLog()
 
     def on_btnFilter_released( self ):
         if self.agentLink is None: return
 
         self.fillAgentLog()
+
+    def on_btnClear_released( self ):
+        if self.agentLink is None: return
+
+        self.pteAgentLog.clear()
+        self.agentLink().log.clear()
 
