@@ -163,6 +163,30 @@ class CFakeAgentThread( QThread ):
             TS_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.BatteryState, agentN = self.fakeAgentLink().agentN,
                                                 data = str( self.fakeAgentLink().TS_Answer ) )
             self.pushCmd( TS_Answer_Cmd )
+        elif cmd.event == EAgentServer_Event.OdometerDistance:
+            OD_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, agentN = self.fakeAgentLink().agentN,
+                                                data = "U" )
+            self.pushCmd( OD_Answer_Cmd )
+        elif cmd.event == EAgentServer_Event.BrakeRelease:
+            self.bEmergencyStop = False
+            BR_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.BrakeRelease, agentN = self.fakeAgentLink().agentN,
+                                                data = "FW" )
+            self.pushCmd( BR_Answer_Cmd )
+        # elif cmd.event == EAgentServer_Event.PowerOn or
+        #      cmd.event == EAgentServer_Event.PowerOff:
+
+
+        # if data.find(b'@PE') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
+
+        # if data.find(b'@PS') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
+
+        # if data.find(b'@PL') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
+
+        # if data.find(b'@PD') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
 
     def pushCmd( self, cmd ):
         cmd.packetN = self.fakeAgentLink().genTxPacketN
@@ -360,26 +384,26 @@ class CFakeAgentThread( QThread ):
         # if data.find(b'@TS') != -1:
         #     self.sendPacketToServer(b'@TS:24,29,29,29,29,25,25,25,25')
 
-        if data.find(b'@OD') != -1:
-            self.sendPacketToServer(b'@OD:U')
+        # if data.find(b'@OD') != -1:
+        #     self.sendPacketToServer(b'@OD:U')
 
         # Periodic requests group end
 
-        if data.find(b'@BR') != -1:
-            self.bEmergencyStop = False
-            self.sendPacketToServer(b'@BR:FW')
+        # if data.find(b'@BR') != -1:
+        #     self.bEmergencyStop = False
+        #     self.sendPacketToServer(b'@BR:FW')
 
-        if data.find(b'@PE') != -1:
-            self.sendPacketToServer(b'@NT:ID')
+        # if data.find(b'@PE') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
 
-        if data.find(b'@PS') != -1:
-            self.sendPacketToServer(b'@NT:ID')
+        # if data.find(b'@PS') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
 
-        if data.find(b'@PL') != -1:
-            self.sendPacketToServer(b'@NT:ID')
+        # if data.find(b'@PL') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
 
-        if data.find(b'@PD') != -1:
-            self.sendPacketToServer(b'@NT:ID')
+        # if data.find(b'@PD') != -1:
+        #     self.sendPacketToServer(b'@NT:ID')
 
         if data[:3] in taskCommands:
             self.tasksList.append(data)
