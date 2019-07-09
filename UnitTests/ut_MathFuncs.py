@@ -236,6 +236,120 @@ class TestMathFuncs(unittest.TestCase):
         vec = gu.rotateToLeftSector( u_vec_315 )
         self.assertEqual( vec, u_vec_135 )
 
+    def test_getAgentAngle(self):
+
+        tEdgeKey = ("29", "30") # Narrow edge
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 0.0)
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 180.0)
+        self.assertEqual(    (angle, bReverse), (180.0, True)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 90.0)
+        self.assertEqual(    (angle, bReverse), (90.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 30.0)
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 330.0)
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 160.0)
+        self.assertEqual(    (angle, bReverse), (180.0, True)    )
+        
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 210.0)
+        self.assertEqual(    (angle, bReverse), (180.0, True)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 45.0)
+        self.assertEqual(    (angle, bReverse), (45.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 315.0)
+        self.assertEqual(    (angle, bReverse), (315.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 80.0)
+        self.assertEqual(    (angle, bReverse), (80.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 270.0)
+        self.assertEqual(    (angle, bReverse), (270.0, None)    )
+
+
+        tEdgeKey = ("34", "35") # Wide edge
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 0.0)
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 180.0)
+        self.assertEqual(    (angle, bReverse), (180.0, True)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 90.0)
+        self.assertEqual(    (angle, bReverse), (90.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 30.0)
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 330.0)
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 160.0)
+        self.assertEqual(    (angle, bReverse), (180.0, True)    )
+        
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 210.0)
+        self.assertEqual(    (angle, bReverse), (180.0, True)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 45.01)
+        self.assertEqual(    (angle, bReverse), (45.01, None)    ) # из-за ошибок точности для широкого рельса берём величину чуть больше 45
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 315.0)
+        self.assertEqual(    (angle, bReverse), (315.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 80.0)
+        self.assertEqual(    (angle, bReverse), (80.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 270.0)
+        self.assertEqual(    (angle, bReverse), (270, None)    )
+
+
+        tEdgeKey = ("11", "10")
+        edge_angle, reverse_edge_angle = 14.76, 194.76
+        edge_angle_45  = 14.76 + 45.01
+        edge_angle_315 = 14.76 + 314.99
+        edge_angle_80  = 14.76 + 80.0
+        edge_angle_270 = 14.76 + 270.0
+       
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 0.0)
+        self.assertEqual(    (round(angle, 2), bReverse), (edge_angle, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 180.0)
+        self.assertEqual(    (round(angle, 2), bReverse), (reverse_edge_angle, True)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 90.0)
+        self.assertEqual(    (angle, bReverse), (90.0, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 30.0)
+        self.assertEqual(    (round(angle, 2), bReverse), (edge_angle, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 330.0)
+        self.assertEqual(    (round(angle, 2), bReverse), (edge_angle, False)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 160.0)
+        self.assertEqual(    (round(angle, 2), bReverse), (reverse_edge_angle, True)    )
+        
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 210.0)
+        self.assertEqual(    (round(angle, 2), bReverse), (reverse_edge_angle, True)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = edge_angle_45)
+        self.assertEqual(    (angle, bReverse), (edge_angle_45, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = edge_angle_315)
+        self.assertEqual(    (angle, bReverse), (edge_angle_315, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = edge_angle_80)
+        self.assertEqual(    (angle, bReverse), (edge_angle_80, None)    )
+
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = edge_angle_270)
+        self.assertEqual(    (angle, bReverse), (edge_angle_270, None)    )
+
     def test_closestCycleNode(self):
         cycle = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21"]
         
@@ -452,14 +566,6 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual(  gu.EdgeDisplayName( nodeID1, nodeID2 ),  f"{nodeID1} --> {nodeID2}" )
         self.assertEqual(  gu.EdgeDisplayName( nodeID2, nodeID1 ),  f"{nodeID2} --> {nodeID1}" )
 
-# class TestUtilsFuncs(unittest.TestCase):
-
-#     def test_getAgentAngle(self):
-
-#         nxGraph = gu.loadGraphML_File( sFName = "./GraphML/magadanskaya.graphml" )
-
-#         tEdgeKey = ("31", "34")
-#         angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph, tEdgeKey = tEdgeKey, agent_angle = 0)
 
 if __name__ == "__main__":
     unittest.main()
