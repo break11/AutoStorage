@@ -23,6 +23,9 @@ class EAgentServer_Event( IntEnum ):
     OdometerPassed   = auto() # @OP
     OdometerDistance = auto() # @OD
     DistanceEnd      = auto() # @DE
+    BoxLoad          = auto() # @BL
+    BoxUnload        = auto() # @BU
+    BoxLoadAborted   = auto() # @BA
 
     @classmethod
     def fromBStr( cls, data ):
@@ -57,7 +60,10 @@ _AgentServer_Event_from_BStr = {
                                 b"@OZ": EAgentServer_Event.OdometerZero,
                                 b"@OP": EAgentServer_Event.OdometerPassed,
                                 b"@OD": EAgentServer_Event.OdometerDistance,
-                                b"@DE": EAgentServer_Event.DistanceEnd,                                
+                                b"@DE": EAgentServer_Event.DistanceEnd,
+                                b"@BL": EAgentServer_Event.BoxLoad,
+                                b"@DU": EAgentServer_Event.BoxUnload,
+                                b"@BA": EAgentServer_Event.BoxLoadAborted
                                }
 
 _AgentServer_Event_to_Str = {}
