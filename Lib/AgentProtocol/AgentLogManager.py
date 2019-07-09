@@ -11,7 +11,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
 LogCount = 10000
 
-CLogRow = namedtuple('CLogRow' , 'data event')
+CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX')
 
 class CAgentLogManager( QObject ):
     AgentLogUpdated = pyqtSignal( object, CLogRow )
@@ -44,7 +44,7 @@ class CAgentLogManager( QObject ):
 
     def doLogString( self, agentLink, data ):
         data = self.decorateLogString( agentLink, data )
-        logRow = CLogRow( data=data, event=None )
+        logRow = CLogRow( data=data, event=None, bTX_or_RX=None )
         self.__appendLog_with_Cut( agentLink, logRow )
         self.writeToLogFile( agentLink.sLogFName, logRow )
 
@@ -67,7 +67,7 @@ class CAgentLogManager( QObject ):
             return
         
         data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
-        logRow = CLogRow( data=data, event=packet.event )
+        logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX )
         self.__appendLog_with_Cut( agentLink, logRow )
         self.writeToLogFile( agentLink.sLogFName, logRow )
 

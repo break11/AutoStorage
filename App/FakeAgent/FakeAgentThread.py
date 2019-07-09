@@ -155,6 +155,14 @@ class CFakeAgentThread( QThread ):
             TL_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.TaskList, agentN = self.fakeAgentLink().agentN,
                                                 data = str( len( self.tasksList ) ) )
             self.pushCmd( TL_Answer_Cmd )
+        elif cmd.event == EAgentServer_Event.BatteryState:
+            BS_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.BatteryState, agentN = self.fakeAgentLink().agentN,
+                                                data = str( self.fakeAgentLink().BS_Answer ) )
+            self.pushCmd( BS_Answer_Cmd )
+        elif cmd.event == EAgentServer_Event.TemperatureState:
+            TS_Answer_Cmd = CAgentServerPacket( event = EAgentServer_Event.BatteryState, agentN = self.fakeAgentLink().agentN,
+                                                data = str( self.fakeAgentLink().TS_Answer ) )
+            self.pushCmd( TS_Answer_Cmd )
 
     def pushCmd( self, cmd ):
         cmd.packetN = self.fakeAgentLink().genTxPacketN
@@ -346,11 +354,11 @@ class CFakeAgentThread( QThread ):
         # if data.find(b'@TL') != -1:
         #     self.sendPacketToServer('@TL:{:03d}'.format(len(self.tasksList)).encode('utf-8'))
 
-        if data.find(b'@BS') != -1:
-            self.sendPacketToServer(b'@BS:S,43.2V,39.31V,47.43V,-0.06A')
+        # if data.find(b'@BS') != -1:
+        #     self.sendPacketToServer(b'@BS:S,43.2V,39.31V,47.43V,-0.06A')
 
-        if data.find(b'@TS') != -1:
-            self.sendPacketToServer(b'@TS:24,29,29,29,29,25,25,25,25')
+        # if data.find(b'@TS') != -1:
+        #     self.sendPacketToServer(b'@TS:24,29,29,29,29,25,25,25,25')
 
         if data.find(b'@OD') != -1:
             self.sendPacketToServer(b'@OD:U')

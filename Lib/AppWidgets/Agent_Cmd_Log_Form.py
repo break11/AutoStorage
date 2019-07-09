@@ -17,9 +17,11 @@ baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.ServerAccepting ]
 
 s_agent_log_cmd_form = "agent_log_cmd_form"
-s_filter_settings = "filter_settings"
+s_filter_settings    = "filter_settings"
+s_TX = "TX"
+s_RX = "RX"
 
-defFilterSet = {}
+defFilterSet = { s_RX : True, s_TX : True }
 
 for e in baseFilterSet:
     defFilterSet[ e.toStr() ] = True
@@ -31,6 +33,15 @@ class CAgent_Cmd_Log_Form(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/Agent_Cmd_Log_Form.ui", self )
         self.agentLink = None
+
+        weakSelf = weakref.ref(self)
+
+        # справочник для фильтра по кнопкам RX, TX
+        self.filterLog_TX_RX = { True  : lambda : weakSelf().cbTX.isChecked(),
+                                 False : lambda : weakSelf().cbRX.isChecked(),
+                                 None  : lambda : True }
+        # связка строкового ключа и соответствующего чекбокса для фильтра по TX, RX
+        self.TX_RX_filter_alias = { s_TX : self.cbTX, s_RX : self.cbRX }
 
         # создание кнопок для фильтра сообщений согласно baseFilterSet
         self.filterLogEvents = {}
@@ -52,10 +63,12 @@ class CAgent_Cmd_Log_Form(QWidget):
             if e in self.filterLogEvents:
                 self.filterLogEvents[ e ].setChecked( value )
 
-        ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
+        # загрузка значений чекбоксов фильтра по TX, RX из настроек
+        for sFilterSign, cb in self.TX_RX_filter_alias.items():
+            v = filterSet.get( sFilterSign )
+            cb.setChecked( v if v is not None else False )
 
-    def test( self, agentLink, logRow ):
-        print( agentLink, logRow )
+        ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
 
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки
@@ -64,6 +77,9 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         for e, cb in self.filterLogEvents.items():
             filterSet[ e.toStr() ] = cb.isChecked()
+        # TX, RX
+        for sFilterSign, cb in self.TX_RX_filter_alias.items():
+            filterSet[ sFilterSign ] = cb.isChecked()
 
     def setAgentLink( self, agentLink ):
         if agentLink is None:
@@ -74,14 +90,26 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.fillAgentLog()
         self.updateAgentControls()
 
+    def filter_LogRow( self, logRow ):
+        # filter by TX, RX
+        if not self.filterLog_TX_RX[ logRow.bTX_or_RX ]():
+            return False
+
+        # filter by Event
+        if logRow.event in self.filterLogEvents:
+            if not self.filterLogEvents[ logRow.event ].isChecked():
+                return False
+
+        return True
+
     def fillAgentLog( self ):
         if self.agentLink is None: return
 
         filteredRows = []
         for logRow in self.agentLink().log:
-            if logRow.event in self.filterLogEvents:
-                if not self.filterLogEvents[ logRow.event ].isChecked():
-                    continue
+            if not self.filter_LogRow( logRow ):
+                continue
+
             filteredRows.append( logRow.data )
 
         self.pteAgentLog.setHtml( "".join( filteredRows ) )
@@ -97,9 +125,8 @@ class CAgent_Cmd_Log_Form(QWidget):
         if self.agentLink is None: return
         if self.agentLink() is not agentLink: return
 
-        if logRow.event in self.filterLogEvents:
-            if not self.filterLogEvents[ logRow.event ].isChecked():
-                return
+        if not self.filter_LogRow( logRow ):
+            return
 
         self.pteAgentLog.append( logRow.data )
 

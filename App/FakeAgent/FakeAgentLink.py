@@ -32,5 +32,8 @@ class CFakeAgentLink:
         self.sLogFName = ALM.genAgentLogFName( agentN )
         ALM.doLogString( self, f"{s_FakeAgentLink}={agentN} Created" )
 
+        self.BS_Answer = "S,43.2V,39.31V,47.43V,-0.06A"
+        self.TS_Answer = "24,29,29,29,29,25,25,25,25"
+
     def __del__(self):
         ALM.doLogString( self, f"{s_FakeAgentLink}={self.agentN} Destroyed" )
