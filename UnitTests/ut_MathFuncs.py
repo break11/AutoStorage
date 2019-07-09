@@ -459,7 +459,7 @@ class TestStrFuncs(unittest.TestCase):
 #         nxGraph = gu.loadGraphML_File( sFName = "./GraphML/magadanskaya.graphml" )
 
 #         tEdgeKey = ("31", "34")
-#         rAngle, bReverse = gu.getAgentAngle(nxGraph = nxGraph, tEdgeKey = tEdgeKey, agent_angle = 0)
+#         angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph, tEdgeKey = tEdgeKey, agent_angle = 0)
 
 if __name__ == "__main__":
     unittest.main()

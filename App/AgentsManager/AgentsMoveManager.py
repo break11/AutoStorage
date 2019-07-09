@@ -49,8 +49,8 @@ class CAgents_Move_Manager():
             agentNO.angle = 0
             return
 
-        rAngle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
-        agentNO.angle = math.degrees( rAngle )
+        angle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
+        agentNO.angle = angle
 
     @classmethod
     def move( cls, agentNO ):

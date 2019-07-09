@@ -184,8 +184,8 @@ class CRouteBuilder():
 
     def getDirection(self, tEdgeKey, agent_angle):
         DirDict = { True: SGT.EDirection.R, False: SGT.EDirection.F, None: SGT.EDirection.Error }
-        rAngle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
-        return math.degrees(rAngle), DirDict[bReverse]
+        angle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
+        return angle, DirDict[bReverse]
 
     def splitPathByFractures(self, path):
         fracturedPath = []

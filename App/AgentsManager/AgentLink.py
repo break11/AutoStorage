@@ -143,8 +143,8 @@ class CAgentLink():
             agentNO.angle = 0
             return
 
-        rAngle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
-        agentNO.angle = math.degrees( rAngle )
+        angle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
+        agentNO.angle = angle
     ####################
     def currSII(self):
         return self.SII[ self.DE_IDX ]
