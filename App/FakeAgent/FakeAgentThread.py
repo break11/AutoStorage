@@ -165,7 +165,7 @@ class CFakeAgentThread( QThread ):
         elif cmd.event in taskCommands:
             self.tasksList.append( cmd )
 
-    def genPacket( self, event, data ):
+    def genPacket( self, event, data=None ):
         return CAgentServerPacket( event = event, agentN = self.fakeAgentLink().agentN, data = data )
 
     def pushCmd( self, cmd ):
@@ -202,55 +202,53 @@ class CFakeAgentThread( QThread ):
             ALM.doLogString( self.fakeAgentLink(), "Emergency Stop !!!!" )
             return
 
-        print( self.tasksList )
-        if self.currentTask == EAgentServer_Event.SequenceBegin:
-            if self.findEvent_In_TasksList( EAgentServer_Event.SequenceEnd ):
+        if self.currentTask:
+            if self.currentTask.event == EAgentServer_Event.SequenceBegin:
+                if self.findEvent_In_TasksList( EAgentServer_Event.SequenceEnd ):
+                    self.startNextTask()
+
+            elif self.currentTask.event == EAgentServer_Event.SequenceEnd:
                 self.startNextTask()
 
-        elif self.currentTask == EAgentServer_Event.SequenceEnd:
-            self.startNextTask()
-
-        elif self.currentTask == EAgentServer_Event.BoxLoad:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BL,L" ) )
-            self.startNextTask()
-
-        elif self.currentTask == EAgentServer_Event.BoxUnload:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BU,L" ) )
-            self.startNextTask()
-
-        elif self.currentTask == EAgentServer_Event.WheelOrientation:
-            newWheelsOrientation = self.currentTask.data[ 0:1 ]
-            self.odometryCounter = 0
-            # send an "odometry resetted" to server
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
-
-            self.currentWheelsOrientation = self.currentTask.data[ 0:1 ]
-            # will be 'N' for narrow, 'W' for wide, or emtpy if uninited
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "WO" ) )
-
-            self.startNextTask()
-
-        elif self.currentTask == EAgentServer_Event.DistancePassed:
-            print( "1111111111111" )
-            if self.dpTicksDivider < DP_TICKS_PER_CYCLE:
-                self.dpTicksDivider = self.dpTicksDivider + 1
-                if self.dpTicksDivider == DP_TICKS_PER_CYCLE:
-                    self.dpTicksDivider = 0
-                    if self.distanceToPass > 0:
-                        self.distanceToPass = self.distanceToPass - DP_DELTA_PER_CYCLE
-                        if self.currentDirection == b'F':
-                            self.odometryCounter = self.odometryCounter + DP_DELTA_PER_CYCLE
-                        else:
-                            self.odometryCounter = self.odometryCounter - DP_DELTA_PER_CYCLE
-                        self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( self.odometryCounter ) ) )
-                        if self.distanceToPass <= 0:
-                            self.distanceToPass = 0
-                            self.pushCmd( self.genPacket( event = EAgentServer_Event.DistanceEnd ) )
-                            self.startNextTask()
-
-        if len(self.tasksList):
-            if not self.currentTask:
+            elif self.currentTask.event == EAgentServer_Event.BoxLoad:
+                self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BL,L" ) )
                 self.startNextTask()
+
+            elif self.currentTask.event == EAgentServer_Event.BoxUnload:
+                self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BU,L" ) )
+                self.startNextTask()
+
+            elif self.currentTask.event == EAgentServer_Event.WheelOrientation:
+                newWheelsOrientation = self.currentTask.data[ 0:1 ]
+                self.odometryCounter = 0
+                # send an "odometry resetted" to server
+                self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
+
+                self.currentWheelsOrientation = self.currentTask.data[ 0:1 ]
+                # will be 'N' for narrow, 'W' for wide, or emtpy if uninited
+                self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "WO" ) )
+
+                self.startNextTask()
+
+            elif self.currentTask.event == EAgentServer_Event.DistancePassed:
+                if self.dpTicksDivider < DP_TICKS_PER_CYCLE:
+                    self.dpTicksDivider = self.dpTicksDivider + 1
+                    if self.dpTicksDivider == DP_TICKS_PER_CYCLE:
+                        self.dpTicksDivider = 0
+                        if self.distanceToPass > 0:
+                            self.distanceToPass = self.distanceToPass - DP_DELTA_PER_CYCLE
+                            if self.currentDirection == 'F':
+                                self.odometryCounter = self.odometryCounter + DP_DELTA_PER_CYCLE
+                            else:
+                                self.odometryCounter = self.odometryCounter - DP_DELTA_PER_CYCLE
+                            self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( self.odometryCounter ) ) )
+                            if self.distanceToPass <= 0:
+                                self.distanceToPass = 0
+                                self.pushCmd( self.genPacket( event = EAgentServer_Event.DistanceEnd ) )
+                                self.startNextTask()
+
+        if len(self.tasksList) and self.currentTask is None:
+            self.startNextTask()
 
     def startNextTask(self):
         if len(self.tasksList):
