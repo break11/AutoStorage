@@ -392,8 +392,8 @@ class TestMathFuncs(unittest.TestCase):
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
         # case 3
-        nodes_route_1 = ["61", "62", "77", "78", "68", "76", "67", "66", "71", "70", "64", "69", "75", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
-        nodes_route_2 = ["61", "62", "75", "69", "64", "70", "71", "66", "67", "76", "68", "78", "77", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
+        nodes_route_1 = ["61", "62", "77", "78", "68", "76", "67", "95", "66", "71", "70", "64", "96", "69", "75", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
+        nodes_route_2 = ["61", "62", "75", "69", "96", "64", "70", "71", "66", "95", "67", "76", "68", "78", "77", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
 
         test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "61", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
