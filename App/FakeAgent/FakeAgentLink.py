@@ -22,10 +22,12 @@ class CFakeAgentLink:
         self.agentN = agentN
         self.bConnected = False
         self.FA_Thread = None
-        self.genTxPacketN  = 0
-        self.lastTXpacketN = 0
+        self.genTxPacketN  = 1
+        self.lastTXpacketN = 1
         self.TX_Packets    = deque()
+        self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
         # self.last_RX_packetN = 1000 # Now as property
+        self.tasksList = deque()
         self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, agentN = self.agentN )
 
         self.log = []
@@ -34,6 +36,14 @@ class CFakeAgentLink:
 
         self.BS_Answer = "S,43.2V,39.31V,47.43V,-0.06A"
         self.TS_Answer = "24,29,29,29,29,25,25,25,25"
+        
+        self.currentTask = None
+        self.currentWheelsOrientation = ''
+        self.currentDirection = ''
+        self.odometryCounter = 0
+        self.distanceToPass = 0
+        self.dpTicksDivider = 0
+        self.bEmergencyStop = False
 
     def __del__(self):
         ALM.doLogString( self, f"{s_FakeAgentLink}={self.agentN} Destroyed" )

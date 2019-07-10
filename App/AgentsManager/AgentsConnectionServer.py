@@ -184,7 +184,7 @@ class CAgentSocketThread(QThread):
         self.noRxTimer = 0
 
         self.HW_Cmd  = CAgentServerPacket( event=EAgentServer_Event.HelloWorld )
-        self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
+        ##remove##self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
 
     def __del__(self):
         self.tcpSocket.close()
@@ -203,8 +203,10 @@ class CAgentSocketThread(QThread):
 
         # self.noRxTimer = time.time()
         # send HW cmd and wait HW answer from Agent for init agentN
+        initHW_Counter = 0 # для оптимизации и уменьшения лишних посылок запроса HW челноку
         while self.bRunning and self.agentN == UNINITED_AGENT_N:
-            self.initHW()
+            self.initHW( initHW_Counter )
+            initHW_Counter += 1
 
         if not self.bRunning: return
 
@@ -222,33 +224,41 @@ class CAgentSocketThread(QThread):
 
         self.noRxTimer = time.time()
         while self.bRunning:
-            self.tcpSocket.waitForReadyRead(1)
             self.process()
         
         self.sendTX_cmd_Timer.cancel()
 
-    def initHW( self ):
-        self.writeTo_Socket( self.HW_Cmd )
-        self.tcpSocket.waitForReadyRead()
+    def initHW( self, nCounter ):
+        # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
+        self.tcpSocket.waitForReadyRead(1)
+        if nCounter % 100 == 0:
+            self.writeTo_Socket( self.HW_Cmd )
         
-        while self.tcpSocket.canReadLine() and self.agentN == UNINITED_AGENT_N:
+        while self.tcpSocket.canReadLine(): #and self.agentN == UNINITED_AGENT_N:
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
             # self.noRxTimer = time.time()
             if cmd is None: continue
+            if cmd.event == EAgentServer_Event.ClientAccepting: continue
             
             ALM.doLogPacket( self.agentLink(), self.UID, cmd, False )
+            # if cmd.event == EAgentServer_Event.HelloWorld:
+            if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
+                self.newAgent.emit( cmd.agentN )
+                while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
+                    self.msleep(10)
+
+            # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
             if cmd.event == EAgentServer_Event.HelloWorld:
-                if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
-                    self.newAgent.emit( cmd.agentN )
-                    while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
-                        self.msleep(10)
-                    # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
                 self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
-                
-                self.agentNumberInited.emit( cmd.agentN )
-                self.agentN = cmd.agentN
-                self.ACC_cmd.packetN = cmd.packetN
+            
+            self.agentNumberInited.emit( cmd.agentN )
+            self.agentN = cmd.agentN
+            self.agentLink().ACC_cmd.packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
+
+
+            _processRxPacket( self, cmd, ACC_cmd=self.agentLink().ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
+                            processAcceptedPacket=self.__processRxPacket )
 
         # # отключение соединения если в течении 5 секунд не было ответа
         # t = (time.time() - self.noRxTimer)
@@ -258,6 +268,8 @@ class CAgentSocketThread(QThread):
 
 
     def process( self ):
+        self.tcpSocket.waitForReadyRead(1)
+
         self.sendExpressCMDs()
         if self.bSendTX_cmd:
             self.sendTX_cmd()
@@ -272,7 +284,7 @@ class CAgentSocketThread(QThread):
             if cmd is None: continue
 
             self.noRxTimer = time.time()
-            _processRxPacket( self, cmd, ACC_cmd=self.ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
+            _processRxPacket( self, cmd, ACC_cmd=self.agentLink().ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
                               processAcceptedPacket=self.__processRxPacket )
             ALM.doLogPacket( self.agentLink(), self.UID, cmd, False )
 
@@ -317,7 +329,7 @@ class CAgentSocketThread(QThread):
         agentLink.Express_TX_Packets.clear()
 
     def sendTX_cmd( self ):
-        self.writeTo_Socket( self.ACC_cmd )
+        self.writeTo_Socket( self.agentLink().ACC_cmd )
 
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:

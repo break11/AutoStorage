@@ -6,7 +6,7 @@ from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentLogManager import ALM, LogCount
+from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
@@ -18,8 +18,6 @@ baseFilterSet = [ EAgentServer_Event.BatteryState,
 
 s_agent_log_cmd_form = "agent_log_cmd_form"
 s_filter_settings    = "filter_settings"
-s_TX = "TX"
-s_RX = "RX"
 
 defFilterSet = { s_RX : True, s_TX : True }
 

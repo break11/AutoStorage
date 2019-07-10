@@ -28,8 +28,9 @@ class CAgentLink():
         self.agentN = agentN
         self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
-        self.genTxPacketN = 0 # стартовый номер пакета после инициализации может быть изменен снаружи в зависимости от числа пакетов инициализации
-        self.lastTXpacketN = 0 # стартовое значение 0, т.к. инициализационная команда HW имеет номер 0
+        self.genTxPacketN  = 1
+        self.lastTXpacketN = 1
+        self.ACC_cmd = ASP( event=EAgentServer_Event.ServerAccepting, agentN = self.agentN )
 
         self.log = []
         self.sLogFName = ALM.genAgentLogFName( agentN )

@@ -9,6 +9,12 @@ from Lib.Common.FileUtils import appLogPath
 from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
+s_TX = "TX"
+s_RX = "RX"
+
+TX_RX_str    = { True: s_TX, False: s_RX, None: "" }
+TX_RX_colors = { True: "#AA0000", False: "#283593", None: "#000000"}
+
 LogCount = 10000
 
 CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX')
@@ -63,7 +69,7 @@ class CAgentLogManager( QObject ):
 
     def doLogPacket( self, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
         if agentLink is None:
-            print( packet )
+            print( f"{TX_RX_str[bTX_or_RX]}: {packet}" )
             return
         
         data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
@@ -79,15 +85,8 @@ class CAgentLogManager( QObject ):
     def decorateLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
         data = packet.toBStr( bTX_or_RX=not bTX_or_RX if isAgent else bTX_or_RX, appendLF=False ).decode()
 
-        if bTX_or_RX is None:
-            sTX_or_RX = ""
-            colorTX_or_RX = "#000000"
-        elif bTX_or_RX == True:
-            sTX_or_RX = "TX:"
-            colorTX_or_RX = "#ff0000"
-        elif bTX_or_RX == False:
-            sTX_or_RX = "RX:"
-            colorTX_or_RX = "#283593"
+        sTX_or_RX     = TX_RX_str   [ bTX_or_RX ]
+        colorTX_or_RX = TX_RX_colors[ bTX_or_RX ]
 
         if packet.status == EPacket_Status.Normal:
             colorsByEvents = { EAgentServer_Event.BatteryState:     "#388E3C",
