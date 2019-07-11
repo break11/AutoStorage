@@ -6,6 +6,8 @@ def getNextPacketN( n ):
     return ( 1 if n == 999 else n+1 )
 
 def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAcceptedPacket=None, ACC_Event_OtherSide=EAgentServer_Event.ClientAccepting ):
+    # ACS.bSendTX_cmd = True
+    # ACS.nReSendTX_Counter = 0
     if cmd.event == ACC_Event_OtherSide:
         assert lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
 
@@ -47,8 +49,8 @@ def _processRxPacket( ACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN, processAccepted
             cmd.status = EPacket_Status.Normal
             if processAcceptedPacket is not None:
                 processAcceptedPacket( cmd )
-                ACS.bSendTX_cmd = True
-                ACS.nReSendTX_Counter = 0
+            ACS.bSendTX_cmd = True
+            ACS.nReSendTX_Counter = 0
         #если разница -1, это дубликат последней полученной команды
         elif delta == -1 or delta == 998:
             cmd.status = EPacket_Status.Duplicate

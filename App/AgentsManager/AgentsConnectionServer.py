@@ -184,7 +184,6 @@ class CAgentSocketThread(QThread):
         self.noRxTimer = 0
 
         self.HW_Cmd  = CAgentServerPacket( event=EAgentServer_Event.HelloWorld )
-        ##remove##self.ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
 
     def __del__(self):
         self.tcpSocket.close()

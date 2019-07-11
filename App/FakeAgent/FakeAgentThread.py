@@ -20,6 +20,8 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Stat
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
 
+from Lib.Common.Utils import time_func
+
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
 
@@ -157,7 +159,7 @@ class CFakeAgentThread( QThread ):
     #     self.fakeAgentLink().genTxPacketN = getNextPacketN( self.fakeAgentLink().genTxPacketN )
         
     #     self.fakeAgentLink().TX_Packets.append( cmd )
-    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):
+    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):        
         fa = self.fakeAgentLink()
         if bReMap_PacketN:
             cmd.packetN = fa.genTxPacketN
@@ -198,74 +200,79 @@ class CFakeAgentThread( QThread ):
         ALM.doLogPacket( self.fakeAgentLink(), self.UID, cmd, True, isAgent=True )
 
     def doWork( self ):
+        FAL = self.fakeAgentLink()
+        
         if self.findEvent_In_TasksList( EAgentServer_Event.EmergencyStop ):
-            self.fakeAgentLink().tasksList.clear()
-            self.fakeAgentLink().currentTask = None
-            self.fakeAgentLink().bEmergencyStop = True
-            ALM.doLogString( self.fakeAgentLink(), "Emergency Stop !!!!" )
+            FAL.tasksList.clear()
+            FAL.currentTask = None
+            FAL.bEmergencyStop = True
+            ALM.doLogString( FAL, "Emergency Stop !!!!" )
             return
 
-        if self.fakeAgentLink().currentTask:
-            if self.fakeAgentLink().currentTask.event == EAgentServer_Event.SequenceBegin:
+        if FAL.currentTask:
+            if FAL.currentTask.event == EAgentServer_Event.SequenceBegin:
                 if self.findEvent_In_TasksList( EAgentServer_Event.SequenceEnd ):
                     self.startNextTask()
 
-            elif self.fakeAgentLink().currentTask.event == EAgentServer_Event.SequenceEnd:
+            elif FAL.currentTask.event == EAgentServer_Event.SequenceEnd:
                 self.startNextTask()
 
-            elif self.fakeAgentLink().currentTask.event == EAgentServer_Event.BoxLoad:
+            elif FAL.currentTask.event == EAgentServer_Event.BoxLoad:
                 self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BL,L" ) )
                 self.startNextTask()
 
-            elif self.fakeAgentLink().currentTask.event == EAgentServer_Event.BoxUnload:
+            elif FAL.currentTask.event == EAgentServer_Event.BoxUnload:
                 self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BU,L" ) )
                 self.startNextTask()
 
-            elif self.fakeAgentLink().currentTask.event == EAgentServer_Event.WheelOrientation:
-                newWheelsOrientation = self.fakeAgentLink().currentTask.data[ 0:1 ]
-                self.fakeAgentLink().odometryCounter = 0
+            elif FAL.currentTask.event == EAgentServer_Event.WheelOrientation:
+                newWheelsOrientation = FAL.currentTask.data[ 0:1 ]
+                FAL.odometryCounter = 0
                 # send an "odometry resetted" to server
                 self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
 
-                self.fakeAgentLink().currentWheelsOrientation = self.fakeAgentLink().currentTask.data[ 0:1 ]
+                FAL.currentWheelsOrientation = FAL.currentTask.data[ 0:1 ]
                 # will be 'N' for narrow, 'W' for wide, or emtpy if uninited
                 self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "WO" ) )
 
                 self.startNextTask()
 
-            elif self.fakeAgentLink().currentTask.event == EAgentServer_Event.DistancePassed:
-                if self.fakeAgentLink().dpTicksDivider < DP_TICKS_PER_CYCLE:
-                    self.fakeAgentLink().dpTicksDivider = self.fakeAgentLink().dpTicksDivider + 1
+            elif FAL.currentTask.event == EAgentServer_Event.DistancePassed:
+                if FAL.dpTicksDivider < DP_TICKS_PER_CYCLE:
+                    FAL.dpTicksDivider = FAL.dpTicksDivider + 1
 
-                elif self.fakeAgentLink().dpTicksDivider == DP_TICKS_PER_CYCLE:
-                    self.fakeAgentLink().dpTicksDivider = 0
-                    if self.fakeAgentLink().distanceToPass > 0:
-                        self.fakeAgentLink().distanceToPass = self.fakeAgentLink().distanceToPass - DP_DELTA_PER_CYCLE
-                        if self.fakeAgentLink().currentDirection == 'F':
-                            self.fakeAgentLink().odometryCounter = self.fakeAgentLink().odometryCounter + DP_DELTA_PER_CYCLE
+                elif FAL.dpTicksDivider == DP_TICKS_PER_CYCLE:
+                    FAL.dpTicksDivider = 0
+                    if FAL.distanceToPass > 0:
+                        FAL.distanceToPass = FAL.distanceToPass - DP_DELTA_PER_CYCLE
+                        if FAL.currentDirection == 'F':
+                            FAL.odometryCounter = FAL.odometryCounter + DP_DELTA_PER_CYCLE
                         else:
-                            self.fakeAgentLink().odometryCounter = self.fakeAgentLink().odometryCounter - DP_DELTA_PER_CYCLE
-                        self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( self.fakeAgentLink().odometryCounter ) ) )
-                    elif self.fakeAgentLink().distanceToPass <= 0:
-                        self.fakeAgentLink().distanceToPass = 0
+                            FAL.odometryCounter = FAL.odometryCounter - DP_DELTA_PER_CYCLE
+                        self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( FAL.odometryCounter ) ) )
+
+                    elif FAL.distanceToPass <= 0:
+                        FAL.distanceToPass = 0
                         self.pushCmd( self.genPacket( event = EAgentServer_Event.DistanceEnd ) )
                         self.startNextTask()
 
-        if len(self.fakeAgentLink().tasksList) and self.fakeAgentLink().currentTask is None:
+        if len(FAL.tasksList) and FAL.currentTask is None:
             self.startNextTask()
 
     def startNextTask(self):
-        if len(self.fakeAgentLink().tasksList):
-            self.fakeAgentLink().currentTask = self.fakeAgentLink().tasksList.popleft()
-            #self.sendPacketToServer('@NT:{:s}'.format(self.fakeAgentLink().currentTask[1:1+2].decode()).encode('utf-8'))
-            ALM.doLogString( self.fakeAgentLink(), f"Starting new task: {self.fakeAgentLink().currentTask}" )
+        FAL = self.fakeAgentLink()
 
-            if self.fakeAgentLink().currentTask.event == EAgentServer_Event.DistancePassed:
-                self.fakeAgentLink().distanceToPass   = int( self.fakeAgentLink().currentTask.data[ 0:6 ] )
-                self.fakeAgentLink().currentDirection = self.fakeAgentLink().currentTask.data[ 7:8 ] # F or R
+        if len(FAL.tasksList):
+            FAL.currentTask = FAL.tasksList.popleft()
+            #self.sendPacketToServer('@NT:{:s}'.format(FAL.currentTask[1:1+2].decode()).encode('utf-8'))
+            ALM.doLogString( FAL, f"Starting new task: {FAL.currentTask}" )
+
+            if FAL.currentTask.event == EAgentServer_Event.DistancePassed:
+                FAL.distanceToPass   = int( FAL.currentTask.data[ 0:6 ] )
+                FAL.currentDirection = FAL.currentTask.data[ 7:8 ] # F or R
         else:
-            self.fakeAgentLink().currentTask = None
-            ALM.doLogString( self.fakeAgentLink(), "All tasks done!" )
+            FAL.currentTask = None
+            ALM.doLogString( FAL, "All tasks done!" )
             self.pushCmd( CAgentServerPacket( event=EAgentServer_Event.NewTask, data="ID" ) )
 
     def findEvent_In_TasksList(self, event):
