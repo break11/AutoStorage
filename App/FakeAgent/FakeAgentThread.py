@@ -3,27 +3,18 @@ import datetime
 import weakref
 import sys, time
 
-from PyQt5.QtCore import QDataStream, QSettings, QTimer
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog,
-        QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QMessageBox,
-        QPushButton)
-from PyQt5.QtNetwork import (QAbstractSocket, QHostInfo, QNetworkConfiguration,
-        QNetworkConfigurationManager, QNetworkInterface, QNetworkSession,
-        QTcpSocket)
-from PyQt5.QtCore import QByteArray
-from PyQt5.QtCore import (QThread, pyqtSignal, pyqtSlot)
+from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
-from Lib.Common.Utils import CRepeatTimer
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
 
-from Lib.Common.Utils import time_func
+#from Lib.Common.Utils import time_func
 
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
-DP_TICKS_PER_CYCLE = 10 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
+DP_TICKS_PER_CYCLE = 7 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
 
 taskCommands = [ EAgentServer_Event.SequenceBegin,
                  EAgentServer_Event.SequenceEnd,
@@ -77,19 +68,8 @@ class CFakeAgentThread( QThread ):
         self.bSendTX_cmd = False # флаг для разруливания межпоточных обращений к сокету, т.к. таймер - это отдельный поток
         self.nReSendTX_Counter = 0
 
-        def activateSend_TX():
-            self.nReSendTX_Counter += 1
-            if self.nReSendTX_Counter > 49:
-                self.nReSendTX_Counter = 0
-                self.bSendTX_cmd = True
-
-        self.sendTX_cmd_Timer = CRepeatTimer(0.01, activateSend_TX )
-        self.sendTX_cmd_Timer.start()
-
         while self.bRunning:
             self.process()
-
-        self.sendTX_cmd_Timer.cancel()
 
         if self.bExitByLostSignal == False:
             self.tcpSocket.disconnectFromHost()
@@ -107,6 +87,18 @@ class CFakeAgentThread( QThread ):
         if not self.bConnected: return
 
         self.sendExpressCMDs()
+
+        self.nReSendTX_Counter += 1
+        if self.nReSendTX_Counter > 499:
+            self.bSendTX_cmd = True
+            ALM.doLogString( self.fakeAgentLink(), "ReSend Old CMD" )
+
+        FAL = self.fakeAgentLink()
+        
+        if self.bSendTX_cmd == False and self.currentTX_cmd() and ( FAL.lastTXpacketN != self.currentTX_cmd().packetN ):
+            self.bSendTX_cmd = True
+            ALM.doLogString( self.fakeAgentLink(), "Send New CMD" )
+
         if self.bSendTX_cmd:
             self.sendTX_cmd()
 
@@ -115,11 +107,18 @@ class CFakeAgentThread( QThread ):
 
             cmd = CAgentServerPacket.fromCRX_BStr( line.data() )
             if cmd is None: continue
-            _processRxPacket( self, cmd, ACC_cmd = self.fakeAgentLink().ACC_cmd, TX_FIFO=self.fakeAgentLink().TX_Packets,
-                              lastTXpacketN = self.fakeAgentLink().lastTXpacketN,
+
+            ##remove##
+            # _processRxPacket( self, cmd, ACC_cmd = FAL.ACC_cmd, TX_FIFO=FAL.TX_Packets,
+            #                   lastTXpacketN = FAL.lastTXpacketN,
+            #                   processAcceptedPacket = self.processRxPacket,
+            #                   ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
+
+            _processRxPacket( agentLink=FAL, agentThread=self, cmd=cmd,
                               processAcceptedPacket = self.processRxPacket,
                               ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
-            ALM.doLogPacket( self.fakeAgentLink(), self.UID, cmd, False, isAgent=True )
+
+            ALM.doLogPacket( FAL, self.UID, cmd, False, isAgent=True )
 
         self.doWork()
 
@@ -185,6 +184,7 @@ class CFakeAgentThread( QThread ):
             self.fakeAgentLink().lastTXpacketN = TX_cmd.packetN
 
         self.bSendTX_cmd = False
+        self.nReSendTX_Counter = 0
 
     def sendExpressCMDs( self ):
         agentLink = self.fakeAgentLink()

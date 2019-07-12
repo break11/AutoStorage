@@ -90,7 +90,6 @@ class CAgentsConnectionServer(QTcpServer):
         thread.agentNumberInited.   connect( self.thread_AgentNumberInited )
         thread.socketError.         connect( self.thread_SocketError )
         thread.newAgent.            connect( self.thread_NewAgent )
-        thread.processRxPacket.     connect( self.thread_processRxPacket )
         thread.start()
 
         self.UnknownConnections_Threads.append( thread )
@@ -132,16 +131,11 @@ class CAgentsConnectionServer(QTcpServer):
         #add a ref of this thread to corresponding agent
         agentLink = self.getAgentLink( agentN )
         agentLink.socketThreads.append( thread )
+        thread.processRxPacket.connect( agentLink.processRxPacket )
 
     @pyqtSlot( int )
     def thread_SocketError( self, error ):
         print( f"{SC.sError} Socket error={ socketErrorToString(error) }" )
-
-    @pyqtSlot( int, CAgentServerPacket )
-    def thread_processRxPacket( self, agentN, cmd ):
-        agentLink = self.getAgentLink( agentN )
-        if agentLink:
-            agentLink.processRxPacket( cmd )
 
     #############################################################
 
@@ -166,7 +160,9 @@ class CAgentSocketThread(QThread):
     socketError       = pyqtSignal( int )
     newAgent          = pyqtSignal( int )
     agentNumberInited = pyqtSignal( int )
-    processRxPacket   = pyqtSignal( int, CAgentServerPacket )
+    ##remove##
+    # processRxPacket   = pyqtSignal( int, CAgentServerPacket )
+    processRxPacket   = pyqtSignal( CAgentServerPacket )
 
     def __init__(self, socketDescriptor, parent):
         super().__init__()
@@ -236,7 +232,7 @@ class CAgentSocketThread(QThread):
         while self.tcpSocket.canReadLine(): #and self.agentN == UNINITED_AGENT_N:
             line = self.tcpSocket.readLine()
             cmd = CAgentServerPacket.fromRX_BStr( line.data() )
-            # self.noRxTimer = time.time()
+
             if cmd is None: continue
             if cmd.event == EAgentServer_Event.ClientAccepting: continue
             
@@ -255,16 +251,8 @@ class CAgentSocketThread(QThread):
             self.agentN = cmd.agentN
             self.agentLink().ACC_cmd.packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
 
-
-            _processRxPacket( self, cmd, ACC_cmd=self.agentLink().ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
-                            processAcceptedPacket=self.__processRxPacket )
-
-        # # отключение соединения если в течении 5 секунд не было ответа
-        # t = (time.time() - self.noRxTimer)
-        # if t > 5:
-        #     ALM.doLogString( self.agentLink(), f"{s_AgentLink}={self.agentN} {s_Off_5S}" )
-        #     self.bRunning = False
-
+            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
+                              processAcceptedPacket=self.__processRxPacket )
 
     def process( self ):
         self.tcpSocket.waitForReadyRead(1)
@@ -283,7 +271,7 @@ class CAgentSocketThread(QThread):
             if cmd is None: continue
 
             self.noRxTimer = time.time()
-            _processRxPacket( self, cmd, ACC_cmd=self.agentLink().ACC_cmd, TX_FIFO=self.getTX_FIFO(), lastTXpacketN=self.agentLink().lastTXpacketN if self.agentLink() else None,
+            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
                               processAcceptedPacket=self.__processRxPacket )
             ALM.doLogPacket( self.agentLink(), self.UID, cmd, False )
 
@@ -293,8 +281,7 @@ class CAgentSocketThread(QThread):
             ALM.doLogString( self.agentLink(), f"{s_AgentLink}={self.agentN} {s_Off_5S}" )
             self.bRunning = False
 
-    def __processRxPacket( self, cmd ):
-        self.processRxPacket.emit( self.agentN, cmd )
+    def __processRxPacket( self, cmd ): self.processRxPacket.emit( cmd )
     #################################
     def agentLink(self, bWarning = True ):
         if self.agentN == UNINITED_AGENT_N:

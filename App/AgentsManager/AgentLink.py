@@ -139,11 +139,13 @@ class CAgentLink():
         rAngle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
         agentNO.angle = math.degrees( rAngle )
     ####################
-    def currSII(self):
-        return self.SII[ self.DE_IDX ]
+    def currSII(self): return self.SII[ self.DE_IDX ]
     
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
+        import threading
+        print( "AgentLink.processRxPacket", threading.currentThread().name )
+
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
         elif cmd.event == EAgentServer_Event.DistanceEnd:
