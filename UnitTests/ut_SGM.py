@@ -100,7 +100,14 @@ class Test_SGM_Funcs(unittest.TestCase):
         # NoneType
         self.assertEqual(   SGM.nodeGItems["nLU"].middleLineAngle, None    )
 
-        #TODO: вернуть проверку, что при удалении из листов self.nodeGItems, self.edgeGItems корректно считается средняя линия
+        # удаление граней из SGM.edgeGItems, пересчет средней линии
+        del SGM.edgeGItems[ frozenset( ("9",  "8") ) ]
+        SGM.updateNodeMiddleLine( SGM.nodeGItems[ "8" ] )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["8"].middleLineAngle,  263.6400056854672, abs_tol=1e-9 )    )
+
+        del SGM.edgeGItems[ frozenset( ("16",  "8") ) ]
+        SGM.updateNodeMiddleLine( SGM.nodeGItems[ "8" ] )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["8"].middleLineAngle,  300.9637565320735, abs_tol=1e-9 )    )
 
 if __name__ == "__main__":
     unittest.main()
