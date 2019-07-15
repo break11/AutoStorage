@@ -68,6 +68,7 @@ class CAM_MainWindow(QMainWindow):
                 self.AgentsConnectionServer.createAgentLink( int(agentNO.name) )
 
     def closeEvent( self, event ):
+        self.AgentsConnectionServer = None
         save_Window_State_And_Geometry( self )
 
     ################################################################
@@ -84,6 +85,7 @@ class CAM_MainWindow(QMainWindow):
         return agentN
 
     def CurrentAgentChanged( self, current, previous):
+        if self.AgentsConnectionServer is None: return
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
 
         self.ACL_Form.setAgentLink( agentLink )

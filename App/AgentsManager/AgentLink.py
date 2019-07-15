@@ -143,8 +143,9 @@ class CAgentLink():
     
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
-        import threading
-        print( "AgentLink.processRxPacket", threading.currentThread().name )
+        ##remove##
+        # import threading
+        # print( "AgentLink.processRxPacket", threading.currentThread().name )
 
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0

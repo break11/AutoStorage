@@ -52,8 +52,9 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         elif cmd.event in taskCommands:
             FAL.tasksList.append( cmd )
 
-    def genPacket( self, event, data=None ):
-        return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
+    ##remove##
+    # def genPacket( self, event, data=None ):
+    #     return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
 
     def doWork( self ):
         FAL = self.agentLink()
@@ -116,7 +117,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             self.startNextTask()
 
     def startNextTask(self):
-        FAL = self.fakeAgentLink()
+        FAL = self.agentLink()
 
         if len(FAL.tasksList):
             FAL.currentTask = FAL.tasksList.popleft()
