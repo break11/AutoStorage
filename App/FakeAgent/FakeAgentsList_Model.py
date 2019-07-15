@@ -125,7 +125,9 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         if bReConnect == False:
             fakeAgentLink.last_RX_packetN = 0
 
-        fakeAgentLink.FA_Thread = CFakeAgentThread( fakeAgentLink, ip, port )
+        ##remove##fakeAgentLink.FA_Thread = CFakeAgentThread( fakeAgentLink, ip, port )
+        fakeAgentLink.FA_Thread = CFakeAgentThread()
+        fakeAgentLink.FA_Thread.initFakeAgent( fakeAgentLink, ip, port )
                     
         fakeAgentLink.FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
         fakeAgentLink.FA_Thread.start()
@@ -146,7 +148,7 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
     def thread_FinihsedSlot( self ):
         thread = self.sender()
 
-        fakeAgentLink = thread.fakeAgentLink()
+        fakeAgentLink = thread.agentLink()
         fakeAgentLink.FA_Thread.exit()
         while not fakeAgentLink.FA_Thread.isFinished():
             pass # waiting thread stop

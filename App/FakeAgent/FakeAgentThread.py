@@ -7,11 +7,9 @@ from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
-from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
-
-#from Lib.Common.Utils import time_func
+from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
 
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE = 7 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
@@ -27,180 +25,38 @@ taskCommands = [ EAgentServer_Event.SequenceBegin,
 
 s_FA_Socket_thread = "FA Socket thread"
 
-class CFakeAgentThread( QThread ):
-    genUID = 0
-    threadFinished = pyqtSignal()
-
-    def __init__( self, fakeAgentLink, host, port ):
-        super().__init__()
-
-        self.UID = CFakeAgentThread.genUID
-        CFakeAgentThread.genUID = CFakeAgentThread.genUID + 1
-
-        self.host = host
-        self.port = port
-        # поле для имитации отключения по потере сигнала (имитация 5 сек таймера отключения на сервере - 
-        # не делаем дисконнект сокета со стороны фейк агента по окончании работы потока)
-        self.bExitByLostSignal = False
-        print(f"{s_FA_Socket_thread} INIT")
-
-        self.commandToParse = []
-        
-        self.fakeAgentLink = weakref.ref( fakeAgentLink )
-
-        self.bRunning = False
-        self.bConnected = False
-
-    def __del__(self):
-        print(f"{s_FA_Socket_thread} DONE")
-
-    def run(self):
-        print(f"{s_FA_Socket_thread} RUN")
-        self.tcpSocket = QTcpSocket()
-        #self.tcpSocket.readyRead.connect(self.socketReadyRead)
-        #self.tcpSocket.error.connect(self.displayError) #can't do signal connect because of "Make sure 'QAbstractSocket::SocketError' is registered using qRegisterMetaType()"
-        self.tcpSocket.connected.connect(self.socketConnected)
-        self.tcpSocket.disconnected.connect(self.socketDisconnected)
-
-        self.tcpSocket.connectToHost(self.host, int(self.port))
-        self.bRunning = True
-
-        self.bSendTX_cmd = False # флаг для разруливания межпоточных обращений к сокету, т.к. таймер - это отдельный поток
-        self.nReSendTX_Counter = 0
-
-        while self.bRunning:
-            self.process()
-
-        if self.bExitByLostSignal == False:
-            self.tcpSocket.disconnectFromHost()
-            self.tcpSocket = None
-
-        #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
-        self.threadFinished.emit() 
-
-        print(f"{s_FA_Socket_thread} FINISH")
-
-    def process( self ):
-        # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
-        self.tcpSocket.waitForReadyRead(1)
-
-        if not self.bConnected: return
-
-        self.sendExpressCMDs()
-
-        self.nReSendTX_Counter += 1
-        if self.nReSendTX_Counter > 499:
-            self.bSendTX_cmd = True
-            ALM.doLogString( self.fakeAgentLink(), "ReSend Old CMD" )
-
-        FAL = self.fakeAgentLink()
-        
-        if self.bSendTX_cmd == False and self.currentTX_cmd() and ( FAL.lastTXpacketN != self.currentTX_cmd().packetN ):
-            self.bSendTX_cmd = True
-            ALM.doLogString( self.fakeAgentLink(), "Send New CMD" )
-
-        if self.bSendTX_cmd:
-            self.sendTX_cmd()
-
-        while self.tcpSocket.canReadLine():
-            line = self.tcpSocket.readLine()
-
-            cmd = CAgentServerPacket.fromCRX_BStr( line.data() )
-            if cmd is None: continue
-
-            ##remove##
-            # _processRxPacket( self, cmd, ACC_cmd = FAL.ACC_cmd, TX_FIFO=FAL.TX_Packets,
-            #                   lastTXpacketN = FAL.lastTXpacketN,
-            #                   processAcceptedPacket = self.processRxPacket,
-            #                   ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
-
-            _processRxPacket( agentLink=FAL, agentThread=self, cmd=cmd,
-                              processAcceptedPacket = self.processRxPacket,
-                              ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
-
-            ALM.doLogPacket( FAL, self.UID, cmd, False, isAgent=True )
-
-        self.doWork()
-
-        # ???????????????? need test
-        # if self.tcpSocket.state() != QAbstractSocket.ConnectedState:
-        #     self.bRunning = False
-
+class CFakeAgentThread( CAgentServer_Net_Thread ):
     # местная ф-я обработки пакета, если он признан актуальным
     # на часть команд отвечаем - часть заносим в taskList
     def processRxPacket(self, cmd):
+        FAL = self.agentLink()
+
         if cmd.event == EAgentServer_Event.HelloWorld:
             # cmd = self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( self.fakeAgentLink().last_RX_packetN ) )
             # cmd.packetN = 0
             # self.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( self.fakeAgentLink().last_RX_packetN ) ) )
+            self.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( FAL.last_RX_packetN ) ) )
         elif cmd.event == EAgentServer_Event.TaskList:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( self.fakeAgentLink().tasksList ) ) ) )
+            self.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( FAL.tasksList ) ) ) )
         elif cmd.event == EAgentServer_Event.BatteryState:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = self.fakeAgentLink().BS_Answer ) )
+            self.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = FAL.BS_Answer ) )
         elif cmd.event == EAgentServer_Event.TemperatureState:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = self.fakeAgentLink().TS_Answer ) )
+            self.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = FAL.TS_Answer ) )
         elif cmd.event == EAgentServer_Event.OdometerDistance:
             self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = "U" ) )
         elif cmd.event == EAgentServer_Event.BrakeRelease:
-            self.fakeAgentLink().bEmergencyStop = False
+            FAL.bEmergencyStop = False
             self.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
         elif cmd.event == EAgentServer_Event.PowerOn or cmd.event == EAgentServer_Event.PowerOff:
             self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
         elif cmd.event in taskCommands:
-            self.fakeAgentLink().tasksList.append( cmd )
+            FAL.tasksList.append( cmd )
 
     def genPacket( self, event, data=None ):
-        return CAgentServerPacket( event = event, agentN = self.fakeAgentLink().agentN, data = data )
-
-    # def pushCmd( self, cmd ):
-    #     cmd.packetN = self.fakeAgentLink().genTxPacketN
-    #     self.fakeAgentLink().genTxPacketN = getNextPacketN( self.fakeAgentLink().genTxPacketN )
-        
-    #     self.fakeAgentLink().TX_Packets.append( cmd )
-    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):        
-        fa = self.fakeAgentLink()
-        if bReMap_PacketN:
-            cmd.packetN = fa.genTxPacketN
-            fa.genTxPacketN = getNextPacketN( fa.genTxPacketN )
-        
-        if bPut_to_TX_FIFO:
-            fa.TX_Packets.append( cmd )
-        else:
-            fa.Express_TX_Packets.append( cmd )
-
-    def currentTX_cmd( self ):
-        try:
-            return self.fakeAgentLink().TX_Packets[ 0 ]
-        except:
-            return None
-
-    def sendTX_cmd( self ):
-        self.writeTo_Socket( self.fakeAgentLink().ACC_cmd )
-
-        TX_cmd = self.currentTX_cmd()
-        if TX_cmd is not None:
-            self.writeTo_Socket( TX_cmd )
-            self.fakeAgentLink().lastTXpacketN = TX_cmd.packetN
-
-        self.bSendTX_cmd = False
-        self.nReSendTX_Counter = 0
-
-    def sendExpressCMDs( self ):
-        agentLink = self.fakeAgentLink()
-        if not agentLink:
-            return
-
-        for cmd in agentLink.Express_TX_Packets:
-            self.writeTo_Socket( cmd )
-        agentLink.Express_TX_Packets.clear()
-
-    def writeTo_Socket( self, cmd ):
-        self.tcpSocket.write( cmd.toCTX_BStr() )
-        ALM.doLogPacket( self.fakeAgentLink(), self.UID, cmd, True, isAgent=True )
+        return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
 
     def doWork( self ):
-        FAL = self.fakeAgentLink()
+        FAL = self.agentLink()
         
         if self.findEvent_In_TasksList( EAgentServer_Event.EmergencyStop ):
             FAL.tasksList.clear()
@@ -276,27 +132,7 @@ class CFakeAgentThread( QThread ):
             self.pushCmd( CAgentServerPacket( event=EAgentServer_Event.NewTask, data="ID" ) )
 
     def findEvent_In_TasksList(self, event):
-        for cmd in self.fakeAgentLink().tasksList:
+        for cmd in self.agentLink().tasksList:
             if cmd.event == event:
                 return True
         return False
-
-    def disconnectFromServer(self):
-        self.bRunning = False
-
-    @pyqtSlot()
-    def socketDisconnected(self):
-        ALM.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA DISCONNECTED ------" )
-        self.bConnected = False
-        self.bRunning = False
-
-    @pyqtSlot()
-    def socketConnected(self):
-        self.bConnected = True
-        ALM.doLogString( self.fakeAgentLink(), f"{s_FA_Socket_thread}={self.UID} ----- FA CONNECTED ------" )
-
-    #@pyqtSlot(str)
-    #doesn't work :(
-    # def displayError(self, socketError):
-    #     print ("********* SOCKET ERROR:", end="")
-    #     print (socketError, end=" **********")

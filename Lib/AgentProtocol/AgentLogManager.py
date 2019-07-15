@@ -49,6 +49,10 @@ class CAgentLogManager( QObject ):
     ###############
 
     def doLogString( self, agentLink, data ):
+        if agentLink is None:
+            print( data )
+            return
+
         data = self.decorateLogString( agentLink, data )
         logRow = CLogRow( data=data, event=None, bTX_or_RX=None )
         self.__appendLog_with_Cut( agentLink, logRow )

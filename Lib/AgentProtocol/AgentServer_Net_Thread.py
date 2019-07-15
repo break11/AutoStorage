@@ -1,0 +1,205 @@
+
+import weakref
+import time
+
+from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtNetwork import QTcpSocket
+
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
+from Lib.AgentProtocol.AgentLogManager import ALM
+
+s_Socket_thread = "Socket_thread"
+
+class CAgentServer_Net_Thread(QThread):
+    genUID = 0
+    threadFinished = pyqtSignal()
+    def __init__( self ):
+        super().__init__()
+
+        c = CAgentServer_Net_Thread
+        self.UID = c.genUID
+        c.genUID = c.genUID + 1
+
+        self.socketDescriptor = None
+        self.ACS = None
+
+        self._agentLink = None
+
+        self.bSendTX_cmd = False
+        self.nReSendTX_Counter = 0
+
+        # поле для имитации отключения по потере сигнала (имитация 5 сек таймера отключения на сервере - 
+        # не делаем дисконнект сокета со стороны фейк агента по окончании работы потока)
+        self.bExitByLostSignal = False
+
+        self.bRunning = False
+        self.bConnected = False
+        # timer to ckeck if there is no incoming data - thread will be closed if no activity on socket for more than 5 secs or so
+        self.noRxTimer = 0
+
+    
+    def initFakeAgent( self, agentLink, host, port ):
+        self.bIsServer = False
+        self.host = host
+        self.port = port
+        self._agentLink = weakref.ref( agentLink )
+        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} INIT" )
+
+    def __del__(self):
+        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} DONE" )
+
+    ##############################################
+    def agentLink( self ):
+        if self._agentLink is not None: return self._agentLink()
+
+    def disconnectFromServer(self):
+        self.bRunning = False
+
+    @pyqtSlot()
+    def socketDisconnected(self):
+        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} DISCONNECTED" )
+        self.bConnected = False
+        self.bRunning = False
+
+    @pyqtSlot()
+    def socketConnected(self):
+        self.bConnected = True
+        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} CONNECTED" )
+
+    ##############################################
+
+    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):        
+        AL = self.agentLink()
+        if bReMap_PacketN:
+            cmd.packetN = AL.genTxPacketN
+            AL.genTxPacketN = getNextPacketN( AL.genTxPacketN )
+        
+        if bPut_to_TX_FIFO:
+            AL.TX_Packets.append( cmd )
+        else:
+            AL.Express_TX_Packets.append( cmd )
+
+    def writeTo_Socket( self, cmd ):
+        self.tcpSocket.write( cmd.toCTX_BStr() )
+        ALM.doLogPacket( self.agentLink(), self.UID, cmd, True, isAgent=not self.bIsServer )
+
+    def sendExpressCMDs( self ):
+        agentLink = self.agentLink()
+        if not agentLink:
+            return
+
+        for cmd in agentLink.Express_TX_Packets:
+            self.writeTo_Socket( cmd )
+        agentLink.Express_TX_Packets.clear()
+
+    def sendTX_cmd( self ):
+        self.writeTo_Socket( self.agentLink().ACC_cmd )
+
+        TX_cmd = self.currentTX_cmd()
+        if TX_cmd is not None:
+            self.writeTo_Socket( TX_cmd )
+            self.agentLink().lastTXpacketN = TX_cmd.packetN
+
+        self.bSendTX_cmd = False
+        self.nReSendTX_Counter = 0
+
+    def currentTX_cmd( self ):
+        try:
+            return self.agentLink().TX_Packets[ 0 ]
+        except:
+            return None
+
+    ##############################################
+
+    def run(self):
+        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} RUN" )
+
+        self.tcpSocket = QTcpSocket()
+
+        if self.bIsServer:
+            assert self.socketDescriptor is not None
+            assert self.ACS is not None
+
+            if not self.tcpSocket.setSocketDescriptor( self.socketDescriptor ):
+                self.socketError.emit( self.tcpSocket.error() )
+                return
+
+        self.tcpSocket.connected.connect(self.socketConnected)
+        self.tcpSocket.disconnected.connect(self.socketDisconnected)
+
+        if not self.bIsServer:
+            self.tcpSocket.connectToHost(self.host, int(self.port))
+
+        self.bRunning = True
+
+        # сервер производит идентификацию агента по входящему сообщению или ответу на HW
+        if self.bIsServer:
+            # send HW cmd and wait HW answer from Agent for init agentN
+            initHW_Counter = 0 # для оптимизации и уменьшения лишних посылок запроса HW челноку
+            while self.bRunning and self.agentN == UNINITED_AGENT_N:
+                self.initHW( initHW_Counter )
+                initHW_Counter += 1
+
+            if not self.bRunning: return
+
+        self.noRxTimer = time.time()
+        while self.bRunning:
+            self.process()
+
+        if self.bExitByLostSignal == False:
+            self.tcpSocket.disconnectFromHost()
+            self.tcpSocket = None
+
+        #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
+        self.threadFinished.emit() 
+
+        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} FINISH" )
+
+    ##############################################
+
+    def process( self ):
+        # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
+        self.tcpSocket.waitForReadyRead(1)
+
+        if not self.bConnected: return
+
+        self.sendExpressCMDs()
+
+        self.nReSendTX_Counter += 1
+        if self.nReSendTX_Counter > 499:
+            self.bSendTX_cmd = True
+            ALM.doLogString( self.agentLink(), "ReSend Old CMD" )
+        
+        if self.bSendTX_cmd == False and self.currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.currentTX_cmd().packetN ):
+            self.bSendTX_cmd = True
+            ALM.doLogString( self.agentLink(), "Send New CMD" )
+
+        if self.bSendTX_cmd:
+            self.sendTX_cmd()
+
+        while self.tcpSocket.canReadLine():
+            line = self.tcpSocket.readLine()
+
+            cmd = CAgentServerPacket.fromCRX_BStr( line.data() )
+            if cmd is None: continue
+
+            self.noRxTimer = time.time()
+            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
+                              processAcceptedPacket = self.processRxPacket,
+                              ACC_Event_OtherSide = EAgentServer_Event.ServerAccepting )
+
+            ALM.doLogPacket( self.agentLink(), self.UID, cmd, False, isAgent=not self.bIsServer )
+
+        # отключение соединения если в течении 5 секунд не было ответа
+        t = (time.time() - self.noRxTimer)
+        if t > 5:
+            ALM.doLogString( self.agentLink(), f"{s_AgentLink}={self.agentN} {s_Off_5S}" )
+            self.bRunning = False
+
+        self.doWork()
+
+        # ???????????????? need test
+        # if self.tcpSocket.state() != QAbstractSocket.ConnectedState:
+        #     self.bRunning = False
