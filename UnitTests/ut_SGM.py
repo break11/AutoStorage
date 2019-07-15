@@ -92,10 +92,10 @@ class Test_SGM_Funcs(unittest.TestCase):
         self.assertTrue(    math.isclose( SGM.nodeGItems["21"].middleLineAngle, 247.499999999999, abs_tol=1e-9 )    )
         
         # ServiceStation
-        self.assertTrue(    math.isclose( SGM.nodeGItems["24"].middleLineAngle, 180.0, abs_tol=1e-9 )    )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["27"].middleLineAngle, 360.0, abs_tol=1e-9 )    )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["29"].middleLineAngle,  90.0, abs_tol=1e-9 )    )
-        self.assertTrue(    math.isclose( SGM.nodeGItems["33"].middleLineAngle, 270.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["24"].middleLineAngle, 360.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["27"].middleLineAngle, 180.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["29"].middleLineAngle, 270.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["33"].middleLineAngle,  90.0, abs_tol=1e-9 )    )
 
         # NoneType
         self.assertEqual(   SGM.nodeGItems["nLU"].middleLineAngle, None    )

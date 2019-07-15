@@ -110,8 +110,9 @@ class EDirection( Enum ):
 class ESide( Enum ):
     Left            = auto()
     Right           = auto()
-    ChargeSideLeft  = Left
-    ChargeSideRight = Right
+    ChargeSideLeft  = Right # ChargeSideLeft - указывает положение "минуса", т.е. "плюс" справа. У челнока "плюс" в передней части.
+    ChargeSideRight = Left  # поэтому при ChargeSideLeft челнок необходимо располагать вектором в правый сектор.
+
 
     @staticmethod
     def fromString( sType ): return EnumFromString( ESide, sType, ESide.Right )
