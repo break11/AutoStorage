@@ -7,7 +7,7 @@ from collections import deque
 from PyQt5.QtCore import QTimer, pyqtSignal, QObject
 
 from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
-from Lib.Common.Agent_NetObject import queryAgentNetObj, s_route, EAgent_Status
+from Lib.Common.Agent_NetObject import s_route, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
@@ -19,6 +19,8 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
 from Lib.AgentProtocol.AgentLogManager import ALM
+from Lib.Common.Agent_NetObject import agentsNodeCache
+from Lib.Common.TreeNode import CTreeNodeCache
 
 s_AgentLink = "AgentLink"
 
@@ -47,7 +49,11 @@ class CAgentLink():
         self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
         # self.requestTelemetry_Timer.start() # временно для отладки отключаем
 
-        self.agentNO = weakref.ref( queryAgentNetObj( str( agentN ) ) )
+        # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
+        # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
+        # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
+        self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache(), path = str( self.agentN ) )
+
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
         self.graphRootNode = graphNodeCache()

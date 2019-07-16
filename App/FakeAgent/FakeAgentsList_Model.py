@@ -156,6 +156,8 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
 
         self.sender().deleteLater()
         
+        if fakeAgentLink.agentN not in self.FA_List: return
+
         row = self.FA_List.index( fakeAgentLink.agentN )
         col = self.propList.index( s_connected )
         idx = self.index( row, col )

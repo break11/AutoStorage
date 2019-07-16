@@ -13,7 +13,7 @@ import Lib.Common.StrConsts as SC
 from Lib.Common.NetUtils import socketErrorToString
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Common.Agent_NetObject import CAgent_NO
+from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj
 
 from Lib.AgentProtocol.AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
@@ -71,7 +71,7 @@ class CAgentsConnectionServer(QTcpServer):
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
         if not isinstance( agentNO, CAgent_NO ): return
 
-        self.createAgentLink( int(agentNO.name) )
+        self.queryAgent_Link_and_NetObj( int(agentNO.name) )
 
     def onObjPrepareDelete( self, cmd ):
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
@@ -120,7 +120,7 @@ class CAgentsConnectionServer(QTcpServer):
 
     @pyqtSlot(int)
     def thread_NewAgent(self, agentN):
-        self.createAgentLink( agentN )
+        self.queryAgent_Link_and_NetObj( agentN )
 
     @pyqtSlot(int)
     def thread_AgentNumberInited(self, agentN):
@@ -141,23 +141,17 @@ class CAgentsConnectionServer(QTcpServer):
 
     #############################################################
 
-    def createAgentLink( self, agentN ):
-        import threading
-        print( self.AgentLinks, threading.currentThread().name, id(threading.currentThread()) )
-
+    def queryAgent_Link_and_NetObj( self, agentN ):
         AL = self.AgentLinks.get( agentN )
         if AL is not None: return AL
 
         print ( f"Creating new AgentLink agentN={agentN}" )
 
-        self.AgentLinks[ agentN ] = "0-)"
         agentLink = CAgentLink( agentN )
-        
-
-
         self.AgentLinks[ agentN ] = agentLink
-        print( self.AgentLinks )
-        print( "11111111111111111111111111111111111111111111111" )
+
+        queryAgentNetObj( str( agentN ) )
+
         return agentLink
 
     def deleteAgentLink(self, agentN):
