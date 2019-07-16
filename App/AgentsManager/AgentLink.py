@@ -19,19 +19,21 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
 from Lib.AgentProtocol.AgentLogManager import ALM
+from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 
 s_AgentLink = "AgentLink"
 
-class CAgentLink():
-    @property
-    def last_RX_packetN( self ):
-        return self.ACC_cmd.packetN
+class CAgentLink( CAgentServer_Link ):
+    ##remove##
+    # @property
+    # def last_RX_packetN( self ):
+    #     return self.ACC_cmd.packetN
 
-    @last_RX_packetN.setter
-    def last_RX_packetN( self, value ):
-        self.ACC_cmd.packetN = value
+    # @last_RX_packetN.setter
+    # def last_RX_packetN( self, value ):
+    #     self.ACC_cmd.packetN = value
 
     def __init__(self, agentN):
         super().__init__()

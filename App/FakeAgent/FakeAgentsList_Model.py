@@ -30,13 +30,13 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         self.FA_Dict = {}
 
     def __del__( self ):
-        for desc in self.FA_Dict.values():
-            if desc.FA_Thread is None: continue
-            desc.FA_Thread.bRunning = False
-            desc.FA_Thread.exit()
-            while not desc.FA_Thread.isFinished():
+        for FA_Link in self.FA_Dict.values():
+            if FA_Link.FA_Thread is None: continue
+            FA_Link.FA_Thread.bRunning = False
+            FA_Link.FA_Thread.exit()
+            while not FA_Link.FA_Thread.isFinished():
                 pass # waiting thread stop
-            desc.FA_Thread = None
+            FA_Link.FA_Thread = None
 
         self.FA_List = []
         self.FA_Dict = {}

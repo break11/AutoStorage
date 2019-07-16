@@ -6,17 +6,19 @@ from Lib.Common.FileUtils import appLogPath
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentLogManager import ALM
+from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 
 s_FakeAgentLink = "FakeAgentLink"
 
-class CFakeAgentLink:
-    @property
-    def last_RX_packetN( self ):
-        return self.ACC_cmd.packetN
+class CFakeAgentLink( CAgentServer_Link ):
+    ##remove##
+    # @property
+    # def last_RX_packetN( self ):
+    #     return self.ACC_cmd.packetN
 
-    @last_RX_packetN.setter
-    def last_RX_packetN( self, value ):
-        self.ACC_cmd.packetN = value
+    # @last_RX_packetN.setter
+    # def last_RX_packetN( self, value ):
+    #     self.ACC_cmd.packetN = value
 
     def __init__( self, agentN ):
         self.agentN = agentN
@@ -31,7 +33,7 @@ class CFakeAgentLink:
         self.log = []
         self.sLogFName = ALM.genAgentLogFName( agentN )
         ALM.doLogString( self, f"{s_FakeAgentLink}={agentN} Created" )
-        
+
         self.FA_Thread = None
 
         self.tasksList = deque()
