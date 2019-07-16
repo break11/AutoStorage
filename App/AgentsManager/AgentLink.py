@@ -25,6 +25,14 @@ from Lib.Common.TreeNode import CTreeNodeCache
 s_AgentLink = "AgentLink"
 
 class CAgentLink():
+    @property
+    def last_RX_packetN( self ):
+        return self.ACC_cmd.packetN
+
+    @last_RX_packetN.setter
+    def last_RX_packetN( self, value ):
+        self.ACC_cmd.packetN = value
+
     def __init__(self, agentN):
         super().__init__()
         self.agentN = agentN
@@ -52,7 +60,7 @@ class CAgentLink():
         # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
         # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
-        self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache(), path = str( self.agentN ) )
+        self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( self.agentN ) )
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 

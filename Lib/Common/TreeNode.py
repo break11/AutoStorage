@@ -77,6 +77,10 @@ class CTreeNode:
 
 class CTreeNodeCache:
     def __init__( self, baseNode, path):
+        # baseNode - должна быть типа CNetObj, но для исключения перекрестных ссылок проверяем, что по ошибке не был передан экземпляр CTreeNodeCache
+        # такое возможно из-за существования хелперных функций возвращающих CTreeNodeCache, которым дополнительно надо вызвать __call__
+        assert not isinstance( baseNode, CTreeNodeCache )
+
         self.baseNode = weakref.ref( baseNode )
         self.path = path
         self.__cache = None

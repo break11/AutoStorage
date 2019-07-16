@@ -203,7 +203,7 @@ class CAgentServer_Net_Thread(QThread):
             self.agentNumberInited.emit( cmd.agentN )
             self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
             ##remove##self.agentN = cmd.agentN
-            self.agentLink().ACC_cmd.packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
+            self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
 
             _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
                               processAcceptedPacket=self.processRxPacket,

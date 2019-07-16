@@ -36,14 +36,14 @@ def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None, A
 
     else:
         # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
-        wantedPacketN = getNextPacketN( agentLink.ACC_cmd.packetN )
+        wantedPacketN = getNextPacketN( agentLink.last_RX_packetN )
         delta = cmd.packetN - wantedPacketN
 
         # если разница в номерах пакетов 0, то всё корректно
         # так же считаем корректным пакет с входящим кодом 0
         if  delta == 0 or cmd.packetN == 0:
             if cmd.packetN != 0:
-                agentLink.ACC_cmd.packetN = cmd.packetN
+                agentLink.last_RX_packetN = cmd.packetN
             cmd.status = EPacket_Status.Normal
             if processAcceptedPacket is not None:
                 processAcceptedPacket( cmd )
