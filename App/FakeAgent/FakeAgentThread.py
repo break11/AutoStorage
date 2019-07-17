@@ -30,31 +30,26 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
     # на часть команд отвечаем - часть заносим в taskList
     def processRxPacket(self, cmd):
         FAL = self.agentLink()
-
         if cmd.event == EAgentServer_Event.HelloWorld:
             # cmd = self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( self.fakeAgentLink().last_RX_packetN ) )
             # cmd.packetN = 0
-            # self.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( FAL.last_RX_packetN ) ) )
+            # FAL.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( FAL.last_RX_packetN ) ) )
         elif cmd.event == EAgentServer_Event.TaskList:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( FAL.tasksList ) ) ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( FAL.tasksList ) ) ) )
         elif cmd.event == EAgentServer_Event.BatteryState:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = FAL.BS_Answer ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = FAL.BS_Answer ) )
         elif cmd.event == EAgentServer_Event.TemperatureState:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = FAL.TS_Answer ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = FAL.TS_Answer ) )
         elif cmd.event == EAgentServer_Event.OdometerDistance:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = "U" ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = "U" ) )
         elif cmd.event == EAgentServer_Event.BrakeRelease:
             FAL.bEmergencyStop = False
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
         elif cmd.event == EAgentServer_Event.PowerOn or cmd.event == EAgentServer_Event.PowerOff:
-            self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
         elif cmd.event in taskCommands:
             FAL.tasksList.append( cmd )
-
-    ##remove##
-    # def genPacket( self, event, data=None ):
-    #     return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
 
     def doWork( self ):
         FAL = self.agentLink()
@@ -75,22 +70,22 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                 self.startNextTask()
 
             elif FAL.currentTask.event == EAgentServer_Event.BoxLoad:
-                self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BL,L" ) )
+                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BL,L" ) )
                 self.startNextTask()
 
             elif FAL.currentTask.event == EAgentServer_Event.BoxUnload:
-                self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BU,L" ) )
+                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BU,L" ) )
                 self.startNextTask()
 
             elif FAL.currentTask.event == EAgentServer_Event.WheelOrientation:
                 newWheelsOrientation = FAL.currentTask.data[ 0:1 ]
                 FAL.odometryCounter = 0
                 # send an "odometry resetted" to server
-                self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
+                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
 
                 FAL.currentWheelsOrientation = FAL.currentTask.data[ 0:1 ]
                 # will be 'N' for narrow, 'W' for wide, or emtpy if uninited
-                self.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "WO" ) )
+                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "WO" ) )
 
                 self.startNextTask()
 
@@ -106,11 +101,11 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                             FAL.odometryCounter = FAL.odometryCounter + DP_DELTA_PER_CYCLE
                         else:
                             FAL.odometryCounter = FAL.odometryCounter - DP_DELTA_PER_CYCLE
-                        self.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( FAL.odometryCounter ) ) )
+                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( FAL.odometryCounter ) ) )
 
                     elif FAL.distanceToPass <= 0:
                         FAL.distanceToPass = 0
-                        self.pushCmd( self.genPacket( event = EAgentServer_Event.DistanceEnd ) )
+                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.DistanceEnd ) )
                         self.startNextTask()
 
         if len(FAL.tasksList) and FAL.currentTask is None:
@@ -130,7 +125,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         else:
             FAL.currentTask = None
             ALM.doLogString( FAL, "All tasks done!" )
-            self.pushCmd( CAgentServerPacket( event=EAgentServer_Event.NewTask, data="ID" ) )
+            FAL.pushCmd( CAgentServerPacket( event=EAgentServer_Event.NewTask, data="ID" ) )
 
     def findEvent_In_TasksList(self, event):
         for cmd in self.agentLink().tasksList:

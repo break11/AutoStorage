@@ -31,12 +31,15 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
 
     def __del__( self ):
         for FA_Link in self.FA_Dict.values():
-            if FA_Link.FA_Thread is None: continue
-            FA_Link.FA_Thread.bRunning = False
-            FA_Link.FA_Thread.exit()
-            while not FA_Link.FA_Thread.isFinished():
-                pass # waiting thread stop
-            FA_Link.FA_Thread = None
+            # if not FA_Link.isConnected(): continue
+
+            # FA_Thread = fakeAgentLink.socketThreads[ 0 ]
+            # FA_Thread.bRunning = False
+            # FA_Thread.exit()
+            # while not FA_Thread.isFinished():
+            #     pass # waiting thread stop
+            # FA_Thread = None
+            FA_Link.done()
 
         self.FA_List = []
         self.FA_Dict = {}
@@ -78,7 +81,7 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
             if propName == s_agentN:
                 return agentN
             elif propName == s_connected:
-                return fakeAgentLink.FA_Thread is not None
+                return fakeAgentLink.isConnected()
 
     def headerData( self, section, orientation, role ):
         if role != Qt.DisplayRole: return
@@ -118,19 +121,19 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
 
     def connect( self, agentN, ip, port, bReConnect=False ):
         fakeAgentLink = self.FA_Dict[ agentN ]
-        if fakeAgentLink.FA_Thread is not None: return
+        if fakeAgentLink.isConnected(): return
 
         # bReConnect - параметр указывающий, что агент подключится с сохранением прежнего номера последнего полученного пакета от сервера
         # то есть это не настоящий дисконнект был, а лишь временная потеря соединения
         if bReConnect == False:
             fakeAgentLink.last_RX_packetN = 0
 
-        ##remove##fakeAgentLink.FA_Thread = CFakeAgentThread( fakeAgentLink, ip, port )
-        fakeAgentLink.FA_Thread = CFakeAgentThread()
-        fakeAgentLink.FA_Thread.initFakeAgent( fakeAgentLink, ip, port )
+        FA_Thread = CFakeAgentThread()
+        FA_Thread.initFakeAgent( fakeAgentLink, ip, port )
+        fakeAgentLink.socketThreads.append( FA_Thread )
                     
-        fakeAgentLink.FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
-        fakeAgentLink.FA_Thread.start()
+        FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
+        FA_Thread.start()
 
         row = self.FA_List.index( agentN )
         col = self.propList.index( s_connected )
@@ -139,20 +142,24 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
 
     def disconnect( self, agentN, bLostSignal = False ):
         fakeAgentLink = self.FA_Dict[ agentN ]
-        if fakeAgentLink.FA_Thread is None: return
+        if not fakeAgentLink.isConnected(): return
 
-        fakeAgentLink.FA_Thread.bExitByLostSignal = bLostSignal
-        fakeAgentLink.FA_Thread.disconnectFromServer() 
+        FA_Thread = fakeAgentLink.socketThreads[ 0 ] # считаем, что в фейк агенте всегда только один активный поток соединения
+        FA_Thread.bExitByLostSignal = bLostSignal
+        FA_Thread.disconnectFromServer() 
 
     # disconnected from other side
     def thread_FinihsedSlot( self ):
         thread = self.sender()
 
         fakeAgentLink = thread.agentLink()
-        fakeAgentLink.FA_Thread.exit()
-        while not fakeAgentLink.FA_Thread.isFinished():
+        FA_Thread = fakeAgentLink.socketThreads[ 0 ]
+
+        FA_Thread.exit()
+        while not FA_Thread.isFinished():
             pass # waiting thread stop
-        fakeAgentLink.FA_Thread = None
+        FA_Thread = None
+        fakeAgentLink.socketThreads.clear()
 
         self.sender().deleteLater()
         

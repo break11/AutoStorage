@@ -5,25 +5,25 @@ import random
 import weakref
 import time
 
-from PyQt5.QtCore import pyqtSignal, QDataStream, QIODevice, QThread, pyqtSlot, Qt
-from PyQt5.QtNetwork import QHostAddress, QNetworkInterface, QTcpServer, QTcpSocket, QAbstractSocket
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtNetwork import QHostAddress, QTcpServer
 
-from .AgentLink import CAgentLink, s_AgentLink
+from .AgentLink import CAgentLink
 import Lib.Common.StrConsts as SC
 from Lib.Common.NetUtils import socketErrorToString
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj
 
-from Lib.AgentProtocol.AgentServerPacket import UNINITED_AGENT_N, CAgentServerPacket, EPacket_Status
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket
-from Lib.AgentProtocol.AgentLogManager import ALM, CLogRow
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
 
-TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
+class CAgentThread( CAgentServer_Net_Thread ):
+    processRxPacket_signal   = pyqtSignal( CAgentServerPacket )
 
-s_Off_5S = "Thread will closed with no activity for 5 secs."
+    def processRxPacket( self, cmd ): self.processRxPacket_signal.emit( cmd )
+    
+    def doWork( self ): pass
 
 class CAgentsConnectionServer(QTcpServer):
     """
@@ -85,7 +85,7 @@ class CAgentsConnectionServer(QTcpServer):
 
     ##########################
     def incomingConnection(self, socketDescriptor):
-        thread = CAgentSocketThread()
+        thread = CAgentThread()
         thread.initAgentServer( socketDescriptor, self )
         
         thread.finished.            connect( self.thread_Finihsed )
@@ -106,7 +106,7 @@ class CAgentsConnectionServer(QTcpServer):
         if thread is None: return
 
         if thread in self.UnknownConnections_Threads:
-            print ( f"Deleting thread {id(thread)} agentN={thread.agentN} from unnumbered thread pool." )
+            print ( f"Deleting thread {id(thread)} from unnumbered thread pool." )
             self.UnknownConnections_Threads.remove(thread)
 
         agentLink = thread.agentLink()
@@ -164,10 +164,3 @@ class CAgentsConnectionServer(QTcpServer):
         if bWarning and ( aLink is None ):
             print( f"{SC.sWarning} AgentLink n={agentN} acess requested but it wasn't created yet." )
         return aLink
-
-class CAgentSocketThread( CAgentServer_Net_Thread ):
-    processRxPacket_signal   = pyqtSignal( CAgentServerPacket )
-
-    def processRxPacket( self, cmd ): self.processRxPacket_signal.emit( cmd )
-    
-    def doWork( self ): pass

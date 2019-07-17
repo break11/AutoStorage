@@ -6,11 +6,10 @@ from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtNetwork import QTcpSocket
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN
+from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, getNextPacketN, getACC_Event_OtherSide
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status, UNINITED_AGENT_N
 from Lib.AgentProtocol.AgentLogManager import ALM
 
-s_Socket_thread = "Socket_thread"
 s_Off_5S = "Thread will closed with no activity for 5 secs."
 
 TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
@@ -51,7 +50,7 @@ class CAgentServer_Net_Thread(QThread):
         self.host = host
         self.port = port
         self._agentLink = weakref.ref( agentLink )
-        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} INIT" )
+        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} INIT" )
     
     def initAgentServer( self, socketDescriptor, ACS ):
         self.bIsServer = True
@@ -61,7 +60,7 @@ class CAgentServer_Net_Thread(QThread):
 
     def __del__(self):
         self.socketDescriptor = None
-        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} DONE" )
+        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} DONE" )
 
     ##############################################
 
@@ -70,14 +69,14 @@ class CAgentServer_Net_Thread(QThread):
 
     @pyqtSlot()
     def socketDisconnected(self):
-        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} DISCONNECTED" )
+        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} DISCONNECTED" )
         self.bConnected = False
         self.bRunning = False
 
     @pyqtSlot()
     def socketConnected(self):
         self.bConnected = True
-        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} CONNECTED" )
+        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} CONNECTED" )
 
     ##############################################
     def agentLink( self ):
@@ -85,17 +84,6 @@ class CAgentServer_Net_Thread(QThread):
 
     def genPacket( self, event, data=None ):
         return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
-
-    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):        
-        AL = self.agentLink()
-        if bReMap_PacketN:
-            cmd.packetN = AL.genTxPacketN
-            AL.genTxPacketN = getNextPacketN( AL.genTxPacketN )
-        
-        if bPut_to_TX_FIFO:
-            AL.TX_Packets.append( cmd )
-        else:
-            AL.Express_TX_Packets.append( cmd )
 
     def writeTo_Socket( self, cmd ):
         self.tcpSocket.write( cmd.toBStr( bTX_or_RX=self.bIsServer ) )
@@ -130,7 +118,7 @@ class CAgentServer_Net_Thread(QThread):
     ##############################################
 
     def run(self):
-        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} RUN" )
+        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} RUN" )
 
         self.tcpSocket = QTcpSocket()
 
@@ -154,7 +142,6 @@ class CAgentServer_Net_Thread(QThread):
         if self.bIsServer:
             # send HW cmd and wait HW answer from Agent for init agentN
             initHW_Counter = 0 # для оптимизации и уменьшения лишних посылок запроса HW челноку
-            ##remove##while self.bRunning and self.agentN == UNINITED_AGENT_N:
             while self.bRunning and self.agentLink() is None:
                 self.initHW( initHW_Counter )
                 initHW_Counter += 1
@@ -172,7 +159,7 @@ class CAgentServer_Net_Thread(QThread):
         #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
         self.threadFinished.emit()
 
-        ALM.doLogString( self.agentLink(), f"{s_Socket_thread}={self.UID} FINISH" )
+        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} FINISH" )
 
     ##############################################
 
@@ -187,11 +174,11 @@ class CAgentServer_Net_Thread(QThread):
             cmd = CAgentServerPacket.fromRX_BStr( line.data() ) # bTX_or_RX= не ставим, т.к. initHW должна вызываться только с сервера
 
             if cmd is None: continue
-            if cmd.event == EAgentServer_Event.ClientAccepting: continue
+            if cmd.event == getACC_Event_OtherSide( self.bIsServer ): continue
             
             ALM.doLogPacket( self.agentLink(), self.UID, cmd, False )
-            # if cmd.event == EAgentServer_Event.HelloWorld:
             if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
+                assert cmd.agentN is not None, f"agentN need to be inited! cmd={cmd}"
                 self.newAgent.emit( cmd.agentN )
                 while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                     self.msleep(10)
@@ -202,12 +189,11 @@ class CAgentServer_Net_Thread(QThread):
             
             self.agentNumberInited.emit( cmd.agentN )
             self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
-            ##remove##self.agentN = cmd.agentN
             self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
 
             _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
                               processAcceptedPacket=self.processRxPacket,
-                              ACC_Event_OtherSide = self.getACC_Event_OtherSide() )
+                              ACC_Event_OtherSide = getACC_Event_OtherSide( self.bIsServer ) )
 
     def process( self ):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
@@ -238,7 +224,7 @@ class CAgentServer_Net_Thread(QThread):
             self.noRxTimer = time.time()
             _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
                               processAcceptedPacket = self.processRxPacket,
-                              ACC_Event_OtherSide = self.getACC_Event_OtherSide() )
+                              ACC_Event_OtherSide = getACC_Event_OtherSide( self.bIsServer ) )
 
             ALM.doLogPacket( self.agentLink(), self.UID, cmd, False, isAgent=not self.bIsServer )
 
@@ -253,6 +239,3 @@ class CAgentServer_Net_Thread(QThread):
         # ???????????????? need test
         # if self.tcpSocket.state() != QAbstractSocket.ConnectedState:
         #     self.bRunning = False
-    def getACC_Event_OtherSide( self ):
-        if self.bIsServer: return EAgentServer_Event.ClientAccepting
-        else: return EAgentServer_Event.ServerAccepting

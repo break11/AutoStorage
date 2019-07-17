@@ -2,53 +2,25 @@ import datetime
 import weakref
 import math
 import os
-from collections import deque
 
-from PyQt5.QtCore import QTimer, pyqtSignal, QObject
+from PyQt5.QtCore import QTimer
 
-from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyFromStr, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
+from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
 from Lib.Common.Agent_NetObject import s_route, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.FileUtils import appLogPath
 import Lib.Common.StrConsts as SC
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 from .routeBuilder import CRouteBuilder
-from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 
-s_AgentLink = "AgentLink"
-
 class CAgentLink( CAgentServer_Link ):
-    ##remove##
-    # @property
-    # def last_RX_packetN( self ):
-    #     return self.ACC_cmd.packetN
-
-    # @last_RX_packetN.setter
-    # def last_RX_packetN( self, value ):
-    #     self.ACC_cmd.packetN = value
-
     def __init__(self, agentN):
-        super().__init__()
-        self.agentN = agentN
-        self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
-        self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
-        self.genTxPacketN  = 1
-        self.lastTXpacketN = 1
-        self.ACC_cmd = ASP( event=EAgentServer_Event.ServerAccepting, agentN = self.agentN )
-
-        self.log = []
-        self.sLogFName = ALM.genAgentLogFName( agentN )
-        ALM.doLogString( self, f"{s_AgentLink}={agentN} Created" )
-
-        self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
+        super().__init__( agentN = agentN, bIsServer = True )
  
         self.BS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.BatteryState )
         self.TS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.TemperatureState )
@@ -75,20 +47,8 @@ class CAgentLink( CAgentServer_Link ):
         self.edges_route = []
 
     def __del__(self):
-        ALM.doLogString( self, f"{s_AgentLink}={self.agentN} Destroyed" )
-        self.done()
-
-    def done( self ):
         self.requestTelemetry_Timer.stop()
-        for thread in self.socketThreads:
-            thread.bRunning = False
-            thread.exit()
-
-        for thread in self.socketThreads:
-            while not thread.isFinished():
-                pass # waiting thread stop
-                
-        self.socketThreads = []
+        super().__del__()
 
     ##################
     def onObjPropUpdated( self, cmd ):
@@ -110,39 +70,14 @@ class CAgentLink( CAgentServer_Link ):
 
             for seq in seqList:
                 for cmd in seq:
-                    self.pushCmd_to_TX_FIFO( ASP.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
+                    self.pushCmd( ASP.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
 
     ##################
-    def isConnected( self ):
-        return len(self.socketThreads) > 0
-
-    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True ):
-        ##remove## возможно очередь команд должна набиваться и когда нет соединения с челноком ?????????????
-        if not self.isConnected():
-            ##remove##print( cmd )
-            return
-
-        if bReMap_PacketN:
-            cmd.packetN = self.genTxPacketN
-            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
-        
-        if bPut_to_TX_FIFO:
-            self.TX_Packets.append( cmd )
-        else:
-            self.Express_TX_Packets.append( cmd )
-
-    def pushCmd_to_TX_FIFO( self, cmd ):
-        self.pushCmd( cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True )
-
-    def pushCmd_if_NotExist( self, cmd ):
-        # кладем в очередь команду, только если ее там нет (это будет значить, что предыдущий запрос по этой команде выполнен)
-        if cmd not in self.TX_Packets:
-            self.pushCmd_to_TX_FIFO( cmd )
 
     def requestTelemetry(self):
-        self.pushCmd_if_NotExist( self.BS_cmd )
-        self.pushCmd_if_NotExist( self.TS_cmd )
-        self.pushCmd_if_NotExist( self.TL_cmd )
+        self.pushCmd( self.BS_cmd, bAllowDuplicate=False )
+        self.pushCmd( self.TS_cmd, bAllowDuplicate=False )
+        self.pushCmd( self.TL_cmd, bAllowDuplicate=False )
 
     ####################
     def calcAgentAngle( self, agentNO ):
@@ -159,10 +94,6 @@ class CAgentLink( CAgentServer_Link ):
     
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
-        ##remove##
-        # import threading
-        # print( "AgentLink.processRxPacket", threading.currentThread().name )
-
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
         elif cmd.event == EAgentServer_Event.DistanceEnd:
@@ -226,29 +157,6 @@ class CAgentLink( CAgentServer_Link ):
             self.pushCmd( ES_cmd )
             agentNO.status = EAgent_Status.PositionSyncError.name
 
-    def remapPacketsNumbers( self, startPacketN ):
-        self.genTxPacketN = startPacketN
-        for cmd in self.TX_Packets:
-            cmd.packetN = self.genTxPacketN
-            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
-
-# def putToNode(self, node):
-    #     self.temp__AssumedPosition = node
-
-    # def goToNode(self, node):
-    #     route = self.routeBuilder.buildRoute(str(self.temp__AssumedPosition), str(node))
-    #     self.temp__finishNode = node
-    #     for s in route:
-    #         self.sendCommandBySockets(s)
-    #         if s.find('@DP') != -1:
-    #             self.temp__deToPass = self.temp__deToPass + 1
-
-    # def dePassed(self):
-    #     print("DE passed")
-    #     if self.temp__deToPass > 0:
-    #         self.temp__deToPass = self.temp__deToPass - 1
-    #         if self.temp__deToPass == 0:
-    #             self.putToNode(self.temp__finishNode)
 
 
 

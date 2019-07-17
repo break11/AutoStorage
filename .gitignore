@@ -1,5 +1,6 @@
 Log/AgentsManager/*.log.html
 Log/FakeAgent/*.log.html
+Log/ut_processRxPacket/*.log.html
 .vscode/
 .mypy_cache/
 __pycache__/

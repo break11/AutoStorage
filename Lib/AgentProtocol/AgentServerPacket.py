@@ -29,7 +29,7 @@ class CAgentServerPacket:
         self.status    = status
 
     def __repr__( self ):
-        if self.event in [ EAgentServer_Event.ClientAccepting, EAgentServer_Event.ServerAccepting ]:
+        if self.event in self.accEvents:
             return f"{self.packetN:03d},{ EAgentServer_Event.toStr( self.event ) }"
         else:
             sResult = f"{self.packetN:03d},{self.agentN:03d}:{ EAgentServer_Event.toStr( self.event ) }"

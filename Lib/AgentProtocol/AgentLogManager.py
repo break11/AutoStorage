@@ -34,8 +34,8 @@ class CAgentLogManager( QObject ):
     def writeToLogFile( cls, sLogFName, logRow ):
         if not os.path.exists( sLogFName ):
             with open( sLogFName, 'a' ) as file:
-                file.write( "<script src=\"./Common/jquery-3.4.1.min.js\"></script>" )
-                file.write( "<script src=\"./Common/filter-find.js\"></script>" )
+                file.write( "<script src=\"../Common/jquery-3.4.1.min.js\"></script>" )
+                file.write( "<script src=\"../Common/filter-find.js\"></script>" )
 
         with open( sLogFName, 'a' ) as file:
             file.write( logRow.data )

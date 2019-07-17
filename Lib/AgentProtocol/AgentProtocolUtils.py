@@ -4,6 +4,14 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
 def getNextPacketN( n ): return ( 1 if n == 999 else n+1 )
 
+def getACC_Event_ThisSide( bIsServer ):
+    if bIsServer: return EAgentServer_Event.ServerAccepting
+    else: return EAgentServer_Event.ClientAccepting
+
+def getACC_Event_OtherSide( bIsServer ):
+    if bIsServer: return EAgentServer_Event.ClientAccepting
+    else: return EAgentServer_Event.ServerAccepting
+
 def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None, ACC_Event_OtherSide=EAgentServer_Event.ClientAccepting ):
 
     if cmd.event == ACC_Event_OtherSide:
