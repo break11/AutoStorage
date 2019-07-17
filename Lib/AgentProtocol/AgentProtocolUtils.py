@@ -9,12 +9,11 @@ def getACC_Event_ThisSide( bIsServer ):
     else: return EAgentServer_Event.ClientAccepting
 
 def getACC_Event_OtherSide( bIsServer ):
-    if bIsServer: return EAgentServer_Event.ClientAccepting
-    else: return EAgentServer_Event.ServerAccepting
+    return getACC_Event_ThisSide( not bIsServer )
 
-def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None, ACC_Event_OtherSide=EAgentServer_Event.ClientAccepting ):
+def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None ):
 
-    if cmd.event == ACC_Event_OtherSide:
+    if cmd.event == getACC_Event_OtherSide( agentThread.bIsServer ):
         assert agentLink.lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
 
         delta = cmd.packetN - agentLink.lastTXpacketN

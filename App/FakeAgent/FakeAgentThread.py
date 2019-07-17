@@ -23,8 +23,6 @@ taskCommands = [ EAgentServer_Event.SequenceBegin,
                  EAgentServer_Event.EmergencyStop
                ]
 
-s_FA_Socket_thread = "FA Socket thread"
-
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     # местная ф-я обработки пакета, если он признан актуальным
     # на часть команд отвечаем - часть заносим в taskList

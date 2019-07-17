@@ -100,13 +100,29 @@ class Test_processRxPacket(unittest.TestCase):
     def test_CA_after_HW(self):
         DAL = CDummyAgentLink( 555, True )
         DAT = CDummyAgentThread()
+        socketDescriptor = self
+        ACS = self
+        DAT.initAgentServer( socketDescriptor, ACS )
 
         # TX_FIFO = deque()
         # ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
         cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=0 )
-        # принимаем корректный CA первый раз - при старте обмена т.к. TX_FIFO будет пустым (инициализация посылки HW не идет через TX_FIFO)
+        # принимаем корректный CA первый раз - при старте обмена т.к. TX_FIFO будет пустым
         # CA получит статус Normal - т.к. номер пакета был 0
 
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Normal )
+
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Normal )
+
+        cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=1 )
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+
+        # DAL.last_RX_packetN = 2
+        DAL.lastTXpacketN = 2
+        cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=2 )
         _processRxPacket( DAL, DAT, cmd )
         self.assertEqual( cmd.status, EPacket_Status.Normal )
 

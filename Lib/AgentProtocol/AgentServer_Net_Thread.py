@@ -192,8 +192,7 @@ class CAgentServer_Net_Thread(QThread):
             self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
 
             _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
-                              processAcceptedPacket=self.processRxPacket,
-                              ACC_Event_OtherSide = getACC_Event_OtherSide( self.bIsServer ) )
+                              processAcceptedPacket=self.processRxPacket )
 
     def process( self ):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
@@ -223,8 +222,7 @@ class CAgentServer_Net_Thread(QThread):
 
             self.noRxTimer = time.time()
             _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
-                              processAcceptedPacket = self.processRxPacket,
-                              ACC_Event_OtherSide = getACC_Event_OtherSide( self.bIsServer ) )
+                              processAcceptedPacket = self.processRxPacket )
 
             ALM.doLogPacket( self.agentLink(), self.UID, cmd, False, isAgent=not self.bIsServer )
 
