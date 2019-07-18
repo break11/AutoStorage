@@ -28,7 +28,7 @@ def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None ):
                 agentThread.nReSendTX_Counter = 0
             else:
                 #видимо, пришло повтороное подтверждение на команду
-                cmd.status = EPacket_Status.Duplicate 
+                cmd.status = EPacket_Status.Duplicate
             if cmd.packetN == 0:
                 cmd.status = EPacket_Status.Normal
         #если разница -1 или 999, это дубликат последней полученной команды ( lastTX_N=001 CA_N=000 ), ( lastTX_N=000 CA_N=999 )

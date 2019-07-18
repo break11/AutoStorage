@@ -22,47 +22,50 @@ class CDummyAgentThread( CAgentServer_Net_Thread ):
 
 class Test_processRxPacket(unittest.TestCase):
 
-    # def test_Data_packets(self):
-    #     # нормальная ситуация - получение следующего по порядку пакета (без перехода через 999)
-    #     TX_FIFO = deque()
-    #     ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting, packetN=24 )
-    #     cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=25 )
+    def test_Data_packets(self):
+        # нормальная ситуация - получение следующего по порядку пакета (без перехода через 999)
+        DAL = CDummyAgentLink( 555, True )
+        DAT = CDummyAgentThread()
+        socketDescriptor = self
+        ACS = self
+        DAT.initAgentServer( socketDescriptor, ACS )
+        DAL.last_RX_packetN = 24
+        cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=25 )
 
-    #     testI = 5
-    #     def testF( cmd ):
-    #         nonlocal testI
-    #         testI += cmd.packetN
+        testI = 5
+        def testF( cmd ):
+            nonlocal testI
+            testI += cmd.packetN
 
-    #     CDummyACS.bSendTX_cmd = False
-    #     CDummyACS.nReSendTX_Counter = 20
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус пакета - не дубликат
-    #     self.assertEqual( ACC_cmd.packetN, 25 ) # номер пакета подтверждения обновился
-    #     self.assertEqual( testI, 30 ) # функция обработки пакеты была вызвана
-    #     self.assertEqual( CDummyACS.bSendTX_cmd, True ) # т.к. пришла верная команда, флаг немедленной отправки сообщения выставляется
-    #     self.assertEqual( CDummyACS.nReSendTX_Counter, 0 ) # и сбрасывется счетчик повторной отправки
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус пакета - не дубликат
+        self.assertEqual( DAL.last_RX_packetN, 25 ) # номер пакета подтверждения обновился
+        self.assertEqual( DAL.ACC_cmd.packetN, 25 )
+        self.assertEqual( testI, 30 ) # функция обработки пакеты была вызвана
+        self.assertEqual( DAT.bSendTX_cmd, True ) # т.к. пришла верная команда, флаг немедленной отправки сообщения выставляется
+        self.assertEqual( DAT.nReSendTX_Counter, 0 ) # и сбрасывется счетчик повторной отправки
 
-    #     # повторный приход команды с таким же именем считается дубликатом
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Duplicate )
-    #     self.assertEqual( ACC_cmd.packetN, 25 ) # номер пакета подтверждения не должен поменяться
-    #     # функция обработки пакета НЕ была вызвана второй раз - в тестовом счетчике вызова обработчика команды осталось прежнее значение
-    #     self.assertEqual( testI, 30 )
+        # повторный приход команды с таким же именем считается дубликатом
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+        self.assertEqual( DAL.ACC_cmd.packetN, 25 ) # номер пакета подтверждения не должен поменяться
+        # функция обработки пакета НЕ была вызвана второй раз - в тестовом счетчике вызова обработчика команды осталось прежнее значение
+        self.assertEqual( testI, 30 )
 
-    #     # проверка корректной обработки переходов
-    #     testI = 5
-    #     cmd.packetN = 1
-    #     ACC_cmd.packetN = 999
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус пакета - не дубликат
-    #     self.assertEqual( ACC_cmd.packetN, 1 ) # номер пакета подтверждения обновился
-    #     self.assertEqual( testI, 6 ) # функция обработки пакеты была вызвана
+        # проверка корректной обработки переходов
+        testI = 5
+        cmd.packetN = 1
+        DAL.ACC_cmd.packetN = 999
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус пакета - не дубликат
+        self.assertEqual( DAL.ACC_cmd.packetN, 1 ) # номер пакета подтверждения обновился
+        self.assertEqual( testI, 6 ) # функция обработки пакеты была вызвана
 
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Duplicate )
-    #     self.assertEqual( ACC_cmd.packetN, 1 ) # номер пакета подтверждения не должен поменяться
-    #     # функция обработки пакета НЕ была вызвана второй раз - в тестовом счетчике вызова обработчика команды осталось прежнее значение
-    #     self.assertEqual( testI, 6 )
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+        self.assertEqual( DAL.ACC_cmd.packetN, 1 ) # номер пакета подтверждения не должен поменяться
+        # функция обработки пакета НЕ была вызвана второй раз - в тестовом счетчике вызова обработчика команды осталось прежнее значение
+        self.assertEqual( testI, 6 )
 
     #     # проверка отстающих пакетов
     #     # рядовой случай
@@ -104,8 +107,6 @@ class Test_processRxPacket(unittest.TestCase):
         ACS = self
         DAT.initAgentServer( socketDescriptor, ACS )
 
-        # TX_FIFO = deque()
-        # ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting )
         cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=0 )
         # принимаем корректный CA первый раз - при старте обмена т.к. TX_FIFO будет пустым
         # CA получит статус Normal - т.к. номер пакета был 0
@@ -120,7 +121,8 @@ class Test_processRxPacket(unittest.TestCase):
         _processRxPacket( DAL, DAT, cmd )
         self.assertEqual( cmd.status, EPacket_Status.Duplicate )
 
-        # DAL.last_RX_packetN = 2
+        # DAL.last_RX_packetN = 1
+        DAL.TX_Packets.append( CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=2 ) )
         DAL.lastTXpacketN = 2
         cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=2 )
         _processRxPacket( DAL, DAT, cmd )
