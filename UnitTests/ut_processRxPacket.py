@@ -67,38 +67,39 @@ class Test_processRxPacket(unittest.TestCase):
         # функция обработки пакета НЕ была вызвана второй раз - в тестовом счетчике вызова обработчика команды осталось прежнее значение
         self.assertEqual( testI, 6 )
 
-    #     # проверка отстающих пакетов
-    #     # рядовой случай
-    #     cmd.packetN = 18
-    #     ACC_cmd.packetN = 20
-    #     testI = 0
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
-    #     self.assertEqual( ACC_cmd.packetN, 20 ) # номер последнего полученного пакета не меняется
-    #     self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
-    #     # случай с переходом
-    #     cmd.packetN = 999
-    #     ACC_cmd.packetN = 1
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
-    #     self.assertEqual( ACC_cmd.packetN, 1 ) # номер последнего полученного пакета не меняется
-    #     self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
+        # проверка отстающих пакетов
+        # рядовой случай
+        cmd.packetN = 18
+        DAL.ACC_cmd.packetN = 20
+        testI = 0
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
+        self.assertEqual( DAL.ACC_cmd.packetN, 20 ) # номер последнего полученного пакета не меняется
+        self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
+        # случай с переходом
+        cmd.packetN = 999
+        DAL.ACC_cmd.packetN = 1
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
+        self.assertEqual( DAL.ACC_cmd.packetN, 1 ) # номер последнего полученного пакета не меняется
+        self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
 
-    #     # проверка забегающих вперед пакетов
-    #     # рядовой случай
-    #     cmd.packetN = 22
-    #     ACC_cmd.packetN = 20
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
-    #     self.assertEqual( ACC_cmd.packetN, 20 ) # номер последнего полученного пакета не меняется
-    #     self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
-    #     # случай с переходом
-    #     cmd.packetN = 2
-    #     ACC_cmd.packetN = 999
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
-    #     self.assertEqual( ACC_cmd.packetN, 999 ) # номер последнего полученного пакета не меняется
-    #     self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
+        # проверка забегающих вперед пакетов
+        # рядовой случай
+        cmd.packetN = 22
+        DAL.ACC_cmd.packetN = 20
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
+        self.assertEqual( DAL.ACC_cmd.packetN, 20 ) # номер последнего полученного пакета не меняется
+        self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
+        # случай с переходом
+        cmd.packetN = 2
+        DAL.ACC_cmd.packetN = 999
+        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        # _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
+        self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
+        self.assertEqual( DAL.ACC_cmd.packetN, 999 ) # номер последнего полученного пакета не меняется
+        self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
 
     def test_CA_after_HW(self):
         DAL = CDummyAgentLink( 555, True )
@@ -128,58 +129,71 @@ class Test_processRxPacket(unittest.TestCase):
         _processRxPacket( DAL, DAT, cmd )
         self.assertEqual( cmd.status, EPacket_Status.Normal )
 
-    # def test_CA_Normal_and_Duplicate_in_WorkLoop(self):
-    #     TX_FIFO = deque()
-    #     ACC_cmd = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting, packetN=33 )
-    #     cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=1 )
-    #     TX_FIFO.append( CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=1 ) )
-    #     CDummyACS.bSendTX_cmd = False
-    #     CDummyACS.nReSendTX_Counter = 20
+    def test_CA_Normal_and_Duplicate_in_WorkLoop(self):
+        DAL = CDummyAgentLink( 555, True )
+        DAT = CDummyAgentThread()
 
-    #     # последующие CA будут получать корректный статус при первом получении, т.к. именно при получении CA по команде - эта команда удаляется из буфера отправки
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=1 )
+        DAL.TX_Packets.append( CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=1 ) )
+        DAT.bSendTX_cmd = False
+        DAT.nReSendTX_Counter = 20
 
-    #     self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус CA - Normal - распознан первых приход CA по этой команде
-    #     self.assertEqual( len(TX_FIFO), 0 ) # очередь очистила отправленную команду, т.к. получила подтверждение по ней
-    #     self.assertEqual( ACC_cmd.packetN, 33 ) # номер
-    #     self.assertEqual( CDummyACS.bSendTX_cmd, True ) # т.к. пришла верная команда, флаг немедленной отправки сообщения выставляется
-    #     self.assertEqual( CDummyACS.nReSendTX_Counter, 0 ) # и сбрасывется счетчик повторной отправки
+        socketDescriptor = self
+        ACS = self
+        DAT.initAgentServer( socketDescriptor, ACS )
+        DAL.ACC_cmd.packetN=33
 
-    #     # повторное получение CA будет распознаваться как дубликат
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=1 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+        cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=1 )
+        # последующие CA будут получать корректный статус при первом получении, т.к. именно при получении CA по команде - эта команда удаляется из буфера отправки
+        _processRxPacket( DAL, DAT, cmd )
 
-    #     # проверка перехода через 999
-    #     cmd.packetN = 999
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=1 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+        self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус CA - Normal - распознан первых приход CA по этой команде
+        self.assertEqual( len(DAL.TX_Packets), 0 ) # очередь очистила отправленную команду, т.к. получила подтверждение по ней
+        self.assertEqual( DAL.ACC_cmd.packetN, 33 ) # номер
+        self.assertEqual( DAT.bSendTX_cmd, True ) # т.к. пришла верная команда, флаг немедленной отправки сообщения выставляется
+        self.assertEqual( DAT.nReSendTX_Counter, 0 ) # и сбрасывется счетчик повторной отправки
 
-    #     # рядовой случай получения дубликатов
-    #     cmd.packetN = 20
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=21 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+        # повторное получение CA будет распознаваться как дубликат
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Duplicate )
 
-    #     # проверка на то, что пакет отстающий больше, чем на 1 - распознается как ошибка
-    #     cmd.packetN = 20 # рядовой случай
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=22 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error )
-    #     cmd.packetN = 999 # случай с переходом
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=2 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error )
+        # проверка перехода через 999
+        cmd.packetN = 999
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Duplicate )
 
-    #     # проверка на то, что пакет забегающий вперед распознается как ошибка
-    #     cmd.packetN = 21 # рядовой случай
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=20 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error )
-    #     cmd.packetN = 22 # рядовой случай
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=20 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error )
-    #     cmd.packetN = 0 # случай с переходом
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=999 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Normal )
-    #     cmd.packetN = 1 # случай с переходом
-    #     _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=999 )
-    #     self.assertEqual( cmd.status, EPacket_Status.Error )
+        # рядовой случай получения дубликатов
+        cmd.packetN = 20
+        DAL.lastTXpacketN = 21
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Duplicate )
+
+        # проверка на то, что пакет отстающий больше, чем на 1 - распознается как ошибка
+        DAL.lastTXpacketN = 22
+        cmd.packetN = 20 # рядовой случай
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Error )
+        cmd.packetN = 999 # случай с переходом
+        DAL.lastTXpacketN = 2
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Error )
+
+        # проверка на то, что пакет забегающий вперед распознается как ошибка
+        cmd.packetN = 21 # рядовой случай
+        DAL.lastTXpacketN = 20
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Error )
+        cmd.packetN = 22 # рядовой случай
+        DAL.lastTXpacketN = 20
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Error )
+        cmd.packetN = 0 # случай с переходом
+        cmd.lastTXpacketN = 999
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Normal )
+        cmd.packetN = 1 # случай с переходом
+        cmd.lastTXpacketN = 999
+        _processRxPacket( DAL, DAT, cmd )
+        self.assertEqual( cmd.status, EPacket_Status.Error )
 
 if __name__ == '__main__':
     unittest.main()

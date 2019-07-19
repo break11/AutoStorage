@@ -57,6 +57,7 @@ class CAgentServer_Net_Thread(QThread):
         self.ACS = weakref.ref( ACS )
         self.socketDescriptor = socketDescriptor
         self.bConnected = True
+        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} INIT" )
 
     def __del__(self):
         self.socketDescriptor = None
