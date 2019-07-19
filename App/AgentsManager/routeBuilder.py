@@ -1,9 +1,10 @@
 import math
 from copy import deepcopy
 from collections import namedtuple
+import networkx as nx
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import getAgentAngle, edgesListFromNodes, edgeSize
+from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles, pathWeight
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 
@@ -183,8 +184,8 @@ class CRouteBuilder():
 
     def getDirection(self, tEdgeKey, agent_angle):
         DirDict = { True: SGT.EDirection.R, False: SGT.EDirection.F, None: SGT.EDirection.Error }
-        rAngle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
-        return math.degrees(rAngle), DirDict[bReverse]
+        angle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
+        return angle, DirDict[bReverse]
 
     def splitPathByFractures(self, path):
         fracturedPath = []

@@ -15,7 +15,7 @@ from PyQt5 import uic
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common import FileUtils
-from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps
+from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps, EAgent_Status
 import Lib.Common.StrConsts as SC
 from Lib.Common.Utils import time_func
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -23,8 +23,8 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType, findNodes, routeToServiceStation
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
@@ -51,6 +51,8 @@ class CAM_MainWindow(QMainWindow):
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
+
+        self.route_count = 0
                 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -148,29 +150,35 @@ class CAM_MainWindow(QMainWindow):
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
                            SGT.ENodeTypes.PickStation,
                            SGT.ENodeTypes.PickStationIn,
-                           SGT.ENodeTypes.PickStationOut,
-                           SGT.ENodeTypes.ServiceStation ]
+                           SGT.ENodeTypes.PickStationOut ]
                            
-    def AgentTestMoving(self, agentNO):
+    def AgentTestMoving(self, agentNO, targetNode = None):
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
+        if agentNO.status == EAgent_Status.Charging.name: return
 
         nxGraph = self.graphRootNode().nxGraph
+        tKey = tEdgeKeyFromStr( agentNO.edge ) # 44 45
+        startNode = tKey[0] #44
 
-        l = len( nxGraph.nodes )
-        nodes = list( nxGraph.nodes )
+        if targetNode is None:
+            if self.route_count == 3: # False
+                route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
+                self.route_count = -1
+                agentNO.status = EAgent_Status.GoToCharge.name
+            else:
+                nodes = list( nxGraph.nodes )
+                while True:
+                    targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
+                    if startNode == targetNode: continue
+                    nType = SGT.ENodeTypes.fromString( nodeType(nxGraph, targetNode) )
+                    if nType in self.enabledTargetNodes:
+                        break
+                
+                nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+        else:
+            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
 
-        tKey = tEdgeKeyFromStr( agentNO.edge )
-        startNode = tKey[0]
-
-        while True:
-            targetNode = nodes[ random.randint(0, l-1) ]
-            if startNode == targetNode: continue
-            nType = SGT.ENodeTypes.fromString( nodeType(nxGraph, targetNode) )
-            if nType in self.enabledTargetNodes:
-                break
-            
-        nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
         curEdgeSize = edgeSize( nxGraph, tKey )
 
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
@@ -180,14 +188,18 @@ class CAM_MainWindow(QMainWindow):
             curEdgeSize = edgeSize( nxGraph, tKey )
             agentNO.position = curEdgeSize - agentNO.position
             nodes_route.insert(0, tKey[0] )
-        elif ( agentNO.position / curEdgeSize ) > 0.5:
+        
+        if ( agentNO.position / curEdgeSize ) > 0.5:
             if len( nodes_route ) > 2:
                 nodes_route = nodes_route[1:]
                 tKey = ( nodes_route[0], nodes_route[1] )
                 agentNO.edge = tEdgeKeyToStr( tKey )
                 agentNO.position = 0
+            else:
+                return
 
         agentNO.route = ",".join( nodes_route )
+        self.route_count += 1
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
@@ -195,3 +207,20 @@ class CAM_MainWindow(QMainWindow):
 
         for agentNO in self.agentsNode().children:
             self.AgentTestMoving( agentNO )
+    
+    def on_leTargetNode_returnPressed(self):
+        if self.btnSimpleAgent_Test.isChecked():
+            return
+
+        agentNO = self.agentsNode().childByName( str(self.currAgentN()) )
+        if agentNO is None: return
+
+        self.AgentTestMoving( agentNO, targetNode = self.leTargetNode.text() )
+        nxGraph = self.graphRootNode().nxGraph
+
+    # ******************************************************
+    def on_btnCharge_released( self ):
+        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
+        if agentLink is None: return
+
+        agentLink.startCharging()

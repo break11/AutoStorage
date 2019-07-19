@@ -2,6 +2,7 @@ import datetime
 import weakref
 import math
 import os
+import subprocess
 
 from PyQt5.QtCore import QTimer
 
@@ -10,6 +11,7 @@ from Lib.Common.Agent_NetObject import s_route, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
+import Lib.Common.FileUtils as FileUtils
 import Lib.Common.StrConsts as SC
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
@@ -35,6 +37,11 @@ class CAgentLink( CAgentServer_Link ):
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
         # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
         self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( self.agentN ) )
+
+        self.ChargeTimer = QTimer()
+        self.ChargeTimer.setInterval(2000)
+        self.ChargeTimer.setSingleShot( True )
+        self.ChargeTimer.timeout.connect( self.chargeOff )
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
@@ -87,8 +94,8 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.angle = 0
             return
 
-        rAngle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
-        agentNO.angle = math.degrees( rAngle )
+        angle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
+        agentNO.angle = angle
     ####################
     def currSII(self): return self.SII[ self.DE_IDX ]
     
@@ -104,6 +111,8 @@ class CAgentLink( CAgentServer_Link ):
 
             if self.DE_IDX == len(self.SII)-1:
                 agentNO.route = ""
+                if agentNO.status == EAgent_Status.GoToCharge.name:
+                    self.startCharging()
             else:
                 self.DE_IDX += 1
 
@@ -156,6 +165,24 @@ class CAgentLink( CAgentServer_Link ):
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
             self.pushCmd( ES_cmd )
             agentNO.status = EAgent_Status.PositionSyncError.name
+
+    def remapPacketsNumbers( self, startPacketN ):
+        self.genTxPacketN = startPacketN
+        for cmd in self.TX_Packets:
+            cmd.packetN = self.genTxPacketN
+            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
+
+    def startCharging( self ):
+        self.agentNO().status = EAgent_Status.Charging.name
+
+        print( "Start Charging!" )
+        subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "on"] )
+        self.ChargeTimer.start()
+
+    def chargeOff( self ):
+        subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "off"] )
+        self.agentNO().status = EAgent_Status.Idle.name
+        print( "Stop Charging!" )
 
 
 

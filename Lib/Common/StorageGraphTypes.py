@@ -1,5 +1,6 @@
 
 from enum import Enum, auto
+import math
 from PyQt5.QtCore import (Qt)
 
 from .Utils import EnumFromString
@@ -35,8 +36,9 @@ class ENodeTypes( Enum ):
     PickStationOut = auto()
     ServiceStation = auto()
     Terminal       = auto()
+
     @staticmethod
-    def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.NoneType )
+    def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.UnknownType )
 
 nodeColors = {
     ENodeTypes.NoneType       : Qt.darkGray,
@@ -103,4 +105,23 @@ class EDirection( Enum ):
     Error   = auto()
 
     @staticmethod
-    def fromString( sType ): return EnumFromString( EDirection, sType, ESensorSide.Error )
+    def fromString( sType ): return EnumFromString( EDirection, sType, EDirection.Error )
+
+class ESide( Enum ):
+    Left            = auto()
+    Right           = auto()
+    ChargeSideLeft  = Right # ChargeSideLeft - указывает положение "минуса", т.е. "плюс" справа. У челнока "плюс" в передней части.
+    ChargeSideRight = Left  # поэтому при ChargeSideLeft челнок необходимо располагать вектором в правый сектор.
+
+
+    @staticmethod
+    def fromString( sType ): return EnumFromString( ESide, sType, ESide.Right )
+
+    @staticmethod
+    def fromAngle( angle ):
+        angle = angle % 360
+
+        if angle > 45 and angle < 225:
+            return ESide.Left
+        else:
+            return ESide.Right

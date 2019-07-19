@@ -10,6 +10,9 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from App.AgentsManager.routeBuilder import CRouteBuilder
+from Lib.Common import StorageGraphTypes as SGT
+import Lib.Common.GraphUtils as gu
+
 
 sDir = "./UnitTests/RouteBuilder/"
 
@@ -36,7 +39,7 @@ class CRouteCase():
 
 routeCases:list = []
 
-with open( sDir + "routeCases_correct_700.txt" , 'r') as routes_file:
+with open( sDir + "routeCases_correct_700.txt" , "r") as routes_file:
     for line in routes_file:
 
         route = line.split("|")
@@ -56,7 +59,7 @@ class CTestRouteBuilder(unittest.TestCase):
 
     def test_buildRoute(self):
         # n = 0
-        # f = open( "./UnitTests/RouteBuilder/passed.txt", 'w' )
+        # f = open( "./UnitTests/RouteBuilder/passed.txt", "w" )
         for case in routeCases:
 
             shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
@@ -81,5 +84,6 @@ class CTestRouteBuilder(unittest.TestCase):
         # f.close()
         # print( "Passed cases", n )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

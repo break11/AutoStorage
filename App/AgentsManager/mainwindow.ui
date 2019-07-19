@@ -48,6 +48,23 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="lbTargetNode">
+        <property name="text">
+         <string>Target Node:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leTargetNode"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnCharge">
+        <property name="text">
+         <string>Charge</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -154,7 +171,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>27</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">
