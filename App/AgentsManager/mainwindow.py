@@ -40,7 +40,6 @@ class CAM_MainWindow(QMainWindow):
         assert self.agent_CMD_Log_Container is not None
         assert self.agent_CMD_Log_Container.layout() is not None
         self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
-        self.ACL_Form.lePushCMD.returnPressed.connect( self.pushCMD_to_Agent )
         self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch )
 
         # CAgents_Move_Manager.init()
@@ -94,28 +93,6 @@ class CAM_MainWindow(QMainWindow):
 
     ################################################################
     
-    def pushCMD_to_Agent( self ):
-        agentN = self.ACL_Form.sbAgentN.value()
-
-        agentLink = self.AgentsConnectionServer.getAgentLink( agentN, bWarning = False )
-        if agentLink is None: return
-
-        l = self.ACL_Form.lePushCMD.text().split(" ")
-        cmd_list = []
-
-        for item in l:
-            sCMD = f"{self.ACL_Form.sbPacketN.value():03d},{agentN:03d}:{item}"
-            cmd_list.append( CAgentServerPacket.fromTX_Str( sCMD ) )
-
-        if None in cmd_list:
-            print( f"{SC.sWarning} invalid command in command list: {cmd_list}" )
-            return
-        
-        if agentLink.isConnected():
-            for cmd in cmd_list:
-                agentLink.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
-                ALM.doLogString( agentLink, f"Send custom cmd={cmd.toTX_Str( appendLF=False )}" )
-
     @pyqtSlot("bool")
     def Agent_RequestTelemetry_switch( self, bVal ):
         agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )

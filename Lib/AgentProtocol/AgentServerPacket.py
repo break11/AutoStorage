@@ -70,12 +70,12 @@ class CAgentServerPacket:
     def toRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
     def toTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True,  appendLF=appendLF )
 
-    # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
-    def toCRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF ).decode()
-    def toCTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
+    # # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
+    # def toCRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF ).decode()
+    # def toCTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
 
-    def toCRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
-    def toCTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
+    # def toCRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
+    # def toCTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
 
     ############################################################
 
@@ -150,13 +150,14 @@ class CAgentServerPacket:
     @classmethod
     def fromTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
 
-    # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
-    @classmethod
-    def fromCRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
-    @classmethod
-    def fromCTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
+    # # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
+    # @classmethod
+    # def fromCRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
+    # @classmethod
+    # def fromCTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
 
-    @classmethod
-    def fromCRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
-    @classmethod
-    def fromCTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=False, removeLF=removeLF )
+    # @classmethod
+    # def fromCRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
+    # @classmethod
+    # def fromCTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=False, removeLF=removeLF )
+

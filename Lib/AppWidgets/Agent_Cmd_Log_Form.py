@@ -5,6 +5,9 @@ from PyQt5.QtWidgets import QWidget, QCheckBox
 from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
 
+import Lib.Common.StrConsts as SC
+
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX
 from Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -80,6 +83,7 @@ class CAgent_Cmd_Log_Form(QWidget):
             filterSet[ sFilterSign ] = cb.isChecked()
 
     def setAgentLink( self, agentLink ):
+        self.agentLink = agentLink
         if agentLink is None:
             self.pteAgentLog.clear()
             return
@@ -141,4 +145,30 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         self.pteAgentLog.clear()
         self.agentLink().log.clear()
+    
+    def on_leCMD_Event_returnPressed( self ):
+        self.sendCustom_CMD()
+
+    def on_leCMD_Data_returnPressed( self ):
+        self.sendCustom_CMD()
+    
+    def sendCustom_CMD( self ):
+        AL = self.agentLink
+        if AL is None: return
+        AL = AL()
+
+        agentN = self.sbAgentN.value()
+
+        cmd = CAgentServerPacket( agentN=agentN, packetN=self.sbPacketN.value(),
+                                  event=EAgentServer_Event.fromStr( self.leCMD_Event.text() ),
+                                  data=self.leCMD_Data.text() )
+
+        if cmd.event is None:
+            print( f"{SC.sWarning} invalid command: {cmd}" )
+            return
+        
+        if AL.isConnected():
+            AL.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
+            ALM.doLogString( AL, f"Send custom cmd={cmd.toStr( bTX_or_RX=AL.bIsServer, appendLF=False )}" )
+
 

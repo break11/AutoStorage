@@ -172,7 +172,7 @@ class CAgentServer_Net_Thread(QThread):
         
         while self.tcpSocket.canReadLine(): #and self.agentN == UNINITED_AGENT_N:
             line = self.tcpSocket.readLine()
-            cmd = CAgentServerPacket.fromRX_BStr( line.data() ) # bTX_or_RX= не ставим, т.к. initHW должна вызываться только с сервера
+            cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
 
             if cmd is None: continue
             if cmd.event == getACC_Event_OtherSide( self.bIsServer ): continue

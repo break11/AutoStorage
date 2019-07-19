@@ -30,6 +30,7 @@ class CAgentServer_Link:
         # self.last_RX_packetN = 1000 # Now as property
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
+        self.bIsServer = bIsServer
 
     def __del__(self):
         self.done()

@@ -81,12 +81,22 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lePushCMD">
+      <widget class="QLineEdit" name="leCMD_Event">
        <property name="toolTip">
         <string>Send Custom CMD to Agent</string>
        </property>
        <property name="text">
         <string>@HW</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="leCMD_Data">
+       <property name="toolTip">
+        <string>Send Custom CMD to Agent</string>
+       </property>
+       <property name="text">
+        <string/>
        </property>
       </widget>
      </item>
