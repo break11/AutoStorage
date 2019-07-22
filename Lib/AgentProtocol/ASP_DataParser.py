@@ -49,7 +49,9 @@ class SAgent_BatteryState:
         return SAgent_BatteryState( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
     
     def toString( self ):
-        return f"{ EAgentBattery_Type.toString( self.PowerType ) },{ self.S_V }V,{ self.L_V }V,{ self.power_U }V,{ self.power_I1:.1f }A/{ self.power_I2 }A"
+        v = 12.3
+        print( f"{v:.2f}", f"{self.power_I1:.3f}" )
+        return f"{ EAgentBattery_Type.toString( self.PowerType ) },{ self.S_V }V,{ self.L_V }V,{ self.power_U }V,{ self.power_I1:.2f }A/{ self.power_I2 }A"
     
 ####################################################################
 
