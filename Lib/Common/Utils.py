@@ -8,7 +8,7 @@ def EnumFromString( enum, sValue, defValue ):
     try:
         rVal = enum[ sValue ]
     except:
-        print( f"{SC.sWarning} Enum {enum} doesn't contain value for string = {sValue}, using {defValue.name}!" )
+        print( f"{SC.sWarning} Enum {enum} doesn't contain value for string = {sValue}, using {defValue}!" )
         rVal = defValue
     return rVal
 
