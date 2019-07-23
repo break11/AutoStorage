@@ -13,12 +13,16 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.FileUtils as FileUtils
 import Lib.Common.StrConsts as SC
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from .routeBuilder import CRouteBuilder
-from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
+
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
+from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
+from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData
+
+from .routeBuilder import CRouteBuilder
 
 class CAgentLink( CAgentServer_Link ):
     def __init__(self, agentN):
@@ -31,7 +35,7 @@ class CAgentLink( CAgentServer_Link ):
         self.requestTelemetry_Timer = QTimer()
         self.requestTelemetry_Timer.setInterval(1000)
         self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
-        # self.requestTelemetry_Timer.start() # временно для отладки отключаем
+        self.requestTelemetry_Timer.start() # временно для отладки отключаем
 
         # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
@@ -103,6 +107,12 @@ class CAgentLink( CAgentServer_Link ):
     def processRxPacket( self, cmd ):
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
+        elif cmd.event == EAgentServer_Event.BatteryState:
+            agentNO = self.agentNO()
+
+            BS = extractASP_Data( cmd )
+            agentNO.charge = BS.supercapPercentCharge()
+
         elif cmd.event == EAgentServer_Event.DistanceEnd:
             self.segOD = 0
             agentNO = self.agentNO()
@@ -184,12 +194,8 @@ class CAgentLink( CAgentServer_Link ):
         self.agentNO().status = EAgent_Status.Idle.name
         print( "Stop Charging!" )
 
-
-
-
-
-
-
-
-
-
+        # отправка спец команды фейк агенту, т.к. для него это единственный способ получить оповещение о восстановлении заряда
+        cmd_data = SFakeAgent_DevPacketData()
+        cmd_data.bChargeOff = True
+        cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.FakeAgentDevPacket, data=cmd_data.toString() )
+        self.pushCmd( cmd )

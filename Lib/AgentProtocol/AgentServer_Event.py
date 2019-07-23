@@ -1,31 +1,32 @@
 from enum import IntEnum, auto
 
 class EAgentServer_Event( IntEnum ):
-    Error            = auto() # Error text message with symbol*
-    Warning_         = auto() # Warning text message with symbol #
-    Text             = auto() # Text message to Log
-    HelloWorld       = auto() # @HW
-    ClientAccepting  = auto() # @CA
-    ServerAccepting  = auto() # @SA
-    BatteryState     = auto() # @BS
-    TemperatureState = auto() # @TS
-    TaskList         = auto() # @TL
-    WheelOrientation = auto() # @WO
-    NewTask          = auto() # @NT
-    PowerOn          = auto() # @PE
-    PowerOff         = auto() # @PD
-    BrakeRelease     = auto() # @BR
-    EmergencyStop    = auto() # @ES
-    SequenceBegin    = auto() # @SB
-    SequenceEnd      = auto() # @SE
-    DistancePassed   = auto() # @DP
-    OdometerZero     = auto() # @OZ
-    OdometerPassed   = auto() # @OP
-    OdometerDistance = auto() # @OD
-    DistanceEnd      = auto() # @DE
-    BoxLoad          = auto() # @BL
-    BoxUnload        = auto() # @BU
-    BoxLoadAborted   = auto() # @BA
+    FakeAgentDevPacket = auto() # специальные команды для взаимодействия с фейк агентом - например команда об окончании заряда
+    Error              = auto() # Error text message with symbol*
+    Warning_           = auto() # Warning text message with symbol #
+    Text               = auto() # Text message to Log
+    HelloWorld         = auto() # @HW
+    ClientAccepting    = auto() # @CA
+    ServerAccepting    = auto() # @SA
+    BatteryState       = auto() # @BS
+    TemperatureState   = auto() # @TS
+    TaskList           = auto() # @TL
+    WheelOrientation   = auto() # @WO
+    NewTask            = auto() # @NT
+    PowerOn            = auto() # @PE
+    PowerOff           = auto() # @PD
+    BrakeRelease       = auto() # @BR
+    EmergencyStop      = auto() # @ES
+    SequenceBegin      = auto() # @SB
+    SequenceEnd        = auto() # @SE
+    DistancePassed     = auto() # @DP
+    OdometerZero       = auto() # @OZ
+    OdometerPassed     = auto() # @OP
+    OdometerDistance   = auto() # @OD
+    DistanceEnd        = auto() # @DE
+    BoxLoad            = auto() # @BL
+    BoxUnload          = auto() # @BU
+    BoxLoadAborted     = auto() # @BA
 
     @classmethod
     def fromBStr( cls, data ):
@@ -39,6 +40,7 @@ class EAgentServer_Event( IntEnum ):
         return _AgentServer_Event_to_Str[ self ]
 
 _AgentServer_Event_from_BStr = {
+                                b"@FA": EAgentServer_Event.FakeAgentDevPacket,
                                 b"*"  : EAgentServer_Event.Error,
                                 b"#"  : EAgentServer_Event.Warning_,
                                 b""   : EAgentServer_Event.Text,

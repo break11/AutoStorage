@@ -27,8 +27,9 @@ s_route_idx = "route_idx"
 s_angle     = "angle"
 s_odometer  = "odometer"
 s_status    = "status"
+s_charge    = "charge"
 
-def_props = { s_status: EAgent_Status.Idle.name, s_edge: "", s_position: 0, s_route: "", s_route_idx: 0, s_angle : 0, s_odometer : 0 }
+def_props = { s_status: EAgent_Status.Idle.name, s_edge: "", s_position: 0, s_route: "", s_route_idx: 0, s_angle : 0, s_odometer : 0, s_charge : 0 }
 
 def agentsNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )

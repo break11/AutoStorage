@@ -10,9 +10,11 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
+from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState
 
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
-DP_TICKS_PER_CYCLE = 7 # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
+DP_TICKS_PER_CYCLE = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
+BS_DEC_PER_CYCLE   = DP_DELTA_PER_CYCLE * 0.0001
 
 taskCommands = [ EAgentServer_Event.SequenceBegin,
                  EAgentServer_Event.SequenceEnd,
@@ -36,7 +38,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         elif cmd.event == EAgentServer_Event.TaskList:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( FAL.tasksList ) ) ) )
         elif cmd.event == EAgentServer_Event.BatteryState:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = FAL.BS_Answer ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = FAL.batteryState.toString() ) )
         elif cmd.event == EAgentServer_Event.TemperatureState:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = FAL.TS_Answer ) )
         elif cmd.event == EAgentServer_Event.OdometerDistance:
@@ -46,6 +48,10 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
         elif cmd.event == EAgentServer_Event.PowerOn or cmd.event == EAgentServer_Event.PowerOff:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
+        elif cmd.event == EAgentServer_Event.FakeAgentDevPacket:
+            FA_DPD = SFakeAgent_DevPacketData.fromString( cmd.data )
+            if FA_DPD.bChargeOff:
+               FAL.batteryState.S_V = SAgent_BatteryState.max_S_U
         elif cmd.event in taskCommands:
             FAL.tasksList.append( cmd )
 
@@ -88,10 +94,12 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                 self.startNextTask()
 
             elif FAL.currentTask.event == EAgentServer_Event.DistancePassed:
+
                 if FAL.dpTicksDivider < DP_TICKS_PER_CYCLE:
                     FAL.dpTicksDivider = FAL.dpTicksDivider + 1
 
                 elif FAL.dpTicksDivider == DP_TICKS_PER_CYCLE:
+                    FAL.batteryState.S_V = max( FAL.batteryState.S_V - BS_DEC_PER_CYCLE, 0 )
                     FAL.dpTicksDivider = 0
                     if FAL.distanceToPass > 0:
                         FAL.distanceToPass = FAL.distanceToPass - DP_DELTA_PER_CYCLE
