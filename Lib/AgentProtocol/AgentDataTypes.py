@@ -58,26 +58,22 @@ class SAgent_BatteryState:
 #########################################################
 
 class SFakeAgent_DevPacketData:
-    s_ChargeOFF = "ChargeOFF"
+    "Charging,XXX,XXX"
+    "1,XXX,XXX"
 
-    def __init__( self ):
-        self.bChargeOff = False
+    def __init__( self, bCharging ):
+        self.bCharging = bCharging
     
     @classmethod
     def fromString( cls, data ):
-        cmds = data.split(",")
-        FA_DPD = SFakeAgent_DevPacketData()
-
-        if cls.s_ChargeOFF in cmds:    
-            FA_DPD.bChargeOff = True
+        params = data.split(",")
+        FA_DPD = SFakeAgent_DevPacketData( bCharging = bool( int( params[ 0 ] ) ) )
 
         return FA_DPD
 
     def toString( self ):
         cmds = []
-
-        if self.bChargeOff:
-            cmds.append( self.s_ChargeOFF )
+        cmds.append( str( int( self.bCharging ) ) )
 
         return ",".join( cmds )
 

@@ -30,12 +30,20 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( sData, eData.toString() )
 
     def test_FA(self):
-        sData = f"{SFakeAgent_DevPacketData.s_ChargeOFF}"
+        sData = f"1"
         packet = CAgentServerPacket( event = EAgentServer_Event.FakeAgentDevPacket, data = sData )
 
         eData = extractASP_Data( packet )
         self.assertEqual( type(eData), SFakeAgent_DevPacketData )
-        self.assertEqual( eData.bChargeOff, True )
+        self.assertEqual( eData.bCharging, True )
+
+        self.assertEqual( sData, eData.toString() )
+
+        sData = f"0"
+        packet = CAgentServerPacket( event = EAgentServer_Event.FakeAgentDevPacket, data = sData )
+        eData = extractASP_Data( packet )
+        self.assertEqual( type(eData), SFakeAgent_DevPacketData )
+        self.assertEqual( eData.bCharging, False )
 
         self.assertEqual( sData, eData.toString() )
 

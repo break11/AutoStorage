@@ -50,8 +50,11 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
         elif cmd.event == EAgentServer_Event.FakeAgentDevPacket:
             FA_DPD = SFakeAgent_DevPacketData.fromString( cmd.data )
-            if FA_DPD.bChargeOff:
-               FAL.batteryState.S_V = SAgent_BatteryState.max_S_U
+            if FA_DPD.bCharging:
+                f = SAgent_BatteryState.min_S_U + ( SAgent_BatteryState.max_S_U - SAgent_BatteryState.min_S_U ) / 2
+                FAL.batteryState.S_V = max( f, FAL.batteryState.S_V )
+            else:
+                FAL.batteryState.S_V = SAgent_BatteryState.max_S_U
         elif cmd.event in taskCommands:
             FAL.tasksList.append( cmd )
 

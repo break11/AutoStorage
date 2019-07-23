@@ -40,10 +40,8 @@ class CAM_MainWindow(QMainWindow):
         assert self.agent_CMD_Log_Container is not None
         assert self.agent_CMD_Log_Container.layout() is not None
         self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
-        
-        self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch ) ##remove##
 
-        # CAgents_Move_Manager.init()
+        self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch ) ##remove##
 
         self.SimpleAgentTest_Timer = QTimer( self )
         self.SimpleAgentTest_Timer.setInterval(500)
@@ -51,8 +49,6 @@ class CAM_MainWindow(QMainWindow):
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
-
-        self.route_count = 0
                 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -140,9 +136,8 @@ class CAM_MainWindow(QMainWindow):
         startNode = tKey[0] #44
 
         if targetNode is None:
-            if self.route_count == 3: # False
+            if agentNO.charge < 30:
                 route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
-                self.route_count = -1
                 agentNO.status = EAgent_Status.GoToCharge.name
             else:
                 nodes = list( nxGraph.nodes )
@@ -177,7 +172,6 @@ class CAM_MainWindow(QMainWindow):
                 return
 
         agentNO.route = ",".join( nodes_route )
-        self.route_count += 1
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
