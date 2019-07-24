@@ -64,6 +64,14 @@ class CAgent_SGItem(QGraphicsItem):
         self.lines.append ( v_line.translated ( w - 2*of_sx, h - ln ) )
 
         self.textRect =  QRectF( sx + of_sx, sy + of_sy, w - 2*of_sx, h - 2*of_sy )
+
+        #батарейка
+        self.b_x, self.b_y = self.sx + 110, self.sy + 170 # координаты батарейки x, y
+        self.b_w, self.b_h = 80, 120 # ширина, высота основного контура
+        
+        self.battery_m = QRectF( self.b_x, self.b_y + 20, self.b_w, self.b_h ) # основной контур
+        self.battery_p = QRectF( self.b_x + 15, self.b_y, 50, 20 ) # положительный контакт
+
         
     def getNetObj_UIDs( self ):
         return { self.__agentNetObj().UID }
@@ -138,16 +146,27 @@ class CAgent_SGItem(QGraphicsItem):
             painter.setFont( font )
 
             alignFlags = Qt.AlignLeft | Qt.AlignTop
-            text = f"ID: {self.__agentNetObj().name}\n{self.status}"
+            self.status = self.__agentNetObj().status
+            text = f"ID: {self.__agentNetObj().name}\nST: {self.status}"
 
             painter.drawPolygon( self.polygon )
 
             painter.fillRect(self.sx + 5, -150, 20, 300, Qt.darkBlue)
             painter.fillRect(-self.sx - 25, -150, 20, 300, Qt.darkRed)
+            painter.fillRect(-10, -10, 20, 20, Qt.darkGray)
             
             painter.drawLines( self.lines )
-            painter.fillRect(-10, -10, 20, 20, Qt.black)
 
+            #отрисовка батарейки
+            charge = self.__agentNetObj().charge / 100
+            color = Qt.black if charge > 0.3 else Qt.darkRed
+            offset = 10
+            charge_level = min( max(100 * (1 - charge), 0), 100 )
+
+            painter.fillRect( self.battery_p, Qt.black )
+            painter.fillRect( self.battery_m.adjusted( offset, charge_level + offset, -offset, -offset ), color ) #уровень заряда
+            painter.setBrush( QBrush() )
+            painter.drawRect( self.battery_m )
 
             #поворот текста для удобства чтения, если итем челнока перевернут
             if ( 95 < abs( self.rotation() ) < 265 ):
