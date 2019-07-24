@@ -20,7 +20,6 @@ import Lib.Common.StrConsts as SC
 from Lib.Common.Utils import time_func
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
-from .AgentsMoveManager import CAgents_Move_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
