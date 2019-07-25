@@ -130,6 +130,9 @@ class CAgentServerPacket:
                         data = l[2].decode()
                     else:
                         data = None
+                else:
+                    if len(l) > 2:
+                        data += l[2].decode()
 
             return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, channelN=channelN, timeStamp=timeStamp, data=data )
         except Exception as e:

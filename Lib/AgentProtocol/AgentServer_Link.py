@@ -72,3 +72,6 @@ class CAgentServer_Link:
         for cmd in self.TX_Packets:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = getNextPacketN( self.genTxPacketN )
+
+    def genPacket( self, event, data=None ):
+        return ASP( event = event, agentN = self.agentN, data = data )

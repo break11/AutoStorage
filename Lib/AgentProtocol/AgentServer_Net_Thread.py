@@ -84,7 +84,10 @@ class CAgentServer_Net_Thread(QThread):
         if self._agentLink is not None: return self._agentLink()
 
     def genPacket( self, event, data=None ):
-        return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
+        if self._agentLink is None: return
+            
+        return self.agentLink().genPacket( event, data )
+        ##remove##return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
 
     def writeTo_Socket( self, cmd ):
         self.tcpSocket.write( cmd.toBStr( bTX_or_RX=self.bIsServer ) )

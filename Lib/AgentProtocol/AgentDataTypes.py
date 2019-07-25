@@ -5,6 +5,7 @@ from Lib.Common.Utils import EnumFromString
 class EAgentBattery_Type( IntEnum ):
     Supercap   = auto() # Error text message with symbol*
     Li         = auto() # Warning text message with symbol #
+    N          = auto()
     S = Supercap
     L = Li
 
@@ -13,7 +14,10 @@ class EAgentBattery_Type( IntEnum ):
 
     @staticmethod
     def toString( eType ):
-        toStrD = { EAgentBattery_Type.Supercap: "S"}
+        toStrD = { EAgentBattery_Type.Supercap: "S",
+                   EAgentBattery_Type.Li: "L",
+                   EAgentBattery_Type.N:  "N"
+                 }
         return toStrD[ eType ]
 
 

@@ -137,7 +137,10 @@ class CAM_MainWindow(QMainWindow):
         if targetNode is None:
             if agentNO.charge < 30:
                 route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
-                agentNO.status = EAgent_Status.GoToCharge.name
+                if len(nodes_route) == 0:
+                    print(f"{SC.sError} Cant find any route to service station.")
+                else:
+                    agentNO.status = EAgent_Status.GoToCharge.name
             else:
                 nodes = list( nxGraph.nodes )
                 while True:
@@ -150,6 +153,8 @@ class CAM_MainWindow(QMainWindow):
                 nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
         else:
             nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+
+        if len(nodes_route) < 2: return
 
         curEdgeSize = edgeSize( nxGraph, tKey )
 

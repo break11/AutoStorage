@@ -21,16 +21,13 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
 from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData
+from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
 
 from .routeBuilder import CRouteBuilder
 
 class CAgentLink( CAgentServer_Link ):
     def __init__(self, agentN):
         super().__init__( agentN = agentN, bIsServer = True )
- 
-        self.BS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.BatteryState )
-        self.TS_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.TemperatureState )
-        self.TL_cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.TaskList )
 
         self.requestTelemetry_Timer = QTimer()
         self.requestTelemetry_Timer.setInterval(1000)
@@ -43,7 +40,7 @@ class CAgentLink( CAgentServer_Link ):
         self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( self.agentN ) )
 
         self.ChargeTimer = QTimer()
-        self.ChargeTimer.setInterval(2000)
+        self.ChargeTimer.setInterval(20000)
         self.ChargeTimer.setSingleShot( True )
         self.ChargeTimer.timeout.connect( self.chargeOff )
 
@@ -86,9 +83,10 @@ class CAgentLink( CAgentServer_Link ):
     ##################
 
     def requestTelemetry(self):
-        self.pushCmd( self.BS_cmd, bAllowDuplicate=False )
-        self.pushCmd( self.TS_cmd, bAllowDuplicate=False )
-        self.pushCmd( self.TL_cmd, bAllowDuplicate=False )
+        self.pushCmd( self.genPacket( event=EAgentServer_Event.BatteryState ),     bAllowDuplicate=False )
+        self.pushCmd( self.genPacket( event=EAgentServer_Event.TemperatureState ), bAllowDuplicate=False )
+        self.pushCmd( self.genPacket( event=EAgentServer_Event.TaskList ),         bAllowDuplicate=False )
+        self.pushCmd( self.genPacket( event=EAgentServer_Event.OdometerPassed ),   bAllowDuplicate=False )
 
     ####################
     def calcAgentAngle( self, agentNO ):
@@ -126,7 +124,7 @@ class CAgentLink( CAgentServer_Link ):
             else:
                 self.DE_IDX += 1
 
-        elif cmd.event == EAgentServer_Event.OdometerDistance:
+        elif cmd.event in [EAgentServer_Event.OdometerDistance, EAgentServer_Event.OdometerPassed]:
             nxGraph = self.graphRootNode().nxGraph
             if nxGraph is None:
                 print( f"{SC.sWarning} No Graph loaded." )

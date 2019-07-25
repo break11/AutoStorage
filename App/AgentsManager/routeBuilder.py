@@ -116,10 +116,20 @@ class CRouteBuilder():
             startSegmentCurv = segments[0].curvature
 
             # 2) add ledge
-            ledgeNode = self.findNodeForLedge(single_sequence[-2], single_sequence[-1])
-            ledgeSegments = self.nodeListToSegments([single_sequence[-1], ledgeNode])
-
             ledgeSize = self.LedgeSizeByEdge( ( single_sequence[-2], single_sequence[-1] ) )
+            
+            w = 0
+            ledgeNodes = [ single_sequence[-2], single_sequence[-1] ]
+            # ledgeNode = self.findNodeForLedge(*l)
+            # при поиске ledgeNodes суммарная длинна граней должна быть не менее половины челнока с соотв ориентацией (ledgeSize)
+            while w < ledgeSize:
+                ledgeNode = self.findNodeForLedge( ledgeNodes[-2], ledgeNodes[-1] )
+                ledgeNodes.append( ledgeNode )
+                w += edgeSize( self.nxGraph, ( ledgeNodes[-2], ledgeNodes[-1] ) )
+            del ledgeNodes[0]
+
+            # ledgeSegments = self.nodeListToSegments( l )
+            ledgeSegments = self.nodeListToSegments( ledgeNodes )
 
             ledge = self.takeSegmentsFromBegin( ledgeSegments, ledgeSize )
             SegmentsWithLedge = segments + ledge
@@ -151,15 +161,14 @@ class CRouteBuilder():
             #     angle, direction = self.getDirection( (single_sequence[i], single_sequence[i+1]), angle )
             #     SII[ i ].angle = angle
 
-            angle = self.calc_DE_Pos( SegmentsInfoItems_Sequence, single_sequence, ledgeNode, ledgeSize, angle )
+            angle = self.calc_DE_Pos( SegmentsInfoItems_Sequence, single_sequence, ledgeNodes, ledgeSize, angle )
             SegmentsInfoItems += SegmentsInfoItems_Sequence
         
         return commands, SegmentsInfoItems
 
-    def calc_DE_Pos(self, SII_Sequince, single_sequence, ledgeNode,  ledgeSize, angle):
+    def calc_DE_Pos(self, SII_Sequince, single_sequence, ledgeNodes,  ledgeSize, angle):
         # выявление позиций для DE
-        edgesList = edgesListFromNodes( single_sequence )
-        edgesList.append( (single_sequence[-1], ledgeNode) )
+        edgesList = edgesListFromNodes( single_sequence + ledgeNodes[1:] )
         startEdgeIdx = 0
 
         l = ledgeSize - hysteresis

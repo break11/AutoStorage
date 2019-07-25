@@ -329,7 +329,10 @@ def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide =
     nodes_routes = makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
     nodes_routes_weighted = [ (pathWeight(nxGraph, route), route) for route in nodes_routes ]
     
-    return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
+    if len( nodes_routes_weighted ) > 0:
+        return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
+    
+    return 0, []
 
 def routeToServiceStation( nxGraph, startNode, agentAngle ):
 
@@ -342,4 +345,7 @@ def routeToServiceStation( nxGraph, startNode, agentAngle ):
 
         nodes_routes_weighted.append( weighted_route )
     
-    return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
+    if len( nodes_routes_weighted ) > 0:
+        return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
+
+    return 0, []
