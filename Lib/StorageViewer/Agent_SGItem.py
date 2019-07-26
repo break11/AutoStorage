@@ -157,6 +157,13 @@ class CAgent_SGItem(QGraphicsItem):
             
             painter.drawLines( self.lines )
 
+            #поворот некоторых элементов, если итем челнока перевернут
+            if ( 95 < abs( self.rotation() ) < 265 ):
+                painter.rotate( -180 )
+            
+            #текст: номер, статус
+            painter.drawText( self.textRect, alignFlags , text )
+            
             #отрисовка батарейки
             charge = self.__agentNetObj().charge / 100
             color = Qt.black if charge > 0.3 else Qt.darkRed
@@ -167,9 +174,5 @@ class CAgent_SGItem(QGraphicsItem):
             painter.fillRect( self.battery_m.adjusted( offset, charge_level + offset, -offset, -offset ), color ) #уровень заряда
             painter.setBrush( QBrush() )
             painter.drawRect( self.battery_m )
-
-            #поворот текста для удобства чтения, если итем челнока перевернут
-            if ( 95 < abs( self.rotation() ) < 265 ):
-                painter.rotate( -180 )
-            painter.drawText( self.textRect, alignFlags , text )
+            
             painter.resetTransform()
