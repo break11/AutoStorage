@@ -42,7 +42,9 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         elif cmd.event == EAgentServer_Event.TemperatureState:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = FAL.TS_Answer ) )
         elif cmd.event == EAgentServer_Event.OdometerDistance:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = "U" ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
+        elif cmd.event == EAgentServer_Event.OdometerPassed:
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerPassed, data = FAL.OD_OP_Data.toString() ) )
         elif cmd.event == EAgentServer_Event.BrakeRelease:
             FAL.bEmergencyStop = False
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
@@ -86,7 +88,8 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
             elif FAL.currentTask.event == EAgentServer_Event.WheelOrientation:
                 newWheelsOrientation = FAL.currentTask.data[ 0:1 ]
-                FAL.odometryCounter = 0
+                FAL.OD_OP_Data.bUndefined = False
+                FAL.OD_OP_Data.fDistance = 0
                 # send an "odometry resetted" to server
                 FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
 
@@ -107,10 +110,11 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                     if FAL.distanceToPass > 0:
                         FAL.distanceToPass = FAL.distanceToPass - DP_DELTA_PER_CYCLE
                         if FAL.currentDirection == 'F':
-                            FAL.odometryCounter = FAL.odometryCounter + DP_DELTA_PER_CYCLE
+                            FAL.OD_OP_Data.fDistance = FAL.OD_OP_Data.fDistance + DP_DELTA_PER_CYCLE
                         else:
-                            FAL.odometryCounter = FAL.odometryCounter - DP_DELTA_PER_CYCLE
-                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( FAL.odometryCounter ) ) )
+                            FAL.OD_OP_Data.fDistance = FAL.OD_OP_Data.fDistance - DP_DELTA_PER_CYCLE
+                        
+                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
 
                     elif FAL.distanceToPass <= 0:
                         FAL.distanceToPass = 0

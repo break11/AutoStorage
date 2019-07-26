@@ -137,10 +137,8 @@ class CAgentLink( CAgentServer_Link ):
             if tKey is None: return
             if len(self.nodes_route) == 0: return
         
-            try:
-                new_od = int( cmd.data )
-            except:
-                new_od = 0
+            OD_OP_Data = extractASP_Data( cmd )
+            new_od = OD_OP_Data.getDistance()
                 
             distance = self.currSII().K * ( new_od - agentNO.odometer )
             agentNO.odometer = new_od

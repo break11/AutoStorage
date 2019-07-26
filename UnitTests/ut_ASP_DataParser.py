@@ -10,7 +10,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
-from Lib.AgentProtocol.AgentDataTypes import SAgent_BatteryState, EAgentBattery_Type, SFakeAgent_DevPacketData
+from Lib.AgentProtocol.AgentDataTypes import SAgent_BatteryState, EAgentBattery_Type, SFakeAgent_DevPacketData, SOD_OP_Data
 
 class TestASP_DataParser(unittest.TestCase):
     def test_BS(self):
@@ -46,6 +46,47 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.bCharging, False )
 
         self.assertEqual( sData, eData.toString() )
+
+    def test_OD_OP(self):
+        sData="OP:U"
+        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = sData )
+
+        eData = extractASP_Data( packet )
+        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( eData.bUndefined, True )
+        self.assertEqual( eData.fDistance, 0 )
+
+        sData="OP:100"
+        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = sData )
+
+        eData = extractASP_Data( packet )
+        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( eData.bUndefined, False )
+        self.assertEqual( eData.fDistance, 100 )
+
+        sData="OD:U"
+        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
+
+        eData = extractASP_Data( packet )
+        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( eData.bUndefined, True )
+        self.assertEqual( eData.fDistance, 0 )
+
+        sData="OD:100"
+        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
+
+        eData = extractASP_Data( packet )
+        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( eData.bUndefined, False )
+        self.assertEqual( eData.fDistance, 100 )
+
+        sData="OD:10.5"
+        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
+
+        eData = extractASP_Data( packet )
+        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( eData.bUndefined, True )
+        self.assertEqual( eData.fDistance, 0 )
 
 if __name__ == '__main__':
     unittest.main()
