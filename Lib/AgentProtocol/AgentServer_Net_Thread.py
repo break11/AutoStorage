@@ -187,9 +187,10 @@ class CAgentServer_Net_Thread(QThread):
                 while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                     self.msleep(10)
 
-            # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-            if cmd.event == EAgentServer_Event.HelloWorld:
-                self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
+            ##remove##
+            # # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
+            # if cmd.event == EAgentServer_Event.HelloWorld:
+            #     self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
             
             self.agentNumberInited.emit( cmd.agentN )
             self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
@@ -224,7 +225,13 @@ class CAgentServer_Net_Thread(QThread):
             cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
             if cmd is None: continue
 
+            if self.bIsServer:
+                # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
+                if cmd.event == EAgentServer_Event.HelloWorld:
+                    self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
+
             self.noRxTimer = time.time()
+
             _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
                               processAcceptedPacket = self.processRxPacket )
 
