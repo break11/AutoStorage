@@ -103,16 +103,10 @@
     </layout>
    </item>
    <item>
-    <widget class="QWidget" name="eventFilterWidget" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>25</height>
-      </size>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <widget class="QWidget" name="filterControlWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="spacing">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="leftMargin">
        <number>2</number>
@@ -141,13 +135,6 @@
        </widget>
       </item>
       <item>
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="cbTX">
         <property name="text">
          <string>TX</string>
@@ -162,12 +149,39 @@
        </widget>
       </item>
       <item>
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+       <widget class="QCheckBox" name="cbAppLog">
+        <property name="text">
+         <string>AppLog</string>
         </property>
        </widget>
       </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="eventFilterWidget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>25</height>
+      </size>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
      </layout>
     </widget>
    </item>

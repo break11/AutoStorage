@@ -35,19 +35,29 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             # cmd.packetN = 0
             # FAL.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( FAL.last_RX_packetN ) ) )
+
         elif cmd.event == EAgentServer_Event.TaskList:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( FAL.tasksList ) ) ) )
+
         elif cmd.event == EAgentServer_Event.BatteryState:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = FAL.batteryState.toString() ) )
+
         elif cmd.event == EAgentServer_Event.TemperatureState:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = FAL.TS_Answer ) )
+
         elif cmd.event == EAgentServer_Event.OdometerDistance:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = "U" ) )
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
+
+        elif cmd.event == EAgentServer_Event.OdometerPassed:
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerPassed, data = FAL.OD_OP_Data.toString() ) )
+
         elif cmd.event == EAgentServer_Event.BrakeRelease:
             FAL.bEmergencyStop = False
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
+
         elif cmd.event == EAgentServer_Event.PowerOn or cmd.event == EAgentServer_Event.PowerOff:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
+
         elif cmd.event == EAgentServer_Event.FakeAgentDevPacket:
             FA_DPD = SFakeAgent_DevPacketData.fromString( cmd.data )
             if FA_DPD.bCharging:
@@ -55,6 +65,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                 FAL.batteryState.S_V = max( f, FAL.batteryState.S_V )
             else:
                 FAL.batteryState.S_V = SAgent_BatteryState.max_S_U
+
         elif cmd.event in taskCommands:
             FAL.tasksList.append( cmd )
 
@@ -86,7 +97,8 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
             elif FAL.currentTask.event == EAgentServer_Event.WheelOrientation:
                 newWheelsOrientation = FAL.currentTask.data[ 0:1 ]
-                FAL.odometryCounter = 0
+                FAL.OD_OP_Data.bUndefined = False
+                FAL.OD_OP_Data.nDistance = 0
                 # send an "odometry resetted" to server
                 FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
 
@@ -107,10 +119,11 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                     if FAL.distanceToPass > 0:
                         FAL.distanceToPass = FAL.distanceToPass - DP_DELTA_PER_CYCLE
                         if FAL.currentDirection == 'F':
-                            FAL.odometryCounter = FAL.odometryCounter + DP_DELTA_PER_CYCLE
+                            FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance + DP_DELTA_PER_CYCLE
                         else:
-                            FAL.odometryCounter = FAL.odometryCounter - DP_DELTA_PER_CYCLE
-                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = str( FAL.odometryCounter ) ) )
+                            FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance - DP_DELTA_PER_CYCLE
+                        
+                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
 
                     elif FAL.distanceToPass <= 0:
                         FAL.distanceToPass = 0

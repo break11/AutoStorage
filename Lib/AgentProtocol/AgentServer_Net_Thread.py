@@ -119,6 +119,14 @@ class CAgentServer_Net_Thread(QThread):
         except:
             return None
 
+    # обработка команды HW - ответа от челнока - в ответе должен присутствовать номер команды сервера, которую ожидает челнок
+    def handleHW( self, cmd ):
+        if not self.bIsServer: return
+
+        if cmd.event == EAgentServer_Event.HelloWorld:
+            self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
+
+
     ##############################################
 
     def run(self):
@@ -187,11 +195,8 @@ class CAgentServer_Net_Thread(QThread):
                 while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
                     self.msleep(10)
 
-            ##remove##
-            # # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-            # if cmd.event == EAgentServer_Event.HelloWorld:
-            #     self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
-            
+            self.handleHW( cmd )
+
             self.agentNumberInited.emit( cmd.agentN )
             self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
             self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
@@ -225,10 +230,7 @@ class CAgentServer_Net_Thread(QThread):
             cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
             if cmd is None: continue
 
-            if self.bIsServer:
-                # в агент после стадии инициализации отправляем стартовый номер счетчика пакетов
-                if cmd.event == EAgentServer_Event.HelloWorld:
-                    self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( int(cmd.data) + 1 )
+            self.handleHW( cmd )
 
             self.noRxTimer = time.time()
 

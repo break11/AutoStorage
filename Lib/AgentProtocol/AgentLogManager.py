@@ -93,12 +93,15 @@ class CAgentLogManager( QObject ):
         colorTX_or_RX = TX_RX_colors[ bTX_or_RX ]
 
         if packet.status == EPacket_Status.Normal:
-            colorsByEvents = { EAgentServer_Event.BatteryState:        "#388E3C",
-                                EAgentServer_Event.TemperatureState:   "#388E3C",
-                                EAgentServer_Event.TaskList:           "#388E3C",
-                                EAgentServer_Event.ClientAccepting:    "#1565C0",
-                                EAgentServer_Event.ServerAccepting:    "#1595C0",
-                                EAgentServer_Event.FakeAgentDevPacket: "#FF70FF"  }
+            colorsByEvents = { EAgentServer_Event.BatteryState:       "#388E3C",
+                               EAgentServer_Event.TemperatureState:   "#388E3C",
+                               EAgentServer_Event.TaskList:           "#388E3C",
+                               EAgentServer_Event.OdometerDistance:   "#388E3C",
+                               EAgentServer_Event.OdometerPassed:     "#388E3C",
+                               EAgentServer_Event.ClientAccepting:    "#1565C0",
+                               EAgentServer_Event.ServerAccepting:    "#1595C0",
+                               EAgentServer_Event.HelloWorld:         "#BC6000",
+                               EAgentServer_Event.FakeAgentDevPacket: "#FF70FF"  }
 
             colorData = colorsByEvents.get( packet.event )
             if colorData is None: colorData = "#000000"

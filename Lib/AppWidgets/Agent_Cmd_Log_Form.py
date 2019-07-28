@@ -20,10 +20,12 @@ baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.ClientAccepting,
                   EAgentServer_Event.ServerAccepting ]
 
+s_AppLog = "AppLog"
+
 s_agent_log_cmd_form = "agent_log_cmd_form"
 s_filter_settings    = "filter_settings"
 
-defFilterSet = { s_RX : True, s_TX : True }
+defFilterSet = { s_RX : True, s_TX : True, s_AppLog : True }
 
 for e in baseFilterSet:
     defFilterSet[ e.toStr() ] = True
@@ -70,6 +72,10 @@ class CAgent_Cmd_Log_Form(QWidget):
             v = filterSet.get( sFilterSign )
             cb.setChecked( v if v is not None else False )
 
+        # загрузка значений чекбоксов фильтра сообщений программы
+        v = filterSet.get( s_AppLog )
+        self.cbAppLog.setChecked( v if v is not None else False )
+
         ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
 
     def hideEvent( self, event ):
@@ -82,6 +88,8 @@ class CAgent_Cmd_Log_Form(QWidget):
         # TX, RX
         for sFilterSign, cb in self.TX_RX_filter_alias.items():
             filterSet[ sFilterSign ] = cb.isChecked()
+        # AppLog
+        filterSet[ s_AppLog ] = self.cbAppLog.isChecked()
 
     def setAgentLink( self, agentLink ):
         self.agentLink = agentLink
@@ -102,6 +110,10 @@ class CAgent_Cmd_Log_Form(QWidget):
         if logRow.event in self.filterLogEvents:
             if not self.filterLogEvents[ logRow.event ].isChecked():
                 return False
+
+        # filter by AppLog - msg with None EventType
+        if logRow.event is None:
+            return self.cbAppLog.isChecked()
 
         return True
 

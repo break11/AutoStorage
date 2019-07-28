@@ -105,6 +105,7 @@ class CAgentLink( CAgentServer_Link ):
     def processRxPacket( self, cmd ):
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
+
         elif cmd.event == EAgentServer_Event.BatteryState:
             agentNO = self.agentNO()
 
@@ -125,10 +126,11 @@ class CAgentLink( CAgentServer_Link ):
                 self.DE_IDX += 1
 
         elif cmd.event in [EAgentServer_Event.OdometerDistance, EAgentServer_Event.OdometerPassed]:
-            nxGraph = self.graphRootNode().nxGraph
-            if nxGraph is None:
+            if self.graphRootNode() is None:
                 print( f"{SC.sWarning} No Graph loaded." )
                 return
+
+            nxGraph = self.graphRootNode().nxGraph
 
             agentNO = self.agentNO()
 
@@ -137,10 +139,8 @@ class CAgentLink( CAgentServer_Link ):
             if tKey is None: return
             if len(self.nodes_route) == 0: return
         
-            try:
-                new_od = int( cmd.data )
-            except:
-                new_od = 0
+            OD_OP_Data = extractASP_Data( cmd )
+            new_od = OD_OP_Data.getDistance()
                 
             distance = self.currSII().K * ( new_od - agentNO.odometer )
             agentNO.odometer = new_od

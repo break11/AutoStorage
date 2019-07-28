@@ -71,9 +71,7 @@ class SFakeAgent_DevPacketData:
     @classmethod
     def fromString( cls, data ):
         params = data.split(",")
-        FA_DPD = SFakeAgent_DevPacketData( bCharging = bool( int( params[ 0 ] ) ) )
-
-        return FA_DPD
+        return SFakeAgent_DevPacketData( bCharging = bool( int( params[ 0 ] ) ) )
 
     def toString( self ):
         cmds = []
@@ -83,3 +81,32 @@ class SFakeAgent_DevPacketData:
 
 #########################################################
 
+class SOD_OP_Data:
+    "@OD:100"
+    "@OP:138"
+    "OP:U"
+
+    def __init__( self, bUndefined=True, nDistance=0 ):
+        self.bUndefined = bUndefined
+        self.nDistance = nDistance
+
+    def getDistance( self ): return 0 if self.bUndefined else self.nDistance
+
+    @classmethod
+    def fromString( cls, data ):
+        try:
+            bUndefined = False
+            nDistance = int( data )
+        except:
+            bUndefined = True
+            nDistance = 0
+
+        return SOD_OP_Data( bUndefined = bUndefined, nDistance = nDistance )
+
+    def toString( self ):
+        if not self.bUndefined:
+            sResult = str( self.nDistance )
+        else:
+            sResult = "U"
+
+        return sResult
