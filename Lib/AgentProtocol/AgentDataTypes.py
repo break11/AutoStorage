@@ -86,27 +86,26 @@ class SOD_OP_Data:
     "@OP:138"
     "OP:U"
 
-    def __init__( self, bUndefined=True, fDistance=0 ):
+    def __init__( self, bUndefined=True, nDistance=0 ):
         self.bUndefined = bUndefined
-        self.fDistance = fDistance
+        self.nDistance = nDistance
 
-    def getDistance( self ): return 0 if self.bUndefined else self.fDistance
+    def getDistance( self ): return 0 if self.bUndefined else self.nDistance
 
     @classmethod
     def fromString( cls, data ):
         try:
             bUndefined = False
-            l = data.split(":")
-            fDistance = int( l[1] )
+            nDistance = int( data )
         except:
             bUndefined = True
-            fDistance = 0
+            nDistance = 0
 
-        return SOD_OP_Data( bUndefined = bUndefined, fDistance = fDistance )
+        return SOD_OP_Data( bUndefined = bUndefined, nDistance = nDistance )
 
     def toString( self ):
         if not self.bUndefined:
-            sResult = str( self.fDistance )
+            sResult = str( self.nDistance )
         else:
             sResult = "U"
 

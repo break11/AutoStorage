@@ -48,45 +48,45 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( sData, eData.toString() )
 
     def test_OD_OP(self):
-        sData="OP:U"
+        sData="U"
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = sData )
 
         eData = extractASP_Data( packet )
         self.assertEqual( type(eData), SOD_OP_Data )
         self.assertEqual( eData.bUndefined, True )
-        self.assertEqual( eData.fDistance, 0 )
+        self.assertEqual( eData.nDistance, 0 )
 
-        sData="OP:100"
+        sData="100"
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = sData )
 
         eData = extractASP_Data( packet )
         self.assertEqual( type(eData), SOD_OP_Data )
         self.assertEqual( eData.bUndefined, False )
-        self.assertEqual( eData.fDistance, 100 )
+        self.assertEqual( eData.nDistance, 100 )
 
-        sData="OD:U"
+        sData="U"
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
 
         eData = extractASP_Data( packet )
         self.assertEqual( type(eData), SOD_OP_Data )
         self.assertEqual( eData.bUndefined, True )
-        self.assertEqual( eData.fDistance, 0 )
+        self.assertEqual( eData.nDistance, 0 )
 
-        sData="OD:100"
+        sData="100"
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
 
         eData = extractASP_Data( packet )
         self.assertEqual( type(eData), SOD_OP_Data )
         self.assertEqual( eData.bUndefined, False )
-        self.assertEqual( eData.fDistance, 100 )
+        self.assertEqual( eData.nDistance, 100 )
 
-        sData="OD:10.5"
+        sData="10.5"
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
 
         eData = extractASP_Data( packet )
         self.assertEqual( type(eData), SOD_OP_Data )
         self.assertEqual( eData.bUndefined, True )
-        self.assertEqual( eData.fDistance, 0 )
+        self.assertEqual( eData.nDistance, 0 )
 
 if __name__ == '__main__':
     unittest.main()
