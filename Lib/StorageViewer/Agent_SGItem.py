@@ -1,6 +1,8 @@
 import weakref
 import math
 
+from enum import Enum, auto
+
 from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont, QPainterPath, QPolygon )
 from PyQt5.QtCore import ( Qt, QPoint, QRectF, QPointF, QLineF )
@@ -10,9 +12,26 @@ from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import getEdgeCoords
 from Lib.Common.Vectors import Vector2
 
+class EConnectedStatus( Enum ):
+    connected    = auto()
+    disconnected = auto()
+    freeze       = auto()
+
+bgColorsByConnectedStatus = { EConnectedStatus.connected : Qt.darkGreen,  }
+
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  =  10 # расширение BBox для удобства выделения
+
+    @property
+    def connectedStatus( self ): return self.__connectedStatus
+
+    @connectedStatus.setter
+    def connectedStatus( self, value ):
+        if self.__connectedStatus == value: return
+
+        self.__connectedStatus = value
+        self.update()
 
     def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
@@ -25,6 +44,9 @@ class CAgent_SGItem(QGraphicsItem):
         self.status = "N/A"
         
         self.createGraphicElements()
+
+        self.lastConnectedTime = 0
+        self.__connectedStatus = EConnectedStatus.disconnected
 
     def createGraphicElements(self):
         w = SGT.wide_Rail_Width
@@ -71,7 +93,6 @@ class CAgent_SGItem(QGraphicsItem):
         
         self.battery_m = QRectF( self.b_x, self.b_y + 20, self.b_w, self.b_h ) # основной контур
         self.battery_p = QRectF( self.b_x + 15, self.b_y, 50, 20 ) # положительный контакт
-
         
     def getNetObj_UIDs( self ):
         return { self.__agentNetObj().UID }
@@ -117,10 +138,21 @@ class CAgent_SGItem(QGraphicsItem):
 
         super().setPos(x, y)
 
+    def onTick( self ):
+        if self.__agentNetObj().connectedTime == 0:
+           self.connectedStatus = EConnectedStatus.disconnected
+        elif self.__agentNetObj().connectedTime == self.lastConnectedTime:
+           self.connectedStatus = EConnectedStatus.freeze
+        else:
+           self.connectedStatus = EConnectedStatus.connected
+
+        self.lastConnectedTime = self.__agentNetObj().connectedTime
+
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
 
         color = Qt.red if self.isSelected() else Qt.darkGreen
+        bgColor = 
 
         ## BBox
         # pen = QPen( Qt.blue )

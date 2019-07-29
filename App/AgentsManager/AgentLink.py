@@ -88,6 +88,13 @@ class CAgentLink( CAgentServer_Link ):
         self.pushCmd( self.genPacket( event=EAgentServer_Event.TaskList ),         bAllowDuplicate=False )
         self.pushCmd( self.genPacket( event=EAgentServer_Event.OdometerPassed ),   bAllowDuplicate=False )
 
+        # обновление статуса connectedTime для NetObj челнока
+        agentNO = self.agentNO()
+        if self.isConnected():
+            agentNO.connectedTime += 1
+        else:
+            agentNO.connectedTime = 0
+
     ####################
     def calcAgentAngle( self, agentNO ):
         tEdgeKey = agentNO.isOnTrack()
