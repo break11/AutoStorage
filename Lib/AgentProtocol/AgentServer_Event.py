@@ -1,6 +1,6 @@
-from enum import IntEnum, auto
+from enum import Enum, auto
 
-class EAgentServer_Event( IntEnum ):
+class EAgentServer_Event( Enum ):
     FakeAgentDevPacket = auto() # специальные команды для взаимодействия с фейк агентом - например команда об окончании заряда
     Error              = auto() # Error text message with symbol*
     Warning_           = auto() # Warning text message with symbol #

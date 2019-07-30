@@ -23,7 +23,7 @@ from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
 
 from .images_rc import *
-from enum import IntEnum, auto
+from enum import Enum, auto
 
 s_scene              = "scene"
 s_grid_size          = "grid_size"
@@ -48,7 +48,7 @@ sceneDefSettings = {
 ###########################################
 
 
-class EWorkMode( IntEnum ):
+class EWorkMode( Enum ):
     MapDesignerMode = auto()
     NetMonitorMode  = auto()
 

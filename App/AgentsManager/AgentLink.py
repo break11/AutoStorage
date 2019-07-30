@@ -69,10 +69,11 @@ class CAgentLink( CAgentServer_Link ):
             ALM.doLogString( self, f"Agent status changed to {agentNO.status}", color="#0000FF" )
 
         elif cmd.sPropName == s_route:
-            if agentNO.route == "":
-                agentNO.status = EAgent_Status.Idle.name
-            else:
-                agentNO.status = EAgent_Status.OnRoute.name
+            if EAgent_Status.fromString( agentNO.status ) != EAgent_Status.GoToCharge:
+                if agentNO.route == "":
+                    agentNO.status = EAgent_Status.Idle.name
+                else:
+                    agentNO.status = EAgent_Status.OnRoute.name
 
             agentNO.route_idx = 0
             self.nodes_route = nodesList_FromStr( cmd.value )

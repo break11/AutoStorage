@@ -3,9 +3,9 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
 UNINITED_AGENT_N = 0
 
-from enum import IntEnum, auto
+from enum import Enum, auto
 
-class EPacket_Status( IntEnum ):
+class EPacket_Status( Enum ):
     Normal    = auto()
     Duplicate = auto()
     Error     = auto()

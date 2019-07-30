@@ -88,9 +88,9 @@ class CBaseApplication( QApplication ):
 
 
 ##########################################################################
-from enum import IntEnum, auto
+from enum import Enum, auto
 
-class EAppStartPhase( IntEnum ):
+class EAppStartPhase( Enum ):
     BeforeRedisConnect = auto()
     AfterRedisConnect  = auto()
 
