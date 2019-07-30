@@ -48,12 +48,12 @@ class CAgentLogManager( QObject ):
 
     ###############
 
-    def doLogString( self, agentLink, data ):
+    def doLogString( self, agentLink, data, color = "#000000" ):
         if agentLink is None:
             print( data )
             return
 
-        data = self.decorateLogString( agentLink, data )
+        data = self.decorateLogString( agentLink, data, color )
         logRow = CLogRow( data=data, event=None, bTX_or_RX=None )
         self.__appendLog_with_Cut( agentLink, logRow )
         self.writeToLogFile( agentLink.sLogFName, logRow )
@@ -61,10 +61,11 @@ class CAgentLogManager( QObject ):
         self.AgentLogUpdated.emit( agentLink, logRow )
 
     @classmethod
-    def decorateLogString( cls, agentLink, data ):
+    def decorateLogString( cls, agentLink, data, color ):
         now = datetime.datetime.now()
         sD = now.strftime("%d-%m-%Y")
         sT = now.strftime("%H-%M-%S")
+        data = wrapSpan( data, color )
         data = f"{sD}:{sT} {data}"
 
         return wrapDiv( data )

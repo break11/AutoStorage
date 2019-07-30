@@ -3,23 +3,34 @@ import math
 
 from enum import Enum, auto
 
-from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
-from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont, QPainterPath, QPolygon )
-from PyQt5.QtCore import ( Qt, QPoint, QRectF, QPointF, QLineF )
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem
+from PyQt5.QtGui import QPen, QBrush, QColor, QFont, QPainterPath, QPolygon
+from PyQt5.QtCore import Qt, QPoint, QRectF, QPointF, QLineF
 
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import getEdgeCoords
 from Lib.Common.Vectors import Vector2
 
+from Lib.AgentProtocol.AgentDataTypes import EAgent_Status
+
 class EConnectedStatus( Enum ):
     connected    = auto()
     disconnected = auto()
     freeze       = auto()
 
-bgColorsByConnectedStatus = { EConnectedStatus.connected : Qt.darkGreen, 
+bgColorsByConnectedStatus = { EConnectedStatus.connected    : Qt.darkGreen, 
                               EConnectedStatus.disconnected : Qt.darkGray,
-                              EConnectedStatus.freeze : Qt.gray }
+                              EConnectedStatus.freeze       : Qt.gray }
+
+colorsByStatus = { EAgent_Status.Idle            : Qt.green,
+                   EAgent_Status.GoToCharge      : Qt.blue,
+                   EAgent_Status.Charging        : Qt.gray,
+                   EAgent_Status.PosSyncError    : Qt.darkRed,
+                   EAgent_Status.NoRouteToCharge : Qt.darkRed,
+                   EAgent_Status.OnRoute         : Qt.blue,
+                 }
+
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
@@ -42,8 +53,6 @@ class CAgent_SGItem(QGraphicsItem):
         self.__agentNetObj = weakref.ref( agentNetObj )
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 40 )
-
-        self.status = "N/A"
         
         self.createGraphicElements()
 
@@ -163,27 +172,18 @@ class CAgent_SGItem(QGraphicsItem):
         # painter.drawRect( self.boundingRect() )
 
         if lod < 0.03:
-            bgColor = Qt.red if self.isSelected() else bgColor
+            bgColor = Qt.darkRed if self.isSelected() else bgColor
             painter.fillRect ( self.__BBoxRect, bgColor )
         else:
-            color = Qt.red if self.isSelected() else Qt.black
+            color = Qt.darkRed if self.isSelected() else Qt.black
             pen = QPen( color )
             pen.setWidth( 10 )
-            # pen.setColor
 
             fillColor = QColor( bgColor )
             fillColor.setAlpha( 200 )
 
-            font = QFont()
-            font.setPointSize( 64 )
-
             painter.setPen( pen )
             painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
-            painter.setFont( font )
-
-            alignFlags = Qt.AlignLeft | Qt.AlignTop
-            self.status = self.__agentNetObj().status
-            text = f"ID: {self.__agentNetObj().name}\nST: {self.status}\nCS: {self.connectedStatus.name}"
 
             painter.drawPolygon( self.polygon )
 
@@ -198,19 +198,53 @@ class CAgent_SGItem(QGraphicsItem):
                 painter.rotate( -180 )
                         
             #отрисовка батарейки
-            charge = self.__agentNetObj().charge / 100
-            color = Qt.black if charge > 0.3 else Qt.darkRed
-            offset = 10
-            charge_level = min( max(100 * (1 - charge), 0), 100 )
-
-            painter.fillRect( self.battery_p, Qt.black )
-            painter.fillRect( self.battery_m.adjusted( offset, charge_level + offset, -offset, -offset ), color ) #уровень заряда
-            painter.setBrush( QBrush() )
-            pen.setColor( Qt.black )
-            painter.setPen( pen )
-            painter.drawRect( self.battery_m )
+            self.drawBattery( painter )
             
             #текст: номер, статус
-            painter.drawText( self.textRect, alignFlags , text )
+            self.drawText( painter )
 
             painter.resetTransform()
+
+    def drawBattery( self, painter ):
+        charge = self.__agentNetObj().charge / 100
+        color = Qt.black if charge > 0.3 else Qt.darkRed
+        offset = 10
+        charge_level = min( max(100 * (1 - charge), 0), 100 )
+
+        painter.fillRect( self.battery_p, Qt.black )
+        painter.fillRect( self.battery_m.adjusted( offset, charge_level + offset, -offset, -offset ), color ) #уровень заряда
+        painter.setBrush( QBrush() )
+
+        pen = QPen( Qt.black )
+        pen.setWidth( 10 )
+
+        painter.setPen( pen )
+        painter.drawRect( self.battery_m )
+
+    def drawText( self, painter ):
+        font = QFont()
+        font.setPointSize( 72 )
+        painter.setFont( font )
+
+        alignFlags = Qt.AlignLeft | Qt.AlignTop
+        status = self.__agentNetObj().status
+        textTop    = f"ID: {self.__agentNetObj().name}\nCS: {self.connectedStatus.name}"
+        textBottom = f"ST: {status}"
+
+        h = self.textRect.height()
+        rectTop    = self.textRect.adjusted( 0, 0, 0, -h/2 )
+        rectBottom = self.textRect.adjusted( 0, +h/2, 0, 0  )
+
+        # painter.drawRect( self.textRect )
+        # painter.drawRect( rectTop )
+        # painter.drawRect( rectBottom )
+
+        painter.setPen( Qt.black )
+        painter.drawText( rectTop,    alignFlags, textTop )
+
+        color = colorsByStatus.get( EAgent_Status.fromString( status ) )
+
+        font.setPointSize( 52 )
+        painter.setFont( font )
+        painter.setPen( color )
+        painter.drawText( rectBottom, alignFlags, textBottom )

@@ -7,7 +7,7 @@ import subprocess
 from PyQt5.QtCore import QTimer
 
 from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
-from Lib.Common.Agent_NetObject import s_route, EAgent_Status
+from Lib.Common.Agent_NetObject import s_route, s_status, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
@@ -22,6 +22,7 @@ from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
 from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData
 from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
+from Lib.AgentProtocol.AgentLogManager import ALM
 
 from .routeBuilder import CRouteBuilder
 
@@ -64,7 +65,15 @@ class CAgentLink( CAgentServer_Link ):
 
         if agentNO.UID != self.agentNO().UID: return
 
-        if cmd.sPropName == s_route:
+        if cmd.sPropName == s_status:
+            ALM.doLogString( self, f"Agent status changed to {agentNO.status}", color="#0000FF" )
+
+        elif cmd.sPropName == s_route:
+            if agentNO.route == "":
+                agentNO.status = EAgent_Status.Idle.name
+            else:
+                agentNO.status = EAgent_Status.OnRoute.name
+
             agentNO.route_idx = 0
             self.nodes_route = nodesList_FromStr( cmd.value )
             self.edges_route = edgesListFromNodes( self.nodes_route )
@@ -127,8 +136,7 @@ class CAgentLink( CAgentServer_Link ):
 
             if self.DE_IDX == len(self.SII)-1:
                 agentNO.route = ""
-                if agentNO.status == EAgent_Status.GoToCharge.name:
-                    self.startCharging()
+
             else:
                 self.DE_IDX += 1
 
@@ -183,7 +191,7 @@ class CAgentLink( CAgentServer_Link ):
         except ValueError:
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
             self.pushCmd( ES_cmd )
-            agentNO.status = EAgent_Status.PositionSyncError.name
+            agentNO.status = EAgent_Status.PosSyncError.name
 
     def remapPacketsNumbers( self, startPacketN ):
         self.genTxPacketN = startPacketN

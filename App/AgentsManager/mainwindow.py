@@ -126,9 +126,15 @@ class CAM_MainWindow(QMainWindow):
                            SGT.ENodeTypes.PickStationOut ]
                            
     def AgentTestMoving(self, agentNO, targetNode = None):
+        if self.AgentsConnectionServer is None: return
+        agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
+
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
         if agentNO.status == EAgent_Status.Charging.name: return
+        if agentNO.status == EAgent_Status.GoToCharge.name:
+            agentLink.startCharging()
+            return
 
         nxGraph = self.graphRootNode().nxGraph
         tKey = tEdgeKeyFromStr( agentNO.edge ) # 44 45
@@ -138,6 +144,7 @@ class CAM_MainWindow(QMainWindow):
             if agentNO.charge < 30:
                 route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
                 if len(nodes_route) == 0:
+                    agentNO.status = EAgent_Status.NoRouteToCharge.name
                     print(f"{SC.sError} Cant find any route to service station.")
                 else:
                     agentNO.status = EAgent_Status.GoToCharge.name

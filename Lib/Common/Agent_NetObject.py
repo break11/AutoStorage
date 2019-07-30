@@ -7,18 +7,7 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.GraphUtils import tEdgeKeyFromStr
 from Lib.Common.Graph_NetObjects import graphNodeCache
-
-from enum import IntEnum, auto
-from .Utils import EnumFromString
-
-class EAgent_Status( IntEnum ):
-    Idle              = auto()
-    PositionSyncError = auto()
-    GoToCharge        = auto()
-    Charging          = auto()
-
-    @staticmethod
-    def fromString( sType ): return EnumFromString( EAgent_Status, sType, EAgent_Status.Idle )
+from Lib.AgentProtocol.AgentDataTypes import EAgent_Status
 
 s_edge      = "edge"
 s_position  = "position"

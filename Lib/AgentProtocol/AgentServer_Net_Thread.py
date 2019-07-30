@@ -215,11 +215,11 @@ class CAgentServer_Net_Thread(QThread):
         self.nReSendTX_Counter += 1
         if self.nReSendTX_Counter > 499:
             self.bSendTX_cmd = True
-            ALM.doLogString( self.agentLink(), "ReSend Old CMD" )
+            ALM.doLogString( self.agentLink(), "ReSend Old CMD", color="#636363" )
         
         if self.bSendTX_cmd == False and self.currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.currentTX_cmd().packetN ):
             self.bSendTX_cmd = True
-            ALM.doLogString( self.agentLink(), "Send New CMD" )
+            ALM.doLogString( self.agentLink(), "Send New CMD", color="#636363" )
 
         if self.bSendTX_cmd:
             self.sendTX_cmd()

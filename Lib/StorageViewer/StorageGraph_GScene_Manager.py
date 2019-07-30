@@ -21,7 +21,7 @@ from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
-from Lib.Common.Agent_NetObject import CAgent_NO, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
+from Lib.Common.Agent_NetObject import CAgent_NO, s_charge, s_status, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
                                     rotateToRightSector, rotateToLeftSector, calcNodeMiddleLine)
@@ -544,3 +544,5 @@ class CStorageGraph_GScene_Manager( QObject ):
                 gItem.updateRotation()
             elif netCmd.sPropName in [ s_position, s_edge ]:
                 gItem.updatePos()
+            elif netCmd.sPropName in [ s_charge, s_status ]:
+                gItem.update()

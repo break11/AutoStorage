@@ -1,8 +1,21 @@
 
-from enum import IntEnum, auto
+from enum import auto, Enum
 from Lib.Common.Utils import EnumFromString
 
-class EAgentBattery_Type( IntEnum ):
+class EAgent_Status( Enum ):
+    Idle            = auto()
+    PosSyncError    = auto()
+    GoToCharge      = auto()
+    Charging        = auto()
+    OnRoute         = auto()
+    NoRouteToCharge = auto()
+
+    @staticmethod
+    def fromString( sType ): return EnumFromString( EAgent_Status, sType, EAgent_Status.Idle )
+
+#########################################################
+
+class EAgentBattery_Type( Enum ):
     Supercap   = auto() # Error text message with symbol*
     Li         = auto() # Warning text message with symbol #
     N          = auto()
