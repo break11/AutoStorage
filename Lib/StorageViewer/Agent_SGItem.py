@@ -17,7 +17,9 @@ class EConnectedStatus( Enum ):
     disconnected = auto()
     freeze       = auto()
 
-bgColorsByConnectedStatus = { EConnectedStatus.connected : Qt.darkGreen,  }
+bgColorsByConnectedStatus = { EConnectedStatus.connected : Qt.darkGreen, 
+                              EConnectedStatus.disconnected : Qt.darkGray,
+                              EConnectedStatus.freeze : Qt.gray }
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
@@ -151,8 +153,7 @@ class CAgent_SGItem(QGraphicsItem):
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
 
-        color = Qt.red if self.isSelected() else Qt.darkGreen
-        bgColor = 
+        bgColor = bgColorsByConnectedStatus[ self.connectedStatus ]
 
         ## BBox
         # pen = QPen( Qt.blue )
@@ -162,16 +163,19 @@ class CAgent_SGItem(QGraphicsItem):
         # painter.drawRect( self.boundingRect() )
 
         if lod < 0.03:
-            painter.fillRect ( self.__BBoxRect, color )
+            bgColor = Qt.red if self.isSelected() else bgColor
+            painter.fillRect ( self.__BBoxRect, bgColor )
         else:
-            pen = QPen( Qt.black )
+            color = Qt.red if self.isSelected() else Qt.black
+            pen = QPen( color )
             pen.setWidth( 10 )
+            # pen.setColor
 
-            fillColor = QColor(color) if self.isSelected() else QColor(color)
+            fillColor = QColor( bgColor )
             fillColor.setAlpha( 200 )
 
             font = QFont()
-            font.setPointSize( 72 )
+            font.setPointSize( 64 )
 
             painter.setPen( pen )
             painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
@@ -179,7 +183,7 @@ class CAgent_SGItem(QGraphicsItem):
 
             alignFlags = Qt.AlignLeft | Qt.AlignTop
             self.status = self.__agentNetObj().status
-            text = f"ID: {self.__agentNetObj().name}\nST: {self.status}"
+            text = f"ID: {self.__agentNetObj().name}\nST: {self.status}\nCS: {self.connectedStatus.name}"
 
             painter.drawPolygon( self.polygon )
 
@@ -192,10 +196,7 @@ class CAgent_SGItem(QGraphicsItem):
             #поворот некоторых элементов, если итем челнока перевернут
             if ( 95 < abs( self.rotation() ) < 265 ):
                 painter.rotate( -180 )
-            
-            #текст: номер, статус
-            painter.drawText( self.textRect, alignFlags , text )
-            
+                        
             #отрисовка батарейки
             charge = self.__agentNetObj().charge / 100
             color = Qt.black if charge > 0.3 else Qt.darkRed
@@ -205,6 +206,11 @@ class CAgent_SGItem(QGraphicsItem):
             painter.fillRect( self.battery_p, Qt.black )
             painter.fillRect( self.battery_m.adjusted( offset, charge_level + offset, -offset, -offset ), color ) #уровень заряда
             painter.setBrush( QBrush() )
+            pen.setColor( Qt.black )
+            painter.setPen( pen )
             painter.drawRect( self.battery_m )
             
+            #текст: номер, статус
+            painter.drawText( self.textRect, alignFlags , text )
+
             painter.resetTransform()
