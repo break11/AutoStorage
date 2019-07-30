@@ -131,8 +131,11 @@ class CAgentServerPacket:
                     else:
                         data = None
                 else:
-                    if len(l) > 2:
-                        data += l[2].decode()
+                    # хитрая обработка из-за того, что в ошибках, ворнингах и тексте может быть двоеточие внутри
+                    # и с сообщением где в качестве текста только знак ":" - опять не работает - требуется пересмотреть формат сообщений
+                    subData = ":".join( [ s.decode() for s in l[2:] ] )
+                    if subData != "":
+                        data = data + ":" + subData
 
             return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, channelN=channelN, timeStamp=timeStamp, data=data )
         except Exception as e:

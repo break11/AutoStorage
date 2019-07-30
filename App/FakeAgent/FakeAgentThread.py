@@ -10,7 +10,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
-from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState
+from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState, SHW_Data
 
 DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
@@ -34,7 +34,8 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             # cmd = self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( self.fakeAgentLink().last_RX_packetN ) )
             # cmd.packetN = 0
             # FAL.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( FAL.last_RX_packetN ) ) )
+
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() ) )
 
         elif cmd.event == EAgentServer_Event.TaskList:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( FAL.tasksList ) ) ) )

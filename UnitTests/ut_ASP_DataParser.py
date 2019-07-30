@@ -10,9 +10,20 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
-from Lib.AgentProtocol.AgentDataTypes import SAgent_BatteryState, EAgentBattery_Type, SFakeAgent_DevPacketData, SOD_OP_Data
+from Lib.AgentProtocol.AgentDataTypes import SAgent_BatteryState, EAgentBattery_Type, SFakeAgent_DevPacketData, SOD_OP_Data, SHW_Data
 
 class TestASP_DataParser(unittest.TestCase):
+    def test_HW(self):
+        sData = "045"
+        packet = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, data = sData )
+
+        eData = extractASP_Data( packet )
+
+        self.assertEqual( type(eData), SHW_Data )
+        self.assertEqual( eData.lastRXPacketN, 45 )
+
+        self.assertEqual( sData, eData.toString() )
+
     def test_BS(self):
         sData = "S,33.44V,40.00V,47.64V,01.1A/00.3A"
         packet = CAgentServerPacket( event = EAgentServer_Event.BatteryState, data = sData )

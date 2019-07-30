@@ -93,6 +93,25 @@ class SFakeAgent_DevPacketData:
         return ",".join( cmds )
 
 #########################################################
+class SHW_Data:
+    "000"
+    "056"
+    def __init__( self, lastRXPacketN ):
+        self.lastRXPacketN = lastRXPacketN
+
+    @classmethod
+    def fromString( cls, data ):
+        try:
+            lastRXPacketN = int( data )
+        except:
+            lastRXPacketN = 0
+
+        return SHW_Data( lastRXPacketN )
+
+    def toString( self ):
+        return f"{self.lastRXPacketN:03d}"
+
+#########################################################
 
 class SOD_OP_Data:
     "@OD:100"

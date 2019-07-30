@@ -37,7 +37,7 @@ class EAgentServer_Event( Enum ):
         return cls.fromBStr( data.encode() )
         
     def toStr( self ):
-        return _AgentServer_Event_to_Str[ self ]
+        return _AgentServer_Event_to_Str.get( self )
 
 _AgentServer_Event_from_BStr = {
                                 b"@FA": EAgentServer_Event.FakeAgentDevPacket,

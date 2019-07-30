@@ -102,7 +102,9 @@ class CAgentLogManager( QObject ):
                                EAgentServer_Event.ClientAccepting:    "#1565C0",
                                EAgentServer_Event.ServerAccepting:    "#1595C0",
                                EAgentServer_Event.HelloWorld:         "#BC6000",
-                               EAgentServer_Event.FakeAgentDevPacket: "#FF70FF"  }
+                               EAgentServer_Event.FakeAgentDevPacket: "#FF70FF",
+                               EAgentServer_Event.Error:              "#FF0000",
+                               EAgentServer_Event.Warning_:           "#FF0000" }
 
             colorData = colorsByEvents.get( packet.event )
             if colorData is None: colorData = "#000000"

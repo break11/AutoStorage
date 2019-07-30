@@ -13,6 +13,33 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 class TestAgentServerPacket(unittest.TestCase):
 
     def test_fromBStr(self):
+        # test Error Message with multiple symbol ":"
+        p1 = CAgentServerPacket.fromRX_BStr( b"039,002,1,00026caf:*111:222:333" )
+        p2 = b"039,002,1,00026caf:*111:222:333\n"
+
+        self.assertEqual( p1.event, EAgentServer_Event.Error )
+        self.assertEqual( p1.packetN, 39 )
+        self.assertEqual( p1.agentN, 2 )
+        self.assertEqual( p1.channelN, 1 )
+        self.assertEqual( p1.timeStamp, int("26caf", 16) )
+        self.assertEqual( p1.data, "*111:222:333" )
+
+        print( p1.toRX_BStr(), p2 )
+        self.assertEqual( p1.toRX_BStr(), p2 )
+
+        p1 = CAgentServerPacket.fromRX_BStr( b"039,002,1,00026caf:*:111:222:333" )
+        p2 = b"039,002,1,00026caf:*:111:222:333\n"
+
+        print( p1.toRX_BStr(), p2 )
+        self.assertEqual( p1.toRX_BStr(), p2 )
+
+        p1 = CAgentServerPacket.fromRX_BStr( b"039,002,1,00026caf:*111:222:333:" )
+        p2 = b"039,002,1,00026caf:*111:222:333:\n"
+
+        print( p1.toRX_BStr(), p2 )
+        self.assertEqual( p1.toRX_BStr(), p2 )
+        ###############################################
+
         # test Text Message
         p1 = CAgentServerPacket.fromRX_BStr( b"039,002,1,00026caf:Global Power Select to SUPERCAP" )
         p2 = b"039,002,1,00026caf:Global Power Select to SUPERCAP\n"

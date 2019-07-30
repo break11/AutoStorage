@@ -32,6 +32,8 @@ for e in baseFilterSet:
 
 ALC_Form_DefSet = { s_filter_settings : defFilterSet }
 
+errListEvents = [ EAgentServer_Event.Error, EAgentServer_Event.Warning_ ]
+
 class CAgent_Cmd_Log_Form(QWidget):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
@@ -94,7 +96,7 @@ class CAgent_Cmd_Log_Form(QWidget):
     def setAgentLink( self, agentLink ):
         self.agentLink = agentLink
         if agentLink is None:
-            self.pteAgentLog.clear()
+            self.teAgentFullLog.clear()
             return
 
         self.agentLink = weakref.ref( agentLink )
@@ -127,8 +129,8 @@ class CAgent_Cmd_Log_Form(QWidget):
 
             filteredRows.append( logRow.data )
 
-        self.pteAgentLog.setHtml( "".join( filteredRows ) )
-        self.pteAgentLog.moveCursor( QTextCursor.End )
+        self.teAgentFullLog.setHtml( "".join( filteredRows ) )
+        self.teAgentFullLog.moveCursor( QTextCursor.End )
 
     def updateAgentControls( self ):
         if self.agentLink is None: return
@@ -143,12 +145,15 @@ class CAgent_Cmd_Log_Form(QWidget):
         if self.agentLink is None: return
         if self.agentLink() is not agentLink: return
 
+        if logRow.event in errListEvents:
+            self.teAgentErrorLog.append( logRow.data )
+            
         if not self.filter_LogRow( logRow ):
             return
 
-        self.pteAgentLog.append( logRow.data )
+        self.teAgentFullLog.append( logRow.data )
 
-        if self.pteAgentLog.document().lineCount() > LogCount:
+        if self.teAgentFullLog.document().lineCount() > LogCount:
             self.fillAgentLog()
 
     def on_btnFilter_released( self ):
@@ -159,7 +164,7 @@ class CAgent_Cmd_Log_Form(QWidget):
     def on_btnClear_released( self ):
         if self.agentLink is None: return
 
-        self.pteAgentLog.clear()
+        self.teAgentFullLog.clear()
         self.agentLink().log.clear()
     
     def on_leCMD_Event_returnPressed( self ):
