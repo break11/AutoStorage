@@ -69,11 +69,11 @@ class CAgentLink( CAgentServer_Link ):
             ALM.doLogString( self, f"Agent status changed to {agentNO.status}", color="#0000FF" )
 
         elif cmd.sPropName == s_route:
-            if EAgent_Status.fromString( agentNO.status ) != EAgent_Status.GoToCharge:
+            if agentNO.status != EAgent_Status.GoToCharge:
                 if agentNO.route == "":
-                    agentNO.status = EAgent_Status.Idle.name
+                    agentNO.status = EAgent_Status.Idle
                 else:
-                    agentNO.status = EAgent_Status.OnRoute.name
+                    agentNO.status = EAgent_Status.OnRoute
 
             agentNO.route_idx = 0
             self.nodes_route = nodesList_FromStr( cmd.value )
@@ -192,7 +192,7 @@ class CAgentLink( CAgentServer_Link ):
         except ValueError:
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
             self.pushCmd( ES_cmd )
-            agentNO.status = EAgent_Status.PosSyncError.name
+            agentNO.status = EAgent_Status.PosSyncError
 
     def remapPacketsNumbers( self, startPacketN ):
         self.genTxPacketN = startPacketN
@@ -201,7 +201,7 @@ class CAgentLink( CAgentServer_Link ):
             self.genTxPacketN = getNextPacketN( self.genTxPacketN )
 
     def startCharging( self ):
-        self.agentNO().status = EAgent_Status.Charging.name
+        self.agentNO().status = EAgent_Status.Charging
 
         print( "Start Charging!" )
         subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "on"] )
@@ -211,7 +211,7 @@ class CAgentLink( CAgentServer_Link ):
 
     def chargeOff( self ):
         subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "off"] )
-        self.agentNO().status = EAgent_Status.Idle.name
+        self.agentNO().status = EAgent_Status.Idle
         print( "Stop Charging!" )
 
         self.genFA_DevPacket( bCharging = False )

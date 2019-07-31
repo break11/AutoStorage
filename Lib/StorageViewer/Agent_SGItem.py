@@ -242,7 +242,7 @@ class CAgent_SGItem(QGraphicsItem):
         painter.setPen( Qt.black )
         painter.drawText( rectTop,    alignFlags, textTop )
 
-        color = colorsByStatus.get( EAgent_Status.fromString( status ) )
+        color = colorsByStatus.get( status )
 
         font.setPointSize( 52 )
         painter.setFont( font )

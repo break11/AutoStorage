@@ -12,6 +12,8 @@ from Lib.Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.Common.GuiUtils import CNoAltMenu_Style
+from Lib.Common.StrTypeConverter import CStrTypeConverter
+from Lib.AgentProtocol.AgentDataTypes import EAgent_Status
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -20,6 +22,10 @@ def registerNetObjTypes():
     reg( CGraphNode_NO )
     reg( CGraphEdge_NO )
     reg( CAgent_NO )
+
+def registerNetObj_Props_UserTypes():
+    reg = CStrTypeConverter.registerUserType
+    reg( "a", EAgent_Status )
 
 def registerNetNodeWidgets( parent ):
     reg = CNetObj_WidgetsManager.registerWidget
@@ -38,6 +44,7 @@ class CBaseApplication( QApplication ):
         self.setStyle( CNoAltMenu_Style() )
 
         registerNetObjTypes()
+        registerNetObj_Props_UserTypes()
 
         if self.bNetworkMode:
             self.tickTimer = QTimer()

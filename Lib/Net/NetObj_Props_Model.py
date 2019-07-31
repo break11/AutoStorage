@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
 
 from .NetObj_Manager import CNetObj_Manager
 from .Net_Events import ENet_Event as EV
+from Lib.Common.StrTypeConverter import CStrTypeConverter
 
 class CNetObj_Props_Model( QAbstractTableModel ):
     def __init__( self, parent ):
@@ -119,8 +120,12 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         netObj = CNetObj_Manager.accessObj( UID )
         propName = self.propList[ index.row() ]
 
-        if role == Qt.DisplayRole or role == Qt.EditRole:            
-            return netObj.get( propName ) if netObj else None
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            val = netObj.get( propName ) if netObj else None
+            if val is not None and type(val) not in CStrTypeConverter.std_types:
+                val = str(val)
+            ##remove## return netObj.get( propName ) if netObj else None
+            return val
 
     def setData( self, index, value, role ):
         if not index.isValid(): return None
@@ -132,7 +137,12 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         if netObj is None: return False
 
         if role == Qt.EditRole:
-            netObj[ propName ] = value
+            oldVal = netObj[ propName ]
+            t = type(oldVal )
+            if t in CStrTypeConverter.std_types:
+                netObj[ propName ] = value
+            else:
+                netObj[ propName ] = t.fromString( value )
             
         return True
 

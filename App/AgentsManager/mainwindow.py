@@ -131,8 +131,8 @@ class CAM_MainWindow(QMainWindow):
 
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
-        if agentNO.status == EAgent_Status.Charging.name: return
-        if agentNO.status == EAgent_Status.GoToCharge.name:
+        if agentNO.status == EAgent_Status.Charging: return
+        if agentNO.status == EAgent_Status.GoToCharge:
             agentLink.startCharging()
             return
 
@@ -144,10 +144,10 @@ class CAM_MainWindow(QMainWindow):
             if agentNO.charge < 30:
                 route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
                 if len(nodes_route) == 0:
-                    agentNO.status = EAgent_Status.NoRouteToCharge.name
+                    agentNO.status = EAgent_Status.NoRouteToCharge
                     print(f"{SC.sError} Cant find any route to service station.")
                 else:
-                    agentNO.status = EAgent_Status.GoToCharge.name
+                    agentNO.status = EAgent_Status.GoToCharge
             else:
                 nodes = list( nxGraph.nodes )
                 while True:

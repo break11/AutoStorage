@@ -15,6 +15,8 @@ class EAgent_Status( Enum ):
 
     def toString( self ): return EnumToString( self )
 
+    def __str__( self ): return self.toString()
+
 #########################################################
 
 class EAgentBattery_Type( Enum ):
