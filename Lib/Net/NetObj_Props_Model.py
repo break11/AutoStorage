@@ -113,7 +113,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
     def columnCount( self, parentIndex ):
         return len( self.objList )
 
-    def data( self, index, role ):
+    def data( self, index, role = Qt.DisplayRole ):
         if not index.isValid(): return None
 
         UID = self.objList[ index.column() ]
@@ -124,10 +124,9 @@ class CNetObj_Props_Model( QAbstractTableModel ):
             val = netObj.get( propName ) if netObj else None
             if val is not None and type(val) not in CStrTypeConverter.std_types:
                 val = str(val)
-            ##remove## return netObj.get( propName ) if netObj else None
             return val
 
-    def setData( self, index, value, role ):
+    def setData( self, index, value, role = Qt.EditRole ):
         if not index.isValid(): return None
 
         UID = self.objList[ index.column() ]
@@ -146,7 +145,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
             
         return True
 
-    def headerData( self, section, orientation, role ):
+    def headerData( self, section, orientation, role = Qt.DisplayRole ):
         if role != Qt.DisplayRole: return
 
         if orientation == Qt.Horizontal:

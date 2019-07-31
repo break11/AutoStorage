@@ -1,68 +1,29 @@
 
 import os
-from .images_rc import *
+from .images_rc import * # for icons on Add and Del props button
 from PyQt5 import uic
 from PyQt5.Qt import QInputDialog, Qt
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
-from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import CNetObj_Widget
 from .Net_Events import ENet_Event as EV
 from  Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
+from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 
 class CDictProps_Widget( CNetObj_Widget ):
-
     def __init__( self, parent = None):
         super().__init__(parent = parent)
         uic.loadUi( os.path.dirname( __file__ ) + '/DictProps_Widget.ui', self )
 
-        self.__model = QStandardItemModel( self )
-        self.__model.itemChanged.connect( self.propEditedByUser )
-        self.bBlockOnChangeEvent = False
-
+        self.__model = CNetObj_Props_Model( self )
         self.tvProps.setModel( self.__model )
-
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.OnPropUpdate )
-        CNetObj_Manager.addCallback( EV.ObjPropDeleted, self.onObjPropDeleted )
-        CNetObj_Manager.addCallback( EV.ObjPropCreated, self.onObjPropCreated )
 
     def init( self, netObj ):
         super().init( netObj )
-
-        m = self.__model
-        m.setColumnCount( 2 )
-        m.setHorizontalHeaderLabels( [ "name", "value" ] )
-
-        for key, val in sorted( netObj.propsDict().items() ):
-            rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val, False, key ) ]
-            m.appendRow( rowItems )
+        self.__model.appendObj( self.netObj.UID )
 
     def done( self ):
+        self.__model.removeObj( self.netObj.UID )
         super().done()
-
-        self.__model.clear()
-
-###################################################################################
-
-    def propEditedByUser( self, item ):
-        if self.bBlockOnChangeEvent: return
-
-        props = self.netObj.propsDict()
-        key = item.data( role = Qt.UserRole + 1 )
-        self.netObj[ key ] = item.data( role = Qt.EditRole )
-
-    def OnPropUpdate( self, netCmd ):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
-        if self.netObj != netObj: return
-
-        stdItem_PropName = Std_Model_FindItem( pattern=netCmd.sPropName, model=self.__model, col=0 )
-        if stdItem_PropName is None: return
-
-        stdItem_PropValue = self.__model.item( stdItem_PropName.row(), 1 )
-        val = netObj.propsDict()[ netCmd.sPropName ]
-        self.bBlockOnChangeEvent = True
-        stdItem_PropValue.setData( val, role=Qt.EditRole )
-        self.bBlockOnChangeEvent = False
 
 ###################################################################################
 
@@ -71,33 +32,9 @@ class CDictProps_Widget( CNetObj_Widget ):
         if not idx.isValid(): return
 
         row = idx.row()
-        idx = self.__model.index( row, 0 )
-        propName = self.__model.data( idx )
+        propName = self.__model.headerData( idx.row(), Qt.Vertical )
         del self.netObj[ propName ]
-
-    def onObjPropDeleted( self, netCmd ):
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
-        if self.netObj != netObj: return
-
-        stdItem_PropName = Std_Model_FindItem( pattern=netCmd.sPropName, model=self.__model, col=0 )
-        if stdItem_PropName is None: return
-
-        self.__model.removeRows( stdItem_PropName.row(), 1 )
-
-###################################################################################
 
     def on_btnAdd_released ( self ):
         text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')
         if ok: self.netObj[ text ] = text
-
-    def onObjPropCreated( self, netCmd ):
-        row = self.__model.rowCount()
-
-        netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
-        if self.netObj != netObj: return
-
-        key = netCmd.sPropName
-        val = netObj[ key ]
-
-        rowItems = [ Std_Model_Item( key, True ), Std_Model_Item( val, False, key ) ]
-        self.__model.appendRow( rowItems )
