@@ -11,26 +11,56 @@ class CStrTypeConverter:
     for k,v in __TypeLetters.items():
         __LettersType[ v ] = k
 
+    std_types        = __TypeLetters.keys()
+    std_type_letters = __TypeLetters.values()
+
+    __TypeLettersU = {}    #type:ignore
+    __LettersTypeU = {}    #type:ignore
+    user_types = []        #type:ignore
+    user_type_letters = [] #type:ignore
+
+    @classmethod
+    def registerUserType( cls, typeChar, typeClass ):
+        assert typeChar not in cls.user_type_letters
+        assert typeClass not in cls.user_types
+        assert hasattr( typeClass, "fromString" )
+        assert hasattr( typeClass, "toString" )
+
+        cls.__TypeLettersU[ typeClass ] = typeChar
+        cls.__LettersTypeU[ typeChar  ] = typeClass
+        cls.user_types.append( typeClass )
+        cls.user_type_letters.append( typeChar )
+
     @classmethod
     def ValFromStr( cls, s ):
         typeSign = s[0]
         val = s[1::]
-        t = cls.__LettersType.get( typeSign )
-        if not t:
-            print( f"{SC.sWarning} Unsupport type = {typeSign} for converting from String!" )
-            return
 
-        return (t)(val)
+        if typeSign in cls.std_type_letters:
+            t = cls.__LettersType.get( typeSign )
+            return (t)(val)
 
+        elif typeSign in cls.user_type_letters:
+            t = cls.__LettersTypeU.get( typeSign )
+            return t.fromString( val )
+
+        else:
+            print( f"{SC.sWarning} Unsupport type = {typeSign} value = {val} for converting from String!" )
+            
     @classmethod
     def ValToStr( cls, val ):
         t = type( val )
-        typeSign = cls.__TypeLetters.get( t )
-        if not typeSign:
-            print( f"{SC.sWarning} Unsupport type = {t} for converting to String!" )
-            return
 
-        return typeSign + str( val )
+        if t in cls.std_types:
+            typeSign = cls.__TypeLetters.get( t )
+            return typeSign + str( val )
+
+        elif t in cls.user_types:
+            typeSign = cls.__TypeLettersU.get( t )
+            return typeSign + val.toString()
+
+        else:
+            print( f"{SC.sWarning} Unsupport type = {t} value = {val} for converting to String!" )
         
     @classmethod
     def DictToStr( cls, d ):

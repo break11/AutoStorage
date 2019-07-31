@@ -1,6 +1,6 @@
 
 from enum import auto, Enum
-from Lib.Common.Utils import EnumFromString
+from Lib.Common.Utils import EnumFromString, EnumToString
 
 class EAgent_Status( Enum ):
     Idle            = auto()
@@ -12,6 +12,8 @@ class EAgent_Status( Enum ):
 
     @staticmethod
     def fromString( sType ): return EnumFromString( EAgent_Status, sType, EAgent_Status.Idle )
+
+    def toString( self ): return EnumToString( self )
 
 #########################################################
 

@@ -12,6 +12,9 @@ def EnumFromString( enum, sValue, defValue ):
         rVal = defValue
     return rVal
 
+def EnumToString( enumValue ):
+    return enumValue.name
+
 class CRepeatTimer(Timer):
     def run(self):
         while not self.finished.wait( self.interval ):
