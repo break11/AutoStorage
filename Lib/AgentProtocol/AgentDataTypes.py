@@ -1,8 +1,8 @@
 
 from enum import auto, Enum
-from Lib.Common.Utils import EnumFromString, EnumToString
+from Lib.Common.Utils import BaseEnum
 
-class EAgent_Status( Enum ):
+class EAgent_Status( BaseEnum ):
     Idle            = auto()
     PosSyncError    = auto()
     GoToCharge      = auto()
@@ -10,32 +10,29 @@ class EAgent_Status( Enum ):
     OnRoute         = auto()
     NoRouteToCharge = auto()
 
-    @staticmethod
-    def fromString( sType ): return EnumFromString( EAgent_Status, sType, EAgent_Status.Idle )
-
-    def toString( self ): return EnumToString( self )
-
-    def __str__( self ): return self.toString()
+    Default         = Idle
 
 #########################################################
 
-class EAgentBattery_Type( Enum ):
-    Supercap   = auto() # Error text message with symbol*
-    Li         = auto() # Warning text message with symbol #
+class EAgentBattery_Type( BaseEnum ):
+    Supercap   = auto()
+    Li         = auto()
     N          = auto()
     S = Supercap
     L = Li
 
-    @staticmethod
-    def fromString( sType ): return EnumFromString( EAgentBattery_Type, sType, None )
+    Default    = Supercap
 
-    @staticmethod
-    def toString( eType ):
+    # @staticmethod
+    # def fromString( sType ): return EnumFromString( EAgentBattery_Type, sType, None )
+
+    # @staticmethod
+    def toString( self ):
         toStrD = { EAgentBattery_Type.Supercap: "S",
                    EAgentBattery_Type.Li: "L",
                    EAgentBattery_Type.N:  "N"
                  }
-        return toStrD[ eType ]
+        return toStrD[ self ]
 
 
 class SAgent_BatteryState:

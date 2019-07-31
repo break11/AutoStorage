@@ -2,7 +2,15 @@ import time
 from threading import Timer
 import Lib.Common.StrConsts as SC
 
-import Lib.Common.StrConsts as SC
+from enum import Enum
+
+class BaseEnum( Enum ):
+    @classmethod
+    def fromString( cls, sType ): return EnumFromString( cls, sType, cls.Default )
+
+    def toString( self ): return EnumToString( self )
+
+    def __str__( self ): return self.toString()
 
 def EnumFromString( enum, sValue, defValue ):
     try:
