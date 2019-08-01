@@ -23,20 +23,21 @@ class CNode_SGItem(QGraphicsItem):
     @property
     def nodeID( self ): return self.netObj().name
 
+    @property
+    def nodeType( self ): return self.netObj().nodeType
+
+
     def __init__(self, SGM, nodeNetObj, parent ):
         super().__init__( parent=parent )
 
         self.SGM = SGM
         self.netObj = weakref.ref( nodeNetObj )
-        self.nodeType = SGT.ENodeTypes.NoneType
         self.setFlags( QGraphicsItem.ItemIsSelectable )
         self.setZValue( 20 )
         self.middleLineAngle = 0
         self.__singleStorages = []
 
-        self.updateType()
         self.calcBBox()
-
 
     def destroy_NetObj( self ):
         self.netObj().destroy()
@@ -64,7 +65,6 @@ class CNode_SGItem(QGraphicsItem):
     
     # инициализация после добавления в сцену
     def init(self):
-        self.updateType()
         self.calcBBox()
         self.updatePos()
 
@@ -80,12 +80,6 @@ class CNode_SGItem(QGraphicsItem):
     def move(self, deltaPos):
         pos = self.pos() + deltaPos
         self.setPos(pos.x(), pos.y())
-
-    def updateType(self):
-        try:
-            self.nodeType = self.netObj().nodeType
-        except AttributeError:
-            self.nodeType = SGT.ENodeTypes.NoneType
 
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )

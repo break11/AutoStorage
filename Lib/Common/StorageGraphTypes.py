@@ -25,7 +25,6 @@ for str_item in _graphAttrs:
 #######################################################
 
 class ENodeTypes( BaseEnum ):
-    NoneType       = auto()
     UnknownType    = auto()
     DummyNode      = auto()
     StorageSingle  = auto()
@@ -39,7 +38,6 @@ class ENodeTypes( BaseEnum ):
     Default = UnknownType
 
 nodeColors = {
-    ENodeTypes.NoneType       : Qt.darkGray,
     ENodeTypes.UnknownType    : Qt.darkRed,
     ENodeTypes.DummyNode      : Qt.darkGreen,
     ENodeTypes.StorageSingle  : Qt.cyan,
@@ -125,3 +123,18 @@ class ESide( Enum ):
             return ESide.Right
 
 graphEnums = { s_nodeType : ENodeTypes } #type:ignore
+
+default_Edge_Props = {
+                        s_edgeSize:         500,                         # type: ignore
+                        s_highRailSizeFrom: 0,                           # type: ignore
+                        s_highRailSizeTo:   0,                           # type: ignore
+                        s_sensorSide:       ESensorSide.SBoth.name,      # type: ignore
+                        s_widthType:        EWidthType.Narrow.name,      # type: ignore
+                        s_curvature:        ECurvature.Straight.name     # type: ignore
+                    }
+
+default_Node_Props = {  
+                        s_x: 0,                                    # type: ignore
+                        s_y: 0,                                    # type: ignore
+                        s_nodeType: ENodeTypes.DummyNode,          # type: ignore
+                    }

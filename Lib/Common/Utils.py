@@ -64,3 +64,10 @@ def wrapSpan( data, color, weight = 200 ):
         
 def wrapDiv( data ):
     return f"<div>{data}</div>"
+
+#####################################
+
+def mergeDicts( source, default ):
+    keys = set(default.keys()).difference( set(source.keys()) ) # получаем список ключей, которых нет в source
+    for k in keys:
+        source[k] = default[k]

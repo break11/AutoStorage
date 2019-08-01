@@ -9,21 +9,19 @@ import weakref
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-# from PyQt5.QtWidgets import QGraphicsView, QWidget
-# from PyQt5.QtWidgets import QApplication
-
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.GraphUtils import loadGraphML_File
 sDir = "./GraphML/"
 
 # Dummy-классы для имитиции окружения StorageGraph_GScene_Manager
 
 class CNode_SGItem_Dummy:
+    @property
+    def nodeType( self ): return self.netObj().nodeType
+
     def __init__(self, nodeNetObj):
-        self.nodeType = SGT.ENodeTypes.NoneType
         self.middleLineAngle = None
         self.netObj = weakref.ref( nodeNetObj )
 
@@ -55,11 +53,6 @@ class CSGM_Dummy:
         dummyNodeItem = CNode_SGItem_Dummy(nodeNetObj)
         nodeID = nodeNetObj.name
         self.nodeGItems[nodeID] = dummyNodeItem
-        try:
-            sType = self.nxGraph.nodes()[nodeID][SGT.s_nodeType]
-            dummyNodeItem.nodeType = SGT.ENodeTypes.fromString( sType )
-        except:
-            dummyNodeItem.nodeType = SGT.ENodeTypes.NoneType
 
     def addEdge(self, tKey):
         #пока для тестирования достаточно чтобы дикт граней был просто заполнен
@@ -75,7 +68,6 @@ SGM = CSGM_Dummy ( sDir + "test_storage_rotation.graphml" )
 
 
 class Test_SGM_Funcs(unittest.TestCase):
-
     def test_updateNodeMiddleLine(self):
 
         for dummyNodeItem in SGM.nodeGItems.values():

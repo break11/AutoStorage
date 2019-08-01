@@ -41,21 +41,6 @@ class EGManagerEditMode (Flag):
     AddNode = auto()
 
 class CStorageGraph_GScene_Manager( QObject ):
-    default_Edge_Props = {
-                            SGT.s_edgeSize:         500,                         # type: ignore
-                            SGT.s_highRailSizeFrom: 0,                           # type: ignore
-                            SGT.s_highRailSizeTo:   0,                           # type: ignore
-                            SGT.s_sensorSide:       SGT.ESensorSide.SBoth.name,  # type: ignore
-                            SGT.s_widthType:        SGT.EWidthType.Narrow.name,  # type: ignore
-                            SGT.s_curvature:        SGT.ECurvature.Straight.name # type: ignore
-                        }
-
-    default_Node_Props = {  
-                            SGT.s_x: 0,                                    # type: ignore
-                            SGT.s_y: 0,                                    # type: ignore
-                            SGT.s_nodeType: SGT.ENodeTypes.DummyNode.name, # type: ignore
-                        }
-
     nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StorageSingle, SGT.ENodeTypes.ServiceStation]
 
     @property
@@ -361,10 +346,10 @@ class CStorageGraph_GScene_Manager( QObject ):
             nodeID_1 = nodeGItems[i].nodeID
             nodeID_2 = nodeGItems[i+1].nodeID
             if direct: #создание граней в прямом направлении
-                CGraphEdge_NO.createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=SGT.default_Edge_Props )
 
             if reverse: #создание граней в обратном направлении
-                CGraphEdge_NO.createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=self.default_Edge_Props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=SGT.default_Edge_Props )
 
             if direct == False and reverse == False: continue
 
@@ -465,7 +450,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
-                attr = deepcopy (self.default_Node_Props)
+                attr = deepcopy (SGT.default_Node_Props)
                 attr[ SGT.s_x ] = round (self.gView.mapToScene(event.pos()).x())
                 attr[ SGT.s_y ] = round (self.gView.mapToScene(event.pos()).y())
 

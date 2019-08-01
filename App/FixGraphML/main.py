@@ -3,6 +3,9 @@ import os
 import networkx as nx
 
 from Lib.Common import StrConsts as SC
+from Lib.Common.Utils import mergeDicts
+import Lib.Common.StorageGraphTypes as SGT
+from Lib.Common.Graph_NetObjects import prepareGraphProps
 
 graphAttr = {
                 "widthType"        : str,
@@ -74,7 +77,7 @@ def converToPython( nxGraph ):
 
     #***********************************
 
-    print( f"Adjust nodes props types." )
+    print( f"Adjust nodes props types and adding needed props." )
     for k,v in nxGraph.nodes().items():
         d = adjustGraphPropsDict( v )
         nxGraph.nodes()[ k ].update( d )
@@ -84,9 +87,11 @@ def converToPython( nxGraph ):
                 print( f"Del attr {attrName} from node '{k}' props." )
                 del nxGraph.nodes()[k][ attrName ]
 
+        mergeDicts( source = v, default = SGT.default_Node_Props )
+
     #***********************************
 
-    print( f"Adjust edges props types." )
+    print( f"Adjust edges props types and adding needed props." )
     for k,v in nxGraph.edges().items():
         d = adjustGraphPropsDict( v )
         nxGraph.edges()[ k ].update( d )
@@ -95,6 +100,8 @@ def converToPython( nxGraph ):
             if nxGraph.edges()[k].get( attrName ) is not None:
                 print( f"Del attr {attrName} from edge '{k}' props." )
                 del nxGraph.edges()[k][ attrName ]
+
+        mergeDicts( source = v, default = SGT.default_Edge_Props )
 
 def load_and_fix_GraphML_File( sFName="", bConvertToHaskelFormat=False ):
     # загрузка графа и создание его объектов для сетевой синхронизации
@@ -111,6 +118,7 @@ def load_and_fix_GraphML_File( sFName="", bConvertToHaskelFormat=False ):
     else:
         converToPython( nxGraph )
 
+    prepareGraphProps( nxGraph, bToEnum = False )
     nx.write_graphml( nxGraph, sFName )
 
 def main():
