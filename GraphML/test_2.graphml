@@ -13,6 +13,7 @@
     <node id="nLU">
       <data key="d0">-750</data>
       <data key="d1">-250</data>
+      <data key="d2">DummyNode</data>
     </node>
     <node id="n0">
       <data key="d0">0</data>
@@ -30,7 +31,7 @@
       <data key="d1">1250</data>
     </node>
     <node id="nRU">
-      <data key="d2">Unsupported Node Type</data>
+      <data key="d2">UnknownType</data>
       <data key="d0">1000</data>
       <data key="d1">-1000</data>
     </node>
@@ -47,8 +48,22 @@
       <data key="d7">Narrow</data>
       <data key="d8">Straight</data>
     </edge>
-    <edge source="nRD" target="n0" />
-    <edge source="nLD" target="n0" />
+    <edge source="nRD" target="n0">
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d8">Straight</data>
+      <data key="d5">0</data>
+      <data key="d7">Narrow</data>
+    </edge>
+    <edge source="nLD" target="n0">
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d8">Straight</data>
+      <data key="d5">0</data>
+      <data key="d7">Narrow</data>
+    </edge>
     <edge source="nRU" target="nLU">
       <data key="d3">500</data>
       <data key="d4">0</data>

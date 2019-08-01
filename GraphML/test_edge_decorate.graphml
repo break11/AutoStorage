@@ -115,7 +115,16 @@
       <data key="d6">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d8">Straight</data>
+      <data key="d5">0</data>
+      <data key="d4">0</data>
     </edge>
-    <edge source="11" target="12" />
+    <edge source="11" target="12">
+      <data key="d3">500</data>
+      <data key="d4">0</data>
+      <data key="d6">SBoth</data>
+      <data key="d8">Straight</data>
+      <data key="d5">0</data>
+      <data key="d7">Narrow</data>
+    </edge>
   </graph>
 </graphml>

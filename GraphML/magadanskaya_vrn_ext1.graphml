@@ -150,7 +150,7 @@
     <node id="27">
       <data key="d1">1002</data>
       <data key="d2">11550</data>
-      <data key="d3">PickstationIn</data>
+      <data key="d3">PickStationIn</data>
     </node>
     <node id="28">
       <data key="d1">750</data>
