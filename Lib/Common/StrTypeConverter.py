@@ -21,6 +21,8 @@ class CStrTypeConverter:
 
     @classmethod
     def registerUserType( cls, typeChar, typeClass ):
+        assert typeChar not in cls.std_type_letters
+        assert typeClass not in cls.std_types
         assert typeChar not in cls.user_type_letters
         assert typeClass not in cls.user_types
         assert hasattr( typeClass, "fromString" )

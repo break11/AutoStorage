@@ -13,6 +13,7 @@ from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge
 from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.StrTypeConverter import CStrTypeConverter
+from Lib.Common.StorageGraphTypes import ENodeTypes
 from Lib.AgentProtocol.AgentDataTypes import EAgent_Status
 
 def registerNetObjTypes():
@@ -26,6 +27,7 @@ def registerNetObjTypes():
 def registerNetObj_Props_UserTypes():
     reg = CStrTypeConverter.registerUserType
     reg( "a", EAgent_Status )
+    reg( "b", ENodeTypes )
 
 def registerNetNodeWidgets( parent ):
     reg = CNetObj_WidgetsManager.registerWidget
