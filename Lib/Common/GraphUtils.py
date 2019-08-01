@@ -187,7 +187,7 @@ def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
     elif vecs_count == 1:
         r_vec = nodeVecs[0].rotate( math.pi/2 )
     
-    eNodeType = SGT.ENodeTypes.fromString( nxGraph.nodes[ nodeID ][ SGT.s_nodeType ] )
+    eNodeType = nxGraph.nodes[ nodeID ][ SGT.s_nodeType ]
     
     if eNodeType == SGT.ENodeTypes.StorageSingle:
         r_vec = rotateToRightSector( r_vec )

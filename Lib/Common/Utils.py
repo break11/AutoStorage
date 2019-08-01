@@ -15,8 +15,8 @@ class BaseEnum( Enum ):
 def EnumFromString( enum, sValue, defValue ):
     try:
         rVal = enum[ sValue ]
-    except:
-        print( f"{SC.sWarning} Enum {enum} doesn't contain value for string = {sValue}, using {defValue}!" )
+    except KeyError as e:
+        print( f"{SC.sWarning} Enum {enum} doesn't contain value for val = {sValue} of type = {type(sValue)}, using {defValue}!" )
         rVal = defValue
     return rVal
 

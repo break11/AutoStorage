@@ -3,7 +3,7 @@ from enum import Enum, auto
 import math
 from PyQt5.QtCore import (Qt)
 
-from .Utils import EnumFromString
+from .Utils import EnumFromString, BaseEnum
 
 _graphAttrs = [
             "widthType",
@@ -16,7 +16,6 @@ _graphAttrs = [
             "x",
             "y",
             "nodeType",
-            "storageType",
           ]
 
 # Экспортируем "короткие" алиасы строковых констант
@@ -25,7 +24,7 @@ for str_item in _graphAttrs:
 
 #######################################################
 
-class ENodeTypes( Enum ):
+class ENodeTypes( BaseEnum ):
     NoneType       = auto()
     UnknownType    = auto()
     DummyNode      = auto()
@@ -37,8 +36,7 @@ class ENodeTypes( Enum ):
     ServiceStation = auto()
     Terminal       = auto()
 
-    @staticmethod
-    def fromString( sType ): return EnumFromString( ENodeTypes, sType, ENodeTypes.UnknownType )
+    Default = UnknownType
 
 nodeColors = {
     ENodeTypes.NoneType       : Qt.darkGray,
@@ -125,3 +123,5 @@ class ESide( Enum ):
             return ESide.Left
         else:
             return ESide.Right
+
+graphEnums = { s_nodeType : ENodeTypes } #type:ignore

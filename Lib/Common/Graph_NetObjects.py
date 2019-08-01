@@ -4,6 +4,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
+from .StorageGraphTypes import graphEnums
 
 def graphNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
@@ -109,11 +110,30 @@ def createGraph_NO_Branches( nxGraph ):
     Edges = CNetObj(name="Edges", parent=Graph)
     return Graph, Nodes, Edges
 
+def prepareGraphProps( nxGraph, bToEnum = True ):
+    keys = graphEnums.keys()
+
+    def prepareDict( props, bToEnum ):
+        for k,v in props.items():
+            if k in keys:
+                if bToEnum:
+                    props[ k ] = graphEnums[ k ].fromString( v )
+                else:
+                    props[ k ] = str( v )
+
+    prepareDict( nxGraph.graph, bToEnum )
+
+    for nodeProps in nxGraph.nodes().values():
+        prepareDict( nodeProps, bToEnum )
+
+    for edgeProps in nxGraph.edges().values():
+        prepareDict( edgeProps, bToEnum )
+
 def createNetObjectsForGraph( nxGraph ):
     Graph, Nodes, Edges = createGraph_NO_Branches( nxGraph )
 
     for nodeID in nxGraph.nodes():
-        node = CGraphNode_NO( name=nodeID, parent=Nodes, props=nxGraph.nodes()[ nodeID ] )
+        node = CGraphNode_NO( name=nodeID, parent=Nodes, props = nxGraph.nodes()[ nodeID ] )
 
     for edgeID in nxGraph.edges():
         edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges, props=nxGraph.edges()[ edgeID ] )
@@ -134,6 +154,7 @@ def loadGraphML_to_NetObj( sFName, bReload ):
     if not nxGraph:
         return False
 
+    prepareGraphProps( nxGraph )
     createNetObjectsForGraph( nxGraph )
     return True
 

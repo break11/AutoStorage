@@ -83,14 +83,9 @@ class CNode_SGItem(QGraphicsItem):
 
     def updateType(self):
         try:
-            sNodeType = self.netObj().nodeType
+            self.nodeType = self.netObj().nodeType
         except AttributeError:
-            sNodeType = SGT.ENodeTypes.NoneType.name
-        
-        try:
-            self.nodeType = SGT.ENodeTypes[ sNodeType ]
-        except KeyError:
-            self.nodeType = SGT.ENodeTypes.UnknownType
+            self.nodeType = SGT.ENodeTypes.NoneType
 
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )

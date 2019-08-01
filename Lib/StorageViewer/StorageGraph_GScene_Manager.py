@@ -20,7 +20,7 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Br
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, prepareGraphProps
 from Lib.Common.Agent_NetObject import CAgent_NO, s_charge, s_status, s_position, s_edge, s_angle, s_route, def_props as agent_def_props,agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
@@ -212,7 +212,9 @@ class CStorageGraph_GScene_Manager( QObject ):
 
     def save( self, sFName ):
         try:
-            nx.write_graphml(self.nxGraph, sFName)
+            prepared_graph = deepcopy( self.nxGraph )
+            prepareGraphProps( prepared_graph, bToEnum = False )
+            nx.write_graphml(prepared_graph, sFName)
             return True
         except Exception as e:
             print( f"{SC.sError} { e }" )
