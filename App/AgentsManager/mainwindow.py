@@ -153,7 +153,7 @@ class CAM_MainWindow(QMainWindow):
                 while True:
                     targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
                     if startNode == targetNode: continue
-                    nType = SGT.ENodeTypes.fromString( nodeType(nxGraph, targetNode) )
+                    nType = nodeType(nxGraph, targetNode)
                     if nType in self.enabledTargetNodes:
                         break
                 
