@@ -23,6 +23,8 @@ def EnumFromString( enum, sValue, defValue ):
 def EnumToString( enumValue ):
     return enumValue.name
 
+#####################################
+
 class CRepeatTimer(Timer):
     def run(self):
         while not self.finished.wait( self.interval ):
@@ -32,6 +34,8 @@ class CRepeatTimer(Timer):
     def cancel( self ):
         super().cancel()
         self.function = None # для корректного завершения, чтобы не сохранились циклические ссылки на self владельца таймера
+
+#####################################
 
 def time_func( sMsg=None, threshold=0 ):
     def wrapper(f):
@@ -52,6 +56,8 @@ def time_func( sMsg=None, threshold=0 ):
         return tmp
 
     return wrapper
+
+#####################################
 
 def wrapSpan( data, color, weight = 200 ):
     return f"<span style=\" font-size:12pt; font-weight:{weight}; color:{color};\" >{data}</span>"

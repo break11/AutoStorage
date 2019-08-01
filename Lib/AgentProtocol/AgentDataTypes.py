@@ -23,14 +23,10 @@ class EAgentBattery_Type( BaseEnum ):
 
     Default    = Supercap
 
-    # @staticmethod
-    # def fromString( sType ): return EnumFromString( EAgentBattery_Type, sType, None )
-
-    # @staticmethod
     def toString( self ):
         toStrD = { EAgentBattery_Type.Supercap: "S",
-                   EAgentBattery_Type.Li: "L",
-                   EAgentBattery_Type.N:  "N"
+                   EAgentBattery_Type.Li      : "L",
+                   EAgentBattery_Type.N       :  "N"
                  }
         return toStrD[ self ]
 
@@ -99,15 +95,21 @@ class SHW_Data:
     "056"
     def __init__( self, lastRXPacketN ):
         self.lastRXPacketN = lastRXPacketN
+        self.bIsValid = True
 
     @classmethod
     def fromString( cls, data ):
         try:
             lastRXPacketN = int( data )
+            bIsValid = True
         except:
             lastRXPacketN = 0
+            bIsValid = False
 
-        return SHW_Data( lastRXPacketN )
+        HW_Data = SHW_Data( lastRXPacketN )
+        HW_Data.bIsValid = bIsValid
+        
+        return HW_Data
 
     def toString( self ):
         return f"{self.lastRXPacketN:03d}"

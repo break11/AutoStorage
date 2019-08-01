@@ -21,7 +21,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
 from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData
-from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN
+from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
 
 from .routeBuilder import CRouteBuilder
@@ -198,7 +198,7 @@ class CAgentLink( CAgentServer_Link ):
         self.genTxPacketN = startPacketN
         for cmd in self.TX_Packets:
             cmd.packetN = self.genTxPacketN
-            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
+            self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
 
     def startCharging( self ):
         self.agentNO().status = EAgent_Status.Charging

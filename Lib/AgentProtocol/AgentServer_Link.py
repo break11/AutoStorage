@@ -3,7 +3,7 @@ from collections import deque
 from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import getNextPacketN, getACC_Event_ThisSide
+from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN, getACC_Event_ThisSide
 
 class CAgentServer_Link:
     @property
@@ -58,7 +58,7 @@ class CAgentServer_Link:
 
         if bReMap_PacketN:
             cmd.packetN = self.genTxPacketN
-            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
+            self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
         
         if bPut_to_TX_FIFO:
             if bAllowDuplicate or ( cmd not in self.TX_Packets ):
@@ -68,10 +68,11 @@ class CAgentServer_Link:
                 self.Express_TX_Packets.append( cmd )
 
     def remapPacketsNumbers( self, startPacketN ):
+        assert startPacketN != 0
         self.genTxPacketN = startPacketN
         for cmd in self.TX_Packets:
             cmd.packetN = self.genTxPacketN
-            self.genTxPacketN = getNextPacketN( self.genTxPacketN )
+            self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
 
     def genPacket( self, event, data=None ):
         return ASP( event = event, agentN = self.agentN, data = data )

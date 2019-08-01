@@ -2,7 +2,7 @@
 from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
-def getNextPacketN( n ): return ( 1 if n == 999 else n+1 )
+def calcNextPacketN( n ): return ( 1 if n == 999 else n+1 )
 
 def getACC_Event_ThisSide( bIsServer ):
     if bIsServer: return EAgentServer_Event.ServerAccepting
@@ -43,7 +43,7 @@ def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None ):
 
     else:
         # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
-        wantedPacketN = getNextPacketN( agentLink.last_RX_packetN )
+        wantedPacketN = calcNextPacketN( agentLink.last_RX_packetN )
         delta = cmd.packetN - wantedPacketN
 
         # если разница в номерах пакетов 0, то всё корректно

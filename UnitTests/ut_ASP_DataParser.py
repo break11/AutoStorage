@@ -21,8 +21,21 @@ class TestASP_DataParser(unittest.TestCase):
 
         self.assertEqual( type(eData), SHW_Data )
         self.assertEqual( eData.lastRXPacketN, 45 )
+        self.assertEqual( eData.bIsValid, True )
 
         self.assertEqual( sData, eData.toString() )
+
+        # проверка правильной обработки некорректных данных в пакете HW - символы вместо int
+
+        sData = "fdfdfdfdfd"
+        packet = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, data = sData )
+
+        eData = extractASP_Data( packet )
+        self.assertEqual( type(eData), SHW_Data )
+        self.assertEqual( eData.lastRXPacketN, 0 )
+        self.assertEqual( eData.bIsValid, False )
+
+        self.assertEqual( "000", eData.toString() )
 
     def test_BS(self):
         sData = "S,33.44V,40.00V,47.64V,01.1A/00.3A"
