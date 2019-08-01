@@ -61,11 +61,17 @@ class CAgentServer_Link:
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
         
         if bPut_to_TX_FIFO:
-            if bAllowDuplicate or ( cmd not in self.TX_Packets ):
+            if bAllowDuplicate or not self.eventPresent( cmd.event, self.TX_Packets ):
                 self.TX_Packets.append( cmd )
         else:
-            if bAllowDuplicate or ( cmd not in self.Express_TX_Packetss ):
+            if bAllowDuplicate or not self.eventPresent( cmd.event, self.Express_TX_Packets ):
                 self.Express_TX_Packets.append( cmd )
+
+    def eventPresent( self, event, packetsDeque ):
+        for cmd in packetsDeque:
+            if cmd.event == event:
+                return True
+        return False
 
     def remapPacketsNumbers( self, startPacketN ):
         assert startPacketN != 0
