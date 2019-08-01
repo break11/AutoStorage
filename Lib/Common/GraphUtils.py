@@ -336,7 +336,7 @@ def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide =
 
 def routeToServiceStation( nxGraph, startNode, agentAngle ):
 
-    charge_nodes = findNodes( nxGraph, SGT.s_nodeType, SGT.ENodeTypes.ServiceStation.name )
+    charge_nodes = findNodes( nxGraph, SGT.s_nodeType, SGT.ENodeTypes.ServiceStation )
     nodes_routes_weighted = []
 
     for targetNode in charge_nodes:
