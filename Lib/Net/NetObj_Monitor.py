@@ -60,7 +60,7 @@ class CNetObj_Monitor(QWidget):
         if not parent:
             self.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry.encode() ) ) )
 
-        self.setWindowTitle( f"{self.windowTitle()}   app = {baseFName.rsplit(os.sep, 1)[1]}   ClientID = {CNetObj_Manager.ClientID}" )
+        self.setWindowTitle( f"{self.windowTitle()}   app = {baseFName}   ClientID = {CNetObj_Manager.ClientID}" )
 
         # подготовка контролов сетевых команд
         self.sbClientID.setValue( CNetObj_Manager.ClientID )
