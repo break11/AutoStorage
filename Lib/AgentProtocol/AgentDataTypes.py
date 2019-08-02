@@ -1,5 +1,5 @@
 
-from enum import auto, Enum
+from enum import auto
 from Lib.Common.Utils import BaseEnum
 
 class EAgent_Status( BaseEnum ):
@@ -108,7 +108,7 @@ class SHW_Data:
 
         HW_Data = SHW_Data( lastRXPacketN )
         HW_Data.bIsValid = bIsValid
-        
+
         return HW_Data
 
     def toString( self ):

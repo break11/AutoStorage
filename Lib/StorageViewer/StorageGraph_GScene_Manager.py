@@ -3,7 +3,7 @@ import os
 import networkx as nx
 import weakref
 import math
-from enum import Enum, Flag, auto
+from enum import Flag, auto
 from copy import deepcopy
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem

@@ -1,5 +1,5 @@
 
-from enum import Enum, auto
+from enum import auto
 import math
 from PyQt5.QtCore import (Qt)
 
@@ -83,15 +83,14 @@ class ESensorSide( BaseEnum ):
 
     Default  = SBoth
 
-class EDirection( Enum ):
+class EDirection( BaseEnum ):
     Forward = auto()
     Rear    = auto()
     F       = Forward
     R       = Rear
     Error   = auto()
 
-    @staticmethod
-    def fromString( sType ): return EnumFromString( EDirection, sType, EDirection.Error )
+    Default = Error
 
 class ESide( BaseEnum ):
     Left            = auto()
