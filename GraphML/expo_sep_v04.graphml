@@ -62,7 +62,7 @@
       <data key="d2">ServiceStation</data>
       <data key="d3">-1</data>
       <data key="d4">0</data>
-      <data key="d5">ChargeSideLeft</data>
+      <data key="d5">Left</data>
     </node>
     <node id="8">
       <data key="d0">-775</data>

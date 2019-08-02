@@ -216,7 +216,7 @@
       <data key="d1">7107</data>
       <data key="d2">2046</data>
       <data key="d3">ServiceStation</data>
-      <data key="d4">ChargeSideLeft</data>
+      <data key="d4">Right</data>
     </node>
     <node id="41">
       <data key="d1">7107</data>

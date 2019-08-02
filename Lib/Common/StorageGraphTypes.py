@@ -93,15 +93,11 @@ class EDirection( Enum ):
     @staticmethod
     def fromString( sType ): return EnumFromString( EDirection, sType, EDirection.Error )
 
-class ESide( Enum ):
+class ESide( BaseEnum ):
     Left            = auto()
     Right           = auto()
-    ChargeSideLeft  = Right # ChargeSideLeft - указывает положение "минуса", т.е. "плюс" справа. У челнока "плюс" в передней части.
-    ChargeSideRight = Left  # поэтому при ChargeSideLeft челнок необходимо располагать вектором в правый сектор.
 
-
-    @staticmethod
-    def fromString( sType ): return EnumFromString( ESide, sType, ESide.Right )
+    Default = Right
 
     @staticmethod
     def fromAngle( angle ):
@@ -116,6 +112,7 @@ graphEnums = { s_nodeType   : ENodeTypes,  #type:ignore
                s_sensorSide : ESensorSide, #type:ignore
                s_widthType  : EWidthType,  #type:ignore
                s_curvature  : ECurvature,  #type:ignore
+               s_chargeSide : ESide,       #type:ignore
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):

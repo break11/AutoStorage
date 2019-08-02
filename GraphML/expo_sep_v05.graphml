@@ -319,7 +319,7 @@
       <data key="d0">5625</data>
       <data key="d1">2175</data>
       <data key="d2">ServiceStation</data>
-      <data key="d5">ChargeSideRight</data>
+      <data key="d5">Left</data>
     </node>
     <edge source="1" target="2">
       <data key="d6">Normal</data>

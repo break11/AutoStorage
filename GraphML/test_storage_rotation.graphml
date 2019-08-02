@@ -146,7 +146,7 @@
       <data key="d0">2800</data>
       <data key="d1">8200</data>
       <data key="d2">ServiceStation</data>
-      <data key="d3">ChargeSideLeft</data>
+      <data key="d3">Right</data>
     </node>
     <node id="25">
       <data key="d0">2800</data>
@@ -162,7 +162,7 @@
       <data key="d0">4200</data>
       <data key="d1">8200</data>
       <data key="d2">ServiceStation</data>
-      <data key="d3">ChargeSideRight</data>
+      <data key="d3">Left</data>
     </node>
     <node id="28">
       <data key="d0">4200</data>
@@ -173,7 +173,7 @@
       <data key="d0">6600</data>
       <data key="d1">7200</data>
       <data key="d2">ServiceStation</data>
-      <data key="d3">ChargeSideLeft</data>
+      <data key="d3">Right</data>
     </node>
     <node id="30">
       <data key="d0">5600</data>
@@ -194,7 +194,7 @@
       <data key="d0">6600</data>
       <data key="d1">8400</data>
       <data key="d2">ServiceStation</data>
-      <data key="d3">ChargeSideRight</data>
+      <data key="d3">Left</data>
     </node>
     <node id="34">
       <data key="d0">7600</data>
