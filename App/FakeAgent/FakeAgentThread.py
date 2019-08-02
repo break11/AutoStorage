@@ -31,7 +31,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
     def processRxPacket(self, cmd):
         FAL = self.agentLink()
         if cmd.event == EAgentServer_Event.HelloWorld:
-            # cmd = self.genPacket( event = EAgentServer_Event.HelloWorld, data = str( self.fakeAgentLink().last_RX_packetN ) )
+            # cmd = self.genPacket( event = EAgentServer_Event.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() )
             # cmd.packetN = 0
             # FAL.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
 

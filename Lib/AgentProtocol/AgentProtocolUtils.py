@@ -51,6 +51,8 @@ def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None ):
         if  delta == 0 or cmd.packetN == 0:
             if cmd.packetN != 0:
                 agentLink.last_RX_packetN = cmd.packetN
+            # agentLink.last_RX_packetN = cmd.packetN
+
             cmd.status = EPacket_Status.Normal
             if processAcceptedPacket is not None:
                 processAcceptedPacket( cmd )

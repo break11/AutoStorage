@@ -67,8 +67,7 @@ def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
 
     edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
     
-    s_EdgeType = nxGraph.edges()[ tEdgeKey ].get( SGT.s_widthType )
-    railType = SGT.EWidthType.fromString( s_EdgeType )
+    railType = nxGraph.edges()[ tEdgeKey ][ SGT.s_widthType ]
     
     agent_vec = Vector2.fromAngle( math.radians( agent_angle ) )
     

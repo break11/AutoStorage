@@ -88,7 +88,7 @@ class CRouteBuilder():
         return edgeSize( self.nxGraph, tKey )
 
     def LedgeSizeByEdge( self, tKey ):
-        widthType = SGT.EWidthType.fromString( self.nxGraph.edges()[ tKey ][ SGT.s_widthType ] )
+        widthType = self.nxGraph.edges()[ tKey ][ SGT.s_widthType ]
         ledgeSize = widthTypeToLedgeSize[ widthType ]
         return ledgeSize
 
@@ -317,8 +317,8 @@ class CRouteBuilder():
                 highRailSizeTo   = edge[ SGT.s_highRailSizeTo   ]
                 edgeSize         = edge[ SGT.s_edgeSize         ]
                 sensorSide       = edge[ SGT.s_sensorSide ]
-                widthType        = SGT.EWidthType.fromString ( edge[ SGT.s_widthType  ] )
-                curvature        = SGT.ECurvature.fromString ( edge[ SGT.s_curvature  ] )
+                widthType        = edge[ SGT.s_widthType  ]
+                curvature        = edge[ SGT.s_curvature  ]
 
                 if highRailSizeFrom > 0:
                     segment = CRailSegment(highRailSizeFrom, RH_HIGH, sensorSide, widthType, curvature)                    

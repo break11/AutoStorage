@@ -13,7 +13,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 class CNode_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  =  2 # расширение BBox для удобства выделения
-    __st_offset = SGT.railWidth( SGT.EWidthType.Narrow.name ) # storage offset
+    __st_offset = SGT.railWidth[ SGT.EWidthType.Narrow ] # storage offset
     __st_height = 360
     __st_width = 640
 

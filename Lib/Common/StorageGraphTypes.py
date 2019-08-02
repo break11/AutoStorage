@@ -51,12 +51,11 @@ nodeColors = {
 
 #######################################################
     
-class EWidthType( Enum ):
-    Narrow = auto()
-    Wide   = auto()
+class EWidthType( BaseEnum ):
+    Narrow  = auto()
+    Wide    = auto()
 
-    @staticmethod
-    def fromString( sType ): return EnumFromString( EWidthType, sType, EWidthType.Narrow )
+    Default = Narrow
 
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
@@ -64,25 +63,17 @@ sensorWide = 200  # half of distance between sensors (y axis)
 narrow_Rail_Width = 690
 wide_Rail_Width   = 1140
 
-__railWidth = {
-    EWidthType.Narrow.name : narrow_Rail_Width,
-    EWidthType.Wide.name   : wide_Rail_Width
-}
-
-def railWidth( sWidthType ):
-    try:
-        return __railWidth[ sWidthType ]
-    except KeyError:
-        return narrow_Rail_Width
+railWidth = { EWidthType.Narrow : narrow_Rail_Width,
+              EWidthType.Wide   : wide_Rail_Width
+            }
 
 ###########################################################
 
-class ECurvature( Enum ):
+class ECurvature( BaseEnum ):
     Curve    = auto()
     Straight = auto()
 
-    @staticmethod
-    def fromString( sType ): return EnumFromString( ECurvature, sType, ECurvature.Straight )
+    Default = Straight
 
 class ESensorSide( BaseEnum ):
     SLeft    = auto()
@@ -91,7 +82,7 @@ class ESensorSide( BaseEnum ):
     SPassive = auto()
 
     Default  = SBoth
-    
+
 class EDirection( Enum ):
     Forward = auto()
     Rear    = auto()
@@ -123,6 +114,8 @@ class ESide( Enum ):
 
 graphEnums = { s_nodeType   : ENodeTypes,  #type:ignore
                s_sensorSide : ESensorSide, #type:ignore
+               s_widthType  : EWidthType,  #type:ignore
+               s_curvature  : ECurvature,  #type:ignore
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):
@@ -145,16 +138,16 @@ def prepareGraphProps( nxGraph, bToEnum = True ):
         prepareDict( edgeProps, bToEnum )
 
 default_Edge_Props = {
-                        s_edgeSize:         500,                     # type: ignore
-                        s_highRailSizeFrom: 0,                       # type: ignore
-                        s_highRailSizeTo:   0,                       # type: ignore
-                        s_sensorSide:       ESensorSide.SBoth,       # type: ignore
-                        s_widthType:        EWidthType.Narrow.name,  # type: ignore
-                        s_curvature:        ECurvature.Straight.name # type: ignore
+                        s_edgeSize:         500,                 # type: ignore
+                        s_highRailSizeFrom: 0,                   # type: ignore
+                        s_highRailSizeTo:   0,                   # type: ignore
+                        s_sensorSide:       ESensorSide.SBoth,   # type: ignore
+                        s_widthType:        EWidthType.Narrow,   # type: ignore
+                        s_curvature:        ECurvature.Straight  # type: ignore
                     }
 
 default_Node_Props = {  
-                        s_x: 0,                                    # type: ignore
-                        s_y: 0,                                    # type: ignore
-                        s_nodeType: ENodeTypes.DummyNode,          # type: ignore
+                        s_x: 0,                                  # type: ignore
+                        s_y: 0,                                  # type: ignore
+                        s_nodeType: ENodeTypes.DummyNode,        # type: ignore
                     }

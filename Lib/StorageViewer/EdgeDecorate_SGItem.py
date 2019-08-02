@@ -20,7 +20,7 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         assert edgeNetObj is not None
 
         self.setRotation( -self.parentEdge.rotateAngle() )
-        self.width = SGT.railWidth( edgeNetObj.get( SGT.s_widthType ) ) if edgeNetObj else 0
+        self.width = SGT.railWidth[ edgeNetObj.widthType ] if edgeNetObj else 0
 
         w = self.width
         self.__BBoxRect = QRectF( -w/2, -w/2, self.parentEdge.baseLine.length() + w, w )
@@ -75,11 +75,11 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         
         color = Qt.yellow
         sides = []
-        if curvature == SGT.ECurvature.Straight.name:
+        if curvature == SGT.ECurvature.Straight:
             sides = [-1, 1]
             if sensorSide == SGT.ESensorSide.SPassive:
                 color = Qt.green
-        elif curvature == SGT.ECurvature.Curve.name:
+        elif curvature == SGT.ECurvature.Curve:
             if sensorSide == SGT.ESensorSide.SBoth:
                 sides = [-1, 1]
             elif sensorSide == SGT.ESensorSide.SLeft:

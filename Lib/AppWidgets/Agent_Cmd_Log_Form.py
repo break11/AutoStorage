@@ -20,6 +20,10 @@ baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.ClientAccepting,
                   EAgentServer_Event.ServerAccepting ]
 
+baseFilterSet = []
+for e in EAgentServer_Event:
+    baseFilterSet.append( e )
+
 s_AppLog = "AppLog"
 
 s_agent_log_cmd_form = "agent_log_cmd_form"
