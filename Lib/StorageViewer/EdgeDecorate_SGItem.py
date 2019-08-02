@@ -70,21 +70,21 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
 
         kW = bline_length / eL
 
-        sensorSide = edgeNetObj.get( SGT.s_sensorSide )
-        curvature  = edgeNetObj.get( SGT.s_curvature )
+        sensorSide = edgeNetObj.sensorSide
+        curvature  = edgeNetObj.curvature
         
         color = Qt.yellow
         sides = []
         if curvature == SGT.ECurvature.Straight.name:
             sides = [-1, 1]
-            if sensorSide == SGT.ESensorSide.SPassive.name:
+            if sensorSide == SGT.ESensorSide.SPassive:
                 color = Qt.green
         elif curvature == SGT.ECurvature.Curve.name:
-            if sensorSide == SGT.ESensorSide.SBoth.name:
+            if sensorSide == SGT.ESensorSide.SBoth:
                 sides = [-1, 1]
-            elif sensorSide == SGT.ESensorSide.SLeft.name:
+            elif sensorSide == SGT.ESensorSide.SLeft:
                 sides = [-1]
-            elif sensorSide == SGT.ESensorSide.SRight.name:
+            elif sensorSide == SGT.ESensorSide.SRight:
                 sides = [1]
 
         l1, l2 = [], []
@@ -92,7 +92,7 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         for sK in sides:
             y = (w + 10)* sK
 
-            if sensorSide != SGT.ESensorSide.SPassive.name:
+            if sensorSide != SGT.ESensorSide.SPassive:
                 l1.append( QLineF( eHFrom * kW, y, bline_length - eHTo * kW, y ) )
 
             if eHFrom:

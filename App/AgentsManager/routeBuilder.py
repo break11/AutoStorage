@@ -316,7 +316,7 @@ class CRouteBuilder():
                 highRailSizeFrom = edge[ SGT.s_highRailSizeFrom ]
                 highRailSizeTo   = edge[ SGT.s_highRailSizeTo   ]
                 edgeSize         = edge[ SGT.s_edgeSize         ]
-                sensorSide       = SGT.ESensorSide.fromString( edge[ SGT.s_sensorSide ] )
+                sensorSide       = edge[ SGT.s_sensorSide ]
                 widthType        = SGT.EWidthType.fromString ( edge[ SGT.s_widthType  ] )
                 curvature        = SGT.ECurvature.fromString ( edge[ SGT.s_curvature  ] )
 

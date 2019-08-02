@@ -4,10 +4,14 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
-from .StorageGraphTypes import graphEnums
+from .StorageGraphTypes import prepareGraphProps
+
+s_Graph = "Graph"
+s_Nodes = "Nodes"
+s_Edges = "Edges"
 
 def graphNodeCache():
-    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Graph" )
+    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Graph )
 
 class CGraphRoot_NO( CNetObj ):    
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None, nxGraph=None ):
@@ -21,8 +25,8 @@ class CGraphRoot_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )        
 
-        self.nodesNode = CTreeNodeCache( baseNode = self, path = "Nodes" )
-        self.edgesNode = CTreeNodeCache( baseNode = self, path = "Edges" )
+        self.nodesNode = CTreeNodeCache( baseNode = self, path = s_Nodes )
+        self.edgesNode = CTreeNodeCache( baseNode = self, path = s_Edges )
 
 ###################################################################################
 
@@ -105,29 +109,10 @@ class CGraphEdge_NO( CNetObj ):
     def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
 
 def createGraph_NO_Branches( nxGraph ):
-    Graph  = CGraphRoot_NO( name="Graph", parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
-    Nodes = CNetObj(name="Nodes", parent=Graph)
-    Edges = CNetObj(name="Edges", parent=Graph)
+    Graph  = CGraphRoot_NO( name=s_Graph, parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
+    Nodes = CNetObj(name=s_Nodes, parent=Graph)
+    Edges = CNetObj(name=s_Edges, parent=Graph)
     return Graph, Nodes, Edges
-
-def prepareGraphProps( nxGraph, bToEnum = True ):
-    keys = graphEnums.keys()
-
-    def prepareDict( props, bToEnum ):
-        for k,v in props.items():
-            if k in keys:
-                if bToEnum:
-                    props[ k ] = graphEnums[ k ].fromString( v )
-                else:
-                    props[ k ] = str( v )
-
-    prepareDict( nxGraph.graph, bToEnum )
-
-    for nodeProps in nxGraph.nodes().values():
-        prepareDict( nodeProps, bToEnum )
-
-    for edgeProps in nxGraph.edges().values():
-        prepareDict( edgeProps, bToEnum )
 
 def createNetObjectsForGraph( nxGraph ):
     Graph, Nodes, Edges = createGraph_NO_Branches( nxGraph )
@@ -141,7 +126,7 @@ def createNetObjectsForGraph( nxGraph ):
     CNetObj(name="Graph_End_Obj", parent=Graph)
     
 def loadGraphML_to_NetObj( sFName, bReload ):
-    graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, "Graph")
+    graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, s_Graph)
     if graphObj:
         if bReload:
             graphObj.destroy()
