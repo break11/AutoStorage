@@ -27,7 +27,7 @@ class CAgentLogManager( QObject ):
     @classmethod
     def genAgentLogFName( cls, agentN ):
         now = datetime.datetime.now()
-        sD = now.strftime("%d-%m-%Y")
+        sD = now.strftime("%d-%m-%Y--%H")
         return appLogPath() + f"{agentN}__{sD}.log.html"
 
     @classmethod
