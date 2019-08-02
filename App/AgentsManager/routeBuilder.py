@@ -7,6 +7,7 @@ from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles, pathWeight
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
+import Lib.Common.StrConsts as SC
 
 RH_LOW = 0
 RH_HIGH = 1
@@ -33,7 +34,6 @@ sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.F): 'L',
 
 directionToChar = { SGT.EDirection.F: "F",
                     SGT.EDirection.R: "R",
-                    SGT.EDirection.Error: "E"
                   }
 
 curvatureToChar      = { SGT.ECurvature.Straight: 'S', SGT.ECurvature.Curve: 'C' }
@@ -107,6 +107,11 @@ class CRouteBuilder():
         angle = agent_angle
         for single_sequence in Sequences:
             angle, direction = self.getDirection( (single_sequence[0], single_sequence[1]), angle )
+            
+            if direction == SGT.EDirection.Error:
+                print( f"{SC.sError} invalid agent rotation. Build route failed." )
+                return [], []
+            
             """
             path part is a node sequence with constans rail width and direction of movement. 
             Shuttle should start to move at the beginning of pathPart, and do full stop at the end 
