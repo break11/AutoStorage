@@ -52,3 +52,8 @@ class CAgent_NO( CNetObj ):
             return
         
         return tEdgeKey
+
+    def isOnNode( self, nodeType ):
+        if not self.isOnTrack: return False
+
+

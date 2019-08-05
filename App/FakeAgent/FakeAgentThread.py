@@ -56,7 +56,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.bEmergencyStop = False
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
 
-        elif cmd.event == EAgentServer_Event.PowerOn or cmd.event == EAgentServer_Event.PowerOff:
+        elif cmd.event == EAgentServer_Event.PowerEnable or cmd.event == EAgentServer_Event.PowerDisable:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
 
         elif cmd.event == EAgentServer_Event.FakeAgentDevPacket:

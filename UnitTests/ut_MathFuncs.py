@@ -38,7 +38,10 @@ deg_360 = 360.0
 deg_540 = 540.0
 
 nxGraph         = gu.loadGraphML_File( "./GraphML/math_unit_tests.graphml" )
+SGT.prepareGraphProps( nxGraph )
+
 nxGraph_mag_ext = gu.loadGraphML_File( "./GraphML/magadanskaya_ext_unit_tests.graphml" )
+SGT.prepareGraphProps( nxGraph_mag_ext )
 
 tEdgeKey12 = ("1", "2")
 tEdgeKey21 = ("2", "1")
@@ -566,6 +569,21 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual(  gu.EdgeDisplayName( nodeID1, nodeID2 ),  f"{nodeID1} --> {nodeID2}" )
         self.assertEqual(  gu.EdgeDisplayName( nodeID2, nodeID1 ),  f"{nodeID2} --> {nodeID1}" )
 
+    def test_nodeByPos(self):
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 0 ),   "1" )
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 500 ), "2" )
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 51 ),  None )
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 449 ), None )
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 4,   allowOffset=5 ), "1" )
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 496, allowOffset=5 ), "2" )
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 6,   allowOffset=5 ), None )
+        self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 494, allowOffset=5 ), None )
+
+    def test_isOnNode(self):
+        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.DummyNode, tEdgeKey12, 0 ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.ServiceStation, tEdgeKey12, 0 ), False )
+        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.DummyNode, tEdgeKey12, 500 ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.ServiceStation, tEdgeKey12, 500 ), False )
 
 if __name__ == "__main__":
     unittest.main()

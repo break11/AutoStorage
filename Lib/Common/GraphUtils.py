@@ -8,8 +8,6 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Vectors import Vector2
 import Lib.Common.StrConsts as SC
 
-# рассчет угла поворота линии (в единичной окружности, т.е. положительный угол - против часовой стрелки, ось х - 0 градусов)
-
 def edgesListFromNodes( nodesList ):
     edgesList = []
     for i in range( len(nodesList)-1 ):
@@ -27,6 +25,24 @@ def edgeSize(nxGraph,  tKey ):
 
 def nodeType(nxGraph, nodeID):
     return nxGraph.nodes()[ nodeID ][ SGT.s_nodeType ]
+
+def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
+    l = edgeSize( nxGraph, tKey )
+    if pos < l / 2:
+        if pos > allowOffset: return None
+        nodeID = tKey[0]
+    else:
+        if l-pos > allowOffset: return None
+        nodeID = tKey[1]
+
+    return nodeID
+
+def isOnNode( nxGraph, _nodeType, tKey, pos, allowOffset=50 ):
+    nodeID = nodeByPos( nxGraph, tKey, pos, allowOffset )
+
+    if nodeID is None: return False
+
+    return nodeType( nxGraph, nodeID ) == _nodeType
 
 def tEdgeKeyFromStr( edge_str ):
     return tuple( nodesList_FromStr( edge_str) )

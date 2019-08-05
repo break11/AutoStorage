@@ -9,7 +9,7 @@ import Lib.Common.StrConsts as SC
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX
+from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
@@ -56,11 +56,17 @@ class CAgent_Cmd_Log_Form(QWidget):
         # создание кнопок для фильтра сообщений согласно baseFilterSet
         self.filterLogEvents = {}
 
+        row, column = 0, 0
         for e in baseFilterSet:
             fiCB = QCheckBox( self.eventFilterWidget )
             fiName = e.toStr()
             fiCB.setText( e.toStr() )
-            self.eventFilterWidget.layout().addWidget( fiCB )
+            fiCB.setStyleSheet( f"color: {eventColor(e)}" )
+            if column > 10:
+                row +=1
+                column = 0
+            self.eventFilterWidget.layout().addWidget( fiCB, row, column )
+            column += 1
             self.filterLogEvents[ e ] = fiCB
 
         # загрузка значений из файла настроек для кнопок фильтра сообщений

@@ -13,8 +13,8 @@ class EAgentServer_Event( Enum ):
     TaskList           = auto() # @TL
     WheelOrientation   = auto() # @WO
     NewTask            = auto() # @NT
-    PowerOn            = auto() # @PE
-    PowerOff           = auto() # @PD
+    PowerEnable        = auto() # @PE
+    PowerDisable       = auto() # @PD
     BrakeRelease       = auto() # @BR
     EmergencyStop      = auto() # @ES
     SequenceBegin      = auto() # @SB
@@ -27,6 +27,9 @@ class EAgentServer_Event( Enum ):
     BoxLoad            = auto() # @BL
     BoxUnload          = auto() # @BU
     BoxLoadAborted     = auto() # @BA
+    ChargeMe           = auto() # @CM
+    ChargeBegin        = auto() # @CB
+    ChargeEnd          = auto() # @CE
 
     @classmethod
     def fromBStr( cls, data ):
@@ -52,8 +55,8 @@ _AgentServer_Event_from_BStr = {
                                 b"@TL": EAgentServer_Event.TaskList,
                                 b"@WO": EAgentServer_Event.WheelOrientation,
                                 b"@NT": EAgentServer_Event.NewTask,
-                                b"@PE": EAgentServer_Event.PowerOn,
-                                b"@PD": EAgentServer_Event.PowerOff,
+                                b"@PE": EAgentServer_Event.PowerEnable,
+                                b"@PD": EAgentServer_Event.PowerDisable,
                                 b"@BR": EAgentServer_Event.BrakeRelease,
                                 b"@ES": EAgentServer_Event.EmergencyStop,
                                 b"@SB": EAgentServer_Event.SequenceBegin,
@@ -65,7 +68,10 @@ _AgentServer_Event_from_BStr = {
                                 b"@DE": EAgentServer_Event.DistanceEnd,
                                 b"@BL": EAgentServer_Event.BoxLoad,
                                 b"@DU": EAgentServer_Event.BoxUnload,
-                                b"@BA": EAgentServer_Event.BoxLoadAborted
+                                b"@BA": EAgentServer_Event.BoxLoadAborted,
+                                b"@CM": EAgentServer_Event.ChargeMe,
+                                b"@CB": EAgentServer_Event.ChargeBegin,
+                                b"@CE": EAgentServer_Event.ChargeEnd,
                                }
 
 _AgentServer_Event_to_Str = {}

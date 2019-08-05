@@ -222,22 +222,22 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toRX_BStr(), p3 )
         # @PE
         #########################
-        p1 = CAgentServerPacket( event=EAgentServer_Event.PowerOn, packetN=20, agentN=31 )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.PowerEnable, packetN=20, agentN=31 )
         p2 = CAgentServerPacket.fromTX_Str( "020,031:@PE" )
         p3 = b"020,031:@PE\n"
 
         print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
-        self.assertEqual( p2.event, EAgentServer_Event.PowerOn )
+        self.assertEqual( p2.event, EAgentServer_Event.PowerEnable )
         self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
         self.assertEqual( p1.toTX_BStr(), p3 )
         # @PD
         #########################
-        p1 = CAgentServerPacket( event=EAgentServer_Event.PowerOff, packetN=444, agentN=222 )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.PowerDisable, packetN=444, agentN=222 )
         p2 = CAgentServerPacket.fromTX_Str( "444,222:@PD" )
         p3 = b"444,222:@PD\n"
 
         print( p1.toTX_BStr(), p2.toTX_BStr(), p3 )
-        self.assertEqual( p2.event, EAgentServer_Event.PowerOff )
+        self.assertEqual( p2.event, EAgentServer_Event.PowerDisable )
         self.assertEqual( p1.toTX_BStr(), p2.toTX_BStr() )
         self.assertEqual( p1.toTX_BStr(), p3 )
         # @BR

@@ -47,7 +47,11 @@ class CAgentServerPacket:
             sResult = f"{ Event_Sign }:{self.packetN:03d}"
         elif (self.event in self.textEvents):
             if bTX_or_RX == False: # пока текстовые сообщения только с челнока - на челнок они вроде не передаются...
-                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{self.data}"
+                data = self.data
+                if self.event != EAgentServer_Event.Text:
+                    if data and not data[0] in ["#", "*"]:
+                        data = Event_Sign + data
+                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{data}"
         else:
             if bTX_or_RX:
                 sResult = f"{self.packetN:03d},{self.agentN:03d}:{ Event_Sign }"

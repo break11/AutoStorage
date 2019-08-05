@@ -163,23 +163,23 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>25</height>
+       <height>75</height>
       </size>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="spacing">
-       <number>0</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0" rowminimumheight="0" columnminimumwidth="0">
       <property name="leftMargin">
-       <number>2</number>
+       <number>3</number>
       </property>
       <property name="topMargin">
-       <number>2</number>
+       <number>3</number>
       </property>
       <property name="rightMargin">
-       <number>2</number>
+       <number>3</number>
       </property>
       <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <property name="spacing">
        <number>2</number>
       </property>
      </layout>

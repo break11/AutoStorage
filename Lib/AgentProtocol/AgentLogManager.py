@@ -19,6 +19,23 @@ LogCount = 10000
 
 CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX')
 
+colorsByEvents = { EAgentServer_Event.BatteryState:       "#388E3C",
+                   EAgentServer_Event.TemperatureState:   "#388E3C",
+                   EAgentServer_Event.TaskList:           "#388E3C",
+                   EAgentServer_Event.OdometerDistance:   "#388E3C",
+                   EAgentServer_Event.OdometerPassed:     "#388E3C",
+                   EAgentServer_Event.ClientAccepting:    "#1565C0",
+                   EAgentServer_Event.ServerAccepting:    "#1595C0",
+                   EAgentServer_Event.HelloWorld:         "#BC6000",
+                   EAgentServer_Event.FakeAgentDevPacket: "#FF70FF",
+                   EAgentServer_Event.Error:              "#FF0000",
+                   EAgentServer_Event.Warning_:           "#FF6600" }
+
+def eventColor( e ):
+    colorData = colorsByEvents.get( e )
+    if colorData is None: colorData = "#000000"
+    return colorData
+
 class CAgentLogManager( QObject ):
     AgentLogUpdated = pyqtSignal( object, CLogRow )
     def __init__( self ):
@@ -94,20 +111,7 @@ class CAgentLogManager( QObject ):
         colorTX_or_RX = TX_RX_colors[ bTX_or_RX ]
 
         if packet.status == EPacket_Status.Normal:
-            colorsByEvents = { EAgentServer_Event.BatteryState:       "#388E3C",
-                               EAgentServer_Event.TemperatureState:   "#388E3C",
-                               EAgentServer_Event.TaskList:           "#388E3C",
-                               EAgentServer_Event.OdometerDistance:   "#388E3C",
-                               EAgentServer_Event.OdometerPassed:     "#388E3C",
-                               EAgentServer_Event.ClientAccepting:    "#1565C0",
-                               EAgentServer_Event.ServerAccepting:    "#1595C0",
-                               EAgentServer_Event.HelloWorld:         "#BC6000",
-                               EAgentServer_Event.FakeAgentDevPacket: "#FF70FF",
-                               EAgentServer_Event.Error:              "#FF0000",
-                               EAgentServer_Event.Warning_:           "#FF0000" }
-
-            colorData = colorsByEvents.get( packet.event )
-            if colorData is None: colorData = "#000000"
+            colorData = eventColor( packet.event )
         elif packet.status == EPacket_Status.Duplicate:
             colorData = "#999999"
         elif packet.status == EPacket_Status.Error:

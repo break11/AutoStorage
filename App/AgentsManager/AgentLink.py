@@ -200,6 +200,10 @@ class CAgentLink( CAgentServer_Link ):
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
 
+    def prepareCharging( self ):
+        pass
+
+
     def startCharging( self ):
         self.agentNO().status = EAgent_Status.Charging
 
