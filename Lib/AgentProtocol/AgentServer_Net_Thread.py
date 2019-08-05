@@ -108,6 +108,8 @@ class CAgentServer_Net_Thread(QThread):
 
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:
+            if self.agentLink().lastTXpacketN == TX_cmd.packetN:
+                TX_cmd.status = EPacket_Status.Duplicate
             self.writeTo_Socket( TX_cmd )
             self.agentLink().lastTXpacketN = TX_cmd.packetN
 
