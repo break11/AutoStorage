@@ -6,7 +6,7 @@ import subprocess
 
 from PyQt5.QtCore import QTimer
 
-from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
+from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyToStr, tEdgeKeyFromStr, nodesList_FromStr, edgeSize, edgesListFromNodes, isOnNode
 from Lib.Common.Agent_NetObject import s_route, s_status, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
@@ -15,6 +15,7 @@ import Lib.Common.FileUtils as FileUtils
 import Lib.Common.StrConsts as SC
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.StorageGraphTypes import ENodeTypes
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
@@ -201,8 +202,10 @@ class CAgentLink( CAgentServer_Link ):
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
 
     def prepareCharging( self ):
-        pass
-
+        agentNO = self.agentNO()
+        nxGraph = agentNO.graphRootNode().nxGraph
+        tKey = tEdgeKeyFromStr( agentNO.edge )
+        return isOnNode( nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position )
 
     def startCharging( self ):
         self.agentNO().status = EAgent_Status.Charging
