@@ -34,7 +34,7 @@ colorsByStatus = { EAgent_Status.Idle            : Qt.green,
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
-    __fBBoxD  =  10 # расширение BBox для удобства выделения
+    __fBBoxD  = 20 # расширение BBox для удобства выделения
 
     @property
     def connectedStatus( self ): return self.__connectedStatus
@@ -161,7 +161,7 @@ class CAgent_SGItem(QGraphicsItem):
 
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
-
+        selection_color = Qt.darkRed
         bgColor = bgColorsByConnectedStatus[ self.connectedStatus ]
 
         ## BBox
@@ -172,11 +172,11 @@ class CAgent_SGItem(QGraphicsItem):
         # painter.drawRect( self.boundingRect() )
 
         if lod < 0.03:
-            bgColor = Qt.darkRed if self.isSelected() else bgColor
+            bgColor = selection_color if self.isSelected() else bgColor
             painter.fillRect ( self.__BBoxRect, bgColor )
         else:
-            color = Qt.darkRed if self.isSelected() else Qt.black
-            pen = QPen( color )
+            pen = QPen()
+            pen.setColor( Qt.black )
             pen.setWidth( 10 )
 
             fillColor = QColor( bgColor )
@@ -192,6 +192,14 @@ class CAgent_SGItem(QGraphicsItem):
             painter.fillRect(-10, -10, 20, 20, Qt.darkGray)
             
             painter.drawLines( self.lines )
+
+            if self.isSelected():
+                pen = QPen( selection_color )
+                pen.setWidth( 20 )
+
+                painter.setPen( pen )
+                painter.setBrush( QBrush() )
+                painter.drawPolygon( self.polygon )
 
             #поворот некоторых элементов, если итем челнока перевернут
             if ( 95 < abs( self.rotation() ) < 265 ):
