@@ -16,6 +16,8 @@ Duplicate_color = "#999999"
 Error_color     = "#FF0000"
 TX_color        = "#AA0000"
 RX_color        = "#283593"
+Charge_color    = "#00CFFF"
+Telemetry_color = "#388E3C"
 
 TX_RX_byBool_str    = { True: s_TX, False: s_RX, None: "" }
 TX_RX_byBool_colors = { True: TX_color, False: RX_color, None: "#000000"}
@@ -24,17 +26,23 @@ LogCount = 10000
 
 CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX status')
 
-colorsByEvents = { EAgentServer_Event.BatteryState:       "#388E3C",
-                   EAgentServer_Event.TemperatureState:   "#388E3C",
-                   EAgentServer_Event.TaskList:           "#388E3C",
-                   EAgentServer_Event.OdometerDistance:   "#388E3C",
-                   EAgentServer_Event.OdometerPassed:     "#388E3C",
+colorsByEvents = { EAgentServer_Event.BatteryState:       Telemetry_color,
+                   EAgentServer_Event.TemperatureState:   Telemetry_color,
+                   EAgentServer_Event.TaskList:           Telemetry_color,
+                   EAgentServer_Event.OdometerDistance:   Telemetry_color,
+                   EAgentServer_Event.OdometerPassed:     Telemetry_color,
                    EAgentServer_Event.ClientAccepting:    "#1565C0",
                    EAgentServer_Event.ServerAccepting:    "#1595C0",
                    EAgentServer_Event.HelloWorld:         "#BC6000",
-                   EAgentServer_Event.FakeAgentDevPacket: "#FF70FF",
-                   EAgentServer_Event.Error:              "#FF0000",
-                   EAgentServer_Event.Warning_:           "#FF6600" }
+                   EAgentServer_Event.Error:              Error_color,
+                   EAgentServer_Event.Warning_:           "#FF6600",
+                   
+                   EAgentServer_Event.ChargeMe:           Charge_color,
+                   EAgentServer_Event.ChargeBegin:        Charge_color,
+                   EAgentServer_Event.ChargeEnd:          Charge_color,
+                
+                   #EAgentServer_Event.FakeAgentDevPacket: "#FF70FF",
+                  }
 
 def eventColor( e ):
     colorData = colorsByEvents.get( e )

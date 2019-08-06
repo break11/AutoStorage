@@ -12,9 +12,10 @@ from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
 from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState, SHW_Data
 
-DP_DELTA_PER_CYCLE = 50 # send to server a message each fake 5cm passed
-DP_TICKS_PER_CYCLE = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
-BS_DEC_PER_CYCLE   = DP_DELTA_PER_CYCLE * 0.0001
+DP_DELTA_PER_CYCLE  = 50 # send to server a message each fake 5cm passed
+DP_TICKS_PER_CYCLE  = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
+BS_DEC_PER_CYCLE    = DP_DELTA_PER_CYCLE * 0.0001
+DP_CHARGE_PER_CYCLE = 0.005
 
 taskCommands = [ EAgentServer_Event.SequenceBegin,
                  EAgentServer_Event.SequenceEnd,
@@ -59,13 +60,9 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         elif cmd.event == EAgentServer_Event.PowerEnable or cmd.event == EAgentServer_Event.PowerDisable:
             FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
 
-        elif cmd.event == EAgentServer_Event.FakeAgentDevPacket:
-            FA_DPD = SFakeAgent_DevPacketData.fromString( cmd.data )
-            if FA_DPD.bCharging:
-                f = SAgent_BatteryState.min_S_U + ( SAgent_BatteryState.max_S_U - SAgent_BatteryState.min_S_U ) / 2
-                FAL.batteryState.S_V = max( f, FAL.batteryState.S_V )
-            else:
-                FAL.batteryState.S_V = SAgent_BatteryState.max_S_U
+        elif cmd.event == EAgentServer_Event.ChargeMe:
+            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.ChargeBegin ) )
+            FAL.bCharging = True
 
         elif cmd.event in taskCommands:
             FAL.tasksList.append( cmd )
@@ -73,6 +70,14 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
     def doWork( self ):
         FAL = self.agentLink()
         
+        # зарядка суперконденсаторов до максимального значения
+        if FAL.bCharging:
+            if FAL.batteryState.S_V < SAgent_BatteryState.max_S_U:
+                FAL.batteryState.S_V += DP_CHARGE_PER_CYCLE
+            else:
+                FAL.bCharging = False
+                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.ChargeEnd ) )
+
         if self.findEvent_In_TasksList( EAgentServer_Event.EmergencyStop ):
             FAL.tasksList.clear()
             FAL.currentTask = None

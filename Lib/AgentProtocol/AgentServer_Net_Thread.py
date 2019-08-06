@@ -88,7 +88,6 @@ class CAgentServer_Net_Thread(QThread):
         if self._agentLink is None: return
             
         return self.agentLink().genPacket( event, data )
-        ##remove##return CAgentServerPacket( event = event, agentN = self.agentLink().agentN, data = data )
 
     def writeTo_Socket( self, cmd ):
         self.tcpSocket.write( cmd.toBStr( bTX_or_RX=self.bIsServer ) )
@@ -239,10 +238,11 @@ class CAgentServer_Net_Thread(QThread):
 
             self.noRxTimer = time.time()
 
+            ALM.doLogPacket( self.agentLink(), self.UID, cmd, False, isAgent=not self.bIsServer )
+
             _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
                               processAcceptedPacket = self.processRxPacket )
 
-            ALM.doLogPacket( self.agentLink(), self.UID, cmd, False, isAgent=not self.bIsServer )
 
         # отключение соединения если в течении 5 секунд не было ответа
         t = (time.time() - self.noRxTimer)
