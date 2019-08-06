@@ -125,14 +125,15 @@ class CAM_MainWindow(QMainWindow):
                            SGT.ENodeTypes.PickStationIn,
                            SGT.ENodeTypes.PickStationOut ]
                            
+    blockAutoTestStatuses = [ EAgent_Status.Charging, EAgent_Status.CantCharge ]
     def AgentTestMoving(self, agentNO, targetNode = None):
         if self.AgentsConnectionServer is None: return
         agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
 
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
-        if agentNO.status == EAgent_Status.Charging: return
-        if agentNO.status == EAgent_Status.GoToCharge:
+        if agentNO.status in self.blockAutoTestStatuses: return
+        if agentNO.status == EAgent_Status.GoToCharge: # здесь agentNO.route == ""
             agentLink.prepareCharging()
             return
 

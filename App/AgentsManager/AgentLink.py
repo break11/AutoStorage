@@ -6,7 +6,7 @@ import subprocess
 
 from PyQt5.QtCore import QTimer
 
-from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyToStr, nodesList_FromStr, edgeSize, edgesListFromNodes
+from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyToStr, tEdgeKeyFromStr, nodesList_FromStr, edgeSize, edgesListFromNodes, isOnNode
 from Lib.Common.Agent_NetObject import s_route, s_status, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
@@ -15,9 +15,10 @@ import Lib.Common.FileUtils as FileUtils
 import Lib.Common.StrConsts as SC
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.StorageGraphTypes import ENodeTypes
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
 from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData
@@ -39,11 +40,6 @@ class CAgentLink( CAgentServer_Link ):
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
         # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
         self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( self.agentN ) )
-
-        self.ChargeTimer = QTimer()
-        self.ChargeTimer.setInterval(20000)
-        self.ChargeTimer.setSingleShot( True )
-        self.ChargeTimer.timeout.connect( self.chargeOff )
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
@@ -141,7 +137,7 @@ class CAgentLink( CAgentServer_Link ):
             else:
                 self.DE_IDX += 1
 
-        elif cmd.event in [EAgentServer_Event.OdometerDistance, EAgentServer_Event.OdometerPassed]:
+        elif cmd.event in OD_OP_events:
             if self.graphRootNode() is None:
                 print( f"{SC.sWarning} No Graph loaded." )
                 return
@@ -181,6 +177,12 @@ class CAgentLink( CAgentServer_Link ):
 
                 self.calcAgentAngle( agentNO )
 
+        elif cmd.event == EAgentServer_Event.ChargeBegin:
+            self.startCharging()
+
+        elif cmd.event == EAgentServer_Event.ChargeEnd:
+            self.stopCharging()
+
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
         agentNO.position  = self.currSII().pos
@@ -201,26 +203,27 @@ class CAgentLink( CAgentServer_Link ):
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
 
     def prepareCharging( self ):
-        pass
+        agentNO = self.agentNO()
+        nxGraph = agentNO.graphRootNode().nxGraph
+        tKey = tEdgeKeyFromStr( agentNO.edge )
+        if not isOnNode( nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
+            agentNO.status = EAgent_Status.CantCharge
+            return
 
+        self.pushCmd( self.genPacket( EAgentServer_Event.ChargeMe ) )
 
     def startCharging( self ):
         self.agentNO().status = EAgent_Status.Charging
 
         print( "Start Charging!" )
         subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "on"] )
-        self.ChargeTimer.start()
 
-        self.genFA_DevPacket( bCharging = True )
-
-    def chargeOff( self ):
+    def stopCharging( self ):
         subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "off"] )
         self.agentNO().status = EAgent_Status.Idle
         print( "Stop Charging!" )
 
-        self.genFA_DevPacket( bCharging = False )
-
-    def genFA_DevPacket( self, **kwargs ):
-        # отправка спец команды фейк агенту, т.к. для него это единственный способ получить оповещение о восстановлении заряда
-        cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.FakeAgentDevPacket, data=SFakeAgent_DevPacketData( **kwargs ).toString() )
-        self.pushCmd( cmd )
+    # def genFA_DevPacket( self, **kwargs ):
+    #     # отправка спец команды фейк агенту, т.к. для него это единственный способ получить оповещение о восстановлении заряда
+    #     cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.FakeAgentDevPacket, data=SFakeAgent_DevPacketData( **kwargs ).toString() )
+    #     self.pushCmd( cmd )

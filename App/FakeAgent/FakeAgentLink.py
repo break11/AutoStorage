@@ -16,6 +16,7 @@ class CFakeAgentLink( CAgentServer_Link ):
         self.distanceToPass = 0
         self.dpTicksDivider = 0
         self.bEmergencyStop = False
+        self.bCharging = False
 
         self.batteryState = SAgent_BatteryState( EAgentBattery_Type.Supercap, 43.2, 39.31, 47.43, 00.9, 00.4 )
         self.OD_OP_Data  = SOD_OP_Data()

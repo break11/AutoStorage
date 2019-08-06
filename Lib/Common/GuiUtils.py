@@ -61,3 +61,6 @@ def gvFitToPage( gView ):
     gView.setSceneRect( QRectF( tl, br ) )
 
     gView.fitInView( gView.scene().sceneRect(), Qt.KeepAspectRatio )
+
+def setStyleSheetColor( widget, sRGB_color ):
+    widget.setStyleSheet( f"color: {sRGB_color}" )

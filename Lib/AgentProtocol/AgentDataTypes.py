@@ -4,11 +4,12 @@ from Lib.Common.Utils import BaseEnum
 
 class EAgent_Status( BaseEnum ):
     Idle            = auto()
-    PosSyncError    = auto()
     GoToCharge      = auto()
     Charging        = auto()
     OnRoute         = auto()
     NoRouteToCharge = auto()
+    PosSyncError    = auto()
+    CantCharge      = auto()
 
     Default         = Idle
 

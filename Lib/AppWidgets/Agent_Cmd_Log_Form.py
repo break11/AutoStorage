@@ -7,10 +7,11 @@ from PyQt5 import uic
 
 import Lib.Common.StrConsts as SC
 
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor
+from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor, TX_color, RX_color, Duplicate_color
 from Lib.Common.SettingsManager import CSettingsManager as CSM
+import Lib.Common.GuiUtils as GU
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.TemperatureState,
@@ -24,12 +25,13 @@ baseFilterSet = []
 for e in EAgentServer_Event:
     baseFilterSet.append( e )
 
-s_AppLog = "AppLog"
+s_AppLog    = "AppLog"
+s_Duplicate = "Duplicate"
 
 s_agent_log_cmd_form = "agent_log_cmd_form"
 s_filter_settings    = "filter_settings"
 
-defFilterSet = { s_RX : True, s_TX : True, s_AppLog : True }
+defFilterSet = { s_RX : True, s_TX : True, s_AppLog : True, s_Duplicate : True }
 
 for e in baseFilterSet:
     defFilterSet[ e.toStr() ] = True
@@ -50,8 +52,13 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.filterLog_TX_RX = { True  : lambda : weakSelf().cbTX.isChecked(),
                                  False : lambda : weakSelf().cbRX.isChecked(),
                                  None  : lambda : True }
-        # связка строкового ключа и соответствующего чекбокса для фильтра по TX, RX
-        self.TX_RX_filter_alias = { s_TX : self.cbTX, s_RX : self.cbRX }
+        # связка строкового ключа и соответствующего чекбокса для фильтра по TX, RX, AppLog, Duplicate
+        self.std_filters_CB_by_Str = { s_TX : self.cbTX, s_RX : self.cbRX, s_AppLog : self.cbAppLog, s_Duplicate : self.cbDuplicate }
+
+        # подсветка кнопок стандартного фильтра в соответствии с принятыми константами в AppLogManager
+        GU.setStyleSheetColor( self.cbTX, TX_color )
+        GU.setStyleSheetColor( self.cbRX, RX_color )
+        GU.setStyleSheetColor( self.cbDuplicate, Duplicate_color )
 
         # создание кнопок для фильтра сообщений согласно baseFilterSet
         self.filterLogEvents = {}
@@ -61,7 +68,8 @@ class CAgent_Cmd_Log_Form(QWidget):
             fiCB = QCheckBox( self.eventFilterWidget )
             fiName = e.toStr()
             fiCB.setText( e.toStr() )
-            fiCB.setStyleSheet( f"color: {eventColor(e)}" )
+            fiCB.setChecked( True ) # по умолчанию ставим True, чтобы вновь появившаяся опция была разрешена в фильтре (при появлении новых эвентов)
+            GU.setStyleSheetColor( fiCB, eventColor(e) )
             if column > 10:
                 row +=1
                 column = 0
@@ -79,14 +87,10 @@ class CAgent_Cmd_Log_Form(QWidget):
             if e in self.filterLogEvents:
                 self.filterLogEvents[ e ].setChecked( value )
 
-        # загрузка значений чекбоксов фильтра по TX, RX из настроек
-        for sFilterSign, cb in self.TX_RX_filter_alias.items():
+        # загрузка значений чекбоксов стандартных фильтров (по TX, RX, AppLog, Duplicate) из настроек
+        for sFilterSign, cb in self.std_filters_CB_by_Str.items():
             v = filterSet.get( sFilterSign )
-            cb.setChecked( v if v is not None else False )
-
-        # загрузка значений чекбоксов фильтра сообщений программы
-        v = filterSet.get( s_AppLog )
-        self.cbAppLog.setChecked( v if v is not None else False )
+            cb.setChecked( v if v is not None else True ) # при добавлении нового стандартного фильтра или если его стерли в конфиге выставляем его значение в True
 
         ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
 
@@ -97,11 +101,9 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         for e, cb in self.filterLogEvents.items():
             filterSet[ e.toStr() ] = cb.isChecked()
-        # TX, RX
-        for sFilterSign, cb in self.TX_RX_filter_alias.items():
+        # TX, RX, AppLog, Duplicate
+        for sFilterSign, cb in self.std_filters_CB_by_Str.items():
             filterSet[ sFilterSign ] = cb.isChecked()
-        # AppLog
-        filterSet[ s_AppLog ] = self.cbAppLog.isChecked()
 
     def setAgentLink( self, agentLink ):
         self.agentLink = agentLink
@@ -126,6 +128,10 @@ class CAgent_Cmd_Log_Form(QWidget):
         # filter by AppLog - msg with None EventType
         if logRow.event is None:
             return self.cbAppLog.isChecked()
+
+        # filter by Duplicate
+        if logRow.status == EPacket_Status.Duplicate:
+            return self.cbDuplicate.isChecked()
 
         return True
 
