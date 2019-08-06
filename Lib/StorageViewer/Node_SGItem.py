@@ -16,9 +16,14 @@ class CNode_SGItem(QGraphicsItem):
     __st_offset = SGT.railWidth[ SGT.EWidthType.Narrow ] # storage offset
     __st_height = 360
     __st_width = 640
+    __clemma_offset = -80
+    __clemma_width    = 60
 
     stRectL = QRectF( -__st_width/2 -__st_offset, -__st_height/2, __st_width, __st_height)
     stRectR = QRectF( __st_offset - __st_width/2, -__st_height/2, __st_width, __st_height)
+
+    plus_rect = QRectF( SGT.wide_Rail_Width/2 + __clemma_offset, -__clemma_width/2, __clemma_width, __clemma_width )
+    minus_rect  = plus_rect.translated( -SGT.wide_Rail_Width - __clemma_width - __clemma_offset*2, 0 )
 
     @property
     def nodeID( self ): return self.netObj().name
@@ -50,6 +55,10 @@ class CNode_SGItem(QGraphicsItem):
             self.__BBoxRect = QRectF( -self.__st_width/2 - self.__st_offset, -self.__st_height/2,
                                        self.__st_offset*2 + self.__st_width, self.__st_height )
             self.spTextRect = self.__BBoxRect.adjusted(1*self.__R, 1*self.__R, -self.__R, -self.__R)
+        elif self.nodeType == SGT.ENodeTypes.ServiceStation:
+            self.__BBoxRect = QRectF( -SGT.wide_Rail_Width/2 - self.__clemma_width, -self.__clemma_width/2,
+                                                    SGT.wide_Rail_Width + self.__clemma_width*2, self.__clemma_width )
+            self.__BBoxRect.adjust( -self.__clemma_offset, 0, self.__clemma_offset, 0 )
         else:
             self.__BBoxRect = QRectF( -self.__R, -self.__R, self.__R * 2, self.__R * 2 )
 
@@ -86,13 +95,18 @@ class CNode_SGItem(QGraphicsItem):
         font = QFont()
 
         if self.nodeType == SGT.ENodeTypes.ServiceStation:
-            if self.SGM.bDrawSpecialLines:
-                #сторона зарядки
-                pen = QPen( Qt.darkRed )
-                pen.setWidth( 8 )
+            if lod > 0.1:
+                pen = QPen( Qt.white )
                 painter.setPen( pen )
-                l = QLineF (0,0, 75, 0)
-                painter.drawLine(l)
+
+                painter.fillRect( self.minus_rect, Qt.blue )
+                painter.fillRect( self.plus_rect, Qt.darkRed )
+
+                font.setPointSize(40)
+                painter.setFont( font )
+
+                painter.drawText( self.minus_rect, Qt.AlignCenter, "-" )
+                painter.drawText( self.plus_rect, Qt.AlignCenter, "+" )
 
         if self.nodeType == SGT.ENodeTypes.StorageSingle:
             if self.SGM.bDrawSpecialLines:
