@@ -132,16 +132,9 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
         if agentNO.status == EAgent_Status.Charging: return
-<<<<<<< HEAD
         if agentNO.status == EAgent_Status.GoToCharge: # здесь agentNO.route == ""
             if agentLink.prepareCharging():
                 agentLink.startCharging()
-=======
-        if agentNO.status == EAgent_Status.GoToCharge:
-            # agentLink.prepareCharging()
-            agentLink.startCharging()
-            return
->>>>>>> origin/master
 
         nxGraph = self.graphRootNode().nxGraph
         tKey = tEdgeKeyFromStr( agentNO.edge ) # 44 45
