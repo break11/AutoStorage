@@ -12,12 +12,17 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 s_TX = "TX"
 s_RX = "RX"
 
-TX_RX_str    = { True: s_TX, False: s_RX, None: "" }
-TX_RX_colors = { True: "#AA0000", False: "#283593", None: "#000000"}
+Duplicate_color = "#999999"
+Error_color     = "#FF0000"
+TX_color        = "#AA0000"
+RX_color        = "#283593"
+
+TX_RX_byBool_str    = { True: s_TX, False: s_RX, None: "" }
+TX_RX_byBool_colors = { True: TX_color, False: RX_color, None: "#000000"}
 
 LogCount = 10000
 
-CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX')
+CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX status')
 
 colorsByEvents = { EAgentServer_Event.BatteryState:       "#388E3C",
                    EAgentServer_Event.TemperatureState:   "#388E3C",
@@ -71,7 +76,7 @@ class CAgentLogManager( QObject ):
             return
 
         data = self.decorateLogString( agentLink, data, color )
-        logRow = CLogRow( data=data, event=None, bTX_or_RX=None )
+        logRow = CLogRow( data=data, event=None, bTX_or_RX=None, status = None )
         self.__appendLog_with_Cut( agentLink, logRow )
         self.writeToLogFile( agentLink.sLogFName, logRow )
 
@@ -91,11 +96,11 @@ class CAgentLogManager( QObject ):
 
     def doLogPacket( self, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
         if agentLink is None:
-            print( f"{TX_RX_str[bTX_or_RX]}: {packet}" )
+            print( f"{TX_RX_byBool_str[bTX_or_RX]}: {packet}" )
             return
         
         data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
-        logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX )
+        logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX, status = packet.status )
         self.__appendLog_with_Cut( agentLink, logRow )
         self.writeToLogFile( agentLink.sLogFName, logRow )
 
@@ -107,15 +112,15 @@ class CAgentLogManager( QObject ):
     def decorateLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
         data = packet.toBStr( bTX_or_RX=not bTX_or_RX if isAgent else bTX_or_RX, appendLF=False ).decode()
 
-        sTX_or_RX     = TX_RX_str   [ bTX_or_RX ]
-        colorTX_or_RX = TX_RX_colors[ bTX_or_RX ]
+        sTX_or_RX     = TX_RX_byBool_str   [ bTX_or_RX ]
+        colorTX_or_RX = TX_RX_byBool_colors[ bTX_or_RX ]
 
         if packet.status == EPacket_Status.Normal:
             colorData = eventColor( packet.event )
         elif packet.status == EPacket_Status.Duplicate:
-            colorData = "#999999"
+            colorData = Duplicate_color
         elif packet.status == EPacket_Status.Error:
-            colorData = "#FF0000"
+            colorData = Error_color
 
         data = f"{wrapSpan( sTX_or_RX, colorTX_or_RX, 400 )} {wrapSpan( data, colorData )}"
 

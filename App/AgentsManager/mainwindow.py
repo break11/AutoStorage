@@ -133,7 +133,8 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.route != "": return
         if agentNO.status == EAgent_Status.Charging: return
         if agentNO.status == EAgent_Status.GoToCharge:
-            agentLink.prepareCharging()
+            # agentLink.prepareCharging()
+            agentLink.startCharging()
             return
 
         nxGraph = self.graphRootNode().nxGraph
