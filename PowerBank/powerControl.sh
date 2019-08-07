@@ -1,4 +1,12 @@
 #!/bin/sh
-export LD_LIBRARY_PATH=/home/wcs-server/powerBank/lib:$LD_LIBRARY_PATH
-~/powerBank/powerControl $1 $2 &
-
+cd $3
+code=2
+count=0
+while [ $code -eq 2 ] && [ $count -lt 10 ]
+do
+    echo "TRYING POWER" $1 $2
+    ./bin/powerControl $1 $2
+    code=$?
+    count=$(($count+1))
+    sleep 0.5
+done
