@@ -216,11 +216,9 @@ class CAgentLink( CAgentServer_Link ):
         self.agentNO().status = EAgent_Status.Charging
 
         print( "Start Charging!" )
-        # subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "on"] )
         subprocess.Popen( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "on", FileUtils.powerBankDir() ] )
 
     def stopCharging( self ):
-        # subprocess.run( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "off"] )
         subprocess.Popen( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "off", FileUtils.powerBankDir() ] )
         self.agentNO().status = EAgent_Status.Idle
         print( "Stop Charging!" )
