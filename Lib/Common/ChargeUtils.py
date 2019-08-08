@@ -11,5 +11,5 @@ class EChargeCMD( BaseEnum ):
     Default = on
 
 def controlCharge( chargeCMD, port ):
-    print( f"Charging status:{chargeCMD} port:{port}" )
+    # print( f"Charging status:{chargeCMD} port:{port}" ) # дублируется в sh - скрипте
     subprocess.Popen( [ FU.powerBankDir() + "powerControl.sh", port, chargeCMD.toString(), FU.powerBankDir() ] )

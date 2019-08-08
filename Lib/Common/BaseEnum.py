@@ -1,4 +1,5 @@
 from enum import Enum
+import Lib.Common.StrConsts as SC
 
 class BaseEnum( Enum ):
     @classmethod
