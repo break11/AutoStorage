@@ -18,3 +18,4 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp
 
 DESTDIR = ../bin
+OBJECTS_DIR = ../build

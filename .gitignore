@@ -7,3 +7,7 @@ Log/run_all/*.log.html
 __pycache__/
 Settings/
 *.profile_output
+PowerBank/build/
+PowerBank/src/.qmake.stash
+PowerBank/src/Makefile
+PowerBank/bin/
