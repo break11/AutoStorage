@@ -22,6 +22,7 @@ from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_Stat
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
+import Lib.Common.ChargeUtils as CU
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType, findNodes, routeToServiceStation
 from .AgentsList_Model import CAgentsList_Model
@@ -203,8 +204,8 @@ class CAM_MainWindow(QMainWindow):
         nxGraph = self.graphRootNode().nxGraph
 
     # ******************************************************
-    def on_btnCharge_released( self ):
-        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-        if agentLink is None: return
+    def on_btnChargeOn_released( self ):
+        CU.controlCharge( CU.EChargeCMD.on, self.leChargePort.text() )
 
-        agentLink.startCharging()
+    def on_btnChargeOff_released( self ):
+        CU.controlCharge( CU.EChargeCMD.off, self.leChargePort.text() )

@@ -23,8 +23,18 @@ def nodesList_FromStr( nodes_str ):
 def edgeSize(nxGraph,  tKey ):
     return nxGraph.edges()[ tKey ][ SGT.s_edgeSize ]
 
+def nodeProp(nxGraph, nodeID, sPropName):
+    try:
+        return nxGraph.nodes()[ nodeID ][ sPropName ]
+    except KeyErrorError:
+        print( f"{SC.sError} Node {nodeID} has not prop with name {sPropName}!" )
+        return None
+
 def nodeType(nxGraph, nodeID):
-    return nxGraph.nodes()[ nodeID ][ SGT.s_nodeType ]
+    return nodeProp( nxGraph, nodeID, SGT.s_nodeType )
+
+def nodeChargePort(nxGraph, nodeID):
+    return nodeProp( nxGraph, nodeID, SGT.s_chargePort )
 
 def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
     l = edgeSize( nxGraph, tKey )

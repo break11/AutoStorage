@@ -58,9 +58,30 @@
        <widget class="QLineEdit" name="leTargetNode"/>
       </item>
       <item>
-       <widget class="QPushButton" name="btnCharge">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnChargeOn">
         <property name="text">
-         <string>Charge</string>
+         <string>Charge On</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnChargeOff">
+        <property name="text">
+         <string>Charge Off</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leChargePort">
+        <property name="text">
+         <string>ttyS0</string>
         </property>
        </widget>
       </item>
@@ -171,7 +192,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
    <property name="defaultUp">

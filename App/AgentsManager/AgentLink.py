@@ -6,7 +6,7 @@ import subprocess
 
 from PyQt5.QtCore import QTimer
 
-from Lib.Common.GraphUtils import getAgentAngle, tEdgeKeyToStr, tEdgeKeyFromStr, nodesList_FromStr, edgeSize, edgesListFromNodes, isOnNode
+import Lib.Common.GraphUtils as GU
 from Lib.Common.Agent_NetObject import s_route, s_status, EAgent_Status
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
@@ -16,6 +16,7 @@ import Lib.Common.StrConsts as SC
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StorageGraphTypes import ENodeTypes
+import Lib.Common.ChargeUtils as CU
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
@@ -28,6 +29,12 @@ from Lib.AgentProtocol.AgentLogManager import ALM
 from .routeBuilder import CRouteBuilder
 
 class CAgentLink( CAgentServer_Link ):
+    @property
+    def nxGraph( self ):
+        agentNO = self.agentNO()
+        assert agentNO is not None
+        return agentNO.graphRootNode().nxGraph
+
     def __init__(self, agentN):
         super().__init__( agentN = agentN, bIsServer = True )
 
@@ -72,8 +79,8 @@ class CAgentLink( CAgentServer_Link ):
                     agentNO.status = EAgent_Status.OnRoute
 
             agentNO.route_idx = 0
-            self.nodes_route = nodesList_FromStr( cmd.value )
-            self.edges_route = edgesListFromNodes( self.nodes_route )
+            self.nodes_route = GU.nodesList_FromStr( cmd.value )
+            self.edges_route = GU.edgesListFromNodes( self.nodes_route )
             self.DE_IDX = 0
             self.segOD = 0
             self.SII = []
@@ -109,7 +116,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.angle = 0
             return
 
-        angle, bReverse = getAgentAngle(agentNO.graphRootNode().nxGraph, tEdgeKey, agentNO.angle)
+        angle, bReverse = GU.getAgentAngle( self.nxGraph, tEdgeKey, agentNO.angle)
         agentNO.angle = angle
     ####################
     def currSII(self): return self.SII[ self.DE_IDX ]
@@ -142,8 +149,6 @@ class CAgentLink( CAgentServer_Link ):
                 print( f"{SC.sWarning} No Graph loaded." )
                 return
 
-            nxGraph = self.graphRootNode().nxGraph
-
             agentNO = self.agentNO()
 
             tKey = agentNO.isOnTrack()
@@ -156,7 +161,7 @@ class CAgentLink( CAgentServer_Link ):
                 
             distance = self.currSII().K * ( new_od - agentNO.odometer )
             agentNO.odometer = new_od
-            edgeS = edgeSize( nxGraph, tKey )
+            edgeS = GU.edgeSize( self.nxGraph, tKey )
 
             self.segOD += distance
 
@@ -170,7 +175,7 @@ class CAgentLink( CAgentServer_Link ):
                     newIDX = agentNO.route_idx + 1
                     agentNO.position = new_pos % edgeS
                     tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
-                    agentNO.edge = tEdgeKeyToStr( tEdgeKey )
+                    agentNO.edge = GU.tEdgeKeyToStr( tEdgeKey )
                     agentNO.route_idx = newIDX
                 else:
                     agentNO.position = new_pos
@@ -178,17 +183,19 @@ class CAgentLink( CAgentServer_Link ):
                 self.calcAgentAngle( agentNO )
 
         elif cmd.event == EAgentServer_Event.ChargeBegin:
-            self.startCharging()
+            self.agentNO().status = EAgent_Status.Charging
+            self.doChargeCMD( CU.EChargeCMD.on )
 
         elif cmd.event == EAgentServer_Event.ChargeEnd:
-            self.stopCharging()
+            self.agentNO().status = EAgent_Status.Idle
+            self.doChargeCMD( CU.EChargeCMD.off )
 
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
         agentNO.position  = self.currSII().pos
         agentNO.angle     = self.currSII().angle
         tKey              = self.currSII().edge
-        agentNO.edge      = tEdgeKeyToStr( tKey )
+        agentNO.edge      = GU.tEdgeKeyToStr( tKey )
         try:
             agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
         except ValueError:
@@ -204,24 +211,35 @@ class CAgentLink( CAgentServer_Link ):
 
     def prepareCharging( self ):
         agentNO = self.agentNO()
-        nxGraph = agentNO.graphRootNode().nxGraph
-        tKey = tEdgeKeyFromStr( agentNO.edge )
-        if not isOnNode( nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
+        tKey = GU.tEdgeKeyFromStr( agentNO.edge )
+        if not GU.isOnNode( self.nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
             agentNO.status = EAgent_Status.CantCharge
             return
 
         self.pushCmd( self.genPacket( EAgentServer_Event.ChargeMe ) )
 
-    def startCharging( self ):
-        self.agentNO().status = EAgent_Status.Charging
+    def doChargeCMD( self, chargeCMD ):
+        tKey = GU.tEdgeKeyFromStr( self.agentNO().edge )
+        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
 
-        print( "Start Charging!" )
-        subprocess.Popen( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "on", FileUtils.powerBankDir() ] )
+        # if nodeID is None:
+        #     agentNO.status = EAgent_Status.CantCharge
+        #     return
 
-    def stopCharging( self ):
-        subprocess.Popen( [ FileUtils.powerBankDir() + "powerControl.sh", "ttyS0", "off", FileUtils.powerBankDir() ] )
-        self.agentNO().status = EAgent_Status.Idle
-        print( "Stop Charging!" )
+        # if GU.nodeType( self.nxGraph, nodeID ) != ENodeTypes.ServiceStation:
+        #     agentNO.status = EAgent_Status.CantCharge
+        #     return
+
+        port = GU.nodeChargePort( self.nxGraph, nodeID )
+        # if port is None:
+        #     agentNO.status = EAgent_Status.CantCharge
+        #     return
+
+        if  port is None:
+            agentNO.status = EAgent_Status.CantCharge
+            return
+
+        CU.controlCharge( chargeCMD, port )
 
     # def genFA_DevPacket( self, **kwargs ):
     #     # отправка спец команды фейк агенту, т.к. для него это единственный способ получить оповещение о восстановлении заряда

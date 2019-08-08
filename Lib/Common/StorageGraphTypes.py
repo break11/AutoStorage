@@ -3,7 +3,7 @@ from enum import auto
 import math
 from PyQt5.QtCore import (Qt)
 
-from .Utils import EnumFromString, BaseEnum
+from .BaseEnum import BaseEnum
 
 _graphAttrs = [
             "widthType",
@@ -13,6 +13,7 @@ _graphAttrs = [
             "curvature",
             "sensorSide",
             "chargeSide",
+            "chargePort",
             "x",
             "y",
             "nodeType",

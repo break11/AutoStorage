@@ -1,6 +1,6 @@
 
 from enum import auto
-from Lib.Common.Utils import BaseEnum
+from Lib.Common.BaseEnum import BaseEnum
 
 class EAgent_Status( BaseEnum ):
     Idle            = auto()
