@@ -103,7 +103,13 @@ class CAgentServer_Net_Thread(QThread):
         agentLink.Express_TX_Packets.clear()
 
     def sendTX_cmd( self ):
-        self.writeTo_Socket( self.agentLink().ACC_cmd )
+        acc = self.agentLink().ACC_cmd
+        if self.agentLink().lastTX_ACC_packetN == acc.packetN:
+            acc.status = EPacket_Status.Duplicate
+        else:
+            acc.status = EPacket_Status.Normal
+        self.writeTo_Socket( acc )
+        self.agentLink().lastTX_ACC_packetN = acc.packetN
 
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:
@@ -192,7 +198,6 @@ class CAgentServer_Net_Thread(QThread):
             if cmd is None: continue
             if cmd.event == getACC_Event_OtherSide( self.bIsServer ): continue
             
-            ALM.doLogPacket( self.agentLink(), self.UID, cmd, False )
             if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
                 assert cmd.agentN is not None, f"agentN need to be inited! cmd={cmd}"
                 self.newAgent.emit( cmd.agentN )
@@ -205,8 +210,7 @@ class CAgentServer_Net_Thread(QThread):
             self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
             self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
 
-            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
-                              processAcceptedPacket=self.processRxPacket )
+            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd, isAgent=not self.bIsServer, handler=self.processRxPacket )
 
     def process( self ):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
@@ -238,11 +242,7 @@ class CAgentServer_Net_Thread(QThread):
 
             self.noRxTimer = time.time()
 
-            ALM.doLogPacket( self.agentLink(), self.UID, cmd, False, isAgent=not self.bIsServer )
-
-            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd,
-                              processAcceptedPacket = self.processRxPacket )
-
+            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd, isAgent=not self.bIsServer, handler=self.processRxPacket )
 
         # отключение соединения если в течении 5 секунд не было ответа
         t = (time.time() - self.noRxTimer)

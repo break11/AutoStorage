@@ -1,6 +1,7 @@
 
 from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentLogManager import ALM
 
 def calcNextPacketN( n ): return ( 1 if n == 999 else n+1 )
 
@@ -11,7 +12,7 @@ def getACC_Event_ThisSide( bIsServer ):
 def getACC_Event_OtherSide( bIsServer ):
     return getACC_Event_ThisSide( not bIsServer )
 
-def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None ):
+def verifyRxPacket( agentLink, agentThread, cmd ):
 
     if cmd.event == getACC_Event_OtherSide( agentThread.bIsServer ):
         assert agentLink.lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
@@ -54,8 +55,6 @@ def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None ):
             # agentLink.last_RX_packetN = cmd.packetN
 
             cmd.status = EPacket_Status.Normal
-            if processAcceptedPacket is not None:
-                processAcceptedPacket( cmd )
             agentThread.bSendTX_cmd = True
             agentThread.nReSendTX_Counter = 0
         #если разница -1, это дубликат последней полученной команды
@@ -67,3 +66,14 @@ def _processRxPacket( agentLink, agentThread, cmd, processAcceptedPacket=None ):
         #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
         else:
             cmd.status = EPacket_Status.Error
+
+def processAcceptedPacket( cmd, handler=None ):
+    if cmd.status == EPacket_Status.Normal:
+        handler( cmd )
+
+def _processRxPacket( agentLink, agentThread, cmd, isAgent=False, handler=None ):
+    verifyRxPacket( agentLink, agentThread, cmd )
+    ALM.doLogPacket( agentLink, agentThread.UID, cmd, False, isAgent )
+    if handler is not None:
+        processAcceptedPacket( cmd, handler )
+

@@ -8,17 +8,14 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 from enum import Enum, auto
 from Lib.Common.StrTypeConverter import CStrTypeConverter
-from Lib.Common.Utils import EnumFromString, EnumToString
+from Lib.Common.BaseEnum import BaseEnum
 
-class ECustomEnum( Enum ):
+class ECustomEnum( BaseEnum ):
     One   = auto()
     Two   = auto()
     Three = auto()
 
-    @staticmethod
-    def fromString( sType ): return EnumFromString( ECustomEnum, sType, ECustomEnum.One )
-
-    def toString( self ): return EnumToString( self )
+    Default = One
 
 class Test_StrTypeConverter(unittest.TestCase):
     def testStdTypes( self ):
@@ -65,7 +62,7 @@ class Test_StrTypeConverter(unittest.TestCase):
         b = CStrTypeConverter.ValFromStr( s )
         self.assertEqual( a, b )
 
-        s = "atest"
+        s = "xtest"
         b = CStrTypeConverter.ValFromStr( s )
         self.assertEqual( b, None )
 
@@ -82,9 +79,15 @@ class Test_StrTypeConverter(unittest.TestCase):
         b = CStrTypeConverter.ValFromStr( s )
         self.assertEqual( a, b )
 
-        s = "bTwo"
+        s = "xTwo"
         b = CStrTypeConverter.ValFromStr( s )
         self.assertEqual( b, None )
+
+        #################
+
+        s = "aNotEnumValue"
+        b = CStrTypeConverter.ValFromStr( s )
+        self.assertEqual( b, ECustomEnum.One )
 
 if __name__ == "__main__":
     unittest.main()

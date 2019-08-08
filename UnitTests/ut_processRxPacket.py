@@ -37,7 +37,7 @@ class Test_processRxPacket(unittest.TestCase):
             nonlocal testI
             testI += cmd.packetN
 
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
         self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус пакета - не дубликат
         self.assertEqual( DAL.last_RX_packetN, 25 ) # номер пакета подтверждения обновился
         self.assertEqual( DAL.ACC_cmd.packetN, 25 )
@@ -46,7 +46,7 @@ class Test_processRxPacket(unittest.TestCase):
         self.assertEqual( DAT.nReSendTX_Counter, 0 ) # и сбрасывется счетчик повторной отправки
 
         # повторный приход команды с таким же именем считается дубликатом
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
         self.assertEqual( cmd.status, EPacket_Status.Duplicate )
         self.assertEqual( DAL.ACC_cmd.packetN, 25 ) # номер пакета подтверждения не должен поменяться
         # функция обработки пакета НЕ была вызвана второй раз - в тестовом счетчике вызова обработчика команды осталось прежнее значение
@@ -56,12 +56,12 @@ class Test_processRxPacket(unittest.TestCase):
         testI = 5
         cmd.packetN = 1
         DAL.ACC_cmd.packetN = 999
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
         self.assertEqual( cmd.status, EPacket_Status.Normal ) # статус пакета - не дубликат
         self.assertEqual( DAL.ACC_cmd.packetN, 1 ) # номер пакета подтверждения обновился
         self.assertEqual( testI, 6 ) # функция обработки пакеты была вызвана
 
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
         self.assertEqual( cmd.status, EPacket_Status.Duplicate )
         self.assertEqual( DAL.ACC_cmd.packetN, 1 ) # номер пакета подтверждения не должен поменяться
         # функция обработки пакета НЕ была вызвана второй раз - в тестовом счетчике вызова обработчика команды осталось прежнее значение
@@ -72,14 +72,14 @@ class Test_processRxPacket(unittest.TestCase):
         cmd.packetN = 18
         DAL.ACC_cmd.packetN = 20
         testI = 0
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
         self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
         self.assertEqual( DAL.ACC_cmd.packetN, 20 ) # номер последнего полученного пакета не меняется
         self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
         # случай с переходом
         cmd.packetN = 999
         DAL.ACC_cmd.packetN = 1
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
         self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
         self.assertEqual( DAL.ACC_cmd.packetN, 1 ) # номер последнего полученного пакета не меняется
         self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
@@ -88,15 +88,15 @@ class Test_processRxPacket(unittest.TestCase):
         # рядовой случай
         cmd.packetN = 22
         DAL.ACC_cmd.packetN = 20
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
         self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
         self.assertEqual( DAL.ACC_cmd.packetN, 20 ) # номер последнего полученного пакета не меняется
         self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
         # случай с переходом
         cmd.packetN = 2
         DAL.ACC_cmd.packetN = 999
-        _processRxPacket( DAL, DAT, cmd, processAcceptedPacket=testF  )
-        # _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, processAcceptedPacket=testF )
+        _processRxPacket( DAL, DAT, cmd, handler=testF  )
+        # _processRxPacket( CDummyACS, cmd, ACC_cmd, TX_FIFO, lastTXpacketN=0, handler=testF )
         self.assertEqual( cmd.status, EPacket_Status.Error ) # ошибка - номер пакета отстает больше чем на 1 от последнего принятого
         self.assertEqual( DAL.ACC_cmd.packetN, 999 ) # номер последнего полученного пакета не меняется
         self.assertEqual( testI, 0 ) # функция обработки пакета НЕ была вызвана
