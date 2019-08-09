@@ -10,7 +10,7 @@ class EGSceneSelectionMode( Enum ):
     Touch  = auto()
 
 class CGridGraphicsScene(QGraphicsScene):
-    itemChanged = pyqtSignal( QGraphicsItem )
+    itemTouched = pyqtSignal( QGraphicsItem )
     
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )

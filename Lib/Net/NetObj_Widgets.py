@@ -17,17 +17,22 @@ class CNetObj_WidgetsManager:
     
     def registerWidget( self, netObj, netObj_Widget_Class ):
         assert issubclass( netObj, CNetObj )
+
+        w = self.queryWidget( netObj_Widget_Class )
+
+        self.__netObj_Widgets[ netObj.typeUID ] = w
+
+        self.widgetContainer.layout().addWidget( w )
+        w.hide()
+    
+    def queryWidget(self, netObj_Widget_Class):
         assert issubclass( netObj_Widget_Class, CNetObj_Widget )
 
         w = self.__netObj_Widgets_UNIQ.get( netObj_Widget_Class )
         if not w:
             w = netObj_Widget_Class( parent=self.widgetContainer )
             self.__netObj_Widgets_UNIQ[ netObj_Widget_Class ] = w
-
-        self.__netObj_Widgets[ netObj.typeUID ] = w
-
-        self.widgetContainer.layout().addWidget( w )
-        w.hide()
+        return w
 
     def getWidget( self, netObj ):
         widget = self.__netObj_Widgets.get( netObj.typeUID )

@@ -24,7 +24,8 @@ from  Lib.Net.NetObj_Manager import CNetObj_Manager
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
 
-from Lib.Net.DictProps_Widget import CDictProps_Widget
+# from Lib.Net.DictProps_Widget import CDictProps_Widget
+from Lib.Net.Agent_Widget import CAgent_Widget
 from Lib.Common.Agent_NetObject import CAgent_NO
 
 from .images_rc import *
@@ -63,7 +64,7 @@ class CViewerWindow(QMainWindow):
 
     def registerObjects_Widgets(self):
         reg = self.WidgetManager.registerWidget
-        reg( CAgent_NO,     CDictProps_Widget )
+        reg( CAgent_NO, CAgent_Widget )
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()
@@ -124,6 +125,10 @@ class CViewerWindow(QMainWindow):
 
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
         self.registerObjects_Widgets()
+        # связка для реализации выбора target node для полей агента (выбор мышкой на график сцене текущей ноды и конечной точки маршрута)
+        agentWidget = self.WidgetManager.queryWidget( CAgent_Widget )
+        agentWidget.setScene( self.StorageMap_Scene )
+        self.StorageMap_Scene.itemTouched.connect( agentWidget.objectTouched )
 
     def init( self, initPhase ):            
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -271,7 +276,6 @@ class CViewerWindow(QMainWindow):
             widget = self.WidgetManager.activateWidget( netObj )
         else:
             self.WidgetManager.clearActiveWidget()
-    
                 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
