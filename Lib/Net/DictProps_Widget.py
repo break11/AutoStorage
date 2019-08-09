@@ -11,7 +11,7 @@ from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 
 class CDictProps_Widget( CNetObj_Widget ):
     def __init__( self, parent = None):
-        super().__init__(parent = parent)
+        super().__init__( parent = parent)
         uic.loadUi( os.path.dirname( __file__ ) + '/DictProps_Widget.ui', self )
 
         self.__model = CNetObj_Props_Model( self )

@@ -19,8 +19,13 @@ from  Lib.Common.GuiUtils import gvFitToPage, load_Window_State_And_Geometry, sa
 from  Lib.Common.Utils import time_func
 from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
+from  Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
+from  Lib.Net.NetObj_Manager import CNetObj_Manager
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
+
+from Lib.Net.DictProps_Widget import CDictProps_Widget
+from Lib.Common.Agent_NetObject import CAgent_NO
 
 from .images_rc import *
 from enum import Enum, auto
@@ -55,6 +60,10 @@ class EWorkMode( Enum ):
 # Storage Map Designer / Storage Net Monitor  Main Window
 class CViewerWindow(QMainWindow):
     __sWorkedArea = "Worked area: "
+
+    def registerObjects_Widgets(self):
+        reg = self.WidgetManager.registerWidget
+        reg( CAgent_NO,     CDictProps_Widget )
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()
@@ -112,6 +121,9 @@ class CViewerWindow(QMainWindow):
 
         self.StorageMap_View.horizontalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
         self.StorageMap_View.verticalScrollBar().valueChanged.connect( self.viewPortAreaChanged )
+
+        self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
+        self.registerObjects_Widgets()
 
     def init( self, initPhase ):            
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -252,6 +264,14 @@ class CViewerWindow(QMainWindow):
             s = s.union( gItem.getNetObj_UIDs() )
         
         self.objPropsModel.updateObj_Set( s )
+
+        l = list( s )
+        if len( l ) == 1:
+            netObj = CNetObj_Manager.accessObj( l[0] )
+            widget = self.WidgetManager.activateWidget( netObj )
+        else:
+            self.WidgetManager.clearActiveWidget()
+    
                 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):

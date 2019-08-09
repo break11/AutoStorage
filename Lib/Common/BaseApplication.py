@@ -33,15 +33,16 @@ def registerNetObj_Props_UserTypes():
     reg( "e", ECurvature )
     reg( "g", ESide )
 
-def registerNetNodeWidgets( parent ):
-    reg = CNetObj_WidgetsManager.registerWidget
-    reg( CNetObj,       CNetObj_Widget, parent )
-    reg( CGraphRoot_NO, CDictProps_Widget, parent )
-    reg( CGraphNode_NO, CDictProps_Widget, parent )
-    reg( CGraphEdge_NO, CDictProps_Widget, parent )
-    reg( CAgent_NO,     CDictProps_Widget, parent )
 
 class CBaseApplication( QApplication ):
+    def registerObjMonitor_Widgets(self ):
+        reg = self.objMonitor.WidgetManager.registerWidget
+        reg( CNetObj,       CNetObj_Widget    )
+        reg( CGraphRoot_NO, CDictProps_Widget )
+        reg( CGraphNode_NO, CDictProps_Widget )
+        reg( CGraphEdge_NO, CDictProps_Widget )
+        reg( CAgent_NO,     CDictProps_Widget )
+
     def __init__(self, argv, bNetworkMode ):
         super().__init__( argv )
 
@@ -78,7 +79,7 @@ class CBaseApplication( QApplication ):
                     parent.layout().addWidget( self.objMonitor )
 
             self.objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
-            registerNetNodeWidgets( self.objMonitor.saNetObj_WidgetContents )
+            self.registerObjMonitor_Widgets()
             self.objMonitor.show()
 
     def initConnection(self, parent=None ):

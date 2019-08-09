@@ -11,7 +11,7 @@ from .Net_Events import ENet_Event as EV
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Manager import CNetObj_Manager
-from .NetObj_Widgets import ( CNetObj_WidgetsManager )
+from .NetObj_Widgets import CNetObj_WidgetsManager
 from .NetCmd import CNetCmd
 
 from  Lib.Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
@@ -66,6 +66,7 @@ class CNetObj_Monitor(QWidget):
         self.sbClientID.setValue( CNetObj_Manager.ClientID )
         for ev in EV:
             self.cbEvent.addItem( ev.name, ev )
+        self.WidgetManager = CNetObj_WidgetsManager( self.saNetObj_WidgetContents )
 
     def on_btnSendNetCmd_released( self ):
         cmd = CNetCmd( Event=self.cbEvent.currentData(), Obj_UID=self.sbObj_UID.value(),
@@ -73,25 +74,15 @@ class CNetObj_Monitor(QWidget):
         CNetObj_Manager.sendNetCMD( cmd )
 
     def treeView_SelectionChanged( self, selected, deselected ):
-        if len( deselected.indexes() ) : self.initOrDone_NetObj_Widget( deselected.indexes()[0], False )
-        if len( selected.indexes() ) : self.initOrDone_NetObj_Widget( selected.indexes()[0],   True )
+        if len( selected.indexes() )   : self.init_NetObj_Widget( selected.indexes()[0] )
 
-    def initOrDone_NetObj_Widget( self, index, bInit ):
+    def init_NetObj_Widget( self, index ):
         if not index.isValid(): return
 
         netObj = self.netObjModel.netObj_From_Index( index )
         if not netObj: return
 
-        widget = CNetObj_WidgetsManager.getWidget( netObj )
-
-        if not widget: return
-
-        if bInit:
-            widget.init( netObj )
-            widget.show()
-        else:
-            widget.done()
-            widget.hide()
+        self.WidgetManager.activateWidget( netObj )
 
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()

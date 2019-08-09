@@ -1,13 +1,20 @@
 
+from enum import Enum, auto
+
 from PyQt5.QtWidgets import ( QGraphicsScene, QGraphicsItem )
 from PyQt5.QtCore import ( Qt, QLineF, pyqtSignal )
 from PyQt5.QtGui import ( QPen )
+
+class EGSceneSelectionMode( Enum ):
+    Select = auto()
+    Touch  = auto()
 
 class CGridGraphicsScene(QGraphicsScene):
     itemChanged = pyqtSignal( QGraphicsItem )
     
     def __init__(self, parent):
         super(CGridGraphicsScene, self).__init__( parent )
+        self.selectionMode = EGSceneSelectionMode.Select
         self.gridSize = 400
         self.bDrawGrid = False
         self.bSnapToGrid = False
