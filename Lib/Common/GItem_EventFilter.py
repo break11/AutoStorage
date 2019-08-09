@@ -13,7 +13,7 @@ class CGItem_EventFilter(CDummy_GItem):
         super().__init__( parent = parent )
 
         self.selectionClearTime = QTimer()
-        self.selectionClearTime.setInterval(1000)
+        self.selectionClearTime.setInterval(200)
         self.selectionClearTime.setSingleShot( True )
         self.selectionClearTime.timeout.connect( self.clearSelectionMode )
         self.selectionClearTime.start()
@@ -30,7 +30,8 @@ class CGItem_EventFilter(CDummy_GItem):
             if self.scene().selectionMode == EGSceneSelectionMode.Touch:
                 if event.type() == QEvent.GraphicsSceneMouseRelease:
                     self.scene().itemTouched.emit( watched )
-                    self.selectionClearTime.start()
+                    if not self.selectionClearTime.isActive():
+                        self.selectionClearTime.start()
 
                 event.accept()
                 return True
