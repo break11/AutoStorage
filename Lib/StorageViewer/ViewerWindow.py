@@ -7,7 +7,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
-from   Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode
+from   Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode, EGSceneSelectionMode
 from   Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from   Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from   Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -127,8 +127,8 @@ class CViewerWindow(QMainWindow):
         self.registerObjects_Widgets()
         # связка для реализации выбора target node для полей агента (выбор мышкой на график сцене текущей ноды и конечной точки маршрута)
         agentWidget = self.WidgetManager.queryWidget( CAgent_Widget )
-        agentWidget.setScene( self.StorageMap_Scene )
-        self.StorageMap_Scene.itemTouched.connect( agentWidget.objectTouched )
+        agentWidget.setSGM( self.SGM )
+        self.SGM.itemTouched.connect( agentWidget.objectTouched )
 
     def init( self, initPhase ):            
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -213,10 +213,13 @@ class CViewerWindow(QMainWindow):
     def updateCursor(self):
         if self.GV_Wheel_Zoom_EF.actionCursor != Qt.ArrowCursor:
             self.StorageMap_View.setCursor( self.GV_Wheel_Zoom_EF.actionCursor )
-        elif bool(self.SGM.EditMode & EGManagerEditMode.AddNode):
+        elif self.SGM.EditMode & EGManagerEditMode.AddNode:
             self.StorageMap_View.setCursor( Qt.CrossCursor )
         else:
-            self.StorageMap_View.setCursor( Qt.ArrowCursor )
+            if self.SGM.selectionMode == EGSceneSelectionMode.Touch:
+                self.StorageMap_View.setCursor( Qt.CrossCursor )
+            else:
+                self.StorageMap_View.setCursor( Qt.ArrowCursor )
 
     def closeEvent( self, event ):
         if self.workMode == EWorkMode.MapDesignerMode:

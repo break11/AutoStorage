@@ -7,7 +7,7 @@ from PyQt5.Qt import pyqtSlot
 from PyQt5.QtWidgets import QGraphicsItem
 
 from .NetObj_Widgets import CNetObj_Widget
-from Lib.Common.GridGraphicsScene import EGSceneSelectionMode
+from Lib.StorageViewer.StorageGraph_GScene_Manager import EGSceneSelectionMode
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -19,11 +19,11 @@ class CAgent_Widget( CNetObj_Widget ):
         super().__init__( parent = parent)
         uic.loadUi( os.path.dirname( __file__ ) + '/Agent_Widget.ui', self )
         self.selectTargetMode = SelectionTarget.null
-        self.setScene(  None )
+        self.setSGM(  None )
 
-    def setScene( self, gScene ):
-        self.gScene = gScene
-        b = self.gScene is not None
+    def setSGM( self, SGM ):
+        self.SGM = SGM
+        b = self.SGM is not None
         self.btnSelectPutTo.setEnabled( b )
         self.btnSelectGoTo.setEnabled( b )
 
@@ -35,16 +35,17 @@ class CAgent_Widget( CNetObj_Widget ):
 
     def on_btnSelectPutTo_released( self ):
         self.selectTargetMode = SelectionTarget.putTo
-        self.gScene.selectionMode = EGSceneSelectionMode.Touch
+        self.SGM.selectionMode = EGSceneSelectionMode.Touch
 
     def on_btnSelectGoTo_released( self ):
         self.selectTargetMode = SelectionTarget.goTo
-        self.gScene.selectionMode = EGSceneSelectionMode.Touch
+        self.SGM.selectionMode = EGSceneSelectionMode.Touch
     
     @pyqtSlot( QGraphicsItem )
     def objectTouched( self, gItem ):
+        # assert isinstance(gItem,  )
         print( gItem )
         # self.selectTargetMode = SelectionTarget.null
-        # self.gScene.selectionMode = EGSceneSelectionMode.Select
+        # self.SGM.selectionMode = EGSceneSelectionMode.Select
 
 

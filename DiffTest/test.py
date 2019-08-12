@@ -1,14 +1,19 @@
 
-from enum import Enum, auto
 
-class ESide( Enum ):
-    Left            = auto()
-    Right           = auto()
-    ChargeSideLeft  = Right # ChargeSideLeft - указывает положение "минуса", т.е. "плюс" справа. У челнока "плюс" в передней части.
-    ChargeSideRight = Left  # поэтому при ChargeSideLeft челнок необходимо располагать вектором в правый сектор.
+b = None 
+b = isinstance(b, type(None))
+print( b, type(None) )
 
-print( ESide.ChargeSideLeft )
-print( ESide[ "ChargeSideLeft" ] )
+# from enum import Enum, auto
+
+# class ESide( Enum ):
+#     Left            = auto()
+#     Right           = auto()
+#     ChargeSideLeft  = Right # ChargeSideLeft - указывает положение "минуса", т.е. "плюс" справа. У челнока "плюс" в передней части.
+#     ChargeSideRight = Left  # поэтому при ChargeSideLeft челнок необходимо располагать вектором в правый сектор.
+
+# print( ESide.ChargeSideLeft )
+# print( ESide[ "ChargeSideLeft" ] )
 
 
 # l = [1,2,3,3,2,1]

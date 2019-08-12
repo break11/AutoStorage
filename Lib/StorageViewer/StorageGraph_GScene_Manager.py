@@ -3,17 +3,17 @@ import os
 import networkx as nx
 import weakref
 import math
-from enum import Flag, auto
+from enum import Flag, auto, Enum
 from copy import deepcopy
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, QTimer
+from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem, QGraphicsScene
 
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
+from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 from .Agent_SGItem import CAgent_SGItem
-from Lib.Common.GItem_EventFilter import CGItem_EventFilter
 from Lib.Common.GuiUtils import gvFitToPage
 from Lib.Common.Utils import time_func
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache
@@ -29,7 +29,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.Vectors import Vector2
-
+    
 
 class EGManagerMode (Flag):
     View      = auto()
@@ -40,7 +40,14 @@ class EGManagerEditMode (Flag):
     Default = auto()
     AddNode = auto()
 
+class EGSceneSelectionMode( Enum ):
+    Select = auto()
+    Touch  = auto()
+    
+from Lib.Common.GItem_EventFilter import CGItem_EventFilter
+
 class CStorageGraph_GScene_Manager( QObject ):
+    itemTouched = pyqtSignal( QGraphicsItem )
     nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StorageSingle, SGT.ENodeTypes.ServiceStation]
 
     @property
@@ -69,6 +76,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         gView.installEventFilter(self)
         gView.viewport().installEventFilter(self)
+        gScene.installEventFilter(self)
 
         # self.gScene.setMinimumRenderSize( 3 )
         # self.gView.setViewport( QGLWidget( QGLFormat(QGL.SampleBuffers) ) )
@@ -83,7 +91,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.ObjPropUpdated )
 
-        self.gScene_evI = CGItem_EventFilter()
+        self.gScene_evI = CGItem_EventFilter( SGM = self )
         self.gScene.addItem( self.gScene_evI )
 
         self.Agents_ParentGItem = CDummy_GItem()
@@ -96,6 +104,9 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.tickTimer = QTimer()
         self.tickTimer.setInterval( 1000 )
         self.tickTimer.timeout.connect( self.onTick )
+
+        self.disabledTouchTypes = [type(None), CEdge_SGItem, CEdgeDecorate_SGItem, CAgent_SGItem]
+        self.selectionMode = EGSceneSelectionMode.Select
 
     def setModeFlags(self, flags):
         self.Mode = flags
@@ -442,8 +453,32 @@ class CStorageGraph_GScene_Manager( QObject ):
             nodeGItem.netObj()[SGT.s_y] = nodeGItems[0].netObj()[SGT.s_y]
 
     #############################################################
+    
+    clickEvents = [ QEvent.GraphicsSceneMousePress, QEvent.GraphicsSceneMouseRelease, QEvent.GraphicsSceneMouseDoubleClick ]
+    def eventFilter(self, watched, event):
 
-    def eventFilter(self, object, event):
+        if event.type() in self.clickEvents:
+            if event.modifiers() & Qt.AltModifier:
+                event.ignore()
+                return True
+    
+            # блокирование снятия выделения с итема (челнока), когда активирован режим "Touch" при клике на пустом месте
+            # или при клике по элементам сцены для которых не определена возможность "Touch"
+            if self.selectionMode == EGSceneSelectionMode.Touch:
+                targetGItem = self.gScene.itemAt( event.scenePos() , self.gView.transform() )
+                if type( targetGItem ) in self.disabledTouchTypes:
+                    event.accept()
+                    return True
+                                
+                if event.type() == QEvent.GraphicsSceneMouseRelease:
+                    self.itemTouched.emit( targetGItem )
+                    self.selectionMode = EGSceneSelectionMode.Select
+                
+                event.accept()
+                return True
+    
+        #########################################
+
         if not (self.Mode & EGManagerMode.EditScene):
             return False
 
@@ -470,6 +505,7 @@ class CStorageGraph_GScene_Manager( QObject ):
             event.accept()
             return True
         
+        event.ignore()
         return False
 
     #############################################################
