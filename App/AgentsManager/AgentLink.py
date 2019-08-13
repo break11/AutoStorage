@@ -115,7 +115,6 @@ class CAgentLink( CAgentServer_Link ):
         if tEdgeKey is None:
             agentNO.angle = 0
             return
-
         angle, bReverse = GU.getAgentAngle( self.nxGraph, tEdgeKey, agentNO.angle)
         agentNO.angle = angle
     ####################

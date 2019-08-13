@@ -443,7 +443,6 @@ class CStorageGraph_GScene_Manager( QObject ):
     
     clickEvents = [ QEvent.GraphicsSceneMousePress, QEvent.GraphicsSceneMouseRelease, QEvent.GraphicsSceneMouseDoubleClick ]
     def eventFilter(self, watched, event):
-
         if event.type() in self.clickEvents:
             if event.modifiers() & Qt.AltModifier:
                 event.ignore()

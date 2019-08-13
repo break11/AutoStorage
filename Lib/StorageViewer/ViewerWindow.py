@@ -24,9 +24,10 @@ from  Lib.Net.NetObj_Manager import CNetObj_Manager
 from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
 
-# from Lib.Net.DictProps_Widget import CDictProps_Widget
+from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.Net.Agent_Widget import CAgent_Widget
 from Lib.Common.Agent_NetObject import CAgent_NO
+from Lib.Common.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 
 from .images_rc import *
 from enum import Enum, auto
@@ -65,6 +66,8 @@ class CViewerWindow(QMainWindow):
     def registerObjects_Widgets(self):
         reg = self.WidgetManager.registerWidget
         reg( CAgent_NO, CAgent_Widget )
+        reg( CGraphNode_NO, CDictProps_Widget )
+        reg( CGraphEdge_NO, CDictProps_Widget )
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()

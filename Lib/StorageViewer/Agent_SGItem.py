@@ -231,7 +231,7 @@ class CAgent_SGItem(QGraphicsItem):
 
     def drawText( self, painter ):
         font = QFont()
-        font.setPointSize( 72 )
+        font.setPointSize( 64 )
         painter.setFont( font )
 
         alignFlags = Qt.AlignLeft | Qt.AlignTop
