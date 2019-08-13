@@ -26,7 +26,7 @@ def edgeSize(nxGraph,  tKey ):
 def nodeProp(nxGraph, nodeID, sPropName):
     try:
         return nxGraph.nodes()[ nodeID ][ sPropName ]
-    except KeyErrorError:
+    except KeyError:
         print( f"{SC.sError} Node {nodeID} has not prop with name {sPropName}!" )
         return None
 

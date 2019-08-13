@@ -8,6 +8,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.AgentProtocol.AgentDataTypes import EAgent_Status
+from Lib.Common import StorageGraphTypes as SGT
 
 s_edge      = "edge"
 s_position  = "position"
@@ -61,12 +62,30 @@ class CAgent_NO( CNetObj ):
     def putToNode( self, nodeID ):        
         if not self.nxGraph.has_node( nodeID ): return
 
+        if GU.nodeType( self.nxGraph, nodeID ) == SGT.ENodeTypes.Terminal: return
+
         edges = list( self.nxGraph.out_edges( nodeID ) ) + list( self.nxGraph.in_edges( nodeID ) )
         if len( edges ) == 0: return
 
         tEdgeKey = edges[ 0 ]
         self.edge = GU.tEdgeKeyToStr( tEdgeKey )
         self.position = 0 if tEdgeKey[ 0 ] == nodeID else GU.edgeSize( self.nxGraph, tEdgeKey )
+
+    def goToNode( self, targetNode ):
+        if not self.nxGraph.has_node( targetNode ): return
+
+        tKey = self.isOnTrack()
+        if tKey is None:
+            self.putToNode( targetNode )
+            return
+
+        startNode = tKey[0]
+
+        if GU.nodeType( self.nxGraph, targetNode ) == SGT.ENodeTypes.Terminal: return
+
+        nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+        self.applyRoute( nodes_route )
+
 
     def applyRoute( self, nodes_route ):
         tKey = self.isOnTrack()

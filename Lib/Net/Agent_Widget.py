@@ -13,6 +13,8 @@ from Lib.StorageViewer.Node_SGItem import CNode_SGItem
 from Lib.Common.Agent_NetObject import CAgent_NO, s_angle
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
+import Lib.Common.GraphUtils as GU
+from Lib.Common import StorageGraphTypes as SGT
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -74,6 +76,9 @@ class CAgent_Widget( CNetObj_Widget ):
 
     def on_lePutTo_returnPressed( self ):
         self.agentNO.putToNode( self.lePutTo.text() )
+
+    def on_leGoTo_returnPressed( self ):
+        self.agentNO.goToNode( self.leGoTo.text() )
     
     #######################################################
 
@@ -95,17 +100,7 @@ class CAgent_Widget( CNetObj_Widget ):
             self.agentNO.putToNode( gItem.nodeID )
                 
         elif self.selectTargetMode == SelectionTarget.goTo:
-            tKey = self.agentNO.isOnTrack()
-            if tKey is None:
-                self.agentNO.putToNode( gItem.nodeID )
-                return
-
-            nxGraph = self.SGM.nxGraph
-            startNode = tKey[0]
-            targetNode = gItem.nodeID
-            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
-
-            self.agentNO.applyRoute( nodes_route )
+            self.agentNO.goToNode( gItem.nodeID )
 
         self.btnSelectPutTo.setChecked( False )
         self.btnSelectGoTo.setChecked( False )
