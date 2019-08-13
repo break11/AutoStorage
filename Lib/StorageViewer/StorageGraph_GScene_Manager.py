@@ -29,7 +29,6 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.Vectors import Vector2
-    
 
 class EGManagerMode (Flag):
     View      = auto()
@@ -44,8 +43,6 @@ class EGSceneSelectionMode( Enum ):
     Select = auto()
     Touch  = auto()
     
-from Lib.Common.GItem_EventFilter import CGItem_EventFilter
-
 class CStorageGraph_GScene_Manager( QObject ):
     itemTouched = pyqtSignal( QGraphicsItem )
     nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StorageSingle, SGT.ENodeTypes.ServiceStation]
@@ -91,9 +88,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.ObjPropUpdated )
 
-        self.gScene_evI = CGItem_EventFilter( SGM = self )
-        self.gScene.addItem( self.gScene_evI )
-
         self.Agents_ParentGItem = CDummy_GItem()
         self.Agents_ParentGItem.setZValue( 40 )
         self.gScene.addItem( self.Agents_ParentGItem )
@@ -127,9 +121,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.GraphRoot_ParentGItem     = CDummy_GItem()
         self.EdgeDecorates_ParentGItem = CDummy_GItem( parent=None )
 
-        if self.gScene_evI.scene() is None:
-            self.gScene.addItem( self.gScene_evI )
-
         self.gScene.addItem( self.GraphRoot_ParentGItem )
         self.updateDecorateOnScene()
 
@@ -147,7 +138,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.nodeGItems = {}
         self.edgeGItems = {}
 
-        self.gScene.removeItem( self.gScene_evI )
         self.gScene.removeItem( self.Agents_ParentGItem )
         self.gScene.clear()
 
@@ -300,7 +290,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.agentGItems[ agentNetObj.name ] = agentGItem
 
         agentGItem.init()
-        agentGItem.installSceneEventFilter( self.gScene_evI )
         agentGItem.SGM = self
 
         return agentGItem
@@ -317,7 +306,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.nodeGItems[ nodeID ] = nodeGItem
 
         nodeGItem.init()
-        nodeGItem.installSceneEventFilter( self.gScene_evI )
         nodeGItem.setFlag( QGraphicsItem.ItemIsMovable, bool (self.Mode & EGManagerMode.EditScene) )
 
         self.bHasChanges = True
@@ -338,7 +326,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         edgeGItem = CEdge_SGItem( self, fsEdgeKey=fsEdgeKey, graphRootNode=self.graphRootNode, parent=self.GraphRoot_ParentGItem )
 
         edgeGItem.updatePos()
-        edgeGItem.installSceneEventFilter( self.gScene_evI )
         self.edgeGItems[ fsEdgeKey ] = edgeGItem
 
         self.bHasChanges = True
