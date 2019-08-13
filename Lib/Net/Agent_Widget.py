@@ -1,5 +1,6 @@
 
 import os
+import networkx as nx
 from enum import Enum, auto
 from .images_rc import * # for icons on Add and Del props button
 from PyQt5 import uic
@@ -94,8 +95,17 @@ class CAgent_Widget( CNetObj_Widget ):
             self.agentNO.putToNode( gItem.nodeID )
                 
         elif self.selectTargetMode == SelectionTarget.goTo:
+            tKey = self.agentNO.isOnTrack()
+            if tKey is None:
+                self.agentNO.putToNode( gItem.nodeID )
+                return
+
             nxGraph = self.SGM.nxGraph
-            print( "111" )
+            startNode = tKey[0]
+            targetNode = gItem.nodeID
+            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+
+            self.agentNO.applyRoute( nodes_route )
 
         self.btnSelectPutTo.setChecked( False )
         self.btnSelectGoTo.setChecked( False )

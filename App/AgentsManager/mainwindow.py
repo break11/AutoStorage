@@ -24,7 +24,7 @@ from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, tEdgeKeyToStr, edgeSize, nodeType, findNodes, routeToServiceStation
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, nodeType, findNodes, routeToServiceStation
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
@@ -163,28 +163,7 @@ class CAM_MainWindow(QMainWindow):
         else:
             nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
 
-        if len(nodes_route) < 2: return
-
-        curEdgeSize = edgeSize( nxGraph, tKey )
-
-        # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
-        if ( nodes_route[0], nodes_route[1] ) != tKey:
-            tKey = tuple( reversed(tKey) )
-            agentNO.edge = tEdgeKeyToStr( tKey )
-            curEdgeSize = edgeSize( nxGraph, tKey )
-            agentNO.position = curEdgeSize - agentNO.position
-            nodes_route.insert(0, tKey[0] )
-        
-        if ( agentNO.position / curEdgeSize ) > 0.5:
-            if len( nodes_route ) > 2:
-                nodes_route = nodes_route[1:]
-                tKey = ( nodes_route[0], nodes_route[1] )
-                agentNO.edge = tEdgeKeyToStr( tKey )
-                agentNO.position = 0
-            else:
-                return
-
-        agentNO.route = ",".join( nodes_route )
+        agentNO.applyRoute( nodes_route )
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return

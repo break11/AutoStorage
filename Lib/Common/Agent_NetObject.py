@@ -68,5 +68,33 @@ class CAgent_NO( CNetObj ):
         self.edge = GU.tEdgeKeyToStr( tEdgeKey )
         self.position = 0 if tEdgeKey[ 0 ] == nodeID else GU.edgeSize( self.nxGraph, tEdgeKey )
 
+    def applyRoute( self, nodes_route ):
+        tKey = self.isOnTrack()
+        assert tKey is not None
+
+        if len(nodes_route) < 2: return
+
+        curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
+
+        # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
+        if ( nodes_route[0], nodes_route[1] ) != tKey:
+            tKey = tuple( reversed(tKey) )
+            self.edge = GU.tEdgeKeyToStr( tKey )
+            curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
+            self.position = curEdgeSize - self.position
+            nodes_route.insert(0, tKey[0] )
+        
+        if ( self.position / curEdgeSize ) > 0.5:
+            if len( nodes_route ) > 2:
+                nodes_route = nodes_route[1:]
+                tKey = ( nodes_route[0], nodes_route[1] )
+                self.edge = GU.tEdgeKeyToStr( tKey )
+                self.position = 0
+            else:
+                return
+
+        self.route = ",".join( nodes_route )
+
+
 
 

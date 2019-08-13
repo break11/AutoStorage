@@ -30,6 +30,7 @@ class EAgentServer_Event( Enum ):
     ChargeMe           = auto() # @CM
     ChargeBegin        = auto() # @CB
     ChargeEnd          = auto() # @CE
+    ServiceLog         = auto() # @SL
 
     @classmethod
     def fromBStr( cls, data ):
@@ -74,6 +75,7 @@ _AgentServer_Event_from_BStr = {
                                 b"@CM": EAgentServer_Event.ChargeMe,
                                 b"@CB": EAgentServer_Event.ChargeBegin,
                                 b"@CE": EAgentServer_Event.ChargeEnd,
+                                b"@SL": EAgentServer_Event.ServiceLog,
                                }
 
 _AgentServer_Event_to_Str = {}
