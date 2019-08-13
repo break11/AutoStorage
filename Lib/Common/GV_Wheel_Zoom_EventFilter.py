@@ -52,11 +52,11 @@ class CGV_Wheel_Zoom_EF(QObject):
                 return True
         ############### Right Click Mouse Move ###############
 
-        if event.type() == QEvent.KeyPress:
-            if event.modifiers() & Qt.AltModifier:
-                self.__gView.setDragMode( QGraphicsView.ScrollHandDrag )
-                self.actionCursor = Qt.ClosedHandCursor
-                return True
+        # if event.type() == QEvent.KeyPress:
+            # if event.modifiers() & Qt.AltModifier:
+            #     self.__gView.setDragMode( QGraphicsView.ScrollHandDrag )
+            #     self.actionCursor = Qt.ClosedHandCursor
+            #     return True
 
         if event.type() == QEvent.KeyRelease:
             if event.modifiers() & Qt.ControlModifier:
@@ -65,10 +65,10 @@ class CGV_Wheel_Zoom_EF(QObject):
                 if event.key() == Qt.Key_Right:
                     self.__gView.rotate( 90 )
             
-            if not ( event.modifiers() & Qt.AltModifier):
-                self.__gView.setDragMode( QGraphicsView.RubberBandDrag )
-                self.actionCursor = Qt.ArrowCursor
-                return True
+            # if not ( event.modifiers() & Qt.AltModifier):
+            #     self.__gView.setDragMode( QGraphicsView.RubberBandDrag )
+            #     self.actionCursor = Qt.ArrowCursor
+            #     return True
 
         if event.type() == QEvent.Wheel:
             if event.modifiers() & Qt.ControlModifier:

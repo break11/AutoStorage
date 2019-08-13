@@ -444,9 +444,9 @@ class CStorageGraph_GScene_Manager( QObject ):
     clickEvents = [ QEvent.GraphicsSceneMousePress, QEvent.GraphicsSceneMouseRelease, QEvent.GraphicsSceneMouseDoubleClick ]
     def eventFilter(self, watched, event):
         if event.type() in self.clickEvents:
-            if event.modifiers() & Qt.AltModifier:
-                event.ignore()
-                return True
+            # if event.modifiers() & Qt.AltModifier:
+            #     event.ignore()
+            #     return True
     
             # блокирование снятия выделения с итема (челнока), когда активирован режим "Touch" при клике на пустом месте
             # или при клике по элементам сцены для которых не определена возможность "Touch"

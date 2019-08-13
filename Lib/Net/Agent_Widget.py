@@ -42,6 +42,10 @@ class CAgent_Widget( CNetObj_Widget ):
 
     def done( self ):
         super().done()
+        self.sbAngle.setValue( 0 )
+        self.btnSelectPutTo.setChecked( False )
+        self.btnSelectGoTo.setChecked( False )
+        self.selectTargetMode = SelectionTarget.null
 
     #######################################################
 
@@ -73,6 +77,7 @@ class CAgent_Widget( CNetObj_Widget ):
     #######################################################
 
     def onObjPropUpdated( self, cmd ):
+        if self.netObj is None: return
         if cmd.Obj_UID != self.netObj.UID:
             return
 
