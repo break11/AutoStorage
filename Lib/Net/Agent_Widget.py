@@ -4,17 +4,40 @@ import networkx as nx
 from enum import Enum, auto
 from .images_rc import * # for icons on Add and Del props button
 from PyQt5 import uic
-from PyQt5.Qt import pyqtSlot
+from PyQt5.Qt import pyqtSlot, QObject
 from PyQt5.QtWidgets import QGraphicsItem
 
 from .NetObj_Widgets import CNetObj_Widget
 from Lib.StorageViewer.StorageGraph_GScene_Manager import EGSceneSelectionMode
 from Lib.StorageViewer.Node_SGItem import CNode_SGItem
-from Lib.Common.Agent_NetObject import CAgent_NO, s_angle, s_auto_control
+from Lib.Common.Agent_NetObject import CAgent_NO, s_angle, s_auto_control, s_cmd_PD, s_cmd_PE
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
+
+class CAgentCMD_Button_Linker( QObject ):
+    def __init__( self, agentNO ):
+        super().__init__()
+        self.btnList = {}
+        self.agentNO = agentNO
+
+    def addButtonCMD( self, btn, sPropName ):
+        self.btnList[ btn ] = sPropName
+        btn.clicked.connect( self.slotClicked )
+        pass
+
+    def init( self ):
+        pass
+
+    def done( self ):
+        pass
+
+    @pyqtSlot("bool")
+    def slotClicked( self, bVal ):
+        sPropName = self.btnList[ self.sender() ]
+        # self.agentNO[ sPropName ]
+        pass
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -31,6 +54,10 @@ class CAgent_Widget( CNetObj_Widget ):
         self.selectTargetMode = SelectionTarget.null
         self.setSGM(  None )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+
+        self.btnLinker = CAgentCMD_Button_Linker( self.agentNO )
+        self.btnLinker.addButtonCMD( self.btnPD, s_cmd_PD )
+        self.btnLinker.addButtonCMD( self.btnPE, s_cmd_PE )
 
     def setSGM( self, SGM ):
         self.SGM = SGM
