@@ -6,12 +6,15 @@ class EAgent_Status( BaseEnum ):
     Idle            = auto()
     GoToCharge      = auto()
     Charging        = auto()
-    OnRoute         = auto()
-    NoRouteToCharge = auto()
-    PosSyncError    = auto()
-    CantCharge      = auto()
+    OnRoute         = auto() 
+    NoRouteToCharge = auto() # не найден маршрут к зарядке - зарядки нет на графе или неправильный угол челнока 
+    PosSyncError    = auto() # ошибка синхронизации по графу - несоответствие реального положения челнока и положения в программе
+    CantCharge      = auto() # нет свойства с именем chargePort в ноде зарядки
+    AgentError      = auto() # пришла ошибка с тележки
 
     Default         = Idle
+
+blockAutoControlStatuses = [ EAgent_Status.NoRouteToCharge, EAgent_Status.PosSyncError, EAgent_Status.CantCharge, EAgent_Status.AgentError ]
 
 #########################################################
 

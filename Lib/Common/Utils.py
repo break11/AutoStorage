@@ -2,6 +2,17 @@ import time
 from threading import Timer
 import Lib.Common.StrConsts as SC
 
+from PyQt5.Qt import QInputDialog
+
+def askAgentName( parent ):
+    aName, ok = QInputDialog.getText(parent, 'New Agent Dialog', 'Enter agent name:')
+    if not ok: return
+
+    try:
+        return int(aName)
+    except:
+        print( f"{SC.sError} Can't create Agent with name='{aName}'. Agent need INT name!" )
+
 #####################################
 
 class CRepeatTimer(Timer):

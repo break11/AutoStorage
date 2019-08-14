@@ -17,7 +17,7 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common import FileUtils
 from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps, EAgent_Status
 import Lib.Common.StrConsts as SC
-from Lib.Common.Utils import time_func
+import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.Agent_NetObject import agentsNodeCache
@@ -101,8 +101,10 @@ class CAM_MainWindow(QMainWindow):
     ################################################################
 
     def on_btnAddAgent_released( self ):
-        props = deepcopy( agentDefProps )
-        agentNO = CAgent_NO( parent=self.agentsNode(), props=props )
+        agentN = UT.askAgentName( self )
+        if agentN is not None:            
+            props = deepcopy( agentDefProps )
+            agentNO = CAgent_NO( name=str(agentN), parent=self.agentsNode(), props=props )
 
     def on_btnDelAgent_released( self ):
         ### del Agent NetObj
@@ -170,18 +172,9 @@ class CAM_MainWindow(QMainWindow):
         if self.agentsNode().childCount() == 0: return
 
         for agentNO in self.agentsNode().children:
-            self.AgentTestMoving( agentNO )
+            if agentNO.auto_control:
+                self.AgentTestMoving( agentNO )
     
-    def on_leTargetNode_returnPressed(self):
-        if self.btnSimpleAgent_Test.isChecked():
-            return
-
-        agentNO = self.agentsNode().childByName( str(self.currAgentN()) )
-        if agentNO is None: return
-
-        self.AgentTestMoving( agentNO, targetNode = self.leTargetNode.text() )
-        nxGraph = self.graphRootNode().nxGraph
-
     # ******************************************************
     def on_btnChargeOn_released( self ):
         CU.controlCharge( CU.EChargeCMD.on, self.leChargePort.text() )

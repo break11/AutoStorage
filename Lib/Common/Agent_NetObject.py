@@ -7,7 +7,7 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.AgentProtocol.AgentDataTypes import EAgent_Status
+from Lib.AgentProtocol.AgentDataTypes import EAgent_Status, blockAutoControlStatuses
 from Lib.Common import StorageGraphTypes as SGT
 
 s_edge      = "edge"
@@ -18,10 +18,11 @@ s_angle     = "angle"
 s_odometer  = "odometer"
 s_status    = "status"
 s_charge    = "charge"
+s_auto_control  = "auto_control"
 s_connectedTime = "connectedTime"
 
 def_props = { s_status: EAgent_Status.Idle, s_edge: "", s_position: 0, s_route: "", s_route_idx: 0,
-              s_angle : 0.0, s_odometer : 0, s_charge : 0, s_connectedTime : 0 }
+              s_angle : 0.0, s_odometer : 0, s_charge : 0, s_connectedTime : 0, s_auto_control : 1 }
 
 def agentsNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )
@@ -37,6 +38,11 @@ class CAgent_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphRootNode = graphNodeCache()
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
+    def ObjPropUpdated( self, netCmd ):
+        if netCmd.sPropName == s_status:
+            if netCmd.value in blockAutoControlStatuses:
+                self.auto_control = 0
 
     # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
     def isOnTrack( self ):

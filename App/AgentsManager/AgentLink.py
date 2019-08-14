@@ -74,7 +74,8 @@ class CAgentLink( CAgentServer_Link ):
         elif cmd.sPropName == s_route:
             if agentNO.status != EAgent_Status.GoToCharge:
                 if agentNO.route == "":
-                    agentNO.status = EAgent_Status.Idle
+                    if agentNO.status == EAgent_Status.OnRoute:
+                        agentNO.status = EAgent_Status.Idle
                 else:
                     agentNO.status = EAgent_Status.OnRoute
 
@@ -124,6 +125,9 @@ class CAgentLink( CAgentServer_Link ):
     def processRxPacket( self, cmd ):
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
+
+        elif cmd.event == EAgentServer_Event.Error:
+            self.agentNO().status = EAgent_Status.AgentError
 
         elif cmd.event == EAgentServer_Event.BatteryState:
             agentNO = self.agentNO()
@@ -221,21 +225,9 @@ class CAgentLink( CAgentServer_Link ):
         tKey = GU.tEdgeKeyFromStr( self.agentNO().edge )
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
 
-        # if nodeID is None:
-        #     agentNO.status = EAgent_Status.CantCharge
-        #     return
-
-        # if GU.nodeType( self.nxGraph, nodeID ) != ENodeTypes.ServiceStation:
-        #     agentNO.status = EAgent_Status.CantCharge
-        #     return
-
         port = GU.nodeChargePort( self.nxGraph, nodeID )
-        # if port is None:
-        #     agentNO.status = EAgent_Status.CantCharge
-        #     return
-
-        if  port is None:
-            agentNO.status = EAgent_Status.CantCharge
+        if port is None:
+            self.agentNO().status = EAgent_Status.CantCharge
             return
 
         CU.controlCharge( chargeCMD, port )

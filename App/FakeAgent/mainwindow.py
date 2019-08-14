@@ -7,7 +7,7 @@ import time
 import weakref
 from copy import deepcopy
 
-from PyQt5.Qt import QInputDialog, Qt
+from PyQt5.Qt import Qt
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction
@@ -18,6 +18,7 @@ from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import FileUtils
 import Lib.Common.StrConsts as SC
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
+import Lib.Common.Utils as UT
 from .FakeAgentsList_Model import CFakeAgentsList_Model
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 
@@ -65,10 +66,9 @@ class CFA_MainWindow(QMainWindow):
     ################################################################
 
     def on_btnAddAgent_released( self ):
-        text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')
-        if not ok: return
-
-        self.Agents_Model.addAgent( int(text) )
+        agentN = UT.askAgentName( self )
+        if agentN is not None:            
+            self.Agents_Model.addAgent( agentN )
 
     def on_btnDelAgent_released( self ):
         agentN = self.currAgentN()

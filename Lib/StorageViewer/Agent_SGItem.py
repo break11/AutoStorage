@@ -29,6 +29,8 @@ colorsByStatus = { EAgent_Status.Idle            : Qt.green,
                    EAgent_Status.PosSyncError    : Qt.darkRed,
                    EAgent_Status.NoRouteToCharge : Qt.darkRed,
                    EAgent_Status.OnRoute         : Qt.blue,
+                   EAgent_Status.CantCharge      : Qt.darkRed,
+                   EAgent_Status.AgentError      : Qt.darkRed,
                  }
 
 
@@ -251,6 +253,7 @@ class CAgent_SGItem(QGraphicsItem):
         painter.drawText( rectTop,    alignFlags, textTop )
 
         color = colorsByStatus.get( status )
+        color = color if color is not None else Qt.black
 
         font.setPointSize( 52 )
         painter.setFont( font )

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QGraphicsItem
 from .NetObj_Widgets import CNetObj_Widget
 from Lib.StorageViewer.StorageGraph_GScene_Manager import EGSceneSelectionMode
 from Lib.StorageViewer.Node_SGItem import CNode_SGItem
-from Lib.Common.Agent_NetObject import CAgent_NO, s_angle
+from Lib.Common.Agent_NetObject import CAgent_NO, s_angle, s_auto_control
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 import Lib.Common.GraphUtils as GU
@@ -42,12 +42,14 @@ class CAgent_Widget( CNetObj_Widget ):
         assert isinstance( netObj, CAgent_NO )
         super().init( netObj )
         self.sbAngle.setValue( netObj.angle )
+        self.btnAutoControl.setChecked( netObj.auto_control )
 
     def done( self ):
         super().done()
         self.sbAngle.setValue( 0 )
         self.btnSelectPutTo.setChecked( False )
         self.btnSelectGoTo.setChecked( False )
+        self.btnAutoControl.setChecked( False )
         self.selectTargetMode = SelectionTarget.null
 
     #######################################################
@@ -71,6 +73,10 @@ class CAgent_Widget( CNetObj_Widget ):
     def on_btnAngleDown_released( self ):
         self.netObj.angle -= 2
 
+    @pyqtSlot("bool")
+    def on_btnAutoControl_clicked( self, bVal ):
+        self.netObj.auto_control = int(bVal)
+
     def on_sbAngle_editingFinished( self ):
         self.netObj.angle = self.sbAngle.value()
 
@@ -89,6 +95,8 @@ class CAgent_Widget( CNetObj_Widget ):
 
         if cmd.sPropName == s_angle:
             self.sbAngle.setValue( cmd.value )
+        elif cmd.sPropName == s_auto_control:
+            self.btnAutoControl.setChecked( cmd.value )
     
     #######################################################
 

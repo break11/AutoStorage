@@ -48,16 +48,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lbTargetNode">
-        <property name="text">
-         <string>Target Node:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="leTargetNode"/>
-      </item>
-      <item>
        <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Vertical</enum>

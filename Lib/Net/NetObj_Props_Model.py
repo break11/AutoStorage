@@ -37,6 +37,9 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.dataChanged.emit( idx, idx )
 
     def onObjPropDelete( self, cmd ):
+        if cmd.Obj_UID not in self.objList:
+            return
+
         self.decPropCounter( cmd.sPropName )
         self.clearNotUsedProps()
 
