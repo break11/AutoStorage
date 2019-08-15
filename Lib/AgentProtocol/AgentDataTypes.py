@@ -2,6 +2,11 @@
 from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
 
+class EAgent_CMD_State( BaseEnum ):
+    Init = auto()
+    Done = auto()
+    Default = Done
+
 class EAgent_Status( BaseEnum ):
     Idle            = auto()
     GoToCharge      = auto()
