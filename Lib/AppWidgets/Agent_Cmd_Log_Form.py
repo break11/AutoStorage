@@ -1,6 +1,7 @@
 import os
 import weakref
 
+from PyQt5.Qt import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QCheckBox
 from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
@@ -108,12 +109,18 @@ class CAgent_Cmd_Log_Form(QWidget):
     def setAgentLink( self, agentLink ):
         self.agentLink = agentLink
         if agentLink is None:
-            self.teAgentFullLog.clear()
+            self.clear()
             return
 
         self.agentLink = weakref.ref( agentLink )
         self.fillAgentLog()
         self.updateAgentControls()
+
+    def clear( self ):
+        self.teAgentFullLog.clear()
+        self.teAgentErrorLog.clear()
+        if self.agentLink:
+            self.agentLink().log.clear()
 
     def filter_LogRow( self, logRow ):
         # filter by TX, RX
@@ -139,14 +146,18 @@ class CAgent_Cmd_Log_Form(QWidget):
         if self.agentLink is None: return
 
         filteredRows = []
+        filteredErrorRows = []
         for logRow in self.agentLink().log:
-            if not self.filter_LogRow( logRow ):
-                continue
-
-            filteredRows.append( logRow.data )
+            if self.filter_LogRow( logRow ):
+                filteredRows.append( logRow.data )
+            if logRow.event in errListEvents:
+                filteredErrorRows.append( logRow.data )
 
         self.teAgentFullLog.setHtml( "".join( filteredRows ) )
         self.teAgentFullLog.moveCursor( QTextCursor.End )
+
+        self.teAgentErrorLog.setHtml( "".join( filteredErrorRows ) )
+        self.teAgentErrorLog.moveCursor( QTextCursor.End )
 
     def updateAgentControls( self ):
         if self.agentLink is None: return
@@ -172,16 +183,15 @@ class CAgent_Cmd_Log_Form(QWidget):
         if self.teAgentFullLog.document().lineCount() > LogCount:
             self.fillAgentLog()
 
-    def on_btnFilter_released( self ):
+    @pyqtSlot("bool")
+    def on_btnFilter_clicked( self, bVal ):
         if self.agentLink is None: return
 
         self.fillAgentLog()
 
-    def on_btnClear_released( self ):
-        if self.agentLink is None: return
-
-        self.teAgentFullLog.clear()
-        self.agentLink().log.clear()
+    @pyqtSlot("bool")
+    def on_btnClear_clicked( self, bVal ):
+        self.clear()
     
     def on_leCMD_Event_returnPressed( self ):
         self.sendCustom_CMD()

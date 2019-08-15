@@ -136,6 +136,9 @@
         <property name="text">
          <string>PD</string>
         </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
         <property name="cmdProp" stdset="0">
          <string>cmd_PD</string>
         </property>
@@ -145,6 +148,9 @@
        <widget class="QPushButton" name="btnPE">
         <property name="text">
          <string>PE</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
         <property name="cmdProp" stdset="0">
          <string>cmd_PE</string>

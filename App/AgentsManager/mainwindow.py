@@ -15,7 +15,7 @@ from PyQt5 import uic
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common import FileUtils
-from Lib.Common.Agent_NetObject import CAgent_NO, def_props as agentDefProps, EAgent_Status
+from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Status
 import Lib.Common.StrConsts as SC
 import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -100,13 +100,14 @@ class CAM_MainWindow(QMainWindow):
 
     ################################################################
 
-    def on_btnAddAgent_released( self ):
+    @pyqtSlot("bool")
+    def on_btnAddAgent_clicked( self, bVal ):
         agentN = UT.askAgentName( self )
-        if agentN is not None:            
-            props = deepcopy( agentDefProps )
-            agentNO = CAgent_NO( name=str(agentN), parent=self.agentsNode(), props=props )
+        if agentN is not None:
+            queryAgentNetObj( name=str(agentN) )            
 
-    def on_btnDelAgent_released( self ):
+    @pyqtSlot("bool")
+    def on_btnDelAgent_clicked( self, bVal ):
         ### del Agent NetObj
         ci = self.tvAgents.currentIndex()
         if not ci.isValid(): return
@@ -176,8 +177,10 @@ class CAM_MainWindow(QMainWindow):
                 self.AgentTestMoving( agentNO )
     
     # ******************************************************
-    def on_btnChargeOn_released( self ):
+    @pyqtSlot("bool")
+    def on_btnChargeOn_clicked( self, clicked ):
         CU.controlCharge( CU.EChargeCMD.on, self.leChargePort.text() )
 
-    def on_btnChargeOff_released( self ):
+    @pyqtSlot("bool")
+    def on_btnChargeOff_clicked( self, clicked ):
         CU.controlCharge( CU.EChargeCMD.off, self.leChargePort.text() )

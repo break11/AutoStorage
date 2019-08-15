@@ -56,7 +56,7 @@ class CNetObj_WidgetsManager:
 
 class CNetObj_Widget( QWidget ):
     @property
-    def netObj( self ): return self.__netObj()
+    def netObj( self ): return self.__netObj() if self.__netObj else None
 
     def __init__( self, parent = None ):
         super().__init__( parent = parent )

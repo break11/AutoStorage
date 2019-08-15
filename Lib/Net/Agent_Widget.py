@@ -1,6 +1,7 @@
 
 import os
 import networkx as nx
+import weakref
 from enum import Enum, auto
 from .images_rc import * # for icons on Add and Del props button
 from PyQt5 import uic
@@ -15,29 +16,44 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, EAgent_Status
 
 class CAgentCMD_Button_Linker( QObject ):
-    def __init__( self, agentNO ):
+    @property
+    def agentNO( self ): return self.__agentNO() if self.__agentNO else None
+
+    s_cmdProp = "cmdProp"
+    def __init__( self ):
         super().__init__()
-        self.btnList = {}
-        self.agentNO = agentNO
+        self.btnBy_PropName = {}
+        self.__agentNO = None
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+    
+    def onObjPropUpdated( self, netCmd ):
+        if ( self.agentNO is None ) or ( netCmd.Obj_UID != self.agentNO.UID ): return
 
-    def addButtonCMD( self, btn, sPropName ):
-        self.btnList[ btn ] = sPropName
+        if netCmd.sPropName in self.btnBy_PropName:
+            self.btnBy_PropName[ netCmd.sPropName ].setChecked( netCmd.value == EAgent_CMD_State.Init )
+
+    def addButtonCMD( self, btn ):
+        sPropName = btn.property( self.s_cmdProp )
+        self.btnBy_PropName[ sPropName ] = btn
+
         btn.clicked.connect( self.slotClicked )
-        pass
 
-    def init( self ):
-        pass
+    def setAgentNO( self, agentNO ):
+        self.__agentNO = weakref.ref( agentNO )
 
-    def done( self ):
-        pass
+    def clearAgentNO( self ):
+        self.__agentNO = None
 
     @pyqtSlot("bool")
     def slotClicked( self, bVal ):
-        sPropName = self.btnList[ self.sender() ]
-        # self.agentNO[ sPropName ]
-        pass
+        if not bVal: return
+
+        btn = self.sender()
+        sPropName = btn.property( self.s_cmdProp )
+        self.agentNO[ sPropName ] = EAgent_CMD_State.Init
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -55,13 +71,12 @@ class CAgent_Widget( CNetObj_Widget ):
         self.setSGM(  None )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
+        self.btnLinker = CAgentCMD_Button_Linker()
+
         l = self.fmAgentCommands.layout()
         for i in range( l.count() ):
-            print( l.itemAt( i ).widget().property( "cmdProp" ) )
-        # print( self.fmAgentCommands.children() )
-        # self.btnLinker = CAgentCMD_Button_Linker( self.agentNO )
-        # for btn, cmd in btn_cmds:
-        #     self.btnLinker.addButtonCMD( btn, cmd )
+            btn = l.itemAt( i ).widget()
+            self.btnLinker.addButtonCMD( btn )
 
     def setSGM( self, SGM ):
         self.SGM = SGM
@@ -75,6 +90,8 @@ class CAgent_Widget( CNetObj_Widget ):
         self.sbAngle.setValue( netObj.angle )
         self.btnAutoControl.setChecked( netObj.auto_control )
 
+        self.btnLinker.setAgentNO( self.netObj )
+
     def done( self ):
         super().done()
         self.sbAngle.setValue( 0 )
@@ -82,6 +99,8 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnSelectGoTo.setChecked( False )
         self.btnAutoControl.setChecked( False )
         self.selectTargetMode = SelectionTarget.null
+
+        self.btnLinker.clearAgentNO()
 
     #######################################################
 
@@ -116,6 +135,11 @@ class CAgent_Widget( CNetObj_Widget ):
 
     def on_leGoTo_returnPressed( self ):
         self.agentNO.goToNode( self.leGoTo.text() )
+
+    @pyqtSlot("bool")
+    def on_btnReset_clicked( self, bVal ):
+        self.agentNO.route  = ""
+        self.agentNO.status = EAgent_Status.Idle
     
     #######################################################
 
