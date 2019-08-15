@@ -1,4 +1,6 @@
 
+import weakref
+
 from PyQt5.QtWidgets import ( QWidget, QVBoxLayout, QTableView, QAbstractItemView )
 from PyQt5.QtGui import ( QStandardItemModel )
 
@@ -53,9 +55,12 @@ class CNetObj_WidgetsManager:
             widget.init( netObj )
 
 class CNetObj_Widget( QWidget ):
+    @property
+    def netObj( self ): return self.__netObj()
+
     def __init__( self, parent = None ):
         super().__init__( parent = parent )
-        self.netObj = None
+        self.__netObj = None
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
 
     def ObjPrepareDelete( self, netCmd ):
@@ -66,8 +71,8 @@ class CNetObj_Widget( QWidget ):
         assert isinstance( netObj, CNetObj )
 
         self.show()
-        self.netObj = netObj
+        self.__netObj = weakref.ref( netObj )
 
     def done( self ):
-        self.netObj = None
+        self.__netObj = None
         self.hide()

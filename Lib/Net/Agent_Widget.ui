@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>374</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -126,6 +126,45 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="fmAgentCommands">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QPushButton" name="btnPD">
+        <property name="text">
+         <string>PD</string>
+        </property>
+        <property name="cmdProp" stdset="0">
+         <string>cmd_PD</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="btnPE">
+        <property name="text">
+         <string>PE</string>
+        </property>
+        <property name="cmdProp" stdset="0">
+         <string>cmd_PE</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnReset">
+     <property name="text">
+      <string>Reset</string>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">

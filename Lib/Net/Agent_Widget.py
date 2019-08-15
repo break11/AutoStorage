@@ -32,6 +32,14 @@ class CAgent_Widget( CNetObj_Widget ):
         self.setSGM(  None )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
+        l = self.fmAgentCommands.layout()
+        for i in range( l.count() ):
+            print( l.itemAt( i ).widget().property( "cmdProp" ) )
+        # print( self.fmAgentCommands.children() )
+        # self.btnLinker = CAgentCMD_Button_Linker( self.agentNO )
+        # for btn, cmd in btn_cmds:
+        #     self.btnLinker.addButtonCMD( btn, cmd )
+
     def setSGM( self, SGM ):
         self.SGM = SGM
         b = self.SGM is not None
