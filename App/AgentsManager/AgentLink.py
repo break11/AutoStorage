@@ -7,7 +7,7 @@ import subprocess
 from PyQt5.QtCore import QTimer
 
 import Lib.Common.GraphUtils as GU
-from Lib.Common.Agent_NetObject import s_route, s_status, EAgent_Status, s_cmd_PE, s_cmd_PD
+from Lib.Common.Agent_NetObject import SAP, EAgent_Status, cmdProps_keys, cmdProps
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
@@ -22,7 +22,7 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
-from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, EAgent_CMD_State
+from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State # SFakeAgent_DevPacketData,
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
 
@@ -68,20 +68,16 @@ class CAgentLink( CAgentServer_Link ):
 
         if agentNO.UID != self.agentNO().UID: return
 
-        if cmd.sPropName == s_status:
+        if cmd.sPropName == SAP.status:
             ALM.doLogString( self, f"Agent status changed to {agentNO.status}", color="#0000FF" )
 
-        elif cmd.sPropName == s_cmd_PE:
+        # обработка пропертей - сигналов команд PE, PD, BR, ES
+        elif cmd.sPropName in cmdProps_keys:
             if cmd.value == EAgent_CMD_State.Init:
-                self.pushCmd( self.genPacket( event=EAgentServer_Event.PowerEnable ) )
-                agentNO.cmd_PE = EAgent_CMD_State.Done
+                self.pushCmd( self.genPacket( event = cmdProps[ cmd.sPropName ] ) )
+                agentNO[ cmd.sPropName ] = EAgent_CMD_State.Done
 
-        elif cmd.sPropName == s_cmd_PD:
-            if cmd.value == EAgent_CMD_State.Init:
-                self.pushCmd( self.genPacket( event=EAgentServer_Event.PowerDisable ) )
-                agentNO.cmd_PD = EAgent_CMD_State.Done
-
-        elif cmd.sPropName == s_route:
+        elif cmd.sPropName == SAP.route:
             if agentNO.status != EAgent_Status.GoToCharge:
                 if agentNO.route == "":
                     if agentNO.status == EAgent_Status.OnRoute:

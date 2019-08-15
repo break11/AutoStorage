@@ -4,6 +4,14 @@ import Lib.Common.StrConsts as SC
 
 from PyQt5.Qt import QInputDialog
 
+class СStrProps_Meta(type):
+    def __init__( cls, className, baseClasses, dictOfMethods):
+        for k, v in dictOfMethods.items():
+            if not k.startswith( "__" ):
+                setattr( cls, k, k )
+
+#####################################
+
 def askAgentName( parent ):
     aName, ok = QInputDialog.getText(parent, 'New Agent Dialog', 'Enter agent name:')
     if not ok: return

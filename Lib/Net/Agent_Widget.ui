@@ -131,6 +131,19 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="btnPE">
+        <property name="text">
+         <string>PE</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="cmdProp" stdset="0">
+         <string>cmd_PE</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="btnPD">
         <property name="text">
@@ -144,16 +157,35 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="btnPE">
+      <item row="0" column="2">
+       <widget class="QPushButton" name="btnBR">
+        <property name="styleSheet">
+         <string notr="true">color: green</string>
+        </property>
         <property name="text">
-         <string>PE</string>
+         <string>BR</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
         </property>
         <property name="cmdProp" stdset="0">
-         <string>cmd_PE</string>
+         <string>cmd_BR</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="btnES">
+        <property name="styleSheet">
+         <string notr="true">color: red</string>
+        </property>
+        <property name="text">
+         <string>ES</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="cmdProp" stdset="0">
+         <string>cmd_ES</string>
         </property>
        </widget>
       </item>

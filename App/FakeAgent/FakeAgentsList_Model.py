@@ -3,7 +3,6 @@ import sys
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSlot, pyqtSignal
 
 from Lib.Common.Agent_NetObject import agentsNodeCache
-from Lib.Common.Agent_NetObject import s_edge, s_position, s_route, s_route_idx, s_angle, s_odometer
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
@@ -152,6 +151,8 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
     def thread_FinihsedSlot( self ):
         thread = self.sender()
 
+        if thread is None: return
+        
         fakeAgentLink = thread.agentLink()
         FA_Thread = fakeAgentLink.socketThreads[ 0 ]
 

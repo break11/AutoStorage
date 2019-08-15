@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QGraphicsItem
 from .NetObj_Widgets import CNetObj_Widget
 from Lib.StorageViewer.StorageGraph_GScene_Manager import EGSceneSelectionMode
 from Lib.StorageViewer.Node_SGItem import CNode_SGItem
-from Lib.Common.Agent_NetObject import CAgent_NO, s_angle, s_auto_control, s_cmd_PD, s_cmd_PE
+from Lib.Common.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 import Lib.Common.GraphUtils as GU
@@ -140,6 +140,8 @@ class CAgent_Widget( CNetObj_Widget ):
     def on_btnReset_clicked( self, bVal ):
         self.agentNO.route  = ""
         self.agentNO.status = EAgent_Status.Idle
+        for cmdProp in cmdProps_keys:
+            self.agentNO[ cmdProp ] = EAgent_CMD_State.Done
     
     #######################################################
 
@@ -148,9 +150,9 @@ class CAgent_Widget( CNetObj_Widget ):
         if cmd.Obj_UID != self.netObj.UID:
             return
 
-        if cmd.sPropName == s_angle:
+        if cmd.sPropName == SAP.angle:
             self.sbAngle.setValue( cmd.value )
-        elif cmd.sPropName == s_auto_control:
+        elif cmd.sPropName == SAP.auto_control:
             self.btnAutoControl.setChecked( cmd.value )
     
     #######################################################

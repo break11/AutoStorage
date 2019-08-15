@@ -4,6 +4,20 @@ import math
 from PyQt5.QtCore import (Qt)
 
 from .BaseEnum import BaseEnum
+from .Utils import СStrProps_Meta
+
+class SGraphAttrs( metaclass = СStrProps_Meta ):
+    widthType        = None
+    edgeSize         = None
+    highRailSizeFrom = None
+    highRailSizeTo   = None
+    curvature        = None
+    sensorSide       = None
+    chargeSide       = None
+    chargePort       = None
+    x                = None
+    y                = None
+    nodeType         = None
 
 _graphAttrs = [
             "widthType",

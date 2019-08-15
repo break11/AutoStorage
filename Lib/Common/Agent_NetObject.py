@@ -8,24 +8,40 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.AgentProtocol.AgentDataTypes import EAgent_Status, blockAutoControlStatuses, EAgent_CMD_State
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.Utils import СStrProps_Meta
 
-s_edge          = "edge"
-s_position      = "position"
-s_route         = "route"
-s_route_idx     = "route_idx"
-s_angle         = "angle"
-s_odometer      = "odometer"
-s_status        = "status"
-s_charge        = "charge"
-s_auto_control  = "auto_control"
-s_connectedTime = "connectedTime"
-s_cmd_PE        = "cmd_PE"
-s_cmd_PD        = "cmd_PD"
+class SAgentProps( metaclass = СStrProps_Meta ):
+    edge          = None
+    position      = None
+    route         = None
+    route_idx     = None
+    angle         = None
+    odometer      = None
+    status        = None
+    charge        = None
+    auto_control  = None
+    connectedTime = None
+    cmd_PE        = None
+    cmd_PD        = None
+    cmd_BR        = None
+    cmd_ES        = None
 
-def_props = { s_status: EAgent_Status.Idle, s_edge: "", s_position: 0, s_route: "", s_route_idx: 0,
-              s_angle : 0.0, s_odometer : 0, s_charge : 0, s_connectedTime : 0, s_auto_control : 1,
-              s_cmd_PE : EAgent_CMD_State.Done, s_cmd_PD : EAgent_CMD_State.Done}
+SAP = SAgentProps
+
+cmdProps = { SAP.cmd_PE : EV.PowerEnable,
+             SAP.cmd_PD : EV.PowerDisable,
+             SAP.cmd_BR : EV.BrakeRelease,
+             SAP.cmd_ES : EV.EmergencyStop,
+            }
+
+cmdProps_keys = cmdProps.keys()
+
+def_props = { SAP.status: EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP.route: "", SAP.route_idx: 0,
+              SAP.angle : 0.0, SAP.odometer : 0, SAP.charge : 0, SAP.connectedTime : 0, SAP.auto_control : 1,
+              SAP.cmd_PE : EAgent_CMD_State.Done, SAP.cmd_PD : EAgent_CMD_State.Done,
+              SAP.cmd_BR : EAgent_CMD_State.Done, SAP.cmd_ES : EAgent_CMD_State.Done, }
 
 def agentsNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )
@@ -43,7 +59,7 @@ class CAgent_NO( CNetObj ):
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     def ObjPropUpdated( self, netCmd ):
-        if netCmd.sPropName == s_status:
+        if netCmd.sPropName == SAP.status:
             if netCmd.value in blockAutoControlStatuses:
                 self.auto_control = 0
 

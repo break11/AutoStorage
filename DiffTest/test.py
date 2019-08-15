@@ -1,8 +1,29 @@
 
 
-b = None 
-b = isinstance(b, type(None))
-print( b, type(None) )
+class СStrProps_Meta(type):
+    def __init__( cls, className, baseClasses, dictOfMethods):
+        for k, v in dictOfMethods.items():
+            if not k.startswith( "__" ):
+                setattr( cls, k, k )
+
+class СStrProps( metaclass = СStrProps_Meta ):
+    one = None
+    two = None
+
+print( СStrProps.one )
+
+# class Test():
+#     A = None
+
+# b = "string"
+
+# Test.b = 1
+
+# print( Test.b )
+
+# b = None 
+# b = isinstance(b, type(None))
+# print( b, type(None) )
 
 # from enum import Enum, auto
 
