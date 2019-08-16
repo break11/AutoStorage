@@ -4,6 +4,7 @@ from PyQt5.QtGui import ( QPen, QColor )
 from PyQt5.QtCore import ( Qt, QLine, QRectF, QLineF )
 
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.StorageGraphTypes import SGA
 
 class CEdgeDecorate_SGItem(QGraphicsItem):
     def __init__(self, parentEdge, parentItem ):
@@ -62,9 +63,9 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         w = self.width / 2
         bline_length = self.parentEdge.baseLine.length()
 
-        eL     = edgeNetObj.get( SGT.s_edgeSize         )
-        eHFrom = edgeNetObj.get( SGT.s_highRailSizeFrom )
-        eHTo   = edgeNetObj.get( SGT.s_highRailSizeTo   )
+        eL     = edgeNetObj.get( SGA.edgeSize         )
+        eHFrom = edgeNetObj.get( SGA.highRailSizeFrom )
+        eHTo   = edgeNetObj.get( SGA.highRailSizeTo   )
 
         if None in ( eL, eHFrom, eHTo ): return
 

@@ -20,6 +20,7 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Br
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common import StrConsts as SC
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, prepareGraphProps
 from Lib.Common.Agent_NetObject import CAgent_NO, SAP, agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
@@ -432,12 +433,12 @@ class CStorageGraph_GScene_Manager( QObject ):
     def alignNodesVertical(self):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
         for nodeGItem in nodeGItems:
-            nodeGItem.netObj()[SGT.s_x] = nodeGItems[0].netObj()[SGT.s_x]
+            nodeGItem.netObj()[SGA.x] = nodeGItems[0].netObj()[SGA.x]
 
     def alignNodesHorisontal(self):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
         for nodeGItem in nodeGItems:
-            nodeGItem.netObj()[SGT.s_y] = nodeGItems[0].netObj()[SGT.s_y]
+            nodeGItem.netObj()[SGA.y] = nodeGItems[0].netObj()[SGA.y]
 
     #############################################################
     
@@ -472,8 +473,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
                 attr = deepcopy (SGT.default_Node_Props)
-                attr[ SGT.s_x ] = round (self.gView.mapToScene(event.pos()).x())
-                attr[ SGT.s_y ] = round (self.gView.mapToScene(event.pos()).y())
+                attr[ SGA.x ] = round (self.gView.mapToScene(event.pos()).x())
+                attr[ SGA.y ] = round (self.gView.mapToScene(event.pos()).y())
 
                 CGraphNode_NO( name=self.genStrNodeID(), parent=self.graphRootNode().nodesNode(), props=attr )
 

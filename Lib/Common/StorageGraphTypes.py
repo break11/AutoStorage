@@ -1,7 +1,7 @@
 
 from enum import auto
 import math
-from PyQt5.QtCore import (Qt)
+from PyQt5.QtCore import Qt
 
 from .BaseEnum import BaseEnum
 from .Utils import СStrProps_Meta
@@ -19,23 +19,7 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     y                = None
     nodeType         = None
 
-_graphAttrs = [
-            "widthType",
-            "edgeSize",
-            "highRailSizeFrom",
-            "highRailSizeTo",
-            "curvature",
-            "sensorSide",
-            "chargeSide",
-            "chargePort",
-            "x",
-            "y",
-            "nodeType",
-          ]
-
-# Экспортируем "короткие" алиасы строковых констант
-for str_item in _graphAttrs:
-    locals()[ "s_" + str_item ] = str_item
+SGA = SGraphAttrs
 
 #######################################################
 
@@ -122,11 +106,11 @@ class ESide( BaseEnum ):
         else:
             return ESide.Right
 
-graphEnums = { s_nodeType   : ENodeTypes,  #type:ignore
-               s_sensorSide : ESensorSide, #type:ignore
-               s_widthType  : EWidthType,  #type:ignore
-               s_curvature  : ECurvature,  #type:ignore
-               s_chargeSide : ESide,       #type:ignore
+graphEnums = { SGA.nodeType   : ENodeTypes, 
+               SGA.sensorSide : ESensorSide,
+               SGA.widthType  : EWidthType, 
+               SGA.curvature  : ECurvature, 
+               SGA.chargeSide : ESide,      
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):
@@ -149,16 +133,16 @@ def prepareGraphProps( nxGraph, bToEnum = True ):
         prepareDict( edgeProps, bToEnum )
 
 default_Edge_Props = {
-                        s_edgeSize:         500,                 # type: ignore
-                        s_highRailSizeFrom: 0,                   # type: ignore
-                        s_highRailSizeTo:   0,                   # type: ignore
-                        s_sensorSide:       ESensorSide.SBoth,   # type: ignore
-                        s_widthType:        EWidthType.Narrow,   # type: ignore
-                        s_curvature:        ECurvature.Straight  # type: ignore
+                        SGA.edgeSize:         500,               
+                        SGA.highRailSizeFrom: 0,                 
+                        SGA.highRailSizeTo:   0,                 
+                        SGA.sensorSide:       ESensorSide.SBoth, 
+                        SGA.widthType:        EWidthType.Narrow, 
+                        SGA.curvature:        ECurvature.Straight
                     }
 
 default_Node_Props = {  
-                        s_x: 0,                                  # type: ignore
-                        s_y: 0,                                  # type: ignore
-                        s_nodeType: ENodeTypes.DummyNode,        # type: ignore
+                        SGA.x: 0,                          
+                        SGA.y: 0,                          
+                        SGA.nodeType: ENodeTypes.DummyNode,
                     }

@@ -6,6 +6,7 @@ import networkx as nx
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles, pathWeight
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
 import Lib.Common.StrConsts as SC
 
@@ -88,7 +89,7 @@ class CRouteBuilder():
         return edgeSize( self.nxGraph, tKey )
 
     def LedgeSizeByEdge( self, tKey ):
-        widthType = self.nxGraph.edges()[ tKey ][ SGT.s_widthType ]
+        widthType = self.nxGraph.edges()[ tKey ][ SGA.widthType ]
         ledgeSize = widthTypeToLedgeSize[ widthType ]
         return ledgeSize
 
@@ -212,12 +213,12 @@ class CRouteBuilder():
                 nc = path[i]
                 nn = path[i+1]
 
-                xp = self.nxGraph.nodes[np][SGT.s_x]
-                yp = self.nxGraph.nodes[np][SGT.s_y]
-                xc = self.nxGraph.nodes[nc][SGT.s_x]
-                yc = self.nxGraph.nodes[nc][SGT.s_y]
-                xn = self.nxGraph.nodes[nn][SGT.s_x]
-                yn = self.nxGraph.nodes[nn][SGT.s_y]
+                xp = self.nxGraph.nodes[np][SGA.x]
+                yp = self.nxGraph.nodes[np][SGA.y]
+                xc = self.nxGraph.nodes[nc][SGA.x]
+                yc = self.nxGraph.nodes[nc][SGA.y]
+                xn = self.nxGraph.nodes[nn][SGA.x]
+                yn = self.nxGraph.nodes[nn][SGA.y]
 
                 vec0 = Vector2(xc-xp, yc-yp)
                 vec1 = Vector2(xn-xc, yn-yc)
@@ -240,10 +241,10 @@ class CRouteBuilder():
     def findNodeForLedge(self, lastNode, node):
         out_edges = self.nxGraph.out_edges(node)
 
-        xp = self.nxGraph.nodes[lastNode][SGT.s_x]
-        yp = self.nxGraph.nodes[lastNode][SGT.s_y]
-        xc = self.nxGraph.nodes[  node  ][SGT.s_x]
-        yc = self.nxGraph.nodes[  node  ][SGT.s_y]
+        xp = self.nxGraph.nodes[lastNode][SGA.x]
+        yp = self.nxGraph.nodes[lastNode][SGA.y]
+        xc = self.nxGraph.nodes[  node  ][SGA.x]
+        yc = self.nxGraph.nodes[  node  ][SGA.y]
 
         vec0 = Vector2(xc - xp, yc - yp)
         vec0 = vec0.unit()
@@ -252,8 +253,8 @@ class CRouteBuilder():
         bestAngle = 360.0
 
         for edge in out_edges:
-            xn = self.nxGraph.nodes[ edge[1] ][SGT.s_x]
-            yn = self.nxGraph.nodes[ edge[1] ][SGT.s_y]
+            xn = self.nxGraph.nodes[ edge[1] ][SGA.x]
+            yn = self.nxGraph.nodes[ edge[1] ][SGA.y]
             vec1 = Vector2(xn - xc, yn - yc)
             vec1 = vec1.unit()
 
@@ -313,12 +314,12 @@ class CRouteBuilder():
                 n0 = path[i]
                 n1 = path[i + 1]
                 edge = self.nxGraph[n0][n1]
-                highRailSizeFrom = edge[ SGT.s_highRailSizeFrom ]
-                highRailSizeTo   = edge[ SGT.s_highRailSizeTo   ]
-                edgeSize         = edge[ SGT.s_edgeSize         ]
-                sensorSide       = edge[ SGT.s_sensorSide ]
-                widthType        = edge[ SGT.s_widthType  ]
-                curvature        = edge[ SGT.s_curvature  ]
+                highRailSizeFrom = edge[ SGA.highRailSizeFrom ]
+                highRailSizeTo   = edge[ SGA.highRailSizeTo   ]
+                edgeSize         = edge[ SGA.edgeSize         ]
+                sensorSide       = edge[ SGA.sensorSide ]
+                widthType        = edge[ SGA.widthType  ]
+                curvature        = edge[ SGA.curvature  ]
 
                 if highRailSizeFrom > 0:
                     segment = CRailSegment(highRailSizeFrom, RH_HIGH, sensorSide, widthType, curvature)                    

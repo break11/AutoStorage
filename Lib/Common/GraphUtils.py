@@ -5,6 +5,7 @@ import os
 import re
 
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
 import Lib.Common.StrConsts as SC
 
@@ -21,7 +22,7 @@ def nodesList_FromStr( nodes_str ):
     return l if len(l) > 1 else []
 
 def edgeSize(nxGraph,  tKey ):
-    return nxGraph.edges()[ tKey ][ SGT.s_edgeSize ]
+    return nxGraph.edges()[ tKey ][ SGA.edgeSize ]
 
 def nodeProp(nxGraph, nodeID, sPropName):
     try:
@@ -31,10 +32,10 @@ def nodeProp(nxGraph, nodeID, sPropName):
         return None
 
 def nodeType(nxGraph, nodeID):
-    return nodeProp( nxGraph, nodeID, SGT.s_nodeType )
+    return nodeProp( nxGraph, nodeID, SGA.nodeType )
 
 def nodeChargePort(nxGraph, nodeID):
-    return nodeProp( nxGraph, nodeID, SGT.s_chargePort )
+    return nodeProp( nxGraph, nodeID, SGA.chargePort )
 
 def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
     l = edgeSize( nxGraph, tKey )
@@ -66,11 +67,11 @@ def getEdgeCoords (nxGraph, tEdgeKey):
     if not nxGraph.has_edge( nodeID_1, nodeID_2 ):
         return
 
-    x1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_x]
-    y1 = nxGraph.nodes()[ nodeID_1 ][SGT.s_y]
+    x1 = nxGraph.nodes()[ nodeID_1 ][SGA.x]
+    y1 = nxGraph.nodes()[ nodeID_1 ][SGA.y]
     
-    x2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_x]
-    y2 = nxGraph.nodes()[ nodeID_2 ][SGT.s_y]
+    x2 = nxGraph.nodes()[ nodeID_2 ][SGA.x]
+    y2 = nxGraph.nodes()[ nodeID_2 ][SGA.y]
 
     return x1, y1, x2, y2
 
@@ -79,8 +80,8 @@ def getNodeCoords (nxGraph, nodeID):
     if not nxGraph.has_node( nodeID ):
         return
 
-    x = nxGraph.nodes()[ nodeID ][SGT.s_x]
-    y = nxGraph.nodes()[ nodeID ][SGT.s_y]
+    x = nxGraph.nodes()[ nodeID ][SGA.x]
+    y = nxGraph.nodes()[ nodeID ][SGA.y]
     
     return x, y
 
@@ -93,7 +94,7 @@ def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
 
     edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
     
-    railType = nxGraph.edges()[ tEdgeKey ][ SGT.s_widthType ]
+    railType = nxGraph.edges()[ tEdgeKey ][ SGA.widthType ]
     
     agent_vec = Vector2.fromAngle( math.radians( agent_angle ) )
     
@@ -212,12 +213,12 @@ def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
     elif vecs_count == 1:
         r_vec = nodeVecs[0].rotate( math.pi/2 )
     
-    eNodeType = nxGraph.nodes[ nodeID ][ SGT.s_nodeType ]
+    eNodeType = nxGraph.nodes[ nodeID ][ SGA.nodeType ]
     
     if eNodeType == SGT.ENodeTypes.StorageSingle:
         r_vec = rotateToRightSector( r_vec )
     elif eNodeType == SGT.ENodeTypes.ServiceStation:
-        eSide = nxGraph.nodes[ nodeID ][ SGT.s_chargeSide ]
+        eSide = nxGraph.nodes[ nodeID ][ SGA.chargeSide ]
         r_vec = rotateToLeftSector( r_vec ) if eSide == SGT.ESide.Left else rotateToRightSector( r_vec )
     
     return r_vec
@@ -308,7 +309,7 @@ def pathsThroughCycles( nxGraph, simple_path ):
 
     return paths_through_cycles
 
-def pathWeight( nxGraph, path, weight = SGT.s_edgeSize):
+def pathWeight( nxGraph, path, weight = SGA.edgeSize):
 
     if weight is None:
         return( len(path) - 1 )
@@ -361,11 +362,11 @@ def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide =
 
 def routeToServiceStation( nxGraph, startNode, agentAngle ):
 
-    charge_nodes = findNodes( nxGraph, SGT.s_nodeType, SGT.ENodeTypes.ServiceStation )
+    charge_nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.ServiceStation )
     nodes_routes_weighted = []
 
     for targetNode in charge_nodes:
-        targetSide = nxGraph.nodes()[ targetNode ][ SGT.s_chargeSide ]
+        targetSide = nxGraph.nodes()[ targetNode ][ SGA.chargeSide ]
         weighted_route = shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
 
         nodes_routes_weighted.append( weighted_route )

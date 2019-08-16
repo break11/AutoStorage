@@ -8,6 +8,7 @@ from PyQt5.QtGui import QPen, QBrush, QColor, QFont, QPainterPath, QPolygon
 from PyQt5.QtCore import Qt, QPoint, QRectF, QPointF, QLineF
 
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import getEdgeCoords
 from Lib.Common.Vectors import Vector2
@@ -138,7 +139,7 @@ class CAgent_SGItem(QGraphicsItem):
         edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
 
         rAngle = edge_vec.selfAngle()
-        edgeSize = self.SGM.graphRootNode().nxGraph.edges[ tEdgeKey ][ SGT.s_edgeSize ]
+        edgeSize = self.SGM.graphRootNode().nxGraph.edges[ tEdgeKey ][ SGA.edgeSize ]
 
         pos = self.__agentNetObj().position
 

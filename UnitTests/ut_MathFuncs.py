@@ -147,8 +147,8 @@ class TestMathFuncs(unittest.TestCase):
         self.assertTrue(  u_vec_135.rotate( 4 * math.pi ) == u_vec_135 )
 
     def test_getEdgeCoords(self):
-        x1, y1 = nxGraph.nodes()[nodeID1][ SGT.s_x ], nxGraph.nodes()[nodeID1][ SGT.s_y ]
-        x2, y2 = nxGraph.nodes()[nodeID2][ SGT.s_x ], nxGraph.nodes()[nodeID2][ SGT.s_y ]
+        x1, y1 = nxGraph.nodes()[nodeID1][ SGA.x ], nxGraph.nodes()[nodeID1][ SGA.y ]
+        x2, y2 = nxGraph.nodes()[nodeID2][ SGA.x ], nxGraph.nodes()[nodeID2][ SGA.y ]
 
         test_x1, test_y1, test_x2, test_y2 = gu.getEdgeCoords (nxGraph, tEdgeKey12)
         self.assertEqual( (test_x1, test_y1, test_x2, test_y2), (x1, y1, x2, y2)  )
