@@ -43,7 +43,6 @@ class CAgentLink( CAgentServer_Link ):
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
         # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
         self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( self.agentN ) )
-        assert self.agentNO() is not None
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
@@ -55,18 +54,16 @@ class CAgentLink( CAgentServer_Link ):
         self.nodes_route = []
         self.edges_route = []
 
-        self.requestTelemetry_Timer = QTimer()
-        self.requestTelemetry_Timer.setInterval(1000)
-        self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
-        self.updateRTeleTimer( self.agentNO().RTele )
+        self.main_Timer = QTimer()
+        self.main_Timer.setInterval(1000)
+        self.main_Timer.timeout.connect( self.requestTelemetry )
+        self.main_Timer.start()
 
     def __del__(self):
-        self.requestTelemetry_Timer.stop()
+        self.main_Timer.stop()
         super().__del__()
 
     ##################
-    def updateRTeleTimer( self, bVal ):
-        self.requestTelemetry_Timer.start() if bVal else self.requestTelemetry_Timer.stop()
 
     def onObjPropUpdated( self, cmd ):
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
@@ -76,13 +73,11 @@ class CAgentLink( CAgentServer_Link ):
         if cmd.sPropName == SAP.status:
             ALM.doLogString( self, f"Agent status changed to {agentNO.status}", color="#0000FF" )
 
-        elif cmd.sPropName == SAP.RTele:
-            self.updateRTeleTimer( cmd.value )
-
         # обработка пропертей - сигналов команд PE, PD, BR, ES
         elif cmd.sPropName in cmdProps_keys:
             if cmd.value == EAgent_CMD_State.Init:
-                self.pushCmd( self.genPacket( event = cmdProps[ cmd.sPropName ] ) )
+                cmd_desc = cmdProps[ cmd.sPropName ]
+                self.pushCmd( self.genPacket( event = cmd_desc.event, data=cmd_desc.data ) )
                 agentNO[ cmd.sPropName ] = EAgent_CMD_State.Done
 
         elif cmd.sPropName == SAP.route:
@@ -111,13 +106,15 @@ class CAgentLink( CAgentServer_Link ):
     ##################
 
     def requestTelemetry(self):
-        self.pushCmd( self.genPacket( event=EAgentServer_Event.BatteryState ),     bAllowDuplicate=False )
-        self.pushCmd( self.genPacket( event=EAgentServer_Event.TemperatureState ), bAllowDuplicate=False )
-        self.pushCmd( self.genPacket( event=EAgentServer_Event.TaskList ),         bAllowDuplicate=False )
-        self.pushCmd( self.genPacket( event=EAgentServer_Event.OdometerPassed ),   bAllowDuplicate=False )
+        agentNO = self.agentNO()
+
+        if agentNO.RTele:
+            self.pushCmd( self.genPacket( event=EAgentServer_Event.BatteryState ),     bAllowDuplicate=False )
+            self.pushCmd( self.genPacket( event=EAgentServer_Event.TemperatureState ), bAllowDuplicate=False )
+            self.pushCmd( self.genPacket( event=EAgentServer_Event.TaskList ),         bAllowDuplicate=False )
+            self.pushCmd( self.genPacket( event=EAgentServer_Event.OdometerPassed ),   bAllowDuplicate=False )
 
         # обновление статуса connectedTime для NetObj челнока
-        agentNO = self.agentNO()
         if self.isConnected():
             agentNO.connectedTime += 1
         else:

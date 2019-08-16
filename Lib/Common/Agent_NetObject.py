@@ -1,6 +1,7 @@
 
 import networkx as nx
 from copy import deepcopy
+from collections import namedtuple
 
 from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
@@ -27,22 +28,39 @@ class SAgentProps( metaclass = СStrProps_Meta ):
     cmd_PD        = None
     cmd_BR        = None
     cmd_ES        = None
+    cmd_BL_L      = None
+    cmd_BL_R      = None
+    cmd_BU_L      = None
+    cmd_BU_R      = None
+    cmd_BA        = None
     RTele         = None
 
 SAP = SAgentProps
 
-cmdProps = { SAP.cmd_PE : EV.PowerEnable,
-             SAP.cmd_PD : EV.PowerDisable,
-             SAP.cmd_BR : EV.BrakeRelease,
-             SAP.cmd_ES : EV.EmergencyStop,
+cmdDesc = namedtuple( "cmdDesc", "event data" )
+
+cmdProps = { SAP.cmd_PE   : cmdDesc( event=EV.PowerEnable,    data=None),
+             SAP.cmd_PD   : cmdDesc( event=EV.PowerDisable,   data=None),
+             SAP.cmd_BR   : cmdDesc( event=EV.BrakeRelease,   data=None),
+             SAP.cmd_ES   : cmdDesc( event=EV.EmergencyStop,  data=None),
+             SAP.cmd_BL_L : cmdDesc( event=EV.BoxLoad,        data="L"),
+             SAP.cmd_BL_R : cmdDesc( event=EV.BoxLoad,        data="R"),
+             SAP.cmd_BU_L : cmdDesc( event=EV.BoxUnload,      data="L"),
+             SAP.cmd_BU_R : cmdDesc( event=EV.BoxUnload,      data="R"),
+             SAP.cmd_BA   : cmdDesc( event=EV.BoxLoadAborted, data=None),
             }
 
 cmdProps_keys = cmdProps.keys()
 
 def_props = { SAP.status: EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP.route: "", SAP.route_idx: 0,
               SAP.angle : 0.0, SAP.odometer : 0, SAP.charge : 0, SAP.connectedTime : 0, SAP.auto_control : 1,
-              SAP.cmd_PE : EAgent_CMD_State.Done, SAP.cmd_PD : EAgent_CMD_State.Done,
-              SAP.cmd_BR : EAgent_CMD_State.Done, SAP.cmd_ES : EAgent_CMD_State.Done,
+
+              SAP.cmd_PE   : EAgent_CMD_State.Done, SAP.cmd_PD   : EAgent_CMD_State.Done,
+              SAP.cmd_BR   : EAgent_CMD_State.Done, SAP.cmd_ES   : EAgent_CMD_State.Done,
+              SAP.cmd_BL_L : EAgent_CMD_State.Done, SAP.cmd_BL_R : EAgent_CMD_State.Done,
+              SAP.cmd_BU_L : EAgent_CMD_State.Done, SAP.cmd_BU_R : EAgent_CMD_State.Done,
+              SAP.cmd_BA   : EAgent_CMD_State.Done,
+
               SAP.RTele : 1 }
 
 def agentsNodeCache():

@@ -1,6 +1,5 @@
 import math
 from copy import deepcopy
-from collections import namedtuple
 import networkx as nx
 
 from Lib.Common.Graph_NetObjects import graphNodeCache

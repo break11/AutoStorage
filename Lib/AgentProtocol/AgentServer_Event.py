@@ -70,7 +70,7 @@ _AgentServer_Event_from_BStr = {
                                 b"@OD": EAgentServer_Event.OdometerDistance,
                                 b"@DE": EAgentServer_Event.DistanceEnd,
                                 b"@BL": EAgentServer_Event.BoxLoad,
-                                b"@DU": EAgentServer_Event.BoxUnload,
+                                b"@BU": EAgentServer_Event.BoxUnload,
                                 b"@BA": EAgentServer_Event.BoxLoadAborted,
                                 b"@CM": EAgentServer_Event.ChargeMe,
                                 b"@CB": EAgentServer_Event.ChargeBegin,
