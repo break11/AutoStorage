@@ -41,8 +41,6 @@ class CAM_MainWindow(QMainWindow):
         assert self.agent_CMD_Log_Container.layout() is not None
         self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
 
-        self.ACL_Form.btnRequestTelemetry.clicked.connect( self.Agent_RequestTelemetry_switch ) ##remove##
-
         self.SimpleAgentTest_Timer = QTimer( self )
         self.SimpleAgentTest_Timer.setInterval(500)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
@@ -88,15 +86,6 @@ class CAM_MainWindow(QMainWindow):
 
         self.ACL_Form.setAgentLink( agentLink )
 
-    ################################################################
-    
-    @pyqtSlot("bool")
-    def Agent_RequestTelemetry_switch( self, bVal ):
-        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-        if agentLink is None: return
-
-        if bVal: agentLink.requestTelemetry_Timer.start()
-        else: agentLink.requestTelemetry_Timer.stop()
 
     ################################################################
 

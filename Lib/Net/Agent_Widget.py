@@ -18,42 +18,55 @@ import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, EAgent_Status
 
-class CAgentCMD_Button_Linker( QObject ):
+class CAgent_Button_Linker( QObject ):
     @property
     def agentNO( self ): return self.__agentNO() if self.__agentNO else None
 
-    s_cmdProp = "cmdProp"
+    s_propRef = "propRef"
     def __init__( self ):
         super().__init__()
-        self.btnBy_PropName = {}
+        self.btn_by_PropName = {}
+        self.trueValue_by_Btn = {}
+        self.falseValue_by_Btn = {}
         self.__agentNO = None
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
     
     def onObjPropUpdated( self, netCmd ):
         if ( self.agentNO is None ) or ( netCmd.Obj_UID != self.agentNO.UID ): return
 
-        if netCmd.sPropName in self.btnBy_PropName:
-            self.btnBy_PropName[ netCmd.sPropName ].setChecked( netCmd.value == EAgent_CMD_State.Init )
+        if netCmd.sPropName in self.btn_by_PropName:
+            btn = self.btn_by_PropName[ netCmd.sPropName ]
+            self.updateBtnState( btn, netCmd.value )
 
-    def addButtonCMD( self, btn ):
-        sPropName = btn.property( self.s_cmdProp )
-        self.btnBy_PropName[ sPropName ] = btn
+    def addButton( self, btn, trueValue, falseValue ):
+        sPropName = btn.property( self.s_propRef )
+        assert sPropName is not None, 'Button need to have custom prop "propRef" for ButtonLinker!'
+        self.btn_by_PropName[ sPropName ] = btn
+        self.trueValue_by_Btn[ btn ]  = trueValue
+        self.falseValue_by_Btn[ btn ] = falseValue
 
         btn.clicked.connect( self.slotClicked )
 
-    def setAgentNO( self, agentNO ):
+    def init( self, agentNO ):
         self.__agentNO = weakref.ref( agentNO )
 
-    def clearAgentNO( self ):
+        for propName, btn in self.btn_by_PropName.items():
+            self.updateBtnState( btn, self.agentNO[ propName ] )
+
+    def clear( self ):
         self.__agentNO = None
+
+    def updateBtnState( self, btn, value ):
+        trueValue = self.trueValue_by_Btn[ btn ]
+        btn.setChecked( value == trueValue )
 
     @pyqtSlot("bool")
     def slotClicked( self, bVal ):
-        if not bVal: return
-
         btn = self.sender()
-        sPropName = btn.property( self.s_cmdProp )
-        self.agentNO[ sPropName ] = EAgent_CMD_State.Init
+
+        value  = self.trueValue_by_Btn[ btn ] if bVal else self.falseValue_by_Btn[ btn ]
+        sPropName = btn.property( self.s_propRef )
+        self.agentNO[ sPropName ] = value
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -71,12 +84,13 @@ class CAgent_Widget( CNetObj_Widget ):
         self.setSGM(  None )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
-        self.btnLinker = CAgentCMD_Button_Linker()
+        self.btnLinker = CAgent_Button_Linker()
 
         l = self.fmAgentCommands.layout()
         for i in range( l.count() ):
             btn = l.itemAt( i ).widget()
-            self.btnLinker.addButtonCMD( btn )
+            self.btnLinker.addButton( btn, EAgent_CMD_State.Init, EAgent_CMD_State.Done )
+        self.btnLinker.addButton( self.btnRTele, 1, 0 )
 
     def setSGM( self, SGM ):
         self.SGM = SGM
@@ -90,7 +104,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.sbAngle.setValue( netObj.angle )
         self.btnAutoControl.setChecked( netObj.auto_control )
 
-        self.btnLinker.setAgentNO( self.netObj )
+        self.btnLinker.init( self.netObj )
 
     def done( self ):
         super().done()
@@ -100,7 +114,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnAutoControl.setChecked( False )
         self.selectTargetMode = SelectionTarget.null
 
-        self.btnLinker.clearAgentNO()
+        self.btnLinker.clear()
 
     #######################################################
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>374</width>
+    <width>378</width>
     <height>285</height>
    </rect>
   </property>
@@ -139,7 +139,7 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
-        <property name="cmdProp" stdset="0">
+        <property name="propRef" stdset="0">
          <string>cmd_PE</string>
         </property>
        </widget>
@@ -152,7 +152,7 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
-        <property name="cmdProp" stdset="0">
+        <property name="propRef" stdset="0">
          <string>cmd_PD</string>
         </property>
        </widget>
@@ -168,7 +168,7 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
-        <property name="cmdProp" stdset="0">
+        <property name="propRef" stdset="0">
          <string>cmd_BR</string>
         </property>
        </widget>
@@ -184,7 +184,7 @@
         <property name="checkable">
          <bool>true</bool>
         </property>
-        <property name="cmdProp" stdset="0">
+        <property name="propRef" stdset="0">
          <string>cmd_ES</string>
         </property>
        </widget>
@@ -193,11 +193,31 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="btnReset">
-     <property name="text">
-      <string>Reset</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="btnReset">
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnRTele">
+       <property name="toolTip">
+        <string>Request Telemetry</string>
+       </property>
+       <property name="text">
+        <string>RTele</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>RTele</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">

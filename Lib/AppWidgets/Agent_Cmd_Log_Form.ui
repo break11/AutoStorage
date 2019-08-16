@@ -32,22 +32,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="btnRequestTelemetry">
-       <property name="toolTip">
-        <string>Request Telemetry</string>
-       </property>
-       <property name="text">
-        <string>RTele</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QSpinBox" name="sbPacketN">
        <property name="toolTip">
         <string>PacketN</string>

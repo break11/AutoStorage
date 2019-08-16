@@ -38,15 +38,12 @@ class CAgentLink( CAgentServer_Link ):
     def __init__(self, agentN):
         super().__init__( agentN = agentN, bIsServer = True )
 
-        self.requestTelemetry_Timer = QTimer()
-        self.requestTelemetry_Timer.setInterval(1000)
-        self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
-        self.requestTelemetry_Timer.start() # временно для отладки отключаем
 
         # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
         # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
         self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( self.agentN ) )
+        assert self.agentNO() is not None
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
@@ -58,11 +55,19 @@ class CAgentLink( CAgentServer_Link ):
         self.nodes_route = []
         self.edges_route = []
 
+        self.requestTelemetry_Timer = QTimer()
+        self.requestTelemetry_Timer.setInterval(1000)
+        self.requestTelemetry_Timer.timeout.connect( self.requestTelemetry )
+        self.updateRTeleTimer( self.agentNO().RTele )
+
     def __del__(self):
         self.requestTelemetry_Timer.stop()
         super().__del__()
 
     ##################
+    def updateRTeleTimer( self, bVal ):
+        self.requestTelemetry_Timer.start() if bVal else self.requestTelemetry_Timer.stop()
+
     def onObjPropUpdated( self, cmd ):
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
 
@@ -70,6 +75,9 @@ class CAgentLink( CAgentServer_Link ):
 
         if cmd.sPropName == SAP.status:
             ALM.doLogString( self, f"Agent status changed to {agentNO.status}", color="#0000FF" )
+
+        elif cmd.sPropName == SAP.RTele:
+            self.updateRTeleTimer( cmd.value )
 
         # обработка пропертей - сигналов команд PE, PD, BR, ES
         elif cmd.sPropName in cmdProps_keys:

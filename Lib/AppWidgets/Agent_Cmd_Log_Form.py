@@ -162,10 +162,6 @@ class CAgent_Cmd_Log_Form(QWidget):
     def updateAgentControls( self ):
         if self.agentLink is None: return
 
-        ##remove## -- btnRequestTelemetry HACK
-        if hasattr( self.agentLink(), "requestTelemetry_Timer" ):
-            self.btnRequestTelemetry.setChecked( self.agentLink().requestTelemetry_Timer.isActive() )
-
         self.sbAgentN.setValue( self.agentLink().agentN )
 
     def AgentLogUpdated( self, agentLink, logRow ):
