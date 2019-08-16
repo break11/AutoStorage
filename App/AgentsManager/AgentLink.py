@@ -22,7 +22,7 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
-from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State # SFakeAgent_DevPacketData,
+from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, TeleEvents # SFakeAgent_DevPacketData,
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
 
@@ -109,10 +109,8 @@ class CAgentLink( CAgentServer_Link ):
         agentNO = self.agentNO()
 
         if agentNO.RTele:
-            self.pushCmd( self.genPacket( event=EAgentServer_Event.BatteryState ),     bAllowDuplicate=False )
-            self.pushCmd( self.genPacket( event=EAgentServer_Event.TemperatureState ), bAllowDuplicate=False )
-            self.pushCmd( self.genPacket( event=EAgentServer_Event.TaskList ),         bAllowDuplicate=False )
-            self.pushCmd( self.genPacket( event=EAgentServer_Event.OdometerPassed ),   bAllowDuplicate=False )
+            for e in TeleEvents:
+                self.pushCmd( self.genPacket( event=e ),     bAllowDuplicate=False )
 
         # обновление статуса connectedTime для NetObj челнока
         if self.isConnected():

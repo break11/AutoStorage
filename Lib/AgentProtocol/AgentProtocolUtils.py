@@ -67,8 +67,9 @@ def verifyRxPacket( agentLink, agentThread, cmd ):
         else:
             cmd.status = EPacket_Status.Error
 
+CA_SA_Events = [ EAgentServer_Event.ServerAccepting, EAgentServer_Event.ClientAccepting ]
 def processAcceptedPacket( cmd, handler=None ):
-    if cmd.status == EPacket_Status.Normal:
+    if ( cmd.status == EPacket_Status.Normal ) and ( cmd.event not in CA_SA_Events ):
         handler( cmd )
 
 def _processRxPacket( agentLink, agentThread, cmd, isAgent=False, handler=None ):

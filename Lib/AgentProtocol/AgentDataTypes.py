@@ -1,6 +1,9 @@
 
 from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
+
+TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerPassed }
 
 class EAgent_CMD_State( BaseEnum ):
     Init = auto()

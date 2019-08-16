@@ -6,69 +6,83 @@ import sys, time
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
-from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState, SHW_Data
+from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState, SHW_Data, EAgentBattery_Type, TeleEvents
 
 DP_DELTA_PER_CYCLE  = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE  = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
 BS_DEC_PER_CYCLE    = DP_DELTA_PER_CYCLE * 0.0001
 DP_CHARGE_PER_CYCLE = 0.005
 
-taskCommands = [ EAgentServer_Event.SequenceBegin,
-                 EAgentServer_Event.SequenceEnd,
-                 EAgentServer_Event.WheelOrientation,
-                 EAgentServer_Event.BoxLoad,
-                 EAgentServer_Event.BoxUnload,
-                 EAgentServer_Event.DistancePassed,
-                 EAgentServer_Event.EmergencyStop
+taskCommands = [ AEV.SequenceBegin,
+                 AEV.SequenceEnd,
+                 AEV.WheelOrientation,
+                 AEV.BoxLoad,
+                 AEV.BoxUnload,
+                 AEV.DistancePassed,
+                 AEV.EmergencyStop,
+                 AEV.PowerDisable,
+                 AEV.PowerEnable
                ]
+
+NotIgnoreEvents = TeleEvents.union( { AEV.PowerEnable } )
 
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     # местная ф-я обработки пакета, если он признан актуальным
     # на часть команд отвечаем - часть заносим в taskList
     def processRxPacket(self, cmd):
         FAL = self.agentLink()
-        if cmd.event == EAgentServer_Event.HelloWorld:
-            # cmd = self.genPacket( event = EAgentServer_Event.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() )
+
+        if FAL.bErrorState and cmd.event not in NotIgnoreEvents:
+            FAL.pushCmd( self.genPacket( event = AEV.Error, data = "Command in error state ignored" ) )
+            return
+
+        if cmd.event == AEV.HelloWorld:
+            # cmd = self.genPacket( event = AEV.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() )
             # cmd.packetN = 0
             # FAL.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
 
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() ) )
+            FAL.pushCmd( self.genPacket( event = AEV.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() ) )
 
-        elif cmd.event == EAgentServer_Event.TaskList:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TaskList, data = str( len( FAL.tasksList ) ) ) )
+        elif cmd.event == AEV.TaskList:
+            FAL.pushCmd( self.genPacket( event = AEV.TaskList, data = str( len( FAL.tasksList ) ) ) )
 
-        elif cmd.event == EAgentServer_Event.BatteryState:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BatteryState, data = FAL.batteryState.toString() ) )
+        elif cmd.event == AEV.BatteryState:
+            FAL.pushCmd( self.genPacket( event = AEV.BatteryState, data = FAL.batteryState.toString() ) )
 
-        elif cmd.event == EAgentServer_Event.TemperatureState:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.TemperatureState, data = FAL.TS_Answer ) )
+        elif cmd.event == AEV.TemperatureState:
+            FAL.pushCmd( self.genPacket( event = AEV.TemperatureState, data = FAL.TS_Answer ) )
 
-        elif cmd.event == EAgentServer_Event.OdometerDistance:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
+        elif cmd.event == AEV.OdometerDistance:
+            FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
 
-        elif cmd.event == EAgentServer_Event.OdometerPassed:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerPassed, data = FAL.OD_OP_Data.toString() ) )
+        elif cmd.event == AEV.OdometerPassed:
+            FAL.pushCmd( self.genPacket( event = AEV.OdometerPassed, data = FAL.OD_OP_Data.toString() ) )
 
-        elif cmd.event == EAgentServer_Event.BrakeRelease:
+        elif cmd.event == AEV.BrakeRelease:
+            FAL.bErrorState = False
             FAL.bEmergencyStop = False
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.BrakeRelease, data = "FW" ) )
+            FAL.pushCmd( self.genPacket( event = AEV.BrakeRelease, data = "FW" ) )
 
-        elif cmd.event == EAgentServer_Event.PowerEnable or cmd.event == EAgentServer_Event.PowerDisable:
-            
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "ID" ) )
+        # elif cmd.event == AEV.PowerEnable:
+            # FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = "ID" ) )
 
-        elif cmd.event == EAgentServer_Event.ChargeMe:
-            FAL.pushCmd( self.genPacket( event = EAgentServer_Event.ChargeBegin ) )
+        elif cmd.event == AEV.PowerDisable:
+            FAL.tasksList.clear()
+            FAL.bErrorState = True
+
+        elif cmd.event == AEV.ChargeMe:
+            FAL.pushCmd( self.genPacket( event = AEV.ChargeBegin ) )
             FAL.bCharging = True
 
-        elif cmd.event in taskCommands:
+        if cmd.event in taskCommands:
             FAL.tasksList.append( cmd )
 
     def doWork( self ):
+        global NotIgnoreEvents
         FAL = self.agentLink()
         
         # зарядка суперконденсаторов до максимального значения
@@ -77,9 +91,9 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                 FAL.batteryState.S_V += DP_CHARGE_PER_CYCLE
             else:
                 FAL.bCharging = False
-                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.ChargeEnd ) )
+                FAL.pushCmd( self.genPacket( event = AEV.ChargeEnd ) )
 
-        if self.findEvent_In_TasksList( EAgentServer_Event.EmergencyStop ):
+        if self.findEvent_In_TasksList( AEV.EmergencyStop ):
             FAL.tasksList.clear()
             FAL.currentTask = None
             FAL.bEmergencyStop = True
@@ -87,35 +101,45 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             return
 
         if FAL.currentTask:
-            if FAL.currentTask.event == EAgentServer_Event.SequenceBegin:
-                if self.findEvent_In_TasksList( EAgentServer_Event.SequenceEnd ):
+            if FAL.currentTask.event == AEV.PowerDisable:
+                FAL.batteryState.PowerType = EAgentBattery_Type.N
+                NotIgnoreEvents -= { AEV.BrakeRelease }
+                self.startNextTask()
+
+            elif FAL.currentTask.event == AEV.PowerEnable:
+                FAL.batteryState.PowerType = EAgentBattery_Type.Supercap
+                NotIgnoreEvents.add( AEV.BrakeRelease )
+                self.startNextTask()
+
+            elif FAL.currentTask.event == AEV.SequenceBegin:
+                if self.findEvent_In_TasksList( AEV.SequenceEnd ):
                     self.startNextTask()
 
-            elif FAL.currentTask.event == EAgentServer_Event.SequenceEnd:
+            elif FAL.currentTask.event == AEV.SequenceEnd:
                 self.startNextTask()
 
-            elif FAL.currentTask.event == EAgentServer_Event.BoxLoad:
-                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BL,L" ) )
+            elif FAL.currentTask.event == AEV.BoxLoad:
+                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"BL,{FAL.currentTask.data}" ) )
                 self.startNextTask()
 
-            elif FAL.currentTask.event == EAgentServer_Event.BoxUnload:
-                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "BU,L" ) )
+            elif FAL.currentTask.event == AEV.BoxUnload:
+                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"BU,{FAL.currentTask.data}" ) )
                 self.startNextTask()
 
-            elif FAL.currentTask.event == EAgentServer_Event.WheelOrientation:
+            elif FAL.currentTask.event == AEV.WheelOrientation:
                 newWheelsOrientation = FAL.currentTask.data[ 0:1 ]
                 FAL.OD_OP_Data.bUndefined = False
                 FAL.OD_OP_Data.nDistance = 0
                 # send an "odometry resetted" to server
-                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerZero ) )
+                FAL.pushCmd( self.genPacket( event = AEV.OdometerZero ) )
 
                 FAL.currentWheelsOrientation = FAL.currentTask.data[ 0:1 ]
                 # will be 'N' for narrow, 'W' for wide, or emtpy if uninited
-                FAL.pushCmd( self.genPacket( event = EAgentServer_Event.NewTask, data = "WO" ) )
+                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = "WO" ) )
 
                 self.startNextTask()
 
-            elif FAL.currentTask.event == EAgentServer_Event.DistancePassed:
+            elif FAL.currentTask.event == AEV.DistancePassed:
 
                 if FAL.dpTicksDivider < DP_TICKS_PER_CYCLE:
                     FAL.dpTicksDivider = FAL.dpTicksDivider + 1
@@ -130,11 +154,11 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                         else:
                             FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance - DP_DELTA_PER_CYCLE
                         
-                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
+                        FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
 
                     elif FAL.distanceToPass <= 0:
                         FAL.distanceToPass = 0
-                        FAL.pushCmd( self.genPacket( event = EAgentServer_Event.DistanceEnd ) )
+                        FAL.pushCmd( self.genPacket( event = AEV.DistanceEnd ) )
                         self.startNextTask()
 
         if len(FAL.tasksList) and FAL.currentTask is None:
@@ -148,13 +172,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             #self.sendPacketToServer('@NT:{:s}'.format(FAL.currentTask[1:1+2].decode()).encode('utf-8'))
             ALM.doLogString( FAL, f"Starting new task: {FAL.currentTask}" )
 
-            if FAL.currentTask.event == EAgentServer_Event.DistancePassed:
+            if FAL.currentTask.event == AEV.DistancePassed:
                 FAL.distanceToPass   = int( FAL.currentTask.data[ 0:6 ] )
                 FAL.currentDirection = FAL.currentTask.data[ 7:8 ] # F or R
         else:
             FAL.currentTask = None
             ALM.doLogString( FAL, "All tasks done!" )
-            FAL.pushCmd( CAgentServerPacket( event=EAgentServer_Event.NewTask, data="ID" ) )
+            FAL.pushCmd( CAgentServerPacket( event=AEV.NewTask, data="ID" ) )
 
     def findEvent_In_TasksList(self, event):
         for cmd in self.agentLink().tasksList:
