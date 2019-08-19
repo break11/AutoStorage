@@ -43,12 +43,16 @@ cmdProps = { SAP.cmd_PE   : cmdDesc( event=EV.PowerEnable,    data=None),
              SAP.cmd_PD   : cmdDesc( event=EV.PowerDisable,   data=None),
              SAP.cmd_BR   : cmdDesc( event=EV.BrakeRelease,   data=None),
              SAP.cmd_ES   : cmdDesc( event=EV.EmergencyStop,  data=None),
-             SAP.cmd_BL_L : cmdDesc( event=EV.BoxLoad,        data="L"),
-             SAP.cmd_BL_R : cmdDesc( event=EV.BoxLoad,        data="R"),
-             SAP.cmd_BU_L : cmdDesc( event=EV.BoxUnload,      data="L"),
-             SAP.cmd_BU_R : cmdDesc( event=EV.BoxUnload,      data="R"),
+             SAP.cmd_BL_L : cmdDesc( event=EV.BoxLoad,        data=SGT.ESide.Left.toChar()  ),
+             SAP.cmd_BL_R : cmdDesc( event=EV.BoxLoad,        data=SGT.ESide.Right.toChar() ),
+             SAP.cmd_BU_L : cmdDesc( event=EV.BoxUnload,      data=SGT.ESide.Left.toChar()  ),
+             SAP.cmd_BU_R : cmdDesc( event=EV.BoxUnload,      data=SGT.ESide.Right.toChar() ),
              SAP.cmd_BA   : cmdDesc( event=EV.BoxLoadAborted, data=None),
             }
+
+cmdDesc_To_Prop = {} #type:ignore
+for k, v in cmdProps.items():
+    cmdDesc_To_Prop[ v ] = k
 
 cmdProps_keys = cmdProps.keys()
 

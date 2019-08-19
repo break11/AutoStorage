@@ -6,6 +6,7 @@ import networkx as nx
 import time
 import weakref
 from copy import deepcopy
+from enum import Enum, auto ##ExpoV
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
@@ -16,6 +17,9 @@ from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common import FileUtils
 from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Status
+from Lib.Common.Agent_NetObject import cmdDesc_To_Prop, cmdDesc  ##ExpoV
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV  ##ExpoV
+from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State ##ExpoV
 import Lib.Common.StrConsts as SC
 import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -29,6 +33,24 @@ from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
+
+
+class EBTask_Status( Enum ): ##ExpoV
+    InitTask   = auto()
+    GoToStart  = auto()
+    BoxLoad    = auto()
+    GoToTarget = auto()
+    BoxUnload  = auto()
+    Done       = auto()
+
+class SBoxTask(): ##ExpoV
+    def __init__(self):
+        From       = None
+        loadSide   = None
+        To         = None
+        unloadSide = None
+        status     = None
+        getBack    = False
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -47,6 +69,8 @@ class CAM_MainWindow(QMainWindow):
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
+
+        self.agentsBoxTask = {} ##ExpoV
                 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -119,6 +143,73 @@ class CAM_MainWindow(QMainWindow):
                            SGT.ENodeTypes.PickStationOut ]
                            
     blockAutoTestStatuses = [ EAgent_Status.Charging, EAgent_Status.CantCharge ]
+
+    def AgentTestWithBoxes( self, agentNO ): ##ExpoV
+        if self.AgentsConnectionServer is None: return
+        agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
+
+        if agentNO.isOnTrack() is None: return
+        if agentNO.route != "": return
+        if agentNO.status in self.blockAutoTestStatuses: return
+        if agentNO.status == EAgent_Status.GoToCharge: # здесь agentNO.route == ""
+            agentLink.prepareCharging()
+            return
+
+        nxGraph = self.graphRootNode().nxGraph
+        tKey = tEdgeKeyFromStr( agentNO.edge )
+        startNode = tKey[0]
+
+        task = self.agentsBoxTask.get( int(agentNO.name) )
+        if task is None:
+            if agentNO.charge < 30:
+                nodes_route = self.routeToCharge(nxGraph, agentNO, startNode )
+                agentNO.applyRoute( nodes_route )
+            else:
+                self.setTask( nxGraph, agentNO, startNode )
+        else:
+            self.processBoxTask( nxGraph, agentNO, task )
+
+
+    def setTask(self, nxGraph, agentNO, startNode): ##ExpoV
+
+        task = SBoxTask()
+
+        nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.StorageSingle )
+        task.From = nodes[ random.randint(0, len( nodes ) - 1) ]
+        task.loadSide = SGT.ESide.Right if random.randint(0, 1) else SGT.ESide.Left
+
+        task.To = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.PickStationOut )[0] #TODO ##remove hardcode
+        task.unloadSide = SGT.ESide.Right #TODO ##remove hardcode
+
+        task.status = EBTask_Status.InitTask
+        task.getBack = True
+
+        self.agentsBoxTask [ int( agentNO.name ) ] = task
+
+    def processBoxTask(self, nxGraph, agentNO, task): ##ExpoV
+        
+        if task.status == EBTask_Status.InitTask:
+            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, task.From)
+            agentNO.applyRoute( nodes_route )
+            task.status = EBTask_Status.GoToStart
+        elif task.status == EBTask_Status.GoToStart:
+            if agentNO.status == EAgent_Status.Idle:
+                desk = cmdDesc( cmdDesc( event=AEV.BoxLoad, data=task.loadSide.toChar() ) )
+                prop = cmdDesc_To_Prop[ desk ]
+                agentNO[ prop ] = EAgent_CMD_State.Init
+                task.status = EBTask_Status.BoxLoad
+
+
+    def routeToCharge(self, nxGraph, agentNO, startNode):
+        route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
+        if len(nodes_route) == 0:
+            agentNO.status = EAgent_Status.NoRouteToCharge
+            print(f"{SC.sError} Cant find any route to service station.")
+        else:
+            agentNO.status = EAgent_Status.GoToCharge
+
+        return nodes_route
+
     def AgentTestMoving(self, agentNO, targetNode = None):
         if self.AgentsConnectionServer is None: return
         agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
@@ -131,8 +222,8 @@ class CAM_MainWindow(QMainWindow):
             return
 
         nxGraph = self.graphRootNode().nxGraph
-        tKey = tEdgeKeyFromStr( agentNO.edge ) # 44 45
-        startNode = tKey[0] #44
+        tKey = tEdgeKeyFromStr( agentNO.edge )
+        startNode = tKey[0]
 
         if targetNode is None:
             if agentNO.charge < 30:
@@ -163,7 +254,7 @@ class CAM_MainWindow(QMainWindow):
 
         for agentNO in self.agentsNode().children:
             if agentNO.auto_control:
-                self.AgentTestMoving( agentNO )
+                self.AgentTestWithBoxes( agentNO )
     
     # ******************************************************
     @pyqtSlot("bool")
