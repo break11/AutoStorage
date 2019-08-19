@@ -21,10 +21,13 @@ class EAgent_Status( BaseEnum ):
     PosSyncError    = auto() # ошибка синхронизации по графу - несоответствие реального положения челнока и положения в программе
     CantCharge      = auto() # нет свойства с именем chargePort в ноде зарядки
     AgentError      = auto() # пришла ошибка с тележки
+    BoxLoad         = auto()
+    BoxUnload       = auto()
 
     Default         = Idle
 
 blockAutoControlStatuses = [ EAgent_Status.NoRouteToCharge, EAgent_Status.PosSyncError, EAgent_Status.CantCharge, EAgent_Status.AgentError ]
+BL_BU_Statuses = [ EAgent_Status.BoxLoad, EAgent_Status.BoxUnload ]
 
 #########################################################
 
@@ -40,7 +43,7 @@ class EAgentBattery_Type( BaseEnum ):
     def toString( self ):
         toStrD = { EAgentBattery_Type.Supercap: "S",
                    EAgentBattery_Type.Li      : "L",
-                   EAgentBattery_Type.N       :  "N"
+                   EAgentBattery_Type.N       : "N"
                  }
         return toStrD[ self ]
 
