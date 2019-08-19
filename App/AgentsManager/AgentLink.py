@@ -202,6 +202,9 @@ class CAgentLink( CAgentServer_Link ):
             self.agentNO().status = EAgent_Status.Idle
             self.doChargeCMD( CU.EChargeCMD.off )
 
+        elif cmd.event == EAgentServer_Event.NewTask:
+            NT_Data = extractASP_Data( cmd )
+
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
         agentNO.position  = self.currSII().pos

@@ -106,12 +106,22 @@ class ESide( BaseEnum ):
         else:
             return ESide.Right
 
+    @classmethod
+    def fromChar( cls, side_char ):
+        sideFromData = { "L": "Left", "R": "Right" }
+        return cls.fromString( sideFromData.get( side_char ) )
+
+    def toChar(self):
+        return self.toString()[0]
+
 graphEnums = { SGA.nodeType   : ENodeTypes, 
                SGA.sensorSide : ESensorSide,
                SGA.widthType  : EWidthType, 
                SGA.curvature  : ECurvature, 
                SGA.chargeSide : ESide,      
              }
+
+
 
 def prepareGraphProps( nxGraph, bToEnum = True ):
     keys = graphEnums.keys()

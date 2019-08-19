@@ -2,8 +2,10 @@
 from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
+from Lib.Common import StorageGraphTypes as SGT
 
 TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerPassed }
+BL_BU_Events = { AEV.BoxLoad, AEV.BoxUnload }
 
 class EAgent_CMD_State( BaseEnum ):
     Init = auto()
@@ -157,3 +159,37 @@ class SOD_OP_Data:
             sResult = "U"
 
         return sResult
+
+class SNT_Data:
+    sIdle = "ID"
+
+    def __init__(self, event, data, bIdle = False):
+        self.bIdle = bIdle
+        self.event = event
+        self.data = data
+
+    @classmethod
+    def fromString( cls, data ):
+        if data == cls.sIdle:
+            return SNT_Data( event = None, data = None, bIdle = True )
+
+        l = data.split(",")
+        event = AEV.fromStr( "@" + l[0] )
+        nt_data = None
+
+        if event in BL_BU_Events:
+            nt_data = SGT.ESide.fromChar( l[1] )
+        
+        return SNT_Data( event, nt_data )
+
+    def toString( self ):
+        if self.bIdle: return self.sIdle
+
+        sResult = self.event.tostr()[1:]
+
+        if self.event in BL_BU_Events:
+            sResult += SGT.ESide.toChar()
+
+        return sResult
+
+    

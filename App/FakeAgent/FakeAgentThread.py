@@ -17,7 +17,7 @@ DP_TICKS_PER_CYCLE   = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PE
 BS_DEC_PER_CYCLE     = DP_DELTA_PER_CYCLE * 0.0001
 DP_CHARGE_PER_CYCLE  = 0.005
 BL_BU_TIME           = 14000 #время погрузки/разгрузки коробки, мс
-BL_BU_TIME_PER_CYCLE = 1.2   #время погрузки за один тик, мс
+BL_BU_TIME_PER_CYCLE = 12   #время погрузки за один тик, мс
 
 taskCommands = [ AEV.SequenceBegin,
                  AEV.SequenceEnd,
