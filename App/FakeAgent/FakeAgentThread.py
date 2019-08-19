@@ -37,7 +37,9 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         FAL = self.agentLink()
 
         if FAL.bErrorState and cmd.event not in NotIgnoreEvents:
-            FAL.pushCmd( self.genPacket( event = AEV.Error, data = "Command in error state ignored" ) )
+            data = f":{cmd.data}" if cmd.data is not None else ""
+            cmd_str = cmd.event.toStr()[1:]
+            FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"##COMMAND IN ERROR STATE IGNORED: {cmd_str}{data}" ) )
             return
 
         if cmd.event == AEV.HelloWorld:
@@ -104,11 +106,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             if FAL.currentTask.event == AEV.PowerDisable:
                 FAL.batteryState.PowerType = EAgentBattery_Type.N
                 NotIgnoreEvents -= { AEV.BrakeRelease }
+                FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"Power Disable Fake Agent Err" ) ) #HACK реальный агент при выключении становится в состояние ошибки
                 self.startNextTask()
 
             elif FAL.currentTask.event == AEV.PowerEnable:
                 FAL.batteryState.PowerType = EAgentBattery_Type.Supercap
                 NotIgnoreEvents.add( AEV.BrakeRelease )
+                FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"Power Enable Fake Agent Err" ) ) #HACK реальный агент при включении становится в состояние ошибки
                 self.startNextTask()
 
             elif FAL.currentTask.event == AEV.SequenceBegin:
