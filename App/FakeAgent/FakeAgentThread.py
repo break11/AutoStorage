@@ -12,10 +12,12 @@ from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
 from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState, SHW_Data, EAgentBattery_Type, TeleEvents
 
-DP_DELTA_PER_CYCLE  = 50 # send to server a message each fake 5cm passed
-DP_TICKS_PER_CYCLE  = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
-BS_DEC_PER_CYCLE    = DP_DELTA_PER_CYCLE * 0.0001
-DP_CHARGE_PER_CYCLE = 0.005
+DP_DELTA_PER_CYCLE   = 50 # send to server a message each fake 5cm passed
+DP_TICKS_PER_CYCLE   = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
+BS_DEC_PER_CYCLE     = DP_DELTA_PER_CYCLE * 0.0001
+DP_CHARGE_PER_CYCLE  = 0.005
+BL_BU_TIME           = 14000 #время погрузки/разгрузки коробки, мс
+BL_BU_TIME_PER_CYCLE = 1.2   #время погрузки за один тик, мс
 
 taskCommands = [ AEV.SequenceBegin,
                  AEV.SequenceEnd,
@@ -122,13 +124,19 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             elif FAL.currentTask.event == AEV.SequenceEnd:
                 self.startNextTask()
 
-            elif FAL.currentTask.event == AEV.BoxLoad:
-                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"BL,{FAL.currentTask.data}" ) )
-                self.startNextTask()
+            elif (FAL.currentTask.event == AEV.BoxLoad) or (FAL.currentTask.event == AEV.BoxUnload):
+                cmd_str = FAL.currentTask.event.toStr()[1:]
 
-            elif FAL.currentTask.event == AEV.BoxUnload:
-                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"BU,{FAL.currentTask.data}" ) )
-                self.startNextTask()
+                if FAL.BL_BU_Time < BL_BU_TIME:
+                    if FAL.BL_BU_Time == 0: FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"{cmd_str},{FAL.currentTask.data}" ) )
+                    FAL.BL_BU_Time += BL_BU_TIME_PER_CYCLE
+                else:
+                    FAL.BL_BU_Time = 0
+                    self.startNextTask()
+
+            # elif FAL.currentTask.event == AEV.BoxUnload:
+            #     FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"BU,{FAL.currentTask.data}" ) )
+            #     self.startNextTask()
 
             elif FAL.currentTask.event == AEV.WheelOrientation:
                 newWheelsOrientation = FAL.currentTask.data[ 0:1 ]

@@ -15,6 +15,7 @@ class CFakeAgentLink( CAgentServer_Link ):
         self.currentDirection = ''
         self.distanceToPass = 0
         self.dpTicksDivider = 0
+        self.BL_BU_Time = 0
         self.bEmergencyStop = False
         self.bCharging = False
         self.bErrorState = False
