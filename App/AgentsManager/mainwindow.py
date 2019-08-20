@@ -174,8 +174,18 @@ class CAM_MainWindow(QMainWindow):
             else:
                 self.setTask( agentNO )
         else:
-            b = self.processBoxTask( agentNO, task )
-            if not b: del self.agentsBoxTask[ int(agentNO.name) ]
+            if agentNO.status != EAgent_Status.Idle: return #агент в процессе выполнения этапа
+            
+            if task.status == EBTask_Status.BoxLoad and agentNO.charge < 30:
+                    agentNO.goToCharge() #HACK зарядка по пути от мест хранения до конвеера
+            elif task.status == EBTask_Status.Done:
+                if task.getBack:
+                    task.invert()
+                    task.getBack = False
+                else:
+                    del self.agentsBoxTask[ int(agentNO.name) ]
+            else:
+                self.processBoxTask( agentNO, task )
 
     def setTask(self, agentNO): ##ExpoV
 
@@ -195,44 +205,31 @@ class CAM_MainWindow(QMainWindow):
         self.agentsBoxTask [ int( agentNO.name ) ] = task
 
     def processBoxTask(self, agentNO, task): ##ExpoV
-        
+
         if task.status == EBTask_Status.InitTask:
-            if agentNO.status == EAgent_Status.Idle:
                 nxGraph = self.graphRootNode().nxGraph
                 startNode = agentNO.isOnTrack()[0]
                 nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, task.From)
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToStart
         elif task.status == EBTask_Status.GoToStart:
-            if agentNO.status == EAgent_Status.Idle:
                 desk = cmdDesc( event=AEV.BoxLoad, data=task.loadSide.toChar() )
                 prop = cmdDesc_To_Prop[ desk ]
                 agentNO[ prop ] = EAgent_CMD_State.Init
                 task.status = EBTask_Status.BoxLoad
         elif task.status == EBTask_Status.BoxLoad:
-            if agentNO.status == EAgent_Status.Idle:
                 nxGraph = self.graphRootNode().nxGraph
                 startNode = agentNO.isOnTrack()[0]
                 nodes_route = nx.algorithms.dijkstra_path( nxGraph, startNode, task.To )
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToTarget
         elif task.status == EBTask_Status.GoToTarget:
-            if agentNO.status == EAgent_Status.Idle:
                 desk = cmdDesc( event=AEV.BoxUnload, data=task.unloadSide.toChar() )
                 prop = cmdDesc_To_Prop[ desk ]
                 agentNO[ prop ] = EAgent_CMD_State.Init
                 task.status = EBTask_Status.BoxUnload
         elif task.status == EBTask_Status.BoxUnload:
-            if agentNO.status == EAgent_Status.Idle:
                 task.status = EBTask_Status.Done
-        elif task.status == EBTask_Status.Done:
-            if task.getBack:
-                task.invert()
-                task.getBack = False
-            else:
-                return False
-
-        return True
 
     def AgentTestMoving(self, agentNO, targetNode = None):
         if self.AgentsConnectionServer is None: return
