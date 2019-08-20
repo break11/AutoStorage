@@ -22,7 +22,8 @@ class CDictProps_Widget( CNetObj_Widget ):
         self.__model.appendObj( self.netObj.UID )
 
     def done( self ):
-        self.__model.removeObj( self.netObj.UID )
+        if self.netObj:
+            self.__model.removeObj( self.netObj.UID )
         super().done()
 
 ###################################################################################
