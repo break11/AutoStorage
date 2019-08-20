@@ -105,8 +105,12 @@ class CAgent_NO( CNetObj ):
         
         return tEdgeKey
 
-    def isOnNode( self, nodeType ):
-        if not self.isOnTrack: return False
+    def isOnNode( self, nodeType = None ):
+        tEdgeKey = self.isOnTrack
+        if not tEdgeKey: return False
+
+        return True if (nodeType is None) else GU.isOnNode( self.nxGraph, nodeType, tEdgeKey, self.position )
+
     
     def putToNode( self, nodeID ):        
         if not self.nxGraph.has_node( nodeID ): return
@@ -133,6 +137,20 @@ class CAgent_NO( CNetObj ):
         if GU.nodeType( self.nxGraph, targetNode ) == SGT.ENodeTypes.Terminal: return
 
         nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+        self.applyRoute( nodes_route )
+
+    def goToCharge(self):
+        tEdgeKey = self.isOnTrack()
+        if tEdgeKey is None: return
+        startNode = tEdgeKey[0]
+
+        route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, startNode, self.angle )
+        if len(nodes_route) == 0:
+            self.status = EAgent_Status.NoRouteToCharge
+            print(f"{SC.sError} Cant find any route to service station.")
+        else:
+            self.status = EAgent_Status.GoToCharge
+
         self.applyRoute( nodes_route )
 
 

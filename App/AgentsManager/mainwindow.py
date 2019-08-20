@@ -35,7 +35,6 @@ from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 
-
 class EBTask_Status( Enum ): ##ExpoV
     InitTask   = auto()
     GoToStart  = auto()
@@ -171,17 +170,17 @@ class CAM_MainWindow(QMainWindow):
         task = self.agentsBoxTask.get( int(agentNO.name) )
         if task is None:
             if agentNO.charge < 30:
-                nodes_route = self.routeToCharge(nxGraph, agentNO, startNode )
-                agentNO.applyRoute( nodes_route )
+                agentNO.goToCharge()
             else:
-                self.setTask( nxGraph, agentNO, startNode )
+                self.setTask( agentNO )
         else:
-            b = self.processBoxTask( nxGraph, agentNO, startNode, task )
+            b = self.processBoxTask( agentNO, task )
             if not b: del self.agentsBoxTask[ int(agentNO.name) ]
 
-    def setTask(self, nxGraph, agentNO, startNode): ##ExpoV
+    def setTask(self, agentNO): ##ExpoV
 
         task = SBoxTask()
+        nxGraph = self.graphRootNode().nxGraph
 
         nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.StorageSingle )
         task.From = nodes[ random.randint(0, len( nodes ) - 1) ]
@@ -195,10 +194,12 @@ class CAM_MainWindow(QMainWindow):
 
         self.agentsBoxTask [ int( agentNO.name ) ] = task
 
-    def processBoxTask(self, nxGraph, agentNO, startNode, task): ##ExpoV
+    def processBoxTask(self, agentNO, task): ##ExpoV
         
         if task.status == EBTask_Status.InitTask:
             if agentNO.status == EAgent_Status.Idle:
+                nxGraph = self.graphRootNode().nxGraph
+                startNode = agentNO.isOnTrack()[0]
                 nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, task.From)
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToStart
@@ -210,7 +211,9 @@ class CAM_MainWindow(QMainWindow):
                 task.status = EBTask_Status.BoxLoad
         elif task.status == EBTask_Status.BoxLoad:
             if agentNO.status == EAgent_Status.Idle:
-                nodes_route = nx.algorithms.dijkstra_path( nxGraph, task.From, task.To )
+                nxGraph = self.graphRootNode().nxGraph
+                startNode = agentNO.isOnTrack()[0]
+                nodes_route = nx.algorithms.dijkstra_path( nxGraph, startNode, task.To )
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToTarget
         elif task.status == EBTask_Status.GoToTarget:
@@ -230,17 +233,6 @@ class CAM_MainWindow(QMainWindow):
                 return False
 
         return True
-
-
-    def routeToCharge(self, nxGraph, agentNO, startNode):
-        route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
-        if len(nodes_route) == 0:
-            agentNO.status = EAgent_Status.NoRouteToCharge
-            print(f"{SC.sError} Cant find any route to service station.")
-        else:
-            agentNO.status = EAgent_Status.GoToCharge
-
-        return nodes_route
 
     def AgentTestMoving(self, agentNO, targetNode = None):
         if self.AgentsConnectionServer is None: return
