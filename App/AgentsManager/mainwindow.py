@@ -75,6 +75,10 @@ class CAM_MainWindow(QMainWindow):
         self.SimpleAgentTest_Timer.setInterval(500)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
 
+        self.Box_Autotest_Timer = QTimer( self ) ##ExpoV
+        self.Box_Autotest_Timer.setInterval(500)
+        self.Box_Autotest_Timer.timeout.connect( self.Box_Autotest )
+
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
 
@@ -140,10 +144,31 @@ class CAM_MainWindow(QMainWindow):
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
+        if self.btnBox_Autotest.isChecked(): ##ExpoV
+            self.btnSimpleAgent_Test.setChecked( False )
+            return
+
         if bVal:
             self.SimpleAgentTest_Timer.start()
         else:
             self.SimpleAgentTest_Timer.stop()
+
+    @pyqtSlot("bool")
+    def on_btnBox_Autotest_clicked( self, bVal ): ##ExpoV
+        if self.btnSimpleAgent_Test.isChecked():
+            self.btnBox_Autotest.setChecked( False )
+            return
+
+        if bVal:
+            self.Box_Autotest_Timer.start()
+        else:
+            self.Box_Autotest_Timer.stop()
+
+    @pyqtSlot("bool")
+    def on_btnReset_Task_clicked( self, bVal ):
+        agentN = self.currAgentN()
+        if agentN and self.agentsBoxTask.get( agentN ):
+            del self.agentsBoxTask[ agentN ]
 
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
                            SGT.ENodeTypes.PickStation,
@@ -270,6 +295,14 @@ class CAM_MainWindow(QMainWindow):
         agentNO.applyRoute( nodes_route )
 
     def SimpleAgentTest( self ):
+        if self.graphRootNode() is None: return
+        if self.agentsNode().childCount() == 0: return
+
+        for agentNO in self.agentsNode().children:
+            if agentNO.auto_control:
+                self.AgentTestMoving( agentNO )
+
+    def Box_Autotest( self ): ##ExpoV
         if self.graphRootNode() is None: return
         if self.agentsNode().childCount() == 0: return
 
