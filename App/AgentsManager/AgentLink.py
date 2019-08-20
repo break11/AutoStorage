@@ -22,7 +22,7 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
-from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, TeleEvents, BL_BU_Events, BL_BU_Statuses # SFakeAgent_DevPacketData,
+from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, TeleEvents, BL_BU_Events, BL_BU_Agent_Status, BL_BU_Agent_Status_vals # SFakeAgent_DevPacketData,
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
 
@@ -207,16 +207,14 @@ class CAgentLink( CAgentServer_Link ):
             # print( NT_Data.event, NT_Data.data, NT_Data.bIdle )
             
             if NT_Data.bIdle:
-                if self.agentNO().status in BL_BU_Statuses:
-                    #TODO пока ставим статус idle только если предыдущий статус был в BL_BU_Statuses,
+                if self.agentNO().status in BL_BU_Agent_Status_vals:
+                    #TODO пока ставим статус idle только если предыдущий статус был в BL_BU_Agent_Status_vals,
                     # так как в некоторых местах мы ориентируемся на предыдущий статус (например, GoToCharge)
                     # и не можем после завершения маршрута сбросить в Idle
                     self.agentNO().status = EAgent_Status.Idle
 
-            elif NT_Data.event == EAgentServer_Event.BoxLoad:
-                self.agentNO().status = EAgent_Status.BoxLoad
-            elif NT_Data.event == EAgentServer_Event.BoxUnload:
-                self.agentNO().status = EAgent_Status.BoxUnload
+            elif NT_Data.event in BL_BU_Events:
+                self.agentNO().status = BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
 
     def setPos_by_DE( self ):
         agentNO = self.agentNO()

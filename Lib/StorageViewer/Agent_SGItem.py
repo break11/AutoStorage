@@ -107,6 +107,12 @@ class CAgent_SGItem(QGraphicsItem):
         
         self.battery_m = QRectF( self.b_x, self.b_y + 20, self.b_w, self.b_h ) # основной контур
         self.battery_p = QRectF( self.b_x + 15, self.b_y, 50, 20 ) # положительный контакт
+
+        #отрисовка загрузки/выгрузки
+        self.BL_BU_pen = QPen( Qt.darkRed )
+        self.BL_BU_pen.setWidth( 500 )
+        self.BL_BU_pen.setCapStyle( Qt.FlatCap )
+
         
     def getNetObj_UIDs( self ):
         return { self.__agentNetObj().UID }
@@ -204,13 +210,16 @@ class CAgent_SGItem(QGraphicsItem):
                 painter.setBrush( QBrush() )
                 painter.drawPolygon( self.polygon )
 
+            #погрузка/разгрузка
+            self.draw_BL_BU(painter)
+
             #поворот некоторых элементов, если итем челнока перевернут
             if ( 95 < abs( self.rotation() ) < 265 ):
                 painter.rotate( -180 )
                         
             #отрисовка батарейки
-            self.drawBattery( painter )
-            
+            self.drawBattery( painter )            
+
             #текст: номер, статус
             self.drawText( painter )
 
@@ -260,3 +269,12 @@ class CAgent_SGItem(QGraphicsItem):
         painter.setFont( font )
         painter.setPen( color )
         painter.drawText( rectBottom, alignFlags, textBottom )
+
+    def draw_BL_BU(self, painter):
+        status = self.__agentNetObj().status
+        painter.setPen( self.BL_BU_pen )
+
+        if status in [EAgent_Status.BoxLoad_Right, EAgent_Status.BoxUnload_Right]:
+            painter.drawLine( 0, 250, 0, 340 )
+        elif status in [EAgent_Status.BoxLoad_Left, EAgent_Status.BoxUnload_Left]:
+            painter.drawLine( 0, -250, 0, -340 )

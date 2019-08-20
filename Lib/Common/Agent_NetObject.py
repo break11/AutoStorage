@@ -12,6 +12,7 @@ from Lib.AgentProtocol.AgentDataTypes import EAgent_Status, blockAutoControlStat
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Utils import СStrProps_Meta
+import Lib.Common.StrConsts as SC
 
 class SAgentProps( metaclass = СStrProps_Meta ):
     edge          = None
