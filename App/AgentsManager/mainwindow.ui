@@ -45,7 +45,8 @@
   }
 
   QPushButton:checked {
-background-color:  rgb(255, 0, 0);
+	border:3px solid red;
+ border-radius:5px
 }</string>
         </property>
         <property name="text">
@@ -64,7 +65,8 @@ background-color:  rgb(255, 0, 0);
   }
 
   QPushButton:checked {
-background-color:  rgb(255, 0, 0);
+	border:3px solid red;
+ border-radius:5px
 }</string>
         </property>
         <property name="text">
