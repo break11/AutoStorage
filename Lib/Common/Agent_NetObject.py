@@ -136,7 +136,7 @@ class CAgent_NO( CNetObj ):
         self.applyRoute( nodes_route )
 
 
-    def applyRoute( self, nodes_route ):
+    def applyRoute( self, nodes_route ): #TODO юнит-тест
         tKey = self.isOnTrack()
         assert tKey is not None
 
@@ -150,7 +150,8 @@ class CAgent_NO( CNetObj ):
             self.edge = GU.tEdgeKeyToStr( tKey )
             curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
             self.position = curEdgeSize - self.position
-            nodes_route.insert(0, tKey[0] )
+            if nodes_route[0] != tKey[0]:
+                nodes_route.insert(0, tKey[0] )
         
         if ( self.position / curEdgeSize ) > 0.5:
             if len( nodes_route ) > 2:

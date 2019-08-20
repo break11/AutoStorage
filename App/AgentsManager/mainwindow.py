@@ -15,6 +15,7 @@ from PyQt5 import uic
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.StorageGraphTypes import SGA ##ExpoV
 from Lib.Common import FileUtils
 from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Status
 from Lib.Common.Agent_NetObject import cmdDesc_To_Prop, cmdDesc  ##ExpoV
@@ -45,12 +46,20 @@ class EBTask_Status( Enum ): ##ExpoV
 
 class SBoxTask(): ##ExpoV
     def __init__(self):
-        From       = None
-        loadSide   = None
-        To         = None
-        unloadSide = None
-        status     = None
-        getBack    = False
+        From        = None
+        loadSide    = None # сторона загрузки относительно ноды !!!
+        To          = None
+        unloadSide  = None # сторона разгрузки относительно ноды !!!
+        status      = None
+        getBack     = False
+
+    def __str__(self):
+        return f"[BoxTask] From { self.From } (load {self.loadSide}) To {self.To} (unload {self.unloadSide}). Status: {self.status}. getBack {self.getBack}."
+
+    def invert(self):
+        self.From, self.To = self.To, self.From
+        self.loadSide, self.unloadSide = self.unloadSide, self.loadSide
+        self.status = EBTask_Status.InitTask
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -167,8 +176,8 @@ class CAM_MainWindow(QMainWindow):
             else:
                 self.setTask( nxGraph, agentNO, startNode )
         else:
-            self.processBoxTask( nxGraph, agentNO, task )
-
+            b = self.processBoxTask( nxGraph, agentNO, startNode, task )
+            if not b: del self.agentsBoxTask[ int(agentNO.name) ]
 
     def setTask(self, nxGraph, agentNO, startNode): ##ExpoV
 
@@ -186,18 +195,41 @@ class CAM_MainWindow(QMainWindow):
 
         self.agentsBoxTask [ int( agentNO.name ) ] = task
 
-    def processBoxTask(self, nxGraph, agentNO, task): ##ExpoV
+    def processBoxTask(self, nxGraph, agentNO, startNode, task): ##ExpoV
         
         if task.status == EBTask_Status.InitTask:
-            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, task.From)
-            agentNO.applyRoute( nodes_route )
-            task.status = EBTask_Status.GoToStart
+            if agentNO.status == EAgent_Status.Idle:
+                nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, task.From)
+                agentNO.applyRoute( nodes_route )
+                task.status = EBTask_Status.GoToStart
         elif task.status == EBTask_Status.GoToStart:
             if agentNO.status == EAgent_Status.Idle:
-                desk = cmdDesc( cmdDesc( event=AEV.BoxLoad, data=task.loadSide.toChar() ) )
+                desk = cmdDesc( event=AEV.BoxLoad, data=task.loadSide.toChar() )
                 prop = cmdDesc_To_Prop[ desk ]
                 agentNO[ prop ] = EAgent_CMD_State.Init
                 task.status = EBTask_Status.BoxLoad
+        elif task.status == EBTask_Status.BoxLoad:
+            if agentNO.status == EAgent_Status.Idle:
+                nodes_route = nx.algorithms.dijkstra_path( nxGraph, task.From, task.To )
+                agentNO.applyRoute( nodes_route )
+                task.status = EBTask_Status.GoToTarget
+        elif task.status == EBTask_Status.GoToTarget:
+            if agentNO.status == EAgent_Status.Idle:
+                desk = cmdDesc( event=AEV.BoxUnload, data=task.unloadSide.toChar() )
+                prop = cmdDesc_To_Prop[ desk ]
+                agentNO[ prop ] = EAgent_CMD_State.Init
+                task.status = EBTask_Status.BoxUnload
+        elif task.status == EBTask_Status.BoxUnload:
+            if agentNO.status == EAgent_Status.Idle:
+                task.status = EBTask_Status.Done
+        elif task.status == EBTask_Status.Done:
+            if task.getBack:
+                task.invert()
+                task.getBack = False
+            else:
+                return False
+
+        return True
 
 
     def routeToCharge(self, nxGraph, agentNO, startNode):
