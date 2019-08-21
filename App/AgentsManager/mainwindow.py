@@ -220,6 +220,7 @@ class CAM_MainWindow(QMainWindow):
         nxGraph = self.graphRootNode().nxGraph
 
         nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.StorageSingle )
+        if agentNO.isOnTrack()[0] in nodes: nodes.remove( agentNO.isOnTrack()[0] ) #HACK для исправления глюка зависания автотеста с коробками(надо чинить функцию applyRoute для случая пути из одной ноды)
         task.From = nodes[ random.randint(0, len( nodes ) - 1) ]
         task.loadSide = SGT.ESide.Right if random.randint(0, 1) else SGT.ESide.Left
 
