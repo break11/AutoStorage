@@ -30,7 +30,7 @@ taskCommands = [ AEV.SequenceBegin,
                  AEV.PowerEnable
                ]
 
-NotIgnoreEvents = TeleEvents.union( { AEV.PowerEnable } )
+NotIgnoreEvents = TeleEvents.union( { AEV.PowerEnable, AEV.BrakeRelease } )
 
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     # местная ф-я обработки пакета, если он признан актуальным
@@ -101,6 +101,8 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.tasksList.clear()
             FAL.currentTask = None
             FAL.bEmergencyStop = True
+            FAL.bErrorState    = True
+            FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"****Emergency stop requested****" ) )
             ALM.doLogString( FAL, "Emergency Stop !!!!" )
             return
 

@@ -29,7 +29,7 @@ from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, nodeType, findNodes, routeToServiceStation, nodeByPos
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, nodeType, findNodes, routeToServiceStation, nodeByPos, getFinalAgentAngle
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
@@ -37,10 +37,8 @@ from Lib.AgentProtocol.AgentLogManager import ALM
 
 class EBTask_Status( IntEnum ): ##ExpoV
     Init       = auto()
-    GoToStart  = auto()
-    BoxLoad    = auto()
-    GoToTarget = auto()
-    BoxUnload  = auto()
+    GoToLoad   = auto()
+    GoToUnload = auto()
     Done       = auto()
 
 class SBoxTask(): ##ExpoV
@@ -54,7 +52,7 @@ class SBoxTask(): ##ExpoV
         self.freeze      = False
 
     def __str__(self):
-        return f"[BoxTask] From { self.From } (load {self.loadSide}) To {self.To} (unload {self.unloadSide}). Status: {self.status}. getBack {self.getBack}."
+        return f"[BoxTask] From { self.From } (load {self.loadSide}) To {self.To} (unload {self.unloadSide}). Status: {self.status.name}. getBack {self.getBack}."
 
     def invert(self):
         self.From, self.To = self.To, self.From
@@ -202,7 +200,7 @@ class CAM_MainWindow(QMainWindow):
         else:
             if agentNO.status != EAgent_Status.Idle: return #агент в процессе выполнения этапа
             
-            if task.status == EBTask_Status.BoxLoad and agentNO.charge < 30:
+            if task.status == EBTask_Status.GoToLoad and agentNO.charge < 30:
                     agentNO.goToCharge() #HACK зарядка по пути от мест хранения до конвеера
                     task.freeze = False
             elif task.status == EBTask_Status.Done:
@@ -238,41 +236,28 @@ class CAM_MainWindow(QMainWindow):
             task.freeze = False
 
         if task.status == EBTask_Status.Init:
-                nxGraph = self.graphRootNode().nxGraph
-                startNode = agentNO.isOnTrack()[0]
-                nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, task.From)
-                agentNO.applyRoute( nodes_route )
-                task.status = EBTask_Status.GoToStart
-        elif task.status == EBTask_Status.GoToStart:
-                if nodeByPos( self.graphRootNode().nxGraph, agentNO.isOnTrack(), agentNO.position ) != task.From:
-                    task.status = EBTask_Status.Init
-                    return
+            self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxLoad, targetNode = task.From )
+        elif task.status == EBTask_Status.GoToLoad:
+            self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxUnload, targetNode = task.To )
+        elif task.status == EBTask_Status.GoToUnload:
+            task.status = EBTask_Status.Done
 
-                agentSide = SGT.ESide.fromAngle( agentNO.angle - 90 ) #вычитаем из угла агента 90 градусов = угол вектора правой стороны
-                agentLoadSide = task.loadSide if agentSide == SGT.ESide.Right else task.loadSide.invert()
-                desk = cmdDesc( event=AEV.BoxLoad, data=agentLoadSide.toChar() )
-                prop = cmdDesc_To_Prop[ desk ]
-                agentNO[ prop ] = EAgent_CMD_State.Init
-                task.status = EBTask_Status.BoxLoad
-        elif task.status == EBTask_Status.BoxLoad:
-                nxGraph = self.graphRootNode().nxGraph
-                startNode = agentNO.isOnTrack()[0]
-                nodes_route = nx.algorithms.dijkstra_path( nxGraph, startNode, task.To )
-                agentNO.applyRoute( nodes_route )
-                task.status = EBTask_Status.GoToTarget
-        elif task.status == EBTask_Status.GoToTarget:
-                if nodeByPos( self.graphRootNode().nxGraph, agentNO.isOnTrack(), agentNO.position ) != task.To:
-                    task.status = EBTask_Status.BoxLoad
-                    return
+    def processTaskStage(self, agentNO, task, BL_BU_event, targetNode): ##ExpoV
+        nxGraph = self.graphRootNode().nxGraph
+        startNode = agentNO.isOnTrack()[0]
+        nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+        nodes_route = agentNO.applyRoute( nodes_route )
 
-                agentSide = SGT.ESide.fromAngle( agentNO.angle - 90 )
-                agentUnloadSide = task.unloadSide if agentSide == SGT.ESide.Right else task.unloadSide.invert()
-                desk = cmdDesc( event=AEV.BoxUnload, data=agentUnloadSide.toChar() )
-                prop = cmdDesc_To_Prop[ desk ]
-                agentNO[ prop ] = EAgent_CMD_State.Init
-                task.status = EBTask_Status.BoxUnload
-        elif task.status == EBTask_Status.BoxUnload:
-                task.status = EBTask_Status.Done
+        finalAgentAngle = getFinalAgentAngle( nxGraph, agentNO.angle, nodes_route ) if nodes_route is not None else agentNO.angle
+        agentSide = SGT.ESide.fromAngle( finalAgentAngle - 90 ) #вычитаем из угла агента 90 градусов = угол вектора правой стороны
+        event_side = task.loadSide if BL_BU_event == AEV.BoxLoad else task.unloadSide
+        agenSide = event_side if agentSide == SGT.ESide.Right else event_side.invert()
+        
+        desk = cmdDesc( event = BL_BU_event, data=agenSide.toChar() )
+        prop = cmdDesc_To_Prop[ desk ]
+        agentNO[ prop ] = EAgent_CMD_State.Init
+        
+        task.status = EBTask_Status( task.status + 1 )
 
     def AgentTestMoving(self, agentNO, targetNode = None):
         if self.AgentsConnectionServer is None: return

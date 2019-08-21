@@ -183,6 +183,8 @@ class CAgent_NO( CNetObj ):
 
         self.route = ",".join( nodes_route )
 
+        return nodes_route
+
 
 
 
