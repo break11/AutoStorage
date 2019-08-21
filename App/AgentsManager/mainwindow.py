@@ -29,7 +29,7 @@ from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, nodeType, findNodes, routeToServiceStation
+from Lib.Common.GraphUtils import tEdgeKeyFromStr, nodeType, findNodes, routeToServiceStation, nodeByPos
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
@@ -243,6 +243,10 @@ class CAM_MainWindow(QMainWindow):
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToStart
         elif task.status == EBTask_Status.GoToStart:
+                if nodeByPos( self.graphRootNode().nxGraph, agentNO.isOnTrack(), agentNO.position ) != task.From:
+                    task.status = EBTask_Status.Init
+                    return
+
                 agentSide = SGT.ESide.fromAngle( agentNO.angle - 90 ) #вычитаем из угла агента 90 градусов = угол вектора правой стороны
                 agentLoadSide = task.loadSide if agentSide == SGT.ESide.Right else task.loadSide.invert()
                 desk = cmdDesc( event=AEV.BoxLoad, data=agentLoadSide.toChar() )
@@ -256,6 +260,10 @@ class CAM_MainWindow(QMainWindow):
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToTarget
         elif task.status == EBTask_Status.GoToTarget:
+                if nodeByPos( self.graphRootNode().nxGraph, agentNO.isOnTrack(), agentNO.position ) != task.To:
+                    task.status = EBTask_Status.BoxLoad
+                    return
+
                 agentSide = SGT.ESide.fromAngle( agentNO.angle - 90 )
                 agentUnloadSide = task.unloadSide if agentSide == SGT.ESide.Right else task.unloadSide.invert()
                 desk = cmdDesc( event=AEV.BoxUnload, data=agentUnloadSide.toChar() )
