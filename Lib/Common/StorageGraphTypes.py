@@ -111,6 +111,9 @@ class ESide( BaseEnum ):
         sideFromData = { "L": "Left", "R": "Right" }
         return cls.fromString( sideFromData.get( side_char ) )
 
+    def invert(self):
+        return ESide.Left if self == ESide.Right else ESide.Right
+
     def toChar(self):
         return self.toString()[0]
 

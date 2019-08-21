@@ -6,7 +6,7 @@ import networkx as nx
 import time
 import weakref
 from copy import deepcopy
-from enum import Enum, auto ##ExpoV
+from enum import Enum, IntEnum, auto ##ExpoV
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
@@ -35,8 +35,8 @@ from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 
-class EBTask_Status( Enum ): ##ExpoV
-    InitTask   = auto()
+class EBTask_Status( IntEnum ): ##ExpoV
+    Init       = auto()
     GoToStart  = auto()
     BoxLoad    = auto()
     GoToTarget = auto()
@@ -45,12 +45,13 @@ class EBTask_Status( Enum ): ##ExpoV
 
 class SBoxTask(): ##ExpoV
     def __init__(self):
-        From        = None
-        loadSide    = None # сторона загрузки относительно ноды !!!
-        To          = None
-        unloadSide  = None # сторона разгрузки относительно ноды !!!
-        status      = None
-        getBack     = False
+        self.From        = None
+        self.loadSide    = None # сторона загрузки относительно ноды !!!
+        self.To          = None
+        self.unloadSide  = None # сторона разгрузки относительно ноды !!!
+        self.status      = None
+        self.getBack     = False
+        self.freeze      = False
 
     def __str__(self):
         return f"[BoxTask] From { self.From } (load {self.loadSide}) To {self.To} (unload {self.unloadSide}). Status: {self.status}. getBack {self.getBack}."
@@ -58,7 +59,7 @@ class SBoxTask(): ##ExpoV
     def invert(self):
         self.From, self.To = self.To, self.From
         self.loadSide, self.unloadSide = self.unloadSide, self.loadSide
-        self.status = EBTask_Status.InitTask
+        self.status = EBTask_Status.Init
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -203,6 +204,7 @@ class CAM_MainWindow(QMainWindow):
             
             if task.status == EBTask_Status.BoxLoad and agentNO.charge < 30:
                     agentNO.goToCharge() #HACK зарядка по пути от мест хранения до конвеера
+                    task.freeze = False
             elif task.status == EBTask_Status.Done:
                 if task.getBack:
                     task.invert()
@@ -224,21 +226,26 @@ class CAM_MainWindow(QMainWindow):
         task.To = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.PickStationOut )[0] #TODO ##remove hardcode
         task.unloadSide = SGT.ESide.Right #TODO ##remove hardcode
 
-        task.status = EBTask_Status.InitTask
+        task.status = EBTask_Status.Init
         task.getBack = True
 
         self.agentsBoxTask [ int( agentNO.name ) ] = task
 
     def processBoxTask(self, agentNO, task): ##ExpoV
+        if task.freeze and task.status != EBTask_Status.Init:
+            task.status = EBTask_Status(task.status - 1)
+            task.freeze = False
 
-        if task.status == EBTask_Status.InitTask:
+        if task.status == EBTask_Status.Init:
                 nxGraph = self.graphRootNode().nxGraph
                 startNode = agentNO.isOnTrack()[0]
                 nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, task.From)
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToStart
         elif task.status == EBTask_Status.GoToStart:
-                desk = cmdDesc( event=AEV.BoxLoad, data=task.loadSide.toChar() )
+                agentSide = SGT.ESide.fromAngle( agentNO.angle - 90 ) #вычитаем из угла агента 90 градусов = угол вектора правой стороны
+                agentLoadSide = task.loadSide if agentSide == SGT.ESide.Right else task.loadSide.invert()
+                desk = cmdDesc( event=AEV.BoxLoad, data=agentLoadSide.toChar() )
                 prop = cmdDesc_To_Prop[ desk ]
                 agentNO[ prop ] = EAgent_CMD_State.Init
                 task.status = EBTask_Status.BoxLoad
@@ -249,7 +256,9 @@ class CAM_MainWindow(QMainWindow):
                 agentNO.applyRoute( nodes_route )
                 task.status = EBTask_Status.GoToTarget
         elif task.status == EBTask_Status.GoToTarget:
-                desk = cmdDesc( event=AEV.BoxUnload, data=task.unloadSide.toChar() )
+                agentSide = SGT.ESide.fromAngle( agentNO.angle - 90 )
+                agentUnloadSide = task.unloadSide if agentSide == SGT.ESide.Right else task.unloadSide.invert()
+                desk = cmdDesc( event=AEV.BoxUnload, data=agentUnloadSide.toChar() )
                 prop = cmdDesc_To_Prop[ desk ]
                 agentNO[ prop ] = EAgent_CMD_State.Init
                 task.status = EBTask_Status.BoxUnload
@@ -309,6 +318,9 @@ class CAM_MainWindow(QMainWindow):
         for agentNO in self.agentsNode().children:
             if agentNO.auto_control:
                 self.AgentTestWithBoxes( agentNO )
+            else:
+                task = self.agentsBoxTask.get( int(agentNO.name) ) #если auto_control был отключен, "замораживаем" задание
+                if task: task.freeze = True
     
     # ******************************************************
     @pyqtSlot("bool")
