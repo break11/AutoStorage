@@ -146,7 +146,8 @@ class CAgent_NO( CNetObj ):
             self.edge = GU.tEdgeKeyToStr( tKey )
             curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
             self.position = curEdgeSize - self.position
-            nodes_route.insert(0, tKey[0] )
+            if nodes_route[0] != tKey[0]:
+                nodes_route.insert(0, tKey[0] )
         
         if ( self.position / curEdgeSize ) > 0.5:
             if len( nodes_route ) > 2:
@@ -158,6 +159,8 @@ class CAgent_NO( CNetObj ):
                 return
 
         self.route = ",".join( nodes_route )
+
+        return nodes_route
 
 
 
