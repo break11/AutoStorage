@@ -30,6 +30,7 @@ lEdgeKey_1_2   = list( tEdgeKey_1_2 )
 strEdgeKey_1_2 = GU.tEdgeKeyToStr( tEdgeKey_1_2 )
 
 tEdgeKey_2_1   = ("2", "1")
+lEdgeKey_2_1   = list( tEdgeKey_2_1 )
 strEdgeKey_2_1 = GU.tEdgeKeyToStr( tEdgeKey_2_1 )
 
 tEdgeKey_2_3   = ("2", "3")
@@ -43,6 +44,8 @@ strRoute_1     = ",".join( Route_1 )
 
 Route_2        = ["2", "3", "4", "5", "6"]
 strRoute_2     = ",".join( Route_2 )
+
+Route_3        = ["3", "4", "5", "6"]
 
 class CTestAgentNetObjFuncs(unittest.TestCase):
 
@@ -215,7 +218,96 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, (edgeSize_2_1 - position) )
 
-        ###########################  CASE 8  #####################################
+        ###########################  CASE 8A  #####################################
+        # Маршрут из одной ноды. Нода - первая нода грани, на которой стоит челнок. Позиция менее 50% от длины.
+        # Считаем, что челнок уже на конечной ноде маршрута.
+
+        agentNO.edge = strEdgeKey_1_2
+        position = round( edgeSize_1_2 * 0.5 )
+        agentNO.position = position
+        agentNO.route = ""
+
+        test_route = agentNO.applyRoute( [ tEdgeKey_1_2[0] ] )
+        self.assertEqual( test_route, None )
+        self.assertEqual( agentNO.route, "" )
+        self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
+        self.assertEqual( agentNO.position, position )
+
+
+        ###########################  CASE 8B  #####################################
+        # Маршрут из одной ноды. Нода - первая нода грани, на которой стоит челнок. Позиция более(равно) 50% от длины.
+        # В маршрут добавляется вторая нода текущей грани, челнок переставляется на кратную грань, позиция = (длина грани - исходная позиция).
+
+        agentNO.edge = strEdgeKey_1_2
+        position = round( edgeSize_1_2 * 0.51 )
+        agentNO.position = position
+        agentNO.route = ""
+
+        test_route = agentNO.applyRoute( [ tEdgeKey_1_2[0] ] )
+        self.assertEqual( test_route, lEdgeKey_2_1 )
+        self.assertEqual( agentNO.route, ",".join( lEdgeKey_2_1 ) )
+        self.assertEqual( agentNO.edge, strEdgeKey_2_1 )
+        self.assertEqual( agentNO.position, (edgeSize_1_2 - position) )
+
+
+        ###########################  CASE 8C  #####################################
+        # Маршрут из одной ноды. Нода - вторая нода грани, на которой стоит челнок. Позиция менее (равно) 50% от длины.
+        # Маршрут - это текущая грань. Позиция и грань не меняются.
+
+        agentNO.edge = strEdgeKey_1_2
+        position = round( edgeSize_1_2 * 0.5 )
+        agentNO.position = position
+        agentNO.route = ""
+
+        test_route = agentNO.applyRoute( [ tEdgeKey_1_2[1] ] )
+        self.assertEqual( test_route, lEdgeKey_1_2 )
+        self.assertEqual( agentNO.route, ",".join( lEdgeKey_1_2 ) )
+        self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
+        self.assertEqual( agentNO.position, position )
+
+
+        ###########################  CASE 8D  #####################################
+        # Маршрут из одной ноды. Нода - вторая нода грани, на которой стоит челнок. Позиция более 50% от длины.
+        # Считаем, что челнок уже на конечной ноде маршрута.
+
+        agentNO.edge = strEdgeKey_1_2
+        position = round( edgeSize_1_2 * 0.51 )
+        agentNO.position = position
+        agentNO.route = ""
+
+        test_route = agentNO.applyRoute( [ tEdgeKey_1_2[1] ] )
+        self.assertEqual( test_route, None )
+        self.assertEqual( agentNO.route, "" )
+        self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
+        self.assertEqual( agentNO.position, position )
+
+
+    
+        ###########################  CASE 9  #####################################
+        # Маршрут - пустой лист.
+
+        agentNO.edge = strEdgeKey_1_2
+        agentNO.position = 0
+        agentNO.route = ""
+
+        test_route = agentNO.applyRoute( [] )
+        self.assertEqual( test_route, None )
+        self.assertEqual( agentNO.route, "" )
+        self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
+        self.assertEqual( agentNO.position, 0 )
+
+        ###########################  CASE 10  #####################################
+        # Челнок стоит на грани, ноды которой не присутствуют в начале маршрута.
+
+        agentNO.edge = strEdgeKey_1_2
+        agentNO.position = 0
+        agentNO.route = ""
+
+        with self.assertRaises( AssertionError ):
+            agentNO.applyRoute( Route_3 )
+
+
+        ###########################  CASE 11  #####################################
         # Челнок вне графа.
 
         agentNO.edge = ""
@@ -224,6 +316,8 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         with self.assertRaises( AssertionError ):
             agentNO.applyRoute( deepcopy(Route_1) )
+
+
 
 
         ###########################  CASE Y  #####################################
@@ -242,16 +336,7 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         # self.assertEqual( agentNO.position, position )
 
 
-        ###########################  CASE X  #####################################
-        # Челнок стоит на грани, ноды которой не присутствуют в начале маршрута.
-        # 
 
-        # agentNO.edge = "48 49"
-        # position = 400
-        # agentNO.position = position
-
-        # test_route = agentNO.applyRoute( deepcopy(Route_1) )
-        # print( test_route, "|", agentNO.edge, "|", agentNO.position )
 
         agentNO.destroy()
         # print( ANO.agentsNodeCache()().children )

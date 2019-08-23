@@ -133,12 +133,27 @@ class CAgent_NO( CNetObj ):
 
 
     def applyRoute( self, nodes_route ):
+        route_size = len(nodes_route)
+        if route_size == 0: return
+
         tKey = self.isOnTrack()
         assert tKey is not None
-
-        if len(nodes_route) < 2: return
+        assert nodes_route[0] in tKey, "Cant apply route. The position and route do not intersect."
 
         curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
+        
+        if route_size == 1:
+            if nodes_route[0] == tKey[0]:
+                if ( self.position / curEdgeSize ) <= 0.5:
+                    return
+                else:
+                    nodes_route = list( reversed(tKey) )
+            else:
+                if ( self.position / curEdgeSize ) <= 0.5:
+                    nodes_route = list( tKey )
+                else:
+                    return
+
 
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
         if ( nodes_route[0], nodes_route[1] ) != tKey:
