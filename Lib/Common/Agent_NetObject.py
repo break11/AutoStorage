@@ -144,16 +144,9 @@ class CAgent_NO( CNetObj ):
         
         if route_size == 1:
             if nodes_route[0] == tKey[0]:
-                if ( self.position / curEdgeSize ) <= 0.5:
-                    return
-                else:
-                    nodes_route = list( reversed(tKey) )
+                nodes_route = list( reversed(tKey) )
             else:
-                if ( self.position / curEdgeSize ) <= 0.5:
-                    nodes_route = list( tKey )
-                else:
-                    return
-
+                nodes_route = list( tKey )
 
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
         if ( nodes_route[0], nodes_route[1] ) != tKey:
@@ -176,7 +169,6 @@ class CAgent_NO( CNetObj ):
         self.route = ",".join( nodes_route )
 
         return nodes_route
-
 
 
 

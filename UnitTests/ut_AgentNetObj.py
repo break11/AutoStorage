@@ -205,8 +205,7 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         ###########################  CASE 7  #####################################
         # Челнок стоит на грани, первая нода которой совпадает с первой нодой в маршруте, на позиции более(равно) 50% от длины.
-        # В маршрут добавляется вторая нода текущей грани, челнок переставляется на кратную грань, позиция = (длина грани - исходная позиция).
-
+        # В начало маршрута добавляется вторая нода текущей грани, челнок переставляется на кратную грань, позиция = (длина грани - исходная позиция).
         agentNO.edge = strEdgeKey_2_1
         position = round( edgeSize_2_1 * 0.5 )
         agentNO.position = position
@@ -220,26 +219,23 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         ###########################  CASE 8A  #####################################
         # Маршрут из одной ноды. Нода - первая нода грани, на которой стоит челнок. Позиция менее 50% от длины.
-        # Считаем, что челнок уже на конечной ноде маршрута.
-
+        # Считаем, что челнок уже на конечной ноде маршрута. Челнок переставляется на кратную грань, позиция = (длина грани - исходная позиция).
         agentNO.edge = strEdgeKey_1_2
-        position = round( edgeSize_1_2 * 0.5 )
+        position = round( edgeSize_1_2 * 0.49 )
         agentNO.position = position
         agentNO.route = ""
 
         test_route = agentNO.applyRoute( [ tEdgeKey_1_2[0] ] )
         self.assertEqual( test_route, None )
         self.assertEqual( agentNO.route, "" )
-        self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
-        self.assertEqual( agentNO.position, position )
-
+        self.assertEqual( agentNO.edge, strEdgeKey_2_1 )
+        self.assertEqual( agentNO.position, (edgeSize_1_2 - position) )
 
         ###########################  CASE 8B  #####################################
         # Маршрут из одной ноды. Нода - первая нода грани, на которой стоит челнок. Позиция более(равно) 50% от длины.
-        # В маршрут добавляется вторая нода текущей грани, челнок переставляется на кратную грань, позиция = (длина грани - исходная позиция).
-
+        # В начало маршрута добавляется вторая нода текущей грани. Челнок переставляется на кратную грань, позиция = (длина грани - исходная позиция).
         agentNO.edge = strEdgeKey_1_2
-        position = round( edgeSize_1_2 * 0.51 )
+        position = round( edgeSize_1_2 * 0.5 )
         agentNO.position = position
         agentNO.route = ""
 
@@ -253,7 +249,6 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         ###########################  CASE 8C  #####################################
         # Маршрут из одной ноды. Нода - вторая нода грани, на которой стоит челнок. Позиция менее (равно) 50% от длины.
         # Маршрут - это текущая грань. Позиция и грань не меняются.
-
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.5 )
         agentNO.position = position
@@ -269,7 +264,6 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         ###########################  CASE 8D  #####################################
         # Маршрут из одной ноды. Нода - вторая нода грани, на которой стоит челнок. Позиция более 50% от длины.
         # Считаем, что челнок уже на конечной ноде маршрута.
-
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.51 )
         agentNO.position = position
@@ -280,12 +274,9 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         self.assertEqual( agentNO.route, "" )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, position )
-
-
     
         ###########################  CASE 9  #####################################
         # Маршрут - пустой лист.
-
         agentNO.edge = strEdgeKey_1_2
         agentNO.position = 0
         agentNO.route = ""
@@ -298,7 +289,6 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         ###########################  CASE 10  #####################################
         # Челнок стоит на грани, ноды которой не присутствуют в начале маршрута.
-
         agentNO.edge = strEdgeKey_1_2
         agentNO.position = 0
         agentNO.route = ""
@@ -309,7 +299,6 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         ###########################  CASE 11  #####################################
         # Челнок вне графа.
-
         agentNO.edge = ""
         agentNO.position = 0
         agentNO.route = ""
@@ -322,10 +311,10 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         ###########################  CASE Y  #####################################
         # Челнок стоит на грани, вторая нода которой совпадает с первой нодой в маршруте, на позиции менее(равно) 50% от длины.
-        # В маршрут добавляется первая нода текущей грани, грань и позиция челнока не меняются.
+        # В начало маршрута добавляется первая нода текущей грани, грань и позиция челнока не меняются.
 
         # agentNO.edge = strEdgeKey_1_2
-        # position = round( edgeSize_2_1 * 0.5 )
+        # position = round( edgeSize_1_2 * 0.5 )
         # agentNO.position = position
         # agentNO.route = ""
 
@@ -336,10 +325,7 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         # self.assertEqual( agentNO.position, position )
 
 
-
-
         agentNO.destroy()
-        # print( ANO.agentsNodeCache()().children )
 
 
 
