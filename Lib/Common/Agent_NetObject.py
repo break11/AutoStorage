@@ -170,16 +170,19 @@ class CAgent_NO( CNetObj ):
                 nodes_route = list( reversed(tKey) )
             else:
                 nodes_route = list( tKey )
+        else:
+            # выполнится только одно уловие, тк одна из нод tKey присутствует в маршруте ( см. assert выше )
+            if tKey[0] not in nodes_route: nodes_route.insert( 0, tKey[0] )
+            if tKey[1] not in nodes_route: nodes_route.insert( 0, tKey[1] )
 
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
-        if ( nodes_route[0], nodes_route[1] ) != tKey:
+        if ( nodes_route[1], nodes_route[0] ) == tKey:
             tKey = tuple( reversed(tKey) )
             self.edge = GU.tEdgeKeyToStr( tKey )
             curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
             self.position = curEdgeSize - self.position
-            if nodes_route[0] != tKey[0]:
-                nodes_route.insert(0, tKey[0] )
         
+        # переставляем челнок на вторую грань маршрута, если его позиция на первой грани более 50%
         if ( self.position / curEdgeSize ) > 0.5:
             if len( nodes_route ) > 2:
                 nodes_route = nodes_route[1:]
