@@ -10,7 +10,7 @@ from enum import Enum, IntEnum, auto ##ExpoV
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QPushButton
 from PyQt5 import uic
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -82,6 +82,19 @@ class CAM_MainWindow(QMainWindow):
         self.agentsNode = agentsNodeCache()
 
         self.agentsBoxTask = {} ##ExpoV
+        self.addStorageButtons()
+
+    def loadStorageScheme(self): ##ExpoV
+        pass
+
+    def addStorageButtons(self): ##ExpoV
+        pass
+        # btn = QPushButton("23 Left")
+        # btn.setProperty( "storage_id", "1" )
+        # self.wStoragePlaces.layout().addWidget( btn, 0, 0 )
+        # btn = QPushButton("23 Right")
+        # btn.setProperty( "storage_id", "2" )
+        # self.wStoragePlaces.layout().addWidget( btn, 1, 0 )
                 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -196,7 +209,7 @@ class CAM_MainWindow(QMainWindow):
             if agentNO.charge < 30:
                 agentNO.goToCharge()
             else:
-                self.setTask( agentNO )
+                self.setRandomTask( agentNO )
         else:
             if agentNO.status != EAgent_Status.Idle: return #агент в процессе выполнения этапа
             
@@ -212,23 +225,28 @@ class CAM_MainWindow(QMainWindow):
             else:
                 self.processBoxTask( agentNO, task )
 
-    def setTask(self, agentNO): ##ExpoV
-
+    def setTask(self, agentNO, From, loadSide, To, unloadSide, getBack): ##ExpoV
         task = SBoxTask()
-        nxGraph = self.graphRootNode().nxGraph
 
-        nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.StorageSingle )
-        if agentNO.isOnTrack()[0] in nodes: nodes.remove( agentNO.isOnTrack()[0] ) #HACK для исправления глюка зависания автотеста с коробками(надо чинить функцию applyRoute для случая пути из одной ноды)
-        task.From = nodes[ random.randint(0, len( nodes ) - 1) ]
-        task.loadSide = SGT.ESide.Right if random.randint(0, 1) else SGT.ESide.Left
-
-        task.To = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.PickStationOut )[0] #TODO ##remove hardcode
-        task.unloadSide = SGT.ESide.Right #TODO ##remove hardcode
+        task.From, task.loadSide = From, loadSide
+        task.To, task.unloadSide = To, unloadSide
 
         task.status = EBTask_Status.Init
-        task.getBack = True
+        task.getBack = getBack
 
         self.agentsBoxTask [ int( agentNO.name ) ] = task
+
+    def setRandomTask(self, agentNO): ##ExpoV
+        nxGraph = self.graphRootNode().nxGraph
+        nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.StorageSingle )
+        # if agentNO.isOnTrack()[0] in nodes: nodes.remove( agentNO.isOnTrack()[0] ) #HACK для исправления глюка зависания автотеста с коробками(надо чинить функцию applyRoute для случая пути из одной ноды)
+        From = nodes[ random.randint(0, len( nodes ) - 1) ]
+        loadSide = SGT.ESide.Right if random.randint(0, 1) else SGT.ESide.Left
+
+        To = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.PickStationOut )[0] #TODO ##remove hardcode
+        unloadSide = SGT.ESide.Right #TODO ##remove hardcode
+
+        self.setTask( agentNO, From, loadSide, To, unloadSide, getBack = True )
 
     def processBoxTask(self, agentNO, task): ##ExpoV
         if task.freeze and task.status != EBTask_Status.Init:

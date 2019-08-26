@@ -1,0 +1,23 @@
+{
+"storages": {
+                "1": {
+                        "label": "23 LEFT",
+                        "node": "23",
+                        "side": "Left"
+                      },
+
+                "2": {
+                        "label": "23 RIGHT",
+                        "node": "23",
+                        "side": "Right"
+                      }
+            },
+"conveyors":
+            {
+                "1":{
+                        "label": "",
+                        "node": "24",
+                        "side": "Right"
+                    }
+            }
+}
