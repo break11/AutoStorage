@@ -20,6 +20,9 @@ def powerBankDir():
 
 def graphML_Path():
     return projectDir() + "GraphML/"
+
+def scheme_Path():
+    return projectDir() + "StorageScheme/"
     
 def mainAppBaseName():
     return os.path.basename( baseFName ).replace( ".py", "" )

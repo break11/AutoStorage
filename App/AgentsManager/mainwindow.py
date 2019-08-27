@@ -7,6 +7,8 @@ import time
 import weakref
 from copy import deepcopy
 from enum import Enum, IntEnum, auto ##ExpoV
+from collections import namedtuple ##ExpoV
+import json ##ExpoV
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
@@ -34,6 +36,16 @@ from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
+
+
+ ##ExpoV
+CStoragePlace = namedtuple('CStoragePlace', 'UID label nodeID side')
+CConveyor     = namedtuple('CConveyor',     'UID label nodeID side')
+
+s_storage_places = "storage_places"
+s_conveyors      = "conveyors"
+s_side           = "side"
+s_UID            = "UID"
 
 class EBTask_Status( IntEnum ): ##ExpoV
     Init       = auto()
@@ -81,20 +93,55 @@ class CAM_MainWindow(QMainWindow):
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
 
-        self.agentsBoxTask = {} ##ExpoV
+        ##ExpoV
+        self.agentsBoxTask    = {}
+        self.storage_places   = {}
+        self.conveyors        = {}
+
+        self.loadStorageScheme( "expo_sep_v05.json" )
         self.addStorageButtons()
 
-    def loadStorageScheme(self): ##ExpoV
-        pass
+    def loadStorageScheme(self, sFileName): ##ExpoV
+        file_path = os.path.join(  FileUtils.scheme_Path(), sFileName )
+        try:
+            with open( file_path, "r" ) as read_file:
+                scheme = json.load( read_file )               
+        except Exception as error:
+            print( error )
+            return
+
+        for kwargs in scheme[ s_storage_places ]:
+            kwargs[ s_side ] = SGT.ESide.fromString( kwargs[ s_side ] )
+            sp = CStoragePlace( **kwargs )
+            self.storage_places [ sp.UID ] = sp
+
+        for kwargs in scheme[ s_conveyors ]:
+            kwargs[ s_side ] = SGT.ESide.fromString( kwargs[ s_side ] )
+            conveyor = CConveyor( **kwargs )
+            self.conveyors [ conveyor.UID ] = conveyor
 
     def addStorageButtons(self): ##ExpoV
-        pass
-        # btn = QPushButton("23 Left")
-        # btn.setProperty( "storage_id", "1" )
-        # self.wStoragePlaces.layout().addWidget( btn, 0, 0 )
-        # btn = QPushButton("23 Right")
-        # btn.setProperty( "storage_id", "2" )
-        # self.wStoragePlaces.layout().addWidget( btn, 1, 0 )
+        row, column = 0, 0
+
+        for sp in (list(self.storage_places.values()) + list(self.conveyors.values())):
+            btn = QPushButton(sp.label)
+            btn.setProperty( s_UID, sp.UID )
+            btn.clicked.connect( self.on_StorageBtn_clicked )
+            self.wStoragePlaces.layout().addWidget( btn, row, column )
+            if column > 10:
+                row +=1
+                column = 0
+            column += 1
+
+    @pyqtSlot(bool)
+    def on_StorageBtn_clicked(self): ##ExpoV
+        agentNO = self.agentsNode().childByName( str( self.currAgentN() ) )
+        if agentNO is None: return
+        
+        sp = self.storage_places[ self.sender().property( s_UID ) ]
+        cr = list(self.conveyors.values())[0]
+
+        self.setTask( agentNO, sp.nodeID, sp.side, cr.nodeID, cr.side, getBack = True  )
                 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
