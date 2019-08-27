@@ -96,12 +96,10 @@ class CAM_MainWindow(QMainWindow):
         self.agentsNode = agentsNodeCache()
 
         ##ExpoV
-        self.agentsTasks    = {}
-        self.storage_places   = {}
-        self.conveyors        = {}
-
-        self.loadStorageScheme( "expo_sep_v05.json" )
-        self.addStorageButtons()
+        self.agentsTasks       = {}
+        self.storage_places    = {}
+        self.conveyors         = {}
+        self.BoxAutotestActive = False
                
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -117,6 +115,9 @@ class CAM_MainWindow(QMainWindow):
             for row in range( self.Agents_Model.rowCount() ):
                 agentNO = self.Agents_Model.agentNO_from_Index( self.Agents_Model.index( row, 0 ) )
                 self.AgentsConnectionServer.queryAgent_Link_and_NetObj( int(agentNO.name) )
+
+            self.loadStorageScheme( "expo_sep_v05.json" )
+            self.addStorageButtons()
 
     def closeEvent( self, event ):
         self.AgentsConnectionServer = None
@@ -163,7 +164,7 @@ class CAM_MainWindow(QMainWindow):
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
-        if self.btnBox_Autotest.isChecked(): ##ExpoV
+        if self.BoxAutotestActive: ##ExpoV
             self.btnSimpleAgent_Test.setChecked( False )
             return
 
@@ -172,11 +173,11 @@ class CAM_MainWindow(QMainWindow):
         else:
             self.SimpleAgentTest_Timer.stop()
 
-    @pyqtSlot("bool")
-    def on_btnBox_Autotest_clicked( self, bVal ): ##ExpoV
-        if self.btnSimpleAgent_Test.isChecked():
-            self.btnBox_Autotest.setChecked( False )
-            return
+    @pyqtSlot(bool) ##ExpoV
+    def on_btnBox_Autotest_clicked(self, b):
+        b = b and not self.btnSimpleAgent_Test.isChecked()
+        self.BoxAutotestActive = b
+        self.sender().setChecked( b )
 
     @pyqtSlot("bool")
     def on_btnReset_Task_clicked( self, bVal ):
@@ -221,17 +222,25 @@ class CAM_MainWindow(QMainWindow):
             self.conveyors [ conveyor.UID ] = conveyor
 
     def addStorageButtons(self): ##ExpoV
-        row, column = 0, 0
+        row, column = 0, 1
 
         for sp in self.storage_places.values():
             btn = QPushButton(sp.label)
             btn.setProperty( s_UID, sp.UID )
+            btn.setMinimumSize( 100, 100 )
             btn.clicked.connect( self.on_StorageBtn_clicked )
             self.wStoragePlaces.layout().addWidget( btn, row, column )
-            if column > 10:
-                row +=1
-                column = 0
             column += 1
+            if column > 8:
+                row +=1
+                column = 1
+
+        btn = QPushButton("AUTOTEST")
+        btn.setCheckable(True)
+        btn.setMinimumSize( 100, 100 )
+        btn.setStyleSheet( "QPushButton { background-color: rgb(196, 160, 0); } QPushButton:checked { border:3px solid red; border-radius:5px }" )
+        btn.clicked.connect( self.on_btnBox_Autotest_clicked )
+        self.wStoragePlaces.layout().addWidget( btn, 0, 0 )
 
     def readyToTask( self, agentNO ):
         if self.AgentsConnectionServer is None: return
@@ -271,16 +280,13 @@ class CAM_MainWindow(QMainWindow):
         self.agentsTasks [ int( agentNO.name ) ] = task
 
     def setRandomTask(self, agentNO): ##ExpoV
-        nxGraph = self.graphRootNode().nxGraph
-        nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.StorageSingle )
-        # if agentNO.isOnTrack()[0] in nodes: nodes.remove( agentNO.isOnTrack()[0] ) #HACK для исправления глюка зависания автотеста с коробками(надо чинить функцию applyRoute для случая пути из одной ноды)
-        From = nodes[ random.randint(0, len( nodes ) - 1) ]
-        loadSide = SGT.ESide.Right if random.randint(0, 1) else SGT.ESide.Left
+        storage_places = list( self.storage_places.values() )
+        sp = storage_places[ random.randint(0, len( storage_places ) - 1) ]
 
-        To = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.PickStationOut )[0] #TODO ##remove hardcode
-        unloadSide = SGT.ESide.Right #TODO ##remove hardcode
+        conveyors = list( self.conveyors.values() )
+        cr = conveyors[ random.randint(0, len( conveyors ) - 1) ]
 
-        self.setTask( agentNO, From, loadSide, To, unloadSide, getBack = True )
+        self.setTask( agentNO, From = sp.nodeID, loadSide = sp.side, To = cr.nodeID, unloadSide = cr.side, getBack = True )
 
     def processTask(self, agentNO, task): ##ExpoV
         if task.freeze and task.status != EBTask_Status.Init:
@@ -290,8 +296,10 @@ class CAM_MainWindow(QMainWindow):
         if task.status == EBTask_Status.Init:
             self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxLoad, targetNode = task.From )
         elif task.status == EBTask_Status.GoToLoad:
+            # print( "FROM : ", f"{task.From}, ({agentNO.edge}), {agentNO.position}", task.From == tEdgeKeyFromStr( agentNO.edge )[1] )
             self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxUnload, targetNode = task.To )
         elif task.status == EBTask_Status.GoToUnload:
+            # print( "TO  : ", f"{task.From}, ({agentNO.edge}), {agentNO.position}", task.To == tEdgeKeyFromStr( agentNO.edge )[1] )
             task.status = EBTask_Status.Done
         elif task.status == EBTask_Status.Done:
             if task.getBack: task.invert()
@@ -368,7 +376,7 @@ class CAM_MainWindow(QMainWindow):
             task = self.agentsTasks.get( int(agentNO.name) )
 
             if task is None:
-                if self.btnBox_Autotest.isChecked():
+                if self.BoxAutotestActive:
                     if agentNO.charge < 30: agentNO.goToCharge()
                     else: self.setRandomTask( agentNO )
             else:
@@ -376,10 +384,6 @@ class CAM_MainWindow(QMainWindow):
                     task.freeze = True
                 else:
                     self.handleAgentTask( agentNO, task )
-            # if agentNO.auto_control:
-            # else:
-            #     task = self.agentsBoxTasks.get( int(agentNO.name) ) #если auto_control был отключен, "замораживаем" задание
-            #     if task: task.freeze = True
     
     # ******************************************************
     @pyqtSlot("bool")

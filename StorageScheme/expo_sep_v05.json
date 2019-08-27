@@ -1,25 +1,108 @@
 {
-"storage_places": [
-                {  "UID"  :  1,
-                   "label":  "23 LEFT",
-                   "nodeID": "23",
-                   "side":   "Left"
-                },
-                
-                {
-                   "UID"  :  2,
-                   "label":  "23 RIGHT",
-                   "nodeID": "23",
-                   "side":   "Right"
-                }
-            ],
-"conveyors":
-            [
-                {
-                    "UID"  :  3,
-                    "label":  "Conveyor",
-                    "nodeID": "24",
-                    "side":   "Right"
-                }
-            ]
+    "storage_places": [
+        {
+            "UID": 1,
+            "label": "23 LEFT",
+            "nodeID": "23",
+            "side": "Left"
+        },
+        {
+            "UID": 2,
+            "label": "22 LEFT",
+            "nodeID": "22",
+            "side": "Left"
+        },
+        {
+            "UID": 3,
+            "label": "21 LEFT",
+            "nodeID": "21",
+            "side": "Left"
+        },
+        {
+            "UID": 4,
+            "label": "20 LEFT",
+            "nodeID": "20",
+            "side": "Left"
+        },
+        {
+            "UID": 5,
+            "label": "19 LEFT",
+            "nodeID": "19",
+            "side": "Left"
+        },
+        {
+            "UID": 6,
+            "label": "18 LEFT",
+            "nodeID": "18",
+            "side": "Left"
+        },
+        {
+            "UID": 7,
+            "label": "17 LEFT",
+            "nodeID": "17",
+            "side": "Left"
+        },
+        {
+            "UID": 8,
+            "label": "15 LEFT",
+            "nodeID": "15",
+            "side": "Left"
+        },
+        {
+            "UID": 9,
+            "label": "23 RIGHT",
+            "nodeID": "23",
+            "side": "Right"
+        },
+        {
+            "UID": 10,
+            "label": "22 RIGHT",
+            "nodeID": "22",
+            "side": "Right"
+        },
+        {
+            "UID": 11,
+            "label": "21 RIGHT",
+            "nodeID": "21",
+            "side": "Right"
+        },
+        {
+            "UID": 12,
+            "label": "20 RIGHT",
+            "nodeID": "20",
+            "side": "Right"
+        },
+        {
+            "UID": 13,
+            "label": "19 RIGHT",
+            "nodeID": "19",
+            "side": "Right"
+        },
+        {
+            "UID": 14,
+            "label": "18 RIGHT",
+            "nodeID": "18",
+            "side": "Right"
+        },
+        {
+            "UID": 15,
+            "label": "17 RIGHT",
+            "nodeID": "17",
+            "side": "Right"
+        },
+        {
+            "UID": 16,
+            "label": "15 RIGHT",
+            "nodeID": "15",
+            "side": "Right"
+        }
+    ],
+    "conveyors": [
+        {
+            "UID": 999,
+            "label": "Conveyor",
+            "nodeID": "24",
+            "side": "Right"
+        }
+    ]
 }
