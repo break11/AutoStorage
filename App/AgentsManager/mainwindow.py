@@ -177,7 +177,7 @@ class CAM_MainWindow(QMainWindow):
     def on_btnBox_Autotest_clicked(self, b):
         b = b and not self.btnSimpleAgent_Test.isChecked()
         self.BoxAutotestActive = b
-        self.sender().setChecked( b )
+        self.btnBox_Autotest.setChecked( b )
 
     @pyqtSlot("bool")
     def on_btnReset_Task_clicked( self, bVal ):
@@ -234,13 +234,6 @@ class CAM_MainWindow(QMainWindow):
             if column > 8:
                 row +=1
                 column = 1
-
-        btn = QPushButton("AUTOTEST")
-        btn.setCheckable(True)
-        btn.setMinimumSize( 100, 100 )
-        btn.setStyleSheet( "QPushButton { background-color: rgb(196, 160, 0); } QPushButton:checked { border:3px solid red; border-radius:5px }" )
-        btn.clicked.connect( self.on_btnBox_Autotest_clicked )
-        self.wStoragePlaces.layout().addWidget( btn, 0, 0 )
 
     def readyToTask( self, agentNO ):
         if self.AgentsConnectionServer is None: return
