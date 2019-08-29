@@ -20,16 +20,17 @@ from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.StorageGraphTypes import SGA ##ExpoV
 from Lib.Common import FileUtils
-from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Status
-from Lib.Common.Agent_NetObject import cmdDesc_To_Prop, cmdDesc  ##ExpoV
+from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Status, agentsNodeCache
+from Lib.Common.Agent_NetObject import cmdDesc_To_Prop, cmdDesc, SAP  ##ExpoV
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV  ##ExpoV
 from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State ##ExpoV
 from  Lib.Common.StrTypeConverter import CStrTypeConverter ##ExpoV
+from Lib.Net.NetObj_Manager import CNetObj_Manager ##ExpoV
+from Lib.Net.Net_Events import ENet_Event as EV ##ExpoV
 import Lib.Common.StrConsts as SC
 import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
-from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
@@ -85,8 +86,9 @@ class SBoxTask(): ##ExpoV
         self.loadSide    = None # сторона загрузки относительно ноды !!!
         self.To          = None
         self.unloadSide  = None # сторона разгрузки относительно ноды !!!
-        self.status      = None
         self.getBack     = False
+        
+        self.status      = EBTask_Status.Init
         self.freeze      = False
         self.inited      = lambda:True
 
@@ -98,6 +100,34 @@ class SBoxTask(): ##ExpoV
         self.loadSide, self.unloadSide = self.unloadSide, self.loadSide
         self.status = EBTask_Status.Init
         self.getBack = getBack
+
+        return self
+
+    def __del__(self):
+        print("DEL", self)
+
+    @staticmethod
+    def fromString(s):
+        # текстовый формат задания 15,L,25,R,1 - забрать коробку с ноды 15 (слева), отвезти на ноду 25, выгрузить (справа), 1 - признак вернуть коробку
+        L = s.split(',')
+
+        try:
+            task = SBoxTask()
+            
+            task.From, task.loadSide = L[0], SGT.ESide.fromChar( L[1] )
+            task.To, task.unloadSide = L[2], SGT.ESide.fromChar( L[3] )
+            task.getBack = bool( int( L[4] ) )
+        except Exception as e:
+            print( f"{SC.sError} Task format wrong! ({e})" )
+            return
+
+        return task
+
+    def toString(self):
+        L = [ self.From, self.loadSide.toChar(), self.To, self.unloadSide.toChar(), str( int(self.getBack) ) ]
+        return ",".join( L )        
+
+########################################################################################################################
 
 class CAM_MainWindow(QMainWindow):
     def __init__(self):
@@ -144,6 +174,8 @@ class CAM_MainWindow(QMainWindow):
                 agentNO = self.Agents_Model.agentNO_from_Index( self.Agents_Model.index( row, 0 ) )
                 self.AgentsConnectionServer.queryAgent_Link_and_NetObj( int(agentNO.name) )
 
+            ##ExpoV
+            CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
             self.loadStorageScheme( "expo_sep_v05.json" )
             self.addStorageButtons()
 
@@ -210,7 +242,10 @@ class CAM_MainWindow(QMainWindow):
     @pyqtSlot("bool")
     def on_btnReset_Task_clicked( self, bVal ):
         agentN = self.currAgentN()
+        agentNO = self.agentsNode().childByName( str( agentN ) )
+        
         if agentN and self.agentsTasks.get( agentN ):
+            agentNO.task = ""
             del self.agentsTasks[ agentN ]
 
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
@@ -228,7 +263,8 @@ class CAM_MainWindow(QMainWindow):
         sp = self.storage_places[ self.sender().property( s_UID ) ]
         cr = list(self.conveyors.values())[0]
 
-        self.setTask( agentNO, sp.nodeID, sp.side, cr.nodeID, cr.side, getBack = True  )
+        if not agentNO.task:
+            agentNO.task = ",".join( [ sp.nodeID, sp.side.toChar(), cr.nodeID, cr.side.toChar(), "1" ] )
 
     @pyqtSlot(bool)
     def on_btnConveyorReady_clicked(self, b): ##ExpoV
@@ -267,7 +303,7 @@ class CAM_MainWindow(QMainWindow):
                 row +=1
                 column = 1
 
-    def readyToTask( self, agentNO ):
+    def readyForTask( self, agentNO ):
         if self.AgentsConnectionServer is None: return
         agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
 
@@ -286,24 +322,15 @@ class CAM_MainWindow(QMainWindow):
         if task.status == EBTask_Status.GoToLoad and agentNO.charge < 30:
             agentNO.goToCharge() #HACK зарядка по пути от мест хранения до конвеера
             task.freeze = False
-        elif (task.status == EBTask_Status.Done) and not task.getBack:
+        elif (task.status == EBTask_Status.Done):
             del self.agentsTasks[ int(agentNO.name) ]
+            
+            if task.getBack:
+                agentNO.task = task.invert().toString()
+            else:
+                agentNO.task = ""
         else:
             self.processTask( agentNO, task )
-
-    def setTask(self, agentNO, From, loadSide, To, unloadSide, getBack): ##ExpoV
-        if self.agentsTasks.get( int( agentNO.name ) ): return
-
-        task = SBoxTask()
-
-        task.From, task.loadSide = From, loadSide
-        task.To, task.unloadSide = To, unloadSide
-
-        task.status = EBTask_Status.Init
-        task.getBack = getBack
-        task.inited  = self.FakeConveyor.isReady
-
-        self.agentsTasks [ int( agentNO.name ) ] = task
 
     def setRandomTask(self, agentNO): ##ExpoV
         storage_places = list( self.storage_places.values() )
@@ -312,7 +339,8 @@ class CAM_MainWindow(QMainWindow):
         conveyors = list( self.conveyors.values() )
         cr = conveyors[ random.randint(0, len( conveyors ) - 1) ]
 
-        self.setTask( agentNO, From = sp.nodeID, loadSide = sp.side, To = cr.nodeID, unloadSide = cr.side, getBack = True )
+        if not agentNO.task:
+            agentNO.task = ",".join( [ sp.nodeID, sp.side.toChar(), cr.nodeID, cr.side.toChar(), "1" ] )
 
     def processTask(self, agentNO, task): ##ExpoV
         if task.freeze and task.status != EBTask_Status.Init:
@@ -323,13 +351,9 @@ class CAM_MainWindow(QMainWindow):
             if task.inited():
                 self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxLoad, targetNode = task.From )
         elif task.status == EBTask_Status.GoToLoad:
-            # print( "FROM : ", f"{task.From}, ({agentNO.edge}), {agentNO.position}", task.From == tEdgeKeyFromStr( agentNO.edge )[1] )
             self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxUnload, targetNode = task.To )
         elif task.status == EBTask_Status.GoToUnload:
-            # print( "TO  : ", f"{task.From}, ({agentNO.edge}), {agentNO.position}", task.To == tEdgeKeyFromStr( agentNO.edge )[1] )
             task.status = EBTask_Status.Done
-        elif task.status == EBTask_Status.Done:
-            if task.getBack: task.invert()
 
     def processTaskStage(self, agentNO, task, BL_BU_event, targetNode): ##ExpoV
         nxGraph = self.graphRootNode().nxGraph
@@ -386,14 +410,6 @@ class CAM_MainWindow(QMainWindow):
 
         agentNO.applyRoute( nodes_route )
 
-    def SimpleAgentTest( self ):
-        if self.graphRootNode() is None: return
-        if self.agentsNode().childCount() == 0: return
-
-        for agentNO in self.agentsNode().children:
-            if agentNO.auto_control:
-                self.AgentTestMoving( agentNO )
-
     def processTasks( self ): ##ExpoV
         self.btnConveyorReady.setChecked( self.FakeConveyor.isReady() )
 
@@ -401,11 +417,11 @@ class CAM_MainWindow(QMainWindow):
         if self.agentsNode().childCount() == 0: return
 
         for agentNO in self.agentsNode().children:
-            if not self.readyToTask( agentNO ): continue
+            if not self.readyForTask( agentNO ): continue
             task = self.agentsTasks.get( int(agentNO.name) )
 
             if task is None:
-                if self.BoxAutotestActive:
+                if self.BoxAutotestActive and agentNO.auto_control:
                     if agentNO.charge < 30: agentNO.goToCharge()
                     else: self.setRandomTask( agentNO )
             else:
@@ -413,6 +429,23 @@ class CAM_MainWindow(QMainWindow):
                     task.freeze = True
                 else:
                     self.handleAgentTask( agentNO, task )
+
+    def onObjPropUpdated(self, cmd): ##ExpoV
+        if cmd.sPropName == SAP.task and cmd.value:
+            agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+
+            if not self.agentsTasks.get( int( agentNO.name ) ):
+                task = SBoxTask.fromString( cmd.value )
+                task.inited  = self.FakeConveyor.isReady
+                self.agentsTasks [ int( agentNO.name ) ] = task
+
+    def SimpleAgentTest( self ):
+        if self.graphRootNode() is None: return
+        if self.agentsNode().childCount() == 0: return
+
+        for agentNO in self.agentsNode().children:
+            if agentNO.auto_control:
+                self.AgentTestMoving( agentNO )
     
     # ******************************************************
     @pyqtSlot("bool")

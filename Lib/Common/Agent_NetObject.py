@@ -25,6 +25,7 @@ class SAgentProps( metaclass = СStrProps_Meta ):
     charge        = None
     auto_control  = None
     connectedTime = None
+    task          = None
     cmd_PE        = None
     cmd_PD        = None
     cmd_BR        = None
@@ -59,6 +60,7 @@ cmdProps_keys = cmdProps.keys()
 
 def_props = { SAP.status: EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP.route: "", SAP.route_idx: 0,
               SAP.angle : 0.0, SAP.odometer : 0, SAP.charge : 0, SAP.connectedTime : 0, SAP.auto_control : 1,
+              SAP.task : "",
 
               SAP.cmd_PE   : EAgent_CMD_State.Done, SAP.cmd_PD   : EAgent_CMD_State.Done,
               SAP.cmd_BR   : EAgent_CMD_State.Done, SAP.cmd_ES   : EAgent_CMD_State.Done,
