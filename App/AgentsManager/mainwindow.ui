@@ -187,6 +187,26 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="btnConveyorReady">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { background-color: rgb(78, 154, 6); } QPushButton:checked { border:3px solid red; border-radius:5px }</string>
+         </property>
+         <property name="text">
+          <string>CONVEYOR
+READY</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>

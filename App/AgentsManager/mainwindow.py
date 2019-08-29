@@ -9,6 +9,7 @@ from copy import deepcopy
 from enum import Enum, IntEnum, auto ##ExpoV
 from collections import namedtuple ##ExpoV
 import json ##ExpoV
+import redis ##ExpoV
 
 from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
@@ -23,6 +24,7 @@ from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Statu
 from Lib.Common.Agent_NetObject import cmdDesc_To_Prop, cmdDesc  ##ExpoV
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV  ##ExpoV
 from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State ##ExpoV
+from  Lib.Common.StrTypeConverter import CStrTypeConverter ##ExpoV
 import Lib.Common.StrConsts as SC
 import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -47,6 +49,30 @@ s_conveyors      = "conveyors"
 s_side           = "side"
 s_UID            = "UID"
 
+class CFakeConveyor:
+    s_ConveyorState = "ConveyorState"
+    def __init__(self):
+        self.redisConn = None
+
+        self.connect()
+
+    def isReady(self) -> int:
+        return CStrTypeConverter.ValFromStr( self.redisConn.get( self.s_ConveyorState ) )
+
+    def setReady(self, isReady:int):
+        self.redisConn.set( self.s_ConveyorState, CStrTypeConverter.ValToStr( isReady ) )
+
+    def connect(self):
+        redisOptDict = CSM.rootOpt( "redis" )
+        ip_address   = CSM.dictOpt( redisOptDict, "ip",   default="localhost" )
+        ip_redis     = CSM.dictOpt( redisOptDict, "port", default="6379" )
+
+        self.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db = 3, charset="utf-8", decode_responses=True)
+
+        state = self.redisConn.get( self.s_ConveyorState )
+        if state is None:
+            self.redisConn.set( self.s_ConveyorState, CStrTypeConverter.ValToStr(0) )
+
 class EBTask_Status( IntEnum ): ##ExpoV
     Init       = auto()
     GoToLoad   = auto()
@@ -62,6 +88,7 @@ class SBoxTask(): ##ExpoV
         self.status      = None
         self.getBack     = False
         self.freeze      = False
+        self.inited      = lambda:True
 
     def __str__(self):
         return f"[BoxTask] From { self.From } (load {self.loadSide}) To {self.To} (unload {self.unloadSide}). Status: {self.status.name}. getBack {self.getBack}."
@@ -100,6 +127,7 @@ class CAM_MainWindow(QMainWindow):
         self.storage_places    = {}
         self.conveyors         = {}
         self.BoxAutotestActive = False
+        self.FakeConveyor = CFakeConveyor()
                
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -193,7 +221,7 @@ class CAM_MainWindow(QMainWindow):
     blockAutoTestStatuses = [ EAgent_Status.Charging, EAgent_Status.CantCharge ]
 
     @pyqtSlot(bool) #слот для кнопок, которые добавляются автоматически для мест хранения
-    def on_StorageBtn_clicked(self): ##ExpoV
+    def on_btnStorage_clicked(self): ##ExpoV
         agentNO = self.agentsNode().childByName( str( self.currAgentN() ) )
         if agentNO is None: return
         
@@ -201,6 +229,10 @@ class CAM_MainWindow(QMainWindow):
         cr = list(self.conveyors.values())[0]
 
         self.setTask( agentNO, sp.nodeID, sp.side, cr.nodeID, cr.side, getBack = True  )
+
+    @pyqtSlot(bool)
+    def on_btnConveyorReady_clicked(self, b): ##ExpoV
+        self.FakeConveyor.setReady( int(b) )
 
     def loadStorageScheme(self, sFileName): ##ExpoV
         file_path = os.path.join(  FileUtils.scheme_Path(), sFileName )
@@ -228,7 +260,7 @@ class CAM_MainWindow(QMainWindow):
             btn = QPushButton(sp.label)
             btn.setProperty( s_UID, sp.UID )
             btn.setMinimumSize( 100, 100 )
-            btn.clicked.connect( self.on_StorageBtn_clicked )
+            btn.clicked.connect( self.on_btnStorage_clicked )
             self.wStoragePlaces.layout().addWidget( btn, row, column )
             column += 1
             if column > 8:
@@ -269,6 +301,7 @@ class CAM_MainWindow(QMainWindow):
 
         task.status = EBTask_Status.Init
         task.getBack = getBack
+        task.inited  = self.FakeConveyor.isReady
 
         self.agentsTasks [ int( agentNO.name ) ] = task
 
@@ -287,7 +320,8 @@ class CAM_MainWindow(QMainWindow):
             task.freeze = False
 
         if task.status == EBTask_Status.Init:
-            self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxLoad, targetNode = task.From )
+            if task.inited():
+                self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxLoad, targetNode = task.From )
         elif task.status == EBTask_Status.GoToLoad:
             # print( "FROM : ", f"{task.From}, ({agentNO.edge}), {agentNO.position}", task.From == tEdgeKeyFromStr( agentNO.edge )[1] )
             self.processTaskStage( agentNO, task, BL_BU_event = AEV.BoxUnload, targetNode = task.To )
@@ -361,6 +395,8 @@ class CAM_MainWindow(QMainWindow):
                 self.AgentTestMoving( agentNO )
 
     def processTasks( self ): ##ExpoV
+        self.btnConveyorReady.setChecked( self.FakeConveyor.isReady() )
+
         if self.graphRootNode() is None: return
         if self.agentsNode().childCount() == 0: return
 
