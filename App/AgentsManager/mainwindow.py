@@ -185,16 +185,19 @@ class CAM_MainWindow(QMainWindow):
 
     ################################################################
     # текущий агент выделенный в таблице
-    def currAgentN( self ):
+    def currArentNO(self):
         if not self.tvAgents.selectionModel().currentIndex().isValid():
             return
 
         agentNO = self.Agents_Model.agentNO_from_Index( self.tvAgents.selectionModel().currentIndex() )
-        if agentNO is None:
-            return
+        return agentNO
+
+
+    def currAgentN( self ):
+        agentNO = self.currArentNO()
         
-        agentN = int( agentNO.name )
-        return agentN
+        if agentNO is not None:
+            return int (agentNO.name)
 
     def CurrentAgentChanged( self, current, previous):
         if self.AgentsConnectionServer is None: return
@@ -241,12 +244,15 @@ class CAM_MainWindow(QMainWindow):
 
     @pyqtSlot("bool")
     def on_btnReset_Task_clicked( self, bVal ):
-        agentN = self.currAgentN()
-        agentNO = self.agentsNode().childByName( str( agentN ) )
+        agentNO = self.currArentNO()
+        if agentNO is None: return
         
-        if agentN and self.agentsTasks.get( agentN ):
+        agentN = int(agentNO.name)
+    
+        if self.agentsTasks.get( agentN ):
             agentNO.task = ""
             del self.agentsTasks[ agentN ]
+
 
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
                            SGT.ENodeTypes.PickStation,
@@ -257,7 +263,7 @@ class CAM_MainWindow(QMainWindow):
 
     @pyqtSlot(bool) #слот для кнопок, которые добавляются автоматически для мест хранения
     def on_btnStorage_clicked(self): ##ExpoV
-        agentNO = self.agentsNode().childByName( str( self.currAgentN() ) )
+        agentNO = self.currArentNO()
         if agentNO is None: return
         
         sp = self.storage_places[ self.sender().property( s_UID ) ]
