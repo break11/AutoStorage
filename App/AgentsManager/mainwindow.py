@@ -52,6 +52,7 @@ s_UID            = "UID"
 
 class CFakeConveyor:
     s_ConveyorState = "ConveyorState"
+    s_RemoveBox     = "RemoveBox"
     def __init__(self):
         self.redisConn = None
 
@@ -63,6 +64,12 @@ class CFakeConveyor:
     def setReady(self, isReady:int):
         self.redisConn.set( self.s_ConveyorState, CStrTypeConverter.ValToStr( isReady ) )
 
+    def isRemove(self) -> int:
+        return CStrTypeConverter.ValFromStr( self.redisConn.get( self.s_RemoveBox ) )
+
+    def setRemoveBox(self, nRemove:int):
+        self.redisConn.set( self.s_RemoveBox, CStrTypeConverter.ValToStr( nRemove ) )
+
     def connect(self):
         redisOptDict = CSM.rootOpt( "redis" )
         ip_address   = CSM.dictOpt( redisOptDict, "ip",   default="localhost" )
@@ -71,8 +78,10 @@ class CFakeConveyor:
         self.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db = 3, charset="utf-8", decode_responses=True)
 
         state = self.redisConn.get( self.s_ConveyorState )
-        if state is None:
-            self.redisConn.set( self.s_ConveyorState, CStrTypeConverter.ValToStr(0) )
+        if state is None: self.redisConn.set( self.s_ConveyorState, CStrTypeConverter.ValToStr(0) )
+
+        state = self.redisConn.get( self.s_RemoveBox )
+        if state is None: self.redisConn.set( self.s_RemoveBox, CStrTypeConverter.ValToStr(0) )
 
 class EBTask_Status( IntEnum ): ##ExpoV
     Init       = auto()
@@ -276,6 +285,10 @@ class CAM_MainWindow(QMainWindow):
     def on_btnConveyorReady_clicked(self, b): ##ExpoV
         self.FakeConveyor.setReady( int(b) )
 
+    @pyqtSlot(bool)
+    def on_btnRemoveBox_clicked(self, b): ##ExpoV
+        self.FakeConveyor.setRemoveBox( int(b) )
+
     def loadStorageScheme(self, sFileName): ##ExpoV
         file_path = os.path.join(  FileUtils.scheme_Path(), sFileName )
         try:
@@ -418,6 +431,7 @@ class CAM_MainWindow(QMainWindow):
 
     def processTasks( self ): ##ExpoV
         self.btnConveyorReady.setChecked( self.FakeConveyor.isReady() )
+        self.btnRemoveBox.setChecked( self.FakeConveyor.isRemove() )
 
         if self.graphRootNode() is None: return
         if self.agentsNode().childCount() == 0: return
