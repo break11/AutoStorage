@@ -194,6 +194,11 @@ class CAgent_Cmd_Log_Form(QWidget):
 
     def on_leCMD_Data_returnPressed( self ):
         self.sendCustom_CMD()
+
+    @pyqtSlot("bool")
+    def on_cbSelDeselAll_clicked( self, bVal ):
+        for cb in [ x for x in self.eventFilterWidget.children() if isinstance(x, QCheckBox) ]:
+            cb.setChecked( bVal )
     
     def sendCustom_CMD( self ):
         AL = self.agentLink
