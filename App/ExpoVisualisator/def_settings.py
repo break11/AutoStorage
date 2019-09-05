@@ -9,9 +9,5 @@ AM_DefSet = {
                 SC.s_main_window  : windowDefSettings,     # type: ignore
                 mgr.s_Redis_opt   : mgr.redisDefSettings,
                 mon.s_obj_monitor : mon.objMonDefSettings,
-                mon.s_obj_monitor : {
-                                        mon.s_active: False,
-                                        mon.s_window: mon.objMonWinDefSettings
-                                    },
                 ACL_Form.s_agent_log_cmd_form : ACL_Form.ALC_Form_DefSet
             }
