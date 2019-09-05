@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>378</width>
-    <height>285</height>
+    <width>423</width>
+    <height>521</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -274,6 +274,48 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="lbBS">
+       <property name="text">
+        <string>BS:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="leBS">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>BS</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="lbTS">
+       <property name="text">
+        <string>TS:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="leTS">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>TS</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">

@@ -13,7 +13,7 @@ from Lib.StorageViewer.Node_SGItem import CNode_SGItem
 from Lib.Common.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Net.NetObj_Button_Linker import CNetObj_Button_Linker
+from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, EAgent_Status
@@ -35,6 +35,7 @@ class CAgent_Widget( CNetObj_Widget ):
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
         self.btnLinker = CNetObj_Button_Linker()
+        self.elLinker  = CNetObj_EditLine_Linker()
 
         l = self.fmAgentCommands.layout()
         for i in range( l.count() ):
@@ -42,6 +43,9 @@ class CAgent_Widget( CNetObj_Widget ):
             self.btnLinker.addButton( btn, EAgent_CMD_State.Init, EAgent_CMD_State.Done )
         self.btnLinker.addButton( self.btnRTele, 1, 0 )
         self.btnLinker.addButton( self.btnAutoControl, 1, 0 )
+
+        self.elLinker.addControl( self.leBS )
+        self.elLinker.addControl( self.leTS )
 
     def setSGM( self, SGM ):
         self.SGM = SGM
@@ -56,6 +60,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnAutoControl.setChecked( netObj.auto_control )
 
         self.btnLinker.init( self.netObj )
+        self.elLinker.init( self.netObj )
 
     def done( self ):
         super().done()
@@ -66,6 +71,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.selectTargetMode = SelectionTarget.null
 
         self.btnLinker.clear()
+        self.elLinker.clear()
 
     #######################################################
 
