@@ -58,6 +58,25 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btnBox_Autotest">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton { background-color: rgb(196, 160, 0); } QPushButton:checked { border:3px solid red; border-radius:5px }</string>
+        </property>
+        <property name="text">
+         <string>Box Autotest</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnReset_Task">
         <property name="text">
          <string>Reset Task</string>
@@ -168,25 +187,6 @@
     <item>
      <widget class="QWidget" name="wStoragePlaces" native="true">
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QPushButton" name="btnBox_Autotest">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>100</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton { background-color: rgb(196, 160, 0); } QPushButton:checked { border:3px solid red; border-radius:5px }</string>
-         </property>
-         <property name="text">
-          <string>AUTOTEST</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QPushButton" name="btnConveyorReady">
          <property name="minimumSize">
@@ -201,6 +201,26 @@
          <property name="text">
           <string>CONVEYOR
 READY</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="btnRemoveBox">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>100</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { background-color: rgb(117, 80, 123);} QPushButton:checked { border:3px solid red; border-radius:5px }</string>
+         </property>
+         <property name="text">
+          <string>REMOVE
+BOX</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
