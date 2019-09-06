@@ -132,6 +132,10 @@ class CAgentLink( CAgentServer_Link ):
     
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
+        if cmd.event == EAgentServer_Event.OK:
+            if self.agentNO().status == EAgent_Status.AgentError:
+                self.agentNO().status = EAgent_Status.Idle
+
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
 
