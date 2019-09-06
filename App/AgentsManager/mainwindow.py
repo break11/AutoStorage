@@ -1,15 +1,10 @@
 
 import random
-import sys
 import os
 import networkx as nx
-import time
-import weakref
-from copy import deepcopy
 
 from PyQt5.QtCore import pyqtSlot, QTimer
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QPushButton
+from PyQt5.QtWidgets import QMainWindow
 from PyQt5 import uic
 
 from Lib.Common import StorageGraphTypes as SGT
@@ -47,7 +42,7 @@ class CAM_MainWindow(QMainWindow):
         self.SimpleAgentTest_Timer.setInterval(500)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
 
-        self.TasksProcessTimer = QTimer( self ) ##ExpoV
+        self.TasksProcessTimer = QTimer( self )
         self.TasksProcessTimer.setInterval(500)
         self.TasksProcessTimer.timeout.connect( self.processTasks )
         self.TasksProcessTimer.start()
@@ -55,7 +50,6 @@ class CAM_MainWindow(QMainWindow):
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
 
-        ##ExpoV
         self.agentsTasks       = {}
         self.BoxAutotestActive = False
         self.FakeConveyor = CFakeConveyor()
@@ -126,7 +120,7 @@ class CAM_MainWindow(QMainWindow):
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
-        if self.BoxAutotestActive: ##ExpoV
+        if self.BoxAutotestActive:
             self.btnSimpleAgent_Test.setChecked( False )
             return
 
@@ -135,7 +129,7 @@ class CAM_MainWindow(QMainWindow):
         else:
             self.SimpleAgentTest_Timer.stop()
 
-    @pyqtSlot(bool) ##ExpoV
+    @pyqtSlot(bool)
     def on_btnBox_Autotest_clicked(self, b):
         b = b and not self.btnSimpleAgent_Test.isChecked()
         self.BoxAutotestActive = b
@@ -173,7 +167,7 @@ class CAM_MainWindow(QMainWindow):
 
         return True
 
-    def handleAgentTask( self, agentNO, task ): ##ExpoV
+    def handleAgentTask( self, agentNO, task ):
         if agentNO.status != EAgent_Status.Idle: return #агент в процессе выполнения этапа
         
         if task.status == EBTask_Status.GoToLoad and agentNO.charge < 30:

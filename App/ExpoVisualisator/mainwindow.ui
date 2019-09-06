@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AM_MainWindow</class>
- <widget class="QMainWindow" name="AM_MainWindow">
+ <class>EV_MainWindow</class>
+ <widget class="QMainWindow" name="EV_MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AgentsManager</string>
+   <string>ExpoVisualisator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -23,7 +23,7 @@
          <property name="minimumSize">
           <size>
            <width>100</width>
-           <height>100</height>
+           <height>250</height>
           </size>
          </property>
          <property name="styleSheet">
@@ -43,7 +43,7 @@ READY</string>
          <property name="minimumSize">
           <size>
            <width>100</width>
-           <height>100</height>
+           <height>250</height>
           </size>
          </property>
          <property name="styleSheet">
