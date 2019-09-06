@@ -30,13 +30,16 @@ taskCommands = [ AEV.SequenceBegin,
                  AEV.PowerEnable
                ]
 
-NotIgnoreEvents = TeleEvents.union( { AEV.PowerEnable, AEV.BrakeRelease } )
+NotIgnoreEvents = TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.OdometerPassed, AEV.BoxLoadAborted } )
 
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     # местная ф-я обработки пакета, если он признан актуальным
     # на часть команд отвечаем - часть заносим в taskList
     def processRxPacket(self, cmd):
         FAL = self.agentLink()
+
+        if FAL.batteryState.PowerType == EAgentBattery_Type.N and cmd.event == AEV.BrakeRelease:
+            FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"cannot brake release without power on" ) )
 
         if FAL.bErrorState and cmd.event not in NotIgnoreEvents:
             data = f":{cmd.data}" if cmd.data is not None else ""
@@ -70,6 +73,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.bErrorState = False
             FAL.bEmergencyStop = False
             FAL.pushCmd( self.genPacket( event = AEV.BrakeRelease, data = "FW" ) )
+            FAL.pushCmd( self.genPacket( event = AEV.OK ) )
 
         # elif cmd.event == AEV.PowerEnable:
             # FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = "ID" ) )
@@ -110,13 +114,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             if FAL.currentTask.event == AEV.PowerDisable:
                 FAL.batteryState.PowerType = EAgentBattery_Type.N
                 NotIgnoreEvents -= { AEV.BrakeRelease }
-                FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"Power Disable Fake Agent Err" ) ) #HACK реальный агент при выключении становится в состояние ошибки
+                FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"SERVO DISABLED DUE TO PMSM TIMEOUT" ) )
                 self.startNextTask()
 
             elif FAL.currentTask.event == AEV.PowerEnable:
                 FAL.batteryState.PowerType = EAgentBattery_Type.Supercap
                 NotIgnoreEvents.add( AEV.BrakeRelease )
-                FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"Power Enable Fake Agent Err" ) ) #HACK реальный агент при включении становится в состояние ошибки
+                ##remove##FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"Power Enable Fake Agent Err" ) ) #HACK реальный агент при включении становится в состояние ошибки
                 self.startNextTask()
 
             elif FAL.currentTask.event == AEV.SequenceBegin:

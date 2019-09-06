@@ -121,8 +121,8 @@ class CNetObj( CTreeNode ):
             cmd.Event = EV.ObjPropCreated
 
         self.propsDict()[ cmd.sPropName ] = value
-        CNetObj_Manager.doCallbacks( cmd )
         CNetObj_Manager.sendNetCMD( cmd )
+        CNetObj_Manager.doCallbacks( cmd )
 
     def __delitem__( self, key ):
         if CNetObj_Manager.isConnected():

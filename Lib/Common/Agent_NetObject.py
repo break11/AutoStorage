@@ -36,6 +36,8 @@ class SAgentProps( metaclass = СStrProps_Meta ):
     cmd_BU_R      = None
     cmd_BA        = None
     RTele         = None
+    BS            = None
+    TS            = None
 
 SAP = SAgentProps
 
@@ -67,6 +69,8 @@ def_props = { SAP.status: EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP
               SAP.cmd_BL_L : EAgent_CMD_State.Done, SAP.cmd_BL_R : EAgent_CMD_State.Done,
               SAP.cmd_BU_L : EAgent_CMD_State.Done, SAP.cmd_BU_R : EAgent_CMD_State.Done,
               SAP.cmd_BA   : EAgent_CMD_State.Done,
+
+              SAP.BS : "", SAP.TS : "",
 
               SAP.RTele : 1 }
 

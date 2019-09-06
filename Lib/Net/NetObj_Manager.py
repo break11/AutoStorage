@@ -167,7 +167,7 @@ class CNetObj_Manager( object ):
                     netCmd = item[1]
 
                     # i += 1
-                    if cls.bNetCmd_Log: print( f"[NetLog  ]:{netCmd} ClientID={packetClientID}" )
+                    if cls.bNetCmd_Log: print( f"[NetLog RX]:{netCmd} ClientID={packetClientID}" )
 
                     if netCmd.Event <= EV.ClientDisconnected:
                         cls.doCallbacks( netCmd )
@@ -348,6 +348,7 @@ class CNetObj_Manager( object ):
     def send_NetCmd_Buffer( cls ):
         if cls.isConnected() and len( cls.NetCmd_Buff ):
             sNetCmdBuf =  f"{cls.ClientID}|" + "|".join( cls.NetCmd_Buff )
+            if cls.bNetCmd_Log: print( f"[NetLog TX]: sNetCmdBuf={sNetCmdBuf}" )
 
             cls.redisConn.publish( s_Redis_NetObj_Channel, sNetCmdBuf )
 

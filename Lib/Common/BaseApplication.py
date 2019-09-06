@@ -117,6 +117,7 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParam
     window = mainWindowClass( **mainWindowParams )
 
     # добавление QDockWidget в MainWindow, в котором будет монитор объектов (когда его опция разрешена)
+    # док для монитора объектов создается до инициализации окна для возможности загрузки его положения на окне в методе init
     if CNetObj_Monitor.enabledInOptions():
         window.dkNetObj_Monitor = QDockWidget( parent = window )
         window.dkNetObj_Monitor.setObjectName( "dkNetObj_Monitor" )
@@ -124,7 +125,8 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParam
 
     window.init( EAppStartPhase.BeforeRedisConnect )
     if not app.initConnection(): return -1
-    app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
+    if CNetObj_Monitor.enabledInOptions():
+        app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
     window.init( EAppStartPhase.AfterRedisConnect )
 
     window.show()

@@ -9,6 +9,7 @@ _strList = [
             "main_window",
             "geometry",
             "state",
+            "propRef"
           ]
           
 # Экспортируем "короткие" алиасы строковых констант
