@@ -4,7 +4,7 @@ import os
 import networkx as nx
 
 from PyQt5.QtCore import pyqtSlot, QTimer
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QLayout
 from PyQt5 import uic
 
 from Lib.Common import StorageGraphTypes as SGT
@@ -12,6 +12,8 @@ from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Statu
 from Lib.Common.Agent_NetObject import SAP
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
+from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
+from Lib.Net.Agent_Widget import CAgent_Widget
 import Lib.Common.StrConsts as SC
 import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -28,15 +30,20 @@ from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.Common.StorageScheme import CFakeConveyor, CStorageScheme, SBoxTask, EBTask_Status, processTask, setRandomTask
 
 class CAM_MainWindow(QMainWindow):
+    def registerObjects_Widgets(self):
+        reg = self.WidgetManager.registerWidget
+        reg( CAgent_NO, CAgent_Widget )
+        
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
         self.ACL_Form = CAgent_Cmd_Log_Form()
-        assert self.agent_CMD_Log_Container is not None
-        assert self.agent_CMD_Log_Container.layout() is not None
-        self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
+        assert self.dkAgent_CMD_Log_Contents is not None
+        assert self.dkAgent_CMD_Log_Contents.layout() is not None
+        self.dkAgent_CMD_Log_Contents.layout().addWidget( self.ACL_Form )
+        self.dkAgent_CMD_Log_Contents.layout().layoutSizeConstraint = QLayout.SetNoConstraint
 
         self.SimpleAgentTest_Timer = QTimer( self )
         self.SimpleAgentTest_Timer.setInterval(500)
@@ -49,6 +56,9 @@ class CAM_MainWindow(QMainWindow):
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
+
+        self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
+        self.registerObjects_Widgets()
 
         self.agentsTasks       = {}
         self.BoxAutotestActive = False
@@ -98,6 +108,11 @@ class CAM_MainWindow(QMainWindow):
 
         self.ACL_Form.setAgentLink( agentLink )
 
+        agentNO = self.currArentNO()        
+        if agentNO is not None:
+            self.WidgetManager.activateWidget( agentNO )
+        else:
+            self.WidgetManager.clearActiveWidget()
 
     ################################################################
 

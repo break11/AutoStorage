@@ -34,9 +34,9 @@ class CFA_MainWindow(QMainWindow):
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
         self.ACL_Form = CAgent_Cmd_Log_Form()
-        assert self.agent_CMD_Log_Container is not None
-        assert self.agent_CMD_Log_Container.layout() is not None
-        self.agent_CMD_Log_Container.layout().addWidget( self.ACL_Form )
+        assert self.dkAgent_CMD_Log_Contents is not None
+        assert self.dkAgent_CMD_Log_Contents.layout() is not None
+        self.dkAgent_CMD_Log_Contents.layout().addWidget( self.ACL_Form )
 
         self.Agents_Model = CFakeAgentsList_Model( parent = self )
         self.Agents_Model.loadAgentsList()

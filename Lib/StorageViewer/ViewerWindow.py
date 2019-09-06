@@ -279,7 +279,7 @@ class CViewerWindow(QMainWindow):
         l = list( s )
         if len( l ) == 1:
             netObj = CNetObj_Manager.accessObj( l[0] )
-            widget = self.WidgetManager.activateWidget( netObj )
+            self.WidgetManager.activateWidget( netObj )
         else:
             self.WidgetManager.clearActiveWidget()
                 
