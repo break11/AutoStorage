@@ -15,6 +15,7 @@ from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 from Lib.Common.StorageGraphTypes import ENodeTypes, ESensorSide, EWidthType, ECurvature, ESide
 from Lib.AgentProtocol.AgentDataTypes import EAgent_Status, EAgent_CMD_State
+from Lib.AgentProtocol.AgentDataTypes import SAgent_BatteryState
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -33,7 +34,7 @@ def registerNetObj_Props_UserTypes():
     reg( "e", ECurvature )
     reg( "g", ESide )
     reg( "j", EAgent_CMD_State )
-
+    reg( "h", SAgent_BatteryState )
 
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):

@@ -71,14 +71,24 @@ class CNetObj_Button_Linker( CNetObj_Control_Linker ):
 ##############################################
 
 class CNetObj_EditLine_Linker( CNetObj_Control_Linker ):
-    def addControl( self, control ):
-        super().addControl( control )
+    def __init__( self ):
+        super().__init__()
+        self.customClass_by_EditLine = {}
+
+    def addEditLine( self, control, customClass=None ):
+        self.addControl( control )
+        if customClass is not None:
+            self.customClass_by_EditLine[ control ] = customClass
         control.returnPressed.connect( self.returnPressed )
 
     def updateControlState( self, control, value ):
-        control.setText( value )
+        control.setText( str(value) )
 
     def returnPressed( self ):
         editLine = self.sender()
-        self.agentNO[ self.controlPropRef( editLine ) ] = editLine.text()
+        if editLine in self.customClass_by_EditLine:
+            customClass = self.customClass_by_EditLine[ editLine ]
+            self.agentNO[ self.controlPropRef( editLine ) ] = customClass.fromString( editLine.text() )
+        else:
+            self.agentNO[ self.controlPropRef( editLine ) ] = editLine.text()
 

@@ -2,7 +2,7 @@ import os
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QPushButton
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache # CAgent_NO, queryAgentNetObj, EAgent_Status
@@ -11,7 +11,7 @@ from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_Stat
 import Lib.Common.FileUtils as FU
 import Lib.Common.StrConsts as SC
 
-from Lib.Common.StorageScheme import CStorageScheme #CFakeConveyor, SBoxTask, EBTask_Status, processTask, setRandomTask
+from Lib.Common.StorageScheme import CStorageScheme, CFakeConveyor #SBoxTask, EBTask_Status, processTask, setRandomTask
 
 
 s_UID = "UID"
@@ -21,6 +21,12 @@ class CEV_MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
         self.agentsNode = agentsNodeCache()
+        self.FakeConveyor = CFakeConveyor()
+
+        self.tickTimer = QTimer( self )
+        self.tickTimer.setInterval(500)
+        self.tickTimer.timeout.connect( self.onTick )
+        self.tickTimer.start()
 
         self.dkNetObj_Monitor = None
 
@@ -68,3 +74,8 @@ class CEV_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_btnRemoveBox_clicked(self, b):
         self.FakeConveyor.setRemoveBox( int(b) )
+
+
+    def onTick(self):
+        self.btnConveyorReady.setChecked( self.FakeConveyor.isReady() )
+        self.btnRemoveBox.setChecked( self.FakeConveyor.isRemove() )

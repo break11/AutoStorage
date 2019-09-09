@@ -226,7 +226,7 @@ class CAgent_SGItem(QGraphicsItem):
             painter.resetTransform()
 
     def drawBattery( self, painter ):
-        charge = self.__agentNetObj().charge / 100
+        charge = self.__agentNetObj().BS.supercapPercentCharge() / 100
         color = Qt.black if charge > 0.3 else Qt.darkRed
         offset = 10
         charge_level = min( max(100 * (1 - charge), 0), 100 )

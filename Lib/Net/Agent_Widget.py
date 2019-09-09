@@ -16,7 +16,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, EAgent_Status
+from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, EAgent_Status, SAgent_BatteryState
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -44,8 +44,8 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnLinker.addButton( self.btnRTele, 1, 0 )
         self.btnLinker.addButton( self.btnAutoControl, 1, 0 )
 
-        self.elLinker.addControl( self.leBS )
-        self.elLinker.addControl( self.leTS )
+        self.elLinker.addEditLine( self.leBS, SAgent_BatteryState )
+        self.elLinker.addEditLine( self.leTS )
 
     def setSGM( self, SGM ):
         self.SGM = SGM
@@ -119,6 +119,8 @@ class CAgent_Widget( CNetObj_Widget ):
 
         if cmd.sPropName == SAP.angle:
             self.sbAngle.setValue( cmd.value )
+        elif cmd.sPropName == SAP.BS:
+            self.pbCharge.setValue( cmd.value.supercapPercentCharge() )
     
     #######################################################
 

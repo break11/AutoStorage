@@ -120,7 +120,6 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             elif FAL.currentTask.event == AEV.PowerEnable:
                 FAL.batteryState.PowerType = EAgentBattery_Type.Supercap
                 NotIgnoreEvents.add( AEV.BrakeRelease )
-                ##remove##FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"Power Enable Fake Agent Err" ) ) #HACK реальный агент при включении становится в состояние ошибки
                 self.startNextTask()
 
             elif FAL.currentTask.event == AEV.SequenceBegin:

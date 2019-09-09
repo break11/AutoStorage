@@ -146,8 +146,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO = self.agentNO()
 
             BS = extractASP_Data( cmd )
-            agentNO.charge = BS.supercapPercentCharge()
-            agentNO.BS = cmd.data
+            agentNO.BS = BS
 
         elif cmd.event == EAgentServer_Event.TemperatureState:
             self.agentNO().TS = cmd.data
