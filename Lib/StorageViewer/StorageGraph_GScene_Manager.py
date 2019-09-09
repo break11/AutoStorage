@@ -554,5 +554,5 @@ class CStorageGraph_GScene_Manager( QObject ):
                 gItem.updateRotation()
             elif netCmd.sPropName in [ SAP.position, SAP.edge ]:
                 gItem.updatePos()
-            elif netCmd.sPropName in [ SAP.charge, SAP.status ]:
+            elif netCmd.sPropName in [ SAP.BS, SAP.status ]:
                 gItem.update()

@@ -44,7 +44,7 @@
          <x>0</x>
          <y>0</y>
          <width>1096</width>
-         <height>531</height>
+         <height>613</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -300,6 +300,9 @@
          <property name="toolTip">
           <string>Reconnect with zero RX packet Number</string>
          </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: lightGreen;</string>
+         </property>
          <property name="text">
           <string>Connect</string>
          </property>
@@ -323,6 +326,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="btnDisconnect">
+         <property name="styleSheet">
+          <string notr="true">background-color: red;</string>
+         </property>
          <property name="text">
           <string>Disconnect</string>
          </property>

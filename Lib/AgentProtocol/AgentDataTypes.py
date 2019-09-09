@@ -3,6 +3,7 @@ from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 from Lib.Common import StorageGraphTypes as SGT
+import Lib.Common.StrConsts as SC
 
 TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerPassed }
 BL_BU_Events = { AEV.BoxLoad, AEV.BoxUnload }
@@ -59,6 +60,7 @@ class EAgentBattery_Type( BaseEnum ):
 
 
 class SAgent_BatteryState:
+    defVal = "S,33.44V,40.00V,47.64V,01.1A/00.3A"
     C = 1000
     max_S_U = 43.2
     min_S_U = 25
@@ -73,26 +75,31 @@ class SAgent_BatteryState:
         self.power_I1 = power_I1
         self.power_I2 = power_I2
 
+    def __str__( self ): return self.toString()
+
     def supercapPercentCharge( self ):
         E = 0.5 * self.C * (self.S_V ** 2)
         return 100 * ( max(E - self.E_empty, 0) ) / ( self.E_full - self.E_empty )
 
     @classmethod
     def fromString( cls, data ):
-        "S,33.44V,40.00V,47.64V,01.1A/00.3A"
-        l = data.split( "," )
-        
-        PowerType = EAgentBattery_Type.fromString( l[0] )
-        S_V       = float( l[1][:-1] )
-        L_V       = float( l[2][:-1] )
-        power_U   = float( l[3][:-1] )
+        try:
+            l = data.split( "," )
+            
+            PowerType = EAgentBattery_Type.fromString( l[0] )
+            S_V       = float( l[1][:-1] )
+            L_V       = float( l[2][:-1] )
+            power_U   = float( l[3][:-1] )
 
-        I = l[4].split( "/" )
-        power_I1 = float( I[0][:-1] )
-        power_I2 = float( I[1][:-1] )
+            I = l[4].split( "/" )
+            power_I1 = float( I[0][:-1] )
+            power_I2 = float( I[1][:-1] )
 
-        return SAgent_BatteryState( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
-    
+            return SAgent_BatteryState( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
+        except:
+            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal}'!" )
+            return SAgent_BatteryState.fromString( cls.defVal )
+
     def toString( self ):
         return f"{ EAgentBattery_Type.toString( self.PowerType ) },{self.S_V:05.2f}V,{self.L_V:05.2f}V,{self.power_U:05.2f}V,{self.power_I1:04.1f}A/{self.power_I2:04.1f}A"
 
