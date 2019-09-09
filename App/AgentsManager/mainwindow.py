@@ -177,7 +177,7 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.route != "": return
         if agentNO.status in self.blockAutoTestStatuses: return
         if agentNO.status == EAgent_Status.GoToCharge: # здесь agentNO.route == ""
-            agentLink.prepareCharging()
+            agentNO.prepareCharging()
             return
 
         return True

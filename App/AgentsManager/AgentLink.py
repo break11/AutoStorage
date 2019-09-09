@@ -243,15 +243,6 @@ class CAgentLink( CAgentServer_Link ):
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
 
-    def prepareCharging( self ):
-        agentNO = self.agentNO()
-        tKey = GU.tEdgeKeyFromStr( agentNO.edge )
-        if not GU.isOnNode( self.nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
-            agentNO.status = EAgent_Status.CantCharge
-            return
-
-        self.pushCmd( self.genPacket( EAgentServer_Event.ChargeMe ) )
-
     def doChargeCMD( self, chargeCMD ):
         tKey = GU.tEdgeKeyFromStr( self.agentNO().edge )
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
