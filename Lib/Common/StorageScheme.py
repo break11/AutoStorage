@@ -15,8 +15,8 @@ from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 import Lib.Common.GraphUtils as GU
 
-CStoragePlace = namedtuple('CStoragePlace', 'UID label nodeID side')
-CConveyor     = namedtuple('CConveyor',     'UID label nodeID side')
+CStoragePlace = namedtuple('CStoragePlace', 'UID label img nodeID side')
+CConveyor     = namedtuple('CConveyor',     'UID label img nodeID side')
 
 s_storage_places = "storage_places"
 s_conveyors      = "conveyors"

@@ -1,6 +1,7 @@
 import os
 
 from PyQt5 import uic
+from .images_rc import *
 from PyQt5.QtWidgets import QMainWindow, QPushButton
 from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot
 
@@ -34,7 +35,6 @@ class CEV_MainWindow(QMainWindow):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
             load_Window_State_And_Geometry( self )
         elif initPhase == EAppStartPhase.AfterRedisConnect:
-            # CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
             self.StorageScheme = CStorageScheme( "expo_sep_v05.json" )
             self.addStorageButtons()
 
@@ -49,6 +49,15 @@ class CEV_MainWindow(QMainWindow):
             btn = QPushButton(sp.label)
             btn.setProperty( s_UID, sp.UID )
             btn.setMinimumSize( 100, 250 )
+
+            img_path = FU.projectDir() + "/App/ExpoVisualisator/images/" + sp.img
+            btn.setStyleSheet( f"background-color: rgb(233, 185, 110);\
+                                 background-image: url({img_path});\
+                                 background-position: center;\
+                                 background-repeat: no-repeat;\
+                                 text-align: bottom"
+                             )
+            
             btn.clicked.connect( self.on_btnStorage_clicked )
             self.wStoragePlaces.layout().addWidget( btn, row, column )
             column += 1

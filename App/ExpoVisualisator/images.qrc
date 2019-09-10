@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file>images/DBS_20-A5.png</file>
+    <file>images/bg.jpg</file>
+  </qresource>
+</RCC>
