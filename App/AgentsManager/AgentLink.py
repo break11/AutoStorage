@@ -56,7 +56,7 @@ class CAgentLink( CAgentServer_Link ):
 
         self.main_Timer = QTimer()
         self.main_Timer.setInterval(1000)
-        self.main_Timer.timeout.connect( self.requestTelemetry )
+        self.main_Timer.timeout.connect( self.tick )
         self.main_Timer.start()
 
     def __del__(self):
@@ -105,7 +105,7 @@ class CAgentLink( CAgentServer_Link ):
 
     ##################
 
-    def requestTelemetry(self):
+    def tick(self):
         agentNO = self.agentNO()
 
         if agentNO.RTele:

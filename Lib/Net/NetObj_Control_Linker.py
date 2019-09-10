@@ -86,9 +86,14 @@ class CNetObj_EditLine_Linker( CNetObj_Control_Linker ):
 
     def returnPressed( self ):
         editLine = self.sender()
+        propRef = self.controlPropRef( editLine )
         if editLine in self.customClass_by_EditLine:
             customClass = self.customClass_by_EditLine[ editLine ]
-            self.agentNO[ self.controlPropRef( editLine ) ] = customClass.fromString( editLine.text() )
+            self.agentNO[ propRef ] = customClass.fromString( editLine.text() )
+
+            # обратное присваение нужно, т.к. если тип не принял значение из строки ( например "Idle1111" ) а в значении уже было Idle - то обновление поля не пройдет
+            # и в строке ввода останется неверное значение "Idle1111"
+            editLine.setText( self.agentNO[ propRef ].name )
         else:
-            self.agentNO[ self.controlPropRef( editLine ) ] = editLine.text()
+            self.agentNO[ propRef ] = editLine.text()
 
