@@ -16,7 +16,9 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, EAgent_Status, SAgent_BatteryState
+import Lib.AgentProtocol.AgentDataTypes as ADT
+
+from PyQt5.QtCore import QTimer
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -40,12 +42,33 @@ class CAgent_Widget( CNetObj_Widget ):
         l = self.fmAgentCommands.layout()
         for i in range( l.count() ):
             btn = l.itemAt( i ).widget()
-            self.btnLinker.addButton( btn, EAgent_CMD_State.Init, EAgent_CMD_State.Done )
+            self.btnLinker.addButton( btn, ADT.EAgent_CMD_State.Init, ADT.EAgent_CMD_State.Done )
         self.btnLinker.addButton( self.btnRTele, 1, 0 )
         self.btnLinker.addButton( self.btnAutoControl, 1, 0 )
 
-        self.elLinker.addEditLine( self.leBS, SAgent_BatteryState )
+        self.elLinker.addEditLine( self.leBS, customClass = ADT.SAgent_BatteryState )
         self.elLinker.addEditLine( self.leTS )
+        self.elLinker.addEditLine( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
+        self.elLinker.addEditLine( self.edStatusVal, customClass = ADT.EAgent_Status )
+
+        self.updateControls_Timer = QTimer()
+        self.updateControls_Timer.setInterval(1000)
+        self.updateControls_Timer.timeout.connect( self.updateControls )
+        self.updateControls_Timer.start()
+
+    def updateControls( self ):
+        if self.agentNO is None: return
+
+        if self.pbCharge.value() < ADT.minChargeValue:
+            self.pbCharge.setStyleSheet( "QProgressBar::chunk {background-color:red;}" )
+        else:
+            self.pbCharge.setStyleSheet( "" )
+
+        if self.agentNO.BS.PowerType == ADT.EAgentBattery_Type.N:
+            self.leBS.setStyleSheet( "color: red" )
+        else:
+            self.leBS.setStyleSheet( "" )
+
 
     def setSGM( self, SGM ):
         self.SGM = SGM
@@ -62,6 +85,8 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnLinker.init( self.netObj )
         self.elLinker.init( self.netObj )
 
+        self.lbNameVal.setText( netObj.name )
+
     def done( self ):
         super().done()
         self.sbAngle.setValue( 0 )
@@ -72,6 +97,8 @@ class CAgent_Widget( CNetObj_Widget ):
 
         self.btnLinker.clear()
         self.elLinker.clear()
+
+        self.lbNameVal.clear()
 
     #######################################################
 
@@ -106,9 +133,9 @@ class CAgent_Widget( CNetObj_Widget ):
     @pyqtSlot("bool")
     def on_btnReset_clicked( self, bVal ):
         self.agentNO.route  = ""
-        self.agentNO.status = EAgent_Status.Idle
+        self.agentNO.status = ADT.EAgent_Status.Idle
         for cmdProp in cmdProps_keys:
-            self.agentNO[ cmdProp ] = EAgent_CMD_State.Done
+            self.agentNO[ cmdProp ] = ADT.EAgent_CMD_State.Done
     
     #######################################################
 

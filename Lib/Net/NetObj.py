@@ -109,6 +109,7 @@ class CNetObj( CTreeNode ):
 
     def __setitem__( self, key, value ):
         bPropExist = self.propsDict().get( key ) is not None
+        # bSynced = key not in self.NetIgnoredProps
 
         if bPropExist and self.propsDict()[ key ] == value:
             return

@@ -26,6 +26,7 @@ from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
+import Lib.AgentProtocol.AgentDataTypes as ADT
 
 from Lib.Common.StorageScheme import CFakeConveyor, CStorageScheme, SBoxTask, EBTask_Status, processTask, setRandomTask
 
@@ -185,7 +186,7 @@ class CAM_MainWindow(QMainWindow):
     def handleAgentTask( self, agentNO, task ):
         if agentNO.status != EAgent_Status.Idle: return #агент в процессе выполнения этапа
         
-        if task.status == EBTask_Status.GoToLoad and agentNO.BS.supercapPercentCharge() < 30:
+        if task.status == EBTask_Status.GoToLoad and agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
             agentNO.goToCharge() #HACK зарядка по пути от мест хранения до конвеера
             task.freeze = False
         elif (task.status == EBTask_Status.Done):
@@ -206,7 +207,7 @@ class CAM_MainWindow(QMainWindow):
         startNode = tKey[0]
 
         if targetNode is None:
-            if agentNO.BS.supercapPercentCharge() < 30:
+            if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
                 route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
                 if len(nodes_route) == 0:
                     agentNO.status = EAgent_Status.NoRouteToCharge
@@ -238,7 +239,7 @@ class CAM_MainWindow(QMainWindow):
 
             if task is None:
                 if self.BoxAutotestActive and agentNO.auto_control:
-                    if agentNO.BS.supercapPercentCharge() < 30: agentNO.goToCharge()
+                    if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue: agentNO.goToCharge()
                     else: setRandomTask( self.StorageScheme, agentNO )
             else:
                 if not agentNO.auto_control:
