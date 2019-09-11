@@ -8,8 +8,7 @@ from PyQt5.QtWidgets import QMainWindow, QLayout
 from PyQt5 import uic
 
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Status, agentsNodeCache
-from Lib.Common.Agent_NetObject import SAP
+from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, agentsNodeCache, SAP
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
@@ -168,7 +167,7 @@ class CAM_MainWindow(QMainWindow):
                            SGT.ENodeTypes.PickStationIn,
                            SGT.ENodeTypes.PickStationOut ]
                            
-    blockAutoTestStatuses = [ EAgent_Status.Charging, EAgent_Status.CantCharge ]
+    blockAutoTestStatuses = [ ADT.EAgent_Status.Charging, ADT.EAgent_Status.CantCharge ]
 
     def readyForTask( self, agentNO ):
         if self.AgentsConnectionServer is None: return
@@ -177,14 +176,14 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
         if agentNO.status in self.blockAutoTestStatuses: return
-        if agentNO.status == EAgent_Status.GoToCharge: # здесь agentNO.route == ""
+        if agentNO.status == ADT.EAgent_Status.GoToCharge: # здесь agentNO.route == ""
             agentLink.prepareCharging()
             return
 
         return True
 
     def handleAgentTask( self, agentNO, task ):
-        if agentNO.status != EAgent_Status.Idle: return #агент в процессе выполнения этапа
+        if agentNO.status != ADT.EAgent_Status.Idle: return #агент в процессе выполнения этапа
         
         if task.status == EBTask_Status.GoToLoad and agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
             agentNO.goToCharge() #HACK зарядка по пути от мест хранения до конвеера
@@ -210,10 +209,10 @@ class CAM_MainWindow(QMainWindow):
             if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
                 route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
                 if len(nodes_route) == 0:
-                    agentNO.status = EAgent_Status.NoRouteToCharge
+                    agentNO.status = ADT.EAgent_Status.NoRouteToCharge
                     print(f"{SC.sError} Cant find any route to service station.")
                 else:
-                    agentNO.status = EAgent_Status.GoToCharge
+                    agentNO.status = ADT.EAgent_Status.GoToCharge
             else:
                 nodes = list( nxGraph.nodes )
                 while True:

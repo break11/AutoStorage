@@ -13,8 +13,8 @@ from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge
 from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.StrTypeConverter import CStrTypeConverter
-from Lib.Common.StorageGraphTypes import ENodeTypes, ESensorSide, EWidthType, ECurvature, ESide
-from Lib.AgentProtocol.AgentDataTypes import EAgent_Status, EAgent_CMD_State, SAgent_BatteryState, EConnectedStatus
+import Lib.Common.StorageGraphTypes as SGT
+import Lib.AgentProtocol.AgentDataTypes as ADT
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -26,15 +26,15 @@ def registerNetObjTypes():
 
 def registerNetObj_Props_UserTypes():
     reg = CStrTypeConverter.registerUserType
-    reg( "a", EAgent_Status )
-    reg( "b", ENodeTypes )
-    reg( "c", ESensorSide )
-    reg( "d", EWidthType )
-    reg( "e", ECurvature )
-    reg( "g", ESide )
-    reg( "h", EAgent_CMD_State )
-    reg( "j", SAgent_BatteryState )
-    reg( "k", EConnectedStatus )
+    reg( "a", ADT.EAgent_Status )
+    reg( "b", SGT.ENodeTypes )
+    reg( "c", SGT.ESensorSide )
+    reg( "d", SGT.EWidthType )
+    reg( "e", SGT.ECurvature )
+    reg( "g", SGT.ESide )
+    reg( "h", ADT.EAgent_CMD_State )
+    reg( "j", ADT.SAgent_BatteryState )
+    reg( "k", ADT.EConnectedStatus )
 
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):

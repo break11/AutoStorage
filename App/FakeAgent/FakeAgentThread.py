@@ -10,7 +10,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
-from Lib.AgentProtocol.AgentDataTypes import SFakeAgent_DevPacketData, SAgent_BatteryState, SHW_Data, EAgentBattery_Type, TeleEvents
+import Lib.AgentProtocol.AgentDataTypes as ADT
 
 DP_DELTA_PER_CYCLE   = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE   = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
@@ -30,7 +30,7 @@ taskCommands = [ AEV.SequenceBegin,
                  AEV.PowerEnable
                ]
 
-NotIgnoreEvents = TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.OdometerPassed, AEV.BoxLoadAborted } )
+NotIgnoreEvents = ADT.TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.OdometerPassed, AEV.BoxLoadAborted } )
 
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     # местная ф-я обработки пакета, если он признан актуальным
@@ -38,7 +38,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
     def processRxPacket(self, cmd):
         FAL = self.agentLink()
 
-        if FAL.batteryState.PowerType == EAgentBattery_Type.N and cmd.event == AEV.BrakeRelease:
+        if FAL.batteryState.PowerType == ADT.EAgentBattery_Type.N and cmd.event == AEV.BrakeRelease:
             FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"cannot brake release without power on" ) )
 
         if FAL.bErrorState and cmd.event not in NotIgnoreEvents:
@@ -48,11 +48,11 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             return
 
         if cmd.event == AEV.HelloWorld:
-            # cmd = self.genPacket( event = AEV.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() )
+            # cmd = self.genPacket( event = AEV.HelloWorld, data = ADT.SHW_Data( FAL.last_RX_packetN ).toString() )
             # cmd.packetN = 0
             # FAL.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
 
-            FAL.pushCmd( self.genPacket( event = AEV.HelloWorld, data = SHW_Data( FAL.last_RX_packetN ).toString() ) )
+            FAL.pushCmd( self.genPacket( event = AEV.HelloWorld, data = ADT.SHW_Data( FAL.last_RX_packetN ).toString() ) )
 
         elif cmd.event == AEV.TaskList:
             FAL.pushCmd( self.genPacket( event = AEV.TaskList, data = str( len( FAL.tasksList ) ) ) )
@@ -95,7 +95,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         
         # зарядка суперконденсаторов до максимального значения
         if FAL.bCharging:
-            if FAL.batteryState.S_V < SAgent_BatteryState.max_S_U:
+            if FAL.batteryState.S_V < ADT.SAgent_BatteryState.max_S_U:
                 FAL.batteryState.S_V += DP_CHARGE_PER_CYCLE
             else:
                 FAL.bCharging = False
@@ -112,13 +112,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
         if FAL.currentTask:
             if FAL.currentTask.event == AEV.PowerDisable:
-                FAL.batteryState.PowerType = EAgentBattery_Type.N
+                FAL.batteryState.PowerType = ADT.EAgentBattery_Type.N
                 NotIgnoreEvents -= { AEV.BrakeRelease }
                 FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"SERVO DISABLED DUE TO PMSM TIMEOUT" ) )
                 self.startNextTask()
 
             elif FAL.currentTask.event == AEV.PowerEnable:
-                FAL.batteryState.PowerType = EAgentBattery_Type.Supercap
+                FAL.batteryState.PowerType = ADT.EAgentBattery_Type.Supercap
                 NotIgnoreEvents.add( AEV.BrakeRelease )
                 self.startNextTask()
 

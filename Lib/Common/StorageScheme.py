@@ -11,7 +11,7 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Agent_NetObject import cmdDesc_To_Prop, cmdDesc
 from  Lib.Common.StrTypeConverter import CStrTypeConverter
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
-from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 import Lib.Common.GraphUtils as GU
 
@@ -144,7 +144,7 @@ def processTaskStage(nxGraph, agentNO, task, BL_BU_event, targetNode):
     
     desk = cmdDesc( event = BL_BU_event, data=agenSide.toChar() )
     prop = cmdDesc_To_Prop[ desk ]
-    agentNO[ prop ] = EAgent_CMD_State.Init
+    agentNO[ prop ] = ADT.EAgent_CMD_State.Init
     
     task.status = EBTask_Status( task.status + 1 )
 
