@@ -110,7 +110,7 @@ class CEV_MainWindow(QMainWindow):
         if self.agentsTasks.get( agentN ):
             del self.agentsTasks [ agentN ]
             
-        self.hasBox[ agentN ] == False
+        self.hasBox[ agentN ] = False
 
     def setTask( self, agentN, sTask ):
         if self.agentsTasks.get( agentN ): return
