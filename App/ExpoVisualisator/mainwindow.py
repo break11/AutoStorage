@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton
 from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
-from Lib.Common.Agent_NetObject import agentsNodeCache, EAgent_Status # CAgent_NO, queryAgentNetObj
+from Lib.Common.Agent_NetObject import agentsNodeCache, EAgent_Status, CAgent_NO #queryAgentNetObj
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -34,6 +34,7 @@ class CEV_MainWindow(QMainWindow):
         self.tickTimer.start()
 
         self.dkNetObj_Monitor = None
+        self.hasBox = {}
 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -92,7 +93,7 @@ class CEV_MainWindow(QMainWindow):
     def handleAgentTask( self, agentNO, task ):
         if agentNO.status != EAgent_Status.Idle: return #агент в процессе выполнения этапа
         
-        if task.status == EBTask_Status.GoToLoad and agentNO.BS.supercapPercentCharge() < 30:
+        if task.status == EBTask_Status.GoToLoad and agentNO.BS.supercapPercentCharge() < 30 and self.hasBox.get( int(agentNO.name) ):
             agentNO.goToCharge() #HACK зарядка по пути от мест хранения до конвеера
             task.freeze = False
         elif (task.status == EBTask_Status.Done):
@@ -105,20 +106,36 @@ class CEV_MainWindow(QMainWindow):
         else:
             processTask( self.graphRootNode().nxGraph, agentNO, task )
 
-    def onObjPropUpdated(self, cmd):
-        if cmd.sPropName == SAP.task:
-            agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+    def removeTask( self, agentN ):
+        if self.agentsTasks.get( agentN ):
+            del self.agentsTasks [ agentN ]
             
-            if cmd.value == "":
-                if self.agentsTasks.get( int( agentNO.name ) ):
-                    del self.agentsTasks [ int( agentNO.name ) ]
-            else:
-                if self.agentsTasks.get( int( agentNO.name ) ): return
+        self.hasBox[ agentN ] == False
 
-                task = SBoxTask.fromString( cmd.value )
-                if task is not None:
-                    task.inited  = lambda : self.RedisWatcher.get( CRedisWatcher.s_ConveyorState )
-                    self.agentsTasks [ int( agentNO.name ) ] = task
+    def setTask( self, agentN, sTask ):
+        if self.agentsTasks.get( agentN ): return
+
+        task = SBoxTask.fromString( sTask )
+        if task is not None:
+            task.inited  = lambda : self.RedisWatcher.get( CRedisWatcher.s_ConveyorState )
+            self.agentsTasks [ agentN ] = task
+
+    def onObjPropUpdated(self, cmd):
+        agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+        if not isinstance( agentNO, CAgent_NO ): return
+        agentN = int( agentNO.name )
+
+        if cmd.sPropName == SAP.task:
+            if cmd.value == "":
+                self.removeTask( agentN )
+            else:
+                self.setTask( agentN, cmd.value )
+
+        elif cmd.sPropName == SAP.status:
+            if agentNO.status in [ EAgent_Status.BoxLoad_Left, EAgent_Status.BoxLoad_Right ]:
+                self.hasBox [ agentN ] = True
+            elif agentNO.status in [ EAgent_Status.BoxUnload_Left, EAgent_Status.BoxUnload_Right ]:
+                self.hasBox [ agentN ] = False
 
     @pyqtSlot(bool) #слот для кнопок, которые добавляются автоматически для мест хранения
     def on_btnStorage_clicked(self):
