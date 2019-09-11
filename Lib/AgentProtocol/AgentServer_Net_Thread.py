@@ -9,7 +9,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, calcNextPacketN, getACC_Event_OtherSide
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status, UNINITED_AGENT_N
 from Lib.AgentProtocol.AgentLogManager import ALM
-from Lib.AgentProtocol.AgentDataTypes import SHW_Data
+import Lib.AgentProtocol.AgentDataTypes as ADT
 
 s_Off_5S = "Thread will closed with no activity for 5 secs."
 
@@ -132,7 +132,7 @@ class CAgentServer_Net_Thread(QThread):
         if not self.bIsServer: return
 
         if cmd.event == EAgentServer_Event.HelloWorld:
-            HW_Data = SHW_Data.fromString( cmd.data )
+            HW_Data = ADT.SHW_Data.fromString( cmd.data )
             if HW_Data.bIsValid:
                 packetN = HW_Data.lastRXPacketN
                 self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( calcNextPacketN( packetN ) )

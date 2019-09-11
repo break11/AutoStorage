@@ -7,7 +7,7 @@ import subprocess
 from PyQt5.QtCore import QTimer
 
 import Lib.Common.GraphUtils as GU
-from Lib.Common.Agent_NetObject import SAP, EAgent_Status, cmdProps_keys, cmdProps
+from Lib.Common.Agent_NetObject import SAP, cmdProps_keys, cmdProps
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
@@ -22,7 +22,7 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
-from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State, TeleEvents, BL_BU_Events, BL_BU_Agent_Status, BL_BU_Agent_Status_vals # SFakeAgent_DevPacketData,
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
 
@@ -75,18 +75,18 @@ class CAgentLink( CAgentServer_Link ):
 
         # обработка пропертей - сигналов команд PE, PD, BR, ES
         elif cmd.sPropName in cmdProps_keys:
-            if cmd.value == EAgent_CMD_State.Init:
+            if cmd.value == ADT.EAgent_CMD_State.Init:
                 cmd_desc = cmdProps[ cmd.sPropName ]
                 self.pushCmd( self.genPacket( event = cmd_desc.event, data=cmd_desc.data ) )
-                agentNO[ cmd.sPropName ] = EAgent_CMD_State.Done
+                agentNO[ cmd.sPropName ] = ADT.EAgent_CMD_State.Done
 
         elif cmd.sPropName == SAP.route:
-            if agentNO.status != EAgent_Status.GoToCharge:
+            if agentNO.status != ADT.EAgent_Status.GoToCharge:
                 if agentNO.route == "":
-                    if agentNO.status == EAgent_Status.OnRoute:
-                        agentNO.status = EAgent_Status.Idle
+                    if agentNO.status == ADT.EAgent_Status.OnRoute:
+                        agentNO.status = ADT.EAgent_Status.Idle
                 else:
-                    agentNO.status = EAgent_Status.OnRoute
+                    agentNO.status = ADT.EAgent_Status.OnRoute
 
             agentNO.route_idx = 0
             self.nodes_route = GU.nodesList_FromStr( cmd.value )
@@ -109,7 +109,7 @@ class CAgentLink( CAgentServer_Link ):
         agentNO = self.agentNO()
 
         if agentNO.RTele:
-            for e in TeleEvents:
+            for e in ADT.TeleEvents:
                 self.pushCmd( self.genPacket( event=e ),     bAllowDuplicate=False )
 
         # обновление статуса connectedTime для NetObj челнока
@@ -133,14 +133,14 @@ class CAgentLink( CAgentServer_Link ):
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
         if cmd.event == EAgentServer_Event.OK:
-            if self.agentNO().status == EAgent_Status.AgentError:
-                self.agentNO().status = EAgent_Status.Idle
+            if self.agentNO().status == ADT.EAgent_Status.AgentError:
+                self.agentNO().status = ADT.EAgent_Status.Idle
 
         if cmd.event == EAgentServer_Event.OdometerZero:
             self.agentNO().odometer = 0
 
         elif cmd.event == EAgentServer_Event.Error:
-            self.agentNO().status = EAgent_Status.AgentError
+            self.agentNO().status = ADT.EAgent_Status.AgentError
 
         elif cmd.event == EAgentServer_Event.BatteryState:
             agentNO = self.agentNO()
@@ -202,11 +202,11 @@ class CAgentLink( CAgentServer_Link ):
                 self.calcAgentAngle( agentNO )
 
         elif cmd.event == EAgentServer_Event.ChargeBegin:
-            self.agentNO().status = EAgent_Status.Charging
+            self.agentNO().status = ADT.EAgent_Status.Charging
             self.doChargeCMD( CU.EChargeCMD.on )
 
         elif cmd.event == EAgentServer_Event.ChargeEnd:
-            self.agentNO().status = EAgent_Status.Idle
+            self.agentNO().status = ADT.EAgent_Status.Idle
             self.doChargeCMD( CU.EChargeCMD.off )
 
         elif cmd.event == EAgentServer_Event.NewTask:
@@ -214,14 +214,14 @@ class CAgentLink( CAgentServer_Link ):
             # print( NT_Data.event, NT_Data.data, NT_Data.bIdle )
             
             if NT_Data.bIdle:
-                if self.agentNO().status in BL_BU_Agent_Status_vals:
-                    #TODO пока ставим статус idle только если предыдущий статус был в BL_BU_Agent_Status_vals,
+                if self.agentNO().status in ADT.BL_BU_Agent_Status_vals:
+                    #TODO пока ставим статус idle только если предыдущий статус был в ADT.BL_BU_Agent_Status_vals,
                     # так как в некоторых местах мы ориентируемся на предыдущий статус (например, GoToCharge)
                     # и не можем после завершения маршрута сбросить в Idle
-                    self.agentNO().status = EAgent_Status.Idle
+                    self.agentNO().status = ADT.EAgent_Status.Idle
 
-            elif NT_Data.event in BL_BU_Events:
-                self.agentNO().status = BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
+            elif NT_Data.event in ADT.BL_BU_Events:
+                self.agentNO().status = ADT.BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
 
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
@@ -234,7 +234,7 @@ class CAgentLink( CAgentServer_Link ):
         except ValueError:
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
             self.pushCmd( ES_cmd )
-            agentNO.status = EAgent_Status.PosSyncError
+            agentNO.status = ADT.EAgent_Status.PosSyncError
 
     def remapPacketsNumbers( self, startPacketN ):
         self.genTxPacketN = startPacketN
@@ -246,7 +246,7 @@ class CAgentLink( CAgentServer_Link ):
         agentNO = self.agentNO()
         tKey = GU.tEdgeKeyFromStr( agentNO.edge )
         if not GU.isOnNode( self.nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
-            agentNO.status = EAgent_Status.CantCharge
+            agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
         self.pushCmd( self.genPacket( EAgentServer_Event.ChargeMe ) )
@@ -257,7 +257,7 @@ class CAgentLink( CAgentServer_Link ):
 
         port = GU.nodeChargePort( self.nxGraph, nodeID )
         if port is None:
-            self.agentNO().status = EAgent_Status.CantCharge
+            self.agentNO().status = ADT.EAgent_Status.CantCharge
             return
 
         CU.controlCharge( chargeCMD, port )

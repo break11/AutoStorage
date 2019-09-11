@@ -10,7 +10,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
-from Lib.AgentProtocol.AgentDataTypes import SAgent_BatteryState, EAgentBattery_Type, SFakeAgent_DevPacketData, SOD_OP_Data, SHW_Data
+import Lib.AgentProtocol.AgentDataTypes as ADT
 
 class TestASP_DataParser(unittest.TestCase):
     def test_HW(self):
@@ -19,7 +19,7 @@ class TestASP_DataParser(unittest.TestCase):
 
         eData = extractASP_Data( packet )
 
-        self.assertEqual( type(eData), SHW_Data )
+        self.assertEqual( type(eData), ADT.SHW_Data )
         self.assertEqual( eData.lastRXPacketN, 45 )
         self.assertEqual( eData.bIsValid, True )
 
@@ -31,7 +31,7 @@ class TestASP_DataParser(unittest.TestCase):
         packet = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, data = sData )
 
         eData = extractASP_Data( packet )
-        self.assertEqual( type(eData), SHW_Data )
+        self.assertEqual( type(eData), ADT.SHW_Data )
         self.assertEqual( eData.lastRXPacketN, 0 )
         self.assertEqual( eData.bIsValid, False )
 
@@ -43,8 +43,8 @@ class TestASP_DataParser(unittest.TestCase):
 
         eData = extractASP_Data( packet )
 
-        self.assertEqual( type(eData), SAgent_BatteryState )
-        self.assertEqual( eData.PowerType, EAgentBattery_Type.Supercap )
+        self.assertEqual( type(eData), ADT.SAgent_BatteryState )
+        self.assertEqual( eData.PowerType, ADT.EAgentBattery_Type.Supercap )
         self.assertEqual( eData.S_V, 33.44 )
         self.assertEqual( eData.L_V, 40.00 )
         self.assertEqual( eData.power_U, 47.64 )
@@ -58,7 +58,7 @@ class TestASP_DataParser(unittest.TestCase):
     #     packet = CAgentServerPacket( event = EAgentServer_Event.FakeAgentDevPacket, data = sData )
 
     #     eData = extractASP_Data( packet )
-    #     self.assertEqual( type(eData), SFakeAgent_DevPacketData )
+    #     self.assertEqual( type(eData), ADT.SFakeAgent_DevPacketData )
     #     self.assertEqual( eData.bCharging, True )
 
     #     self.assertEqual( sData, eData.toString() )
@@ -66,7 +66,7 @@ class TestASP_DataParser(unittest.TestCase):
     #     sData = f"0"
     #     packet = CAgentServerPacket( event = EAgentServer_Event.FakeAgentDevPacket, data = sData )
     #     eData = extractASP_Data( packet )
-    #     self.assertEqual( type(eData), SFakeAgent_DevPacketData )
+    #     self.assertEqual( type(eData), ADT.SFakeAgent_DevPacketData )
     #     self.assertEqual( eData.bCharging, False )
 
     #     self.assertEqual( sData, eData.toString() )
@@ -76,7 +76,7 @@ class TestASP_DataParser(unittest.TestCase):
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = sData )
 
         eData = extractASP_Data( packet )
-        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOD_OP_Data )
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
 
@@ -84,7 +84,7 @@ class TestASP_DataParser(unittest.TestCase):
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = sData )
 
         eData = extractASP_Data( packet )
-        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOD_OP_Data )
         self.assertEqual( eData.bUndefined, False )
         self.assertEqual( eData.nDistance, 100 )
 
@@ -92,7 +92,7 @@ class TestASP_DataParser(unittest.TestCase):
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
 
         eData = extractASP_Data( packet )
-        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOD_OP_Data )
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
 
@@ -100,7 +100,7 @@ class TestASP_DataParser(unittest.TestCase):
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
 
         eData = extractASP_Data( packet )
-        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOD_OP_Data )
         self.assertEqual( eData.bUndefined, False )
         self.assertEqual( eData.nDistance, 100 )
 
@@ -108,7 +108,7 @@ class TestASP_DataParser(unittest.TestCase):
         packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = sData )
 
         eData = extractASP_Data( packet )
-        self.assertEqual( type(eData), SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOD_OP_Data )
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
 

@@ -16,21 +16,21 @@ from Lib.Common.Vectors import Vector2
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 
-from Lib.AgentProtocol.AgentDataTypes import EAgent_Status, EConnectedStatus
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.Common.Agent_NetObject import SAP
 
-bgColorsByConnectedStatus = { EConnectedStatus.connected    : Qt.darkGreen, 
-                              EConnectedStatus.disconnected : Qt.darkGray,
-                              EConnectedStatus.freeze       : Qt.gray }
+bgColorsByConnectedStatus = { ADT.EConnectedStatus.connected    : Qt.darkGreen, 
+                              ADT.EConnectedStatus.disconnected : Qt.darkGray,
+                              ADT.EConnectedStatus.freeze       : Qt.gray }
 
-colorsByStatus = { EAgent_Status.Idle            : Qt.green,
-                   EAgent_Status.GoToCharge      : Qt.blue,
-                   EAgent_Status.Charging        : Qt.gray,
-                   EAgent_Status.PosSyncError    : Qt.darkRed,
-                   EAgent_Status.NoRouteToCharge : Qt.darkRed,
-                   EAgent_Status.OnRoute         : Qt.blue,
-                   EAgent_Status.CantCharge      : Qt.darkRed,
-                   EAgent_Status.AgentError      : Qt.darkRed,
+colorsByStatus = { ADT.EAgent_Status.Idle            : Qt.green,
+                   ADT.EAgent_Status.GoToCharge      : Qt.blue,
+                   ADT.EAgent_Status.Charging        : Qt.gray,
+                   ADT.EAgent_Status.PosSyncError    : Qt.darkRed,
+                   ADT.EAgent_Status.NoRouteToCharge : Qt.darkRed,
+                   ADT.EAgent_Status.OnRoute         : Qt.blue,
+                   ADT.EAgent_Status.CantCharge      : Qt.darkRed,
+                   ADT.EAgent_Status.AgentError      : Qt.darkRed,
                  }
 
 
@@ -258,7 +258,7 @@ class CAgent_SGItem(QGraphicsItem):
         status = self.__agentNetObj().status
         painter.setPen( self.BL_BU_pen )
 
-        if status in [EAgent_Status.BoxLoad_Right, EAgent_Status.BoxUnload_Right]:
+        if status in [ADT.EAgent_Status.BoxLoad_Right, ADT.EAgent_Status.BoxUnload_Right]:
             painter.drawLine( 0, 250, 0, 340 )
-        elif status in [EAgent_Status.BoxLoad_Left, EAgent_Status.BoxUnload_Left]:
+        elif status in [ADT.EAgent_Status.BoxLoad_Left, ADT.EAgent_Status.BoxUnload_Left]:
             painter.drawLine( 0, -250, 0, -340 )
