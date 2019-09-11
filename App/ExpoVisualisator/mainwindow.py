@@ -48,7 +48,7 @@ class CEV_MainWindow(QMainWindow):
         for sp in self.StorageScheme.storage_places.values():
             btn = QPushButton(sp.label)
             btn.setProperty( s_UID, sp.UID )
-            btn.setMinimumSize( 100, 250 )
+            btn.setMinimumSize( 200, 250 )
 
             img_path = FU.projectDir() + "/App/ExpoVisualisator/images/" + sp.img
             btn.setStyleSheet( f"background-color: rgb(233, 185, 110);\
