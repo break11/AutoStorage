@@ -19,7 +19,7 @@ class CAgentServer_Link:
 
         self.log = []
         self.sLogFName = ALM.genAgentLogFName( agentN )
-        ALM.doLogString( self, f"{self.__class__.__name__}={agentN} Created" )
+        ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={agentN} Created" )
 
         self.agentN = agentN
         self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
@@ -35,7 +35,7 @@ class CAgentServer_Link:
 
     def __del__(self):
         self.done()
-        ALM.doLogString( self, f"{self.__class__.__name__}={self.agentN} Destroyed" )
+        ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={self.agentN} Destroyed" )
         
     def done( self ):
         for thread in self.socketThreads:

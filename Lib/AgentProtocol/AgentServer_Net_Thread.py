@@ -51,18 +51,18 @@ class CAgentServer_Net_Thread(QThread):
         self.host = host
         self.port = port
         self._agentLink = weakref.ref( agentLink )
-        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} INIT" )
+        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} INIT" )
     
     def initAgentServer( self, socketDescriptor, ACS ):
         self.bIsServer = True
         self.ACS = weakref.ref( ACS )
         self.socketDescriptor = socketDescriptor
         self.bConnected = True
-        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} INIT" )
+        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} INIT" )
 
     def __del__(self):
         self.socketDescriptor = None
-        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} DONE" )
+        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} DONE" )
 
     ##############################################
 
@@ -71,14 +71,14 @@ class CAgentServer_Net_Thread(QThread):
 
     @pyqtSlot()
     def socketDisconnected(self):
-        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} DISCONNECTED" )
+        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} DISCONNECTED" )
         self.bConnected = False
         self.bRunning = False
 
     @pyqtSlot()
     def socketConnected(self):
         self.bConnected = True
-        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} CONNECTED" )
+        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} CONNECTED" )
 
     ##############################################
     def agentLink( self ):
@@ -140,7 +140,7 @@ class CAgentServer_Net_Thread(QThread):
     ##############################################
 
     def run(self):
-        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} RUN" )
+        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} RUN" )
 
         self.tcpSocket = QTcpSocket()
 
@@ -181,7 +181,7 @@ class CAgentServer_Net_Thread(QThread):
         #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
         self.threadFinished.emit()
 
-        ALM.doLogString( self.agentLink(), f"{self.__class__.__name__} UID={self.UID} FINISH" )
+        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} FINISH" )
 
     ##############################################
 
@@ -223,11 +223,11 @@ class CAgentServer_Net_Thread(QThread):
         self.nReSendTX_Counter += 1
         if self.nReSendTX_Counter > 499:
             self.bSendTX_cmd = True
-            ALM.doLogString( self.agentLink(), "ReSend Old CMD", color="#636363" )
+            ALM.doLogString( self.agentLink(), self.UID, "ReSend Old CMD", color="#636363" )
         
         if self.bSendTX_cmd == False and self.currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.currentTX_cmd().packetN ):
             self.bSendTX_cmd = True
-            ALM.doLogString( self.agentLink(), "Send New CMD", color="#636363" )
+            ALM.doLogString( self.agentLink(), self.UID, "Send New CMD", color="#636363" )
 
         if self.bSendTX_cmd:
             self.sendTX_cmd()
@@ -247,7 +247,7 @@ class CAgentServer_Net_Thread(QThread):
         # отключение соединения если в течении 5 секунд не было ответа
         t = (time.time() - self.noRxTimer)
         if t > TIMEOUT_NO_ACTIVITY_ON_SOCKET:
-            ALM.doLogString( self.agentLink(), f"AgentLink={self.agentLink().agentN} {s_Off_5S}" )
+            ALM.doLogString( self.agentLink(), self.UID, f"AgentLink={self.agentLink().agentN} {s_Off_5S}" )
             self.bRunning = False
 
         self.doWork()

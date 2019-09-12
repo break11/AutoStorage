@@ -71,7 +71,7 @@ class CAgentLink( CAgentServer_Link ):
         if agentNO.UID != self.agentNO().UID: return
 
         if cmd.sPropName == SAP.status:
-            ALM.doLogString( self, f"Agent status changed to {agentNO.status}", color="#0000FF" )
+            ALM.doLogString( self, thread_UID="M", data=f"Agent status changed to {agentNO.status}", color="#0000FF" )
 
         # обработка пропертей - сигналов команд PE, PD, BR, ES
         elif cmd.sPropName in cmdProps_keys:
