@@ -113,7 +113,7 @@ class CNetObj_Manager( object ):
     clientInfoExpTime = 5
     @classmethod
     def updateClientInfo( cls ):
-        appName = baseFName.rsplit(os.sep, 1)[1]
+        appName = baseFName if (os.sep not in baseFName) else baseFName.rsplit(os.sep, 1)[1] # обработка запуска через 'python myApp.py' или './myApp.py'
 
         sKey = cls.redisKey_clientInfoName()
         cls.serviceConn.set( sKey, appName )
