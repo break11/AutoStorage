@@ -55,6 +55,13 @@ class CAgentLogManager( QObject ):
         super().__init__()
 
     @classmethod
+    def sDateTime( cls ):
+        now = datetime.datetime.now()
+        sD = now.strftime("%d-%m-%Y")
+        sT = now.strftime("%H-%M-%S")
+        return f"{sD}:{sT}"
+
+    @classmethod
     def genAgentLogFName( cls, agentN ):
         now = datetime.datetime.now()
         sD = now.strftime("%d-%m-%Y--%H")
@@ -92,11 +99,8 @@ class CAgentLogManager( QObject ):
 
     @classmethod
     def decorateLogString( cls, agentLink, data, color ):
-        now = datetime.datetime.now()
-        sD = now.strftime("%d-%m-%Y")
-        sT = now.strftime("%H-%M-%S")
         data = wrapSpan( data, color )
-        data = f"{sD}:{sT} {data}"
+        data = f"{cls.sDateTime()} {data}"
 
         return wrapDiv( data )
 
@@ -132,7 +136,7 @@ class CAgentLogManager( QObject ):
 
         data = f"{wrapSpan( sTX_or_RX, colorTX_or_RX, 400 )} {wrapSpan( data, colorData )}"
 
-        data = f"T:{ thread_UID } {data}"
+        data = f"{cls.sDateTime()} T:{ thread_UID } {data}"
         data = wrapDiv( data )
 
         return data
