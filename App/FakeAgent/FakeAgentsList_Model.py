@@ -145,7 +145,12 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
 
         FA_Thread = fakeAgentLink.socketThreads[ 0 ] # считаем, что в фейк агенте всегда только один активный поток соединения
         FA_Thread.bExitByLostSignal = bLostSignal
-        FA_Thread.disconnectFromServer() 
+        FA_Thread.disconnectFromServer()
+
+        # row = self.FA_List.index( agentN )
+        # col = self.propList.index( s_connected )
+        # idx = self.index( row, col )
+        # self.dataChanged.emit( idx, idx )
 
     # disconnected from other side
     def thread_FinihsedSlot( self ):

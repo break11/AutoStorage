@@ -103,6 +103,7 @@ class CAgentServer_Net_Thread(QThread):
         agentLink.Express_TX_Packets.clear()
 
     def sendTX_cmd( self ):
+        ## ACC send
         acc = self.agentLink().ACC_cmd
         if self.agentLink().lastTX_ACC_packetN == acc.packetN:
             acc.status = EPacket_Status.Duplicate
@@ -111,6 +112,7 @@ class CAgentServer_Net_Thread(QThread):
         self.writeTo_Socket( acc )
         self.agentLink().lastTX_ACC_packetN = acc.packetN
 
+        ## CMD Send
         TX_cmd = self.currentTX_cmd()
         if TX_cmd is not None:
             if self.agentLink().lastTXpacketN == TX_cmd.packetN:
@@ -161,14 +163,19 @@ class CAgentServer_Net_Thread(QThread):
         self.bRunning = True
 
         # сервер производит идентификацию агента по входящему сообщению или ответу на HW
-        if self.bIsServer:
-            # send HW cmd and wait HW answer from Agent for init agentN
-            initHW_Counter = 0 # для оптимизации и уменьшения лишних посылок запроса HW челноку
-            while self.bRunning and self.agentLink() is None:
-                self.initHW( initHW_Counter )
-                initHW_Counter += 1
+        # челнок должен посылать серверу инициализационный HW при подключении
+        while self.bRunning:
+            if self.initHW(): break
 
-        if not self.bRunning: return
+        ##remove##
+        # if self.bIsServer:
+        #     # send HW cmd and wait HW answer from Agent for init agentN
+        #     initHW_Counter = 0 # для оптимизации и уменьшения лишних посылок запроса HW челноку
+        #     while self.bRunning and self.agentLink() is None:
+        #         self.initHW( initHW_Counter )
+        #         initHW_Counter += 1
+
+        # if not self.bRunning: return
 
         self.noRxTimer = time.time()
         while self.bRunning:
@@ -185,32 +192,33 @@ class CAgentServer_Net_Thread(QThread):
 
     ##############################################
 
-    def initHW( self, nCounter ):
-        # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
-        self.tcpSocket.waitForReadyRead(1)
-        if nCounter % 100 == 0:
-            self.writeTo_Socket( CAgentServerPacket( event = EAgentServer_Event.HelloWorld ) )
+        ##remove##
+    # def initHW( self, nCounter ):
+    #     # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
+    #     self.tcpSocket.waitForReadyRead(1)
+    #     if nCounter % 100 == 0:
+    #         self.writeTo_Socket( CAgentServerPacket( event = EAgentServer_Event.HelloWorld ) )
         
-        while self.tcpSocket.canReadLine(): #and self.agentN == UNINITED_AGENT_N:
-            line = self.tcpSocket.readLine()
-            cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
+    #     while self.tcpSocket.canReadLine(): #and self.agentN == UNINITED_AGENT_N:
+    #         line = self.tcpSocket.readLine()
+    #         cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
 
-            if cmd is None: continue
-            if cmd.event == getACC_Event_OtherSide( self.bIsServer ): continue
+    #         if cmd is None: continue
+    #         if cmd.event == getACC_Event_OtherSide( self.bIsServer ): continue
             
-            if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
-                assert cmd.agentN is not None, f"agentN need to be inited! cmd={cmd}"
-                self.newAgent.emit( cmd.agentN )
-                while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
-                    self.msleep(10)
+    #         if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
+    #             assert cmd.agentN is not None, f"agentN need to be inited! cmd={cmd}"
+    #             self.newAgent.emit( cmd.agentN )
+    #             while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
+    #                 self.msleep(10)
 
-            self.handleHW( cmd )
+    #         self.handleHW( cmd )
 
-            self.agentNumberInited.emit( cmd.agentN )
-            self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
-            self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
+    #         self.agentNumberInited.emit( cmd.agentN )
+    #         self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
+    #         self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
 
-            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd, isAgent=not self.bIsServer, handler=self.processRxPacket )
+    #         _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd, isAgent=not self.bIsServer, handler=self.processRxPacket )
 
     def process( self ):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8

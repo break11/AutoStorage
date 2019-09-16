@@ -33,6 +33,23 @@ taskCommands = [ AEV.SequenceBegin,
 NotIgnoreEvents = ADT.TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.OdometerPassed, AEV.BoxLoadAborted } )
 
 class CFakeAgentThread( CAgentServer_Net_Thread ):
+
+    def initHW(self):
+        # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
+        self.tcpSocket.waitForReadyRead(1)
+
+        self.writeTo_Socket( CAgentServerPacket( event = AEV.HelloWorld, agentN=self.agentLink().agentN ) )
+        self.msleep(1000)
+
+        while self.tcpSocket.canReadLine():
+            line = self.tcpSocket.readLine()
+            cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
+
+            if cmd is None: continue
+            if cmd.event == AEV.HelloWorld:
+                break
+        return True
+
     # местная ф-я обработки пакета, если он признан актуальным
     # на часть команд отвечаем - часть заносим в taskList
     def processRxPacket(self, cmd):

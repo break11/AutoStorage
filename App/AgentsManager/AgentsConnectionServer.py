@@ -5,7 +5,7 @@ import random
 import weakref
 import time
 
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtNetwork import QHostAddress, QTcpServer
 
 from .AgentLink import CAgentLink
@@ -14,16 +14,7 @@ from Lib.Common.NetUtils import socketErrorToString
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj
-
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
-from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
-
-class CAgentThread( CAgentServer_Net_Thread ):
-    processRxPacket_signal   = pyqtSignal( CAgentServerPacket )
-
-    def processRxPacket( self, cmd ): self.processRxPacket_signal.emit( cmd )
-    
-    def doWork( self ): pass
+from .AgentThread import CAgentThread
 
 class CAgentsConnectionServer(QTcpServer):
     """
