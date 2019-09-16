@@ -106,6 +106,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.currentTask = None
             FAL.bEmergencyStop = True
             FAL.bErrorState    = True
+            FAL.BL_BU_Time = 0
             FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"****Emergency stop requested****" ) )
             ALM.doLogString( FAL, self.UID, "Emergency Stop !!!!" )
             return
