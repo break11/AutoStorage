@@ -4,18 +4,31 @@ from PyQt5 import uic
 from .images_rc import *
 from PyQt5.QtWidgets import QMainWindow, QPushButton
 from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QPixmap
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
-from Lib.Common.Agent_NetObject import agentsNodeCache # CAgent_NO, queryAgentNetObj, EAgent_Status
+from Lib.Common.Agent_NetObject import agentsNodeCache, SAP # CAgent_NO, queryAgentNetObj
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 import Lib.Common.FileUtils as FU
 import Lib.Common.StrConsts as SC
+import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.Net.Net_Events import ENet_Event as EV
 
-from Lib.Common.StorageScheme import CStorageScheme, CFakeConveyor #SBoxTask, EBTask_Status, processTask, setRandomTask
+from Lib.Common.StorageScheme import CStorageScheme, CFakeConveyor, SBoxTask #EBTask_Status, processTask, setRandomTask
 
 
 s_UID = "UID"
+sStyleSheet =  "background-color: {};\
+                background-image: url({});\
+                background-position: center;\
+                background-repeat: no-repeat;\
+                text-align: bottom;"
+
+sBorder = "border:5px solid red; border-radius:5px;"
+sImgsPath = FU.projectDir() + "/App/ExpoVisualisator/images/"
+sColored = "rgb(233, 185, 110)"
+sBW = "rgb(150, 150, 150)"
 
 class CEV_MainWindow(QMainWindow):
     def __init__(self):
@@ -30,6 +43,7 @@ class CEV_MainWindow(QMainWindow):
         self.tickTimer.start()
 
         self.dkNetObj_Monitor = None
+        self.buttons = {}
 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -37,6 +51,8 @@ class CEV_MainWindow(QMainWindow):
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             self.StorageScheme = CStorageScheme( "expo_sep_v05.json" )
             self.addStorageButtons()
+            CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+
 
     def closeEvent( self, event ):
         self.AgentsConnectionServer = None
@@ -50,16 +66,12 @@ class CEV_MainWindow(QMainWindow):
             btn.setProperty( s_UID, sp.UID )
             btn.setMinimumSize( 200, 250 )
 
-            img_path = FU.projectDir() + "/App/ExpoVisualisator/images/" + sp.img
-            btn.setStyleSheet( f"background-color: rgb(233, 185, 110);\
-                                 background-image: url({img_path});\
-                                 background-position: center;\
-                                 background-repeat: no-repeat;\
-                                 text-align: bottom"
-                             )
+            img_path = sImgsPath + sp.img
+            btn.setStyleSheet( sStyleSheet.format(sColored, img_path) )
             
             btn.clicked.connect( self.on_btnStorage_clicked )
             self.wStoragePlaces.layout().addWidget( btn, row, column )
+            self.buttons[ ( sp.nodeID, sp.side ) ] = btn
             column += 1
             if column > 8:
                 row +=1
@@ -88,3 +100,53 @@ class CEV_MainWindow(QMainWindow):
     def onTick(self):
         self.btnConveyorReady.setChecked( self.FakeConveyor.isReady() )
         self.btnRemoveBox.setChecked( self.FakeConveyor.isRemove() )
+
+
+    def buttonsEnabled(self, bEnabled = True):
+        color = sColored if bEnabled else sBW
+        for btn in self.buttons.values():
+            UID = btn.property( s_UID )
+            sp = self.StorageScheme.storage_places[ UID ]
+            img = sp.img
+            if not bEnabled:
+                l = img.split(".")
+                l[-2] = l[-2] + "_bw"
+                img = ".".join( l )
+            img_path = sImgsPath + img
+            btn.setStyleSheet( sStyleSheet.format(color, img_path) )
+            self.wStoragePlaces.setEnabled( bEnabled )
+
+    def onObjPropUpdated(self, cmd):
+        if cmd.sPropName == SAP.task:
+            if cmd.value:
+                task = SBoxTask.fromString( cmd.value )
+                key = ( task.From, task.loadSide )
+                btn = self.buttons.get( key )
+
+                if btn is not None:
+                    self.buttonsEnabled(False)
+                    UID = btn.property( s_UID )
+                    sp = self.StorageScheme.storage_places[ UID ]
+                    img_path = sImgsPath + sp.img
+                    btn.setStyleSheet( sStyleSheet.format(sColored, img_path) + sBorder )
+            else:
+                self.buttonsEnabled(True)
+        
+        elif cmd.sPropName == SAP.status:
+            agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+            if not agentNO.task: return
+            task = SBoxTask.fromString( agentNO.task )
+            if task is None: return 
+
+            if cmd.value in [ ADT.EAgent_Status.BoxUnload_Left, ADT.EAgent_Status.BoxUnload_Right ]:
+                if task.To == self.StorageScheme.conveyors[999].nodeID:
+                    key = (task.From, task.loadSide)
+                    btn = self.buttons.get( key )
+                    UID = btn.property( s_UID )
+                    sp = self.StorageScheme.storage_places[ UID ]
+                    img_path = sImgsPath + sp.img
+
+                    self.lbConveyor.setPixmap( QPixmap(img_path) )
+            elif cmd.value in [ ADT.EAgent_Status.BoxLoad_Left, ADT.EAgent_Status.BoxLoad_Right ]:
+                if task.From == self.StorageScheme.conveyors[999].nodeID:
+                    self.lbConveyor.setPixmap( QPixmap() )

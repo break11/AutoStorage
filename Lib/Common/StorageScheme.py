@@ -14,6 +14,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 import Lib.Common.GraphUtils as GU
+import Lib.Common.StrConsts as SC
 
 CStoragePlace = namedtuple('CStoragePlace', 'UID label img nodeID side')
 CConveyor     = namedtuple('CConveyor',     'UID label img nodeID side')

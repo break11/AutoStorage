@@ -3,7 +3,7 @@ import random
 import os
 import networkx as nx
 
-from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.QtCore import pyqtSlot, QTimer, QTime
 from PyQt5.QtWidgets import QMainWindow, QLayout
 from PyQt5 import uic
 
@@ -54,6 +54,9 @@ class CAM_MainWindow(QMainWindow):
         self.TasksProcessTimer.timeout.connect( self.processTasks )
         self.TasksProcessTimer.start()
 
+        self.randomTasksTimer = QTime()
+        self.randomTasksTimer.start()
+
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
 
@@ -64,6 +67,7 @@ class CAM_MainWindow(QMainWindow):
         self.BoxAutotestActive = False
         self.FakeConveyor = CFakeConveyor()
         self.StorageScheme = CStorageScheme( "expo_sep_v05.json" )
+        self.lastBoxNode = ""
                
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -195,6 +199,8 @@ class CAM_MainWindow(QMainWindow):
                 agentNO.task = task.invert().toString()
             else:
                 agentNO.task = ""
+                self.lastBoxNode = task.To
+                self.randomTasksTimer.restart()
         else:
             processTask( self.graphRootNode().nxGraph, agentNO, task )
 
@@ -239,7 +245,9 @@ class CAM_MainWindow(QMainWindow):
             if task is None:
                 if self.BoxAutotestActive and agentNO.auto_control:
                     if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue: agentNO.goToCharge()
-                    else: setRandomTask( self.StorageScheme, agentNO )
+                    else:
+                        if self.randomTasksTimer.elapsed() > 5000:
+                            setRandomTask( self.StorageScheme, agentNO )
             else:
                 if not agentNO.auto_control:
                     task.freeze = True
@@ -253,7 +261,10 @@ class CAM_MainWindow(QMainWindow):
             if not self.agentsTasks.get( int( agentNO.name ) ):
                 task = SBoxTask.fromString( cmd.value )
                 task.inited  = self.FakeConveyor.isReady
-                self.agentsTasks [ int( agentNO.name ) ] = task
+                if not task.From == self.lastBoxNode:
+                    self.agentsTasks [ int( agentNO.name ) ] = task
+                else:
+                    agentNO.task = ""
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return

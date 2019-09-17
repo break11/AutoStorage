@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1018</width>
+    <width>1086</width>
     <height>851</height>
    </rect>
   </property>
@@ -85,6 +85,32 @@ READY</string>
         </widget>
        </item>
        <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="lbConveyor">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>250</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -96,6 +122,32 @@ READY</string>
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="lbDummy1">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>250</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lbDummy2">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>250</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -177,8 +229,8 @@ READY</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1018</width>
-     <height>22</height>
+     <width>1086</width>
+     <height>27</height>
     </rect>
    </property>
    <property name="defaultUp">
