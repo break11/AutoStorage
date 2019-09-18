@@ -50,7 +50,7 @@
          <x>0</x>
          <y>0</y>
          <width>937</width>
-         <height>592</height>
+         <height>612</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -272,6 +272,31 @@
          </property>
          <property name="text">
           <string>Simple Agent Test</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnConveyorReady">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { background-color: lightGreen; } QPushButton:checked { border:3px solid red; border-radius:5px }</string>
+         </property>
+         <property name="text">
+          <string>ConveyorReady</string>
          </property>
          <property name="checkable">
           <bool>true</bool>

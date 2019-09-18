@@ -89,18 +89,11 @@ class CEV_MainWindow(QMainWindow):
                 agentNO.task = ",".join( [ sp.nodeID, sp.side.toChar(), cr.nodeID, cr.side.toChar(), "1" ] )
 
     @pyqtSlot(bool)
-    def on_btnConveyorReady_clicked(self, b):
-        self.FakeConveyor.setReady( int(b) )
-
-    @pyqtSlot(bool)
     def on_btnRemoveBox_clicked(self, b):
         self.FakeConveyor.setRemoveBox( int(b) )
 
-
     def onTick(self):
-        self.btnConveyorReady.setChecked( self.FakeConveyor.isReady() )
         self.btnRemoveBox.setChecked( self.FakeConveyor.isRemove() )
-
 
     def buttonsEnabled(self, bEnabled = True):
         color = sColored if bEnabled else sBW

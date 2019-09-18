@@ -153,6 +153,7 @@ class CAM_MainWindow(QMainWindow):
         b = b and not self.btnSimpleAgent_Test.isChecked()
         self.BoxAutotestActive = b
         self.btnBox_Autotest.setChecked( b )
+        self.FakeConveyor.setRemoveBox( int(b) )
 
     @pyqtSlot("bool")
     def on_btnReset_Task_clicked( self, bVal ):
@@ -164,6 +165,10 @@ class CAM_MainWindow(QMainWindow):
         if self.agentsTasks.get( agentN ):
             agentNO.task = ""
             del self.agentsTasks[ agentN ]
+
+    @pyqtSlot("bool")
+    def on_btnConveyorReady_clicked( self, clicked ):
+        self.FakeConveyor.setReady( int(clicked) )
 
 
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
@@ -235,6 +240,11 @@ class CAM_MainWindow(QMainWindow):
         agentNO.applyRoute( nodes_route )
 
     def processTasks( self ):
+        ConveyorisReady = self.FakeConveyor.isReady()
+        self.btnConveyorReady.setChecked( ConveyorisReady )
+        if ConveyorisReady and not self.BoxAutotestActive:
+            self.FakeConveyor.setRemoveBox( 0 )
+
         if self.graphRootNode() is None: return
         if self.agentsNode().childCount() == 0: return
 
