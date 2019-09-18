@@ -93,7 +93,7 @@ class CAgentLogManager( QObject ):
         data = self.decorateLogString( agentLink, thread_UID, data, color )
         logRow = CLogRow( data=data, event=None, bTX_or_RX=None, status = None )
         self.__appendLog_with_Cut( agentLink, logRow )
-        self.writeToLogFile( agentLink.sLogFName, logRow )
+        self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
 
         self.AgentLogUpdated.emit( agentLink, logRow )
 
@@ -115,7 +115,7 @@ class CAgentLogManager( QObject ):
         data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
         logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX, status = packet.status )
         self.__appendLog_with_Cut( agentLink, logRow )
-        self.writeToLogFile( agentLink.sLogFName, logRow )
+        self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
 
         self.AgentLogUpdated.emit( agentLink, logRow )
 

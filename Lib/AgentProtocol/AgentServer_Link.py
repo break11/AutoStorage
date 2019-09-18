@@ -18,8 +18,6 @@ class CAgentServer_Link:
         super().__init__()
 
         self.log = []
-        self.sLogFName = ALM.genAgentLogFName( agentN )
-        ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={agentN} Created" )
 
         self.agentN = agentN
         self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
@@ -32,6 +30,8 @@ class CAgentServer_Link:
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.bIsServer = bIsServer
+        
+        ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={agentN} Created" )
 
     def __del__(self):
         self.done()
