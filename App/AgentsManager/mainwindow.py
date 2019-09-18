@@ -271,10 +271,13 @@ class CAM_MainWindow(QMainWindow):
             if not self.agentsTasks.get( int( agentNO.name ) ):
                 task = SBoxTask.fromString( cmd.value )
                 task.inited  = self.FakeConveyor.isReady
-                if not task.From == self.lastBoxNode:
-                    self.agentsTasks [ int( agentNO.name ) ] = task
-                else:
-                    agentNO.task = ""
+                if task.From == self.lastBoxNode:
+                    nxGraph = self.graphRootNode().nxGraph
+                    NeighborsIDs = list(nxGraph.successors( task.From )) + list(nxGraph.predecessors( task.From ))
+                    NeighborsIDs = [ nodeID for nodeID in NeighborsIDs if nodeType( nxGraph, nodeID ) != SGT.ENodeTypes.Terminal ]
+                    agentNO.goToNode( NeighborsIDs[0] )
+                
+                self.agentsTasks [ int( agentNO.name ) ] = task
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
