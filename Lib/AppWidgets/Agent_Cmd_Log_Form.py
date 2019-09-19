@@ -177,7 +177,16 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.teAgentFullLog.append( logRow.data )
 
         if self.teAgentFullLog.document().lineCount() > LogCount:
-            self.fillAgentLog()
+            # self.fillAgentLog()
+
+            # вместо полной перезагрузки лога удаляем от начала лога половину его строк
+            c = self.teAgentFullLog.textCursor()
+            c.movePosition( QTextCursor.Start )
+            c.movePosition( QTextCursor.Down, QTextCursor.KeepAnchor, LogCount / 2 )
+            # self.teAgentFullLog.setTextCursor( c )
+            c.removeSelectedText()
+
+            self.teAgentFullLog.moveCursor( QTextCursor.End )
 
     @pyqtSlot("bool")
     def on_btnFilter_clicked( self, bVal ):

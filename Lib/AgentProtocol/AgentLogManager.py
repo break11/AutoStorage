@@ -22,7 +22,7 @@ Telemetry_color = "#388E3C"
 TX_RX_byBool_str    = { True: s_TX, False: s_RX, None: "" }
 TX_RX_byBool_colors = { True: TX_color, False: RX_color, None: "#000000"}
 
-LogCount = 10000
+LogCount = 5000
 
 CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX status')
 

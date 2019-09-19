@@ -110,7 +110,7 @@ class CAgentLink( CAgentServer_Link ):
 
         if agentNO.RTele:
             for e in ADT.TeleEvents:
-                self.pushCmd( self.genPacket( event=e ),     bAllowDuplicate=False )
+                self.pushCmd( self.genPacket( event=e ), bAllowDuplicate=False )
 
         # обновление статуса connectedTime для NetObj челнока
         if self.isConnected():
