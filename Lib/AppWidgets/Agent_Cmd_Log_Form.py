@@ -180,11 +180,14 @@ class CAgent_Cmd_Log_Form(QWidget):
             # self.fillAgentLog()
 
             # вместо полной перезагрузки лога удаляем от начала лога половину его строк
-            c = self.teAgentFullLog.textCursor()
-            c.movePosition( QTextCursor.Start )
-            c.movePosition( QTextCursor.Down, QTextCursor.KeepAnchor, LogCount / 2 )
-            # self.teAgentFullLog.setTextCursor( c )
-            c.removeSelectedText()
+            cursor = self.teAgentFullLog.textCursor()
+            # если курсор не в конце лога (нет автопрокрутки), то не удаляем лог, пока пользователь не переместит курсор обратно в конец
+            if not cursor.atEnd(): return
+
+            cursor.movePosition( QTextCursor.Start )
+            cursor.movePosition( QTextCursor.Down, QTextCursor.KeepAnchor, LogCount / 2 )
+            # self.teAgentFullLog.setTextCursor( cursor )
+            cursor.removeSelectedText()
 
             self.teAgentFullLog.moveCursor( QTextCursor.End )
 
