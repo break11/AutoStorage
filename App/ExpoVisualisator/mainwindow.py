@@ -48,6 +48,7 @@ class CEV_MainWindow(QMainWindow):
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
             load_Window_State_And_Geometry( self )
+            self.btnRemoveBox.setVisible( False )
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             self.StorageScheme = CStorageScheme( "expo_sep_v05.json" )
             self.addStorageButtons()
@@ -139,7 +140,10 @@ class CEV_MainWindow(QMainWindow):
                     sp = self.StorageScheme.storage_places[ UID ]
                     img_path = sImgsPath + sp.img
 
+                    self.btnRemoveBox.setVisible( True )
                     self.lbConveyor.setPixmap( QPixmap(img_path) )
+
             elif cmd.value in [ ADT.EAgent_Status.BoxLoad_Left, ADT.EAgent_Status.BoxLoad_Right ]:
                 if task.From == self.StorageScheme.conveyors[999].nodeID:
                     self.lbConveyor.setPixmap( QPixmap() )
+                    self.btnRemoveBox.setVisible( False )

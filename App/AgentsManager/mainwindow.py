@@ -178,6 +178,10 @@ class CAM_MainWindow(QMainWindow):
                            
     blockAutoTestStatuses = [ ADT.EAgent_Status.Charging, ADT.EAgent_Status.CantCharge ]
 
+    @pyqtSlot("bool")
+    def on_btnRemoveBox_clicked( self, clicked ):
+        self.FakeConveyor.setRemoveBox( int(clicked) )
+
     def readyForTask( self, agentNO ):
         if self.AgentsConnectionServer is None: return
         agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
@@ -240,11 +244,17 @@ class CAM_MainWindow(QMainWindow):
         agentNO.applyRoute( nodes_route )
 
     def processTasks( self ):
+        #синхронизация кнопок и полей редис
         ConveyorisReady = self.FakeConveyor.isReady()
+
         self.btnConveyorReady.setChecked( ConveyorisReady )
         if ConveyorisReady and not self.BoxAutotestActive:
             self.FakeConveyor.setRemoveBox( 0 )
 
+        RemoveBoxOn = self.FakeConveyor.isRemove()
+        self.btnRemoveBox.setChecked( bool( RemoveBoxOn ) )
+
+        #выполнение/присвоение заданий
         if self.graphRootNode() is None: return
         if self.agentsNode().childCount() == 0: return
 

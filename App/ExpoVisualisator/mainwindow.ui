@@ -56,8 +56,8 @@
           <string notr="true">QPushButton { background-color: rgb(117, 80, 123);} QPushButton:checked { border:3px solid red; border-radius:5px }</string>
          </property>
          <property name="text">
-          <string>REMOVE
-BOX</string>
+          <string>УБРАТЬ
+КОРОБКУ</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -197,7 +197,7 @@ BOX</string>
      <x>0</x>
      <y>0</y>
      <width>1379</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
