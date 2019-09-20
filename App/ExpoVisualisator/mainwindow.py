@@ -50,6 +50,7 @@ class CEV_MainWindow(QMainWindow):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
             load_Window_State_And_Geometry( self )
             self.btnRemoveBox.setVisible( False )
+            self.addAction( self.acFullScreen )
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             self.StorageScheme = CStorageScheme( "expo_sep_v05.json" )
             self.addStorageButtons()
@@ -59,6 +60,13 @@ class CEV_MainWindow(QMainWindow):
     def closeEvent( self, event ):
         self.AgentsConnectionServer = None
         save_Window_State_And_Geometry( self )
+
+    @pyqtSlot(bool)
+    def on_acFullScreen_triggered( self, bVal ):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
 
     def addStorageButtons(self):
         row, column = 0, 1
