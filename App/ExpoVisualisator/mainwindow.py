@@ -2,9 +2,9 @@ import os
 
 from PyQt5 import uic
 from .images_rc import *
-from PyQt5.QtWidgets import QMainWindow, QPushButton
-from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QWidget, QLabel, QFrame, QGridLayout
+from PyQt5.QtCore import QTimer, pyqtSignal, pyqtSlot, Qt
+from PyQt5.QtGui import QPixmap, QMovie, QPalette
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.Agent_NetObject import agentsNodeCache, SAP # CAgent_NO, queryAgentNetObj
@@ -44,6 +44,7 @@ class CEV_MainWindow(QMainWindow):
 
         self.dkNetObj_Monitor = None
         self.buttons = {}
+        self.movies_labels  = {}
 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -63,16 +64,35 @@ class CEV_MainWindow(QMainWindow):
         row, column = 0, 1
 
         for sp in self.StorageScheme.storage_places.values():
+            frm = QWidget()
+            frm.setMinimumSize( 200, 250 )
+            frm.setLayout( QGridLayout() )
+            frm.layout().setContentsMargins(0,0,0,0)
+
             btn = QPushButton(sp.label)
             btn.setProperty( s_UID, sp.UID )
             btn.setMinimumSize( 200, 250 )
+            frm.layout().addWidget( btn,0,0 )
+
+            lb = QLabel( )
+            frm.layout().addWidget( lb,0,0 )
+            lb.setMinimumSize( 200, 250 )
+            lb.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+            lb.setAlignment( Qt.AlignCenter )
+            lb.setStyleSheet("border:0px solid red; border-radius:5px;")
+            lb.setVisible(False)
+            
+            mv = QMovie( sImgsPath + "load.gif" )
+            lb.setMovie( mv )
+            mv.start()
 
             img_path = sImgsPath + sp.img
             btn.setStyleSheet( sStyleSheet.format(sColored, img_path) )
             
             btn.clicked.connect( self.on_btnStorage_clicked )
-            self.wStoragePlaces.layout().addWidget( btn, row, column )
+            self.wStoragePlaces.layout().addWidget( frm, row, column )
             self.buttons[ ( sp.nodeID, sp.side ) ] = btn
+            self.movies_labels[ ( sp.nodeID, sp.side ) ] = lb
             column += 1
             if column > 8:
                 row +=1
@@ -98,7 +118,9 @@ class CEV_MainWindow(QMainWindow):
 
     def buttonsEnabled(self, bEnabled = True):
         color = sColored if bEnabled else sBW
-        for btn in self.buttons.values():
+        for k in self.buttons.keys():
+            btn = self.buttons[ k ]
+            self.movies_labels[k].setVisible(False)
             UID = btn.property( s_UID )
             sp = self.StorageScheme.storage_places[ UID ]
             img = sp.img
@@ -123,6 +145,7 @@ class CEV_MainWindow(QMainWindow):
                     sp = self.StorageScheme.storage_places[ UID ]
                     img_path = sImgsPath + sp.img
                     btn.setStyleSheet( sStyleSheet.format(sColored, img_path) + sBorder )
+                    self.movies_labels[key].setVisible(True)
             else:
                 self.buttonsEnabled(True)
         

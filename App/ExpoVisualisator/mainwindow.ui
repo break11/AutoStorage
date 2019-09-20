@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1379</width>
-    <height>851</height>
+    <width>895</width>
+    <height>627</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,22 +45,15 @@
      <widget class="QWidget" name="widget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QPushButton" name="btnRemoveBox">
+        <widget class="QLabel" name="lbDummy1">
          <property name="minimumSize">
           <size>
            <width>200</width>
            <height>250</height>
           </size>
          </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton { background-color: rgb(117, 80, 123);} QPushButton:checked { border:3px solid red; border-radius:5px }</string>
-         </property>
          <property name="text">
-          <string>УБРАТЬ
-КОРОБКУ</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
+          <string/>
          </property>
         </widget>
        </item>
@@ -88,6 +81,9 @@
          <property name="text">
           <string/>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item>
@@ -104,15 +100,22 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="lbDummy1">
+        <widget class="QPushButton" name="btnRemoveBox">
          <property name="minimumSize">
           <size>
            <width>200</width>
            <height>250</height>
           </size>
          </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { background-color: rgb(117, 80, 123);} QPushButton:checked { border:3px solid red; border-radius:5px }</string>
+         </property>
          <property name="text">
-          <string/>
+          <string>УБРАТЬ
+КОРОБКУ</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -196,8 +199,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1379</width>
-     <height>22</height>
+     <width>895</width>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">
