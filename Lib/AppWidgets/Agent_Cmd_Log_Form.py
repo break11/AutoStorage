@@ -94,6 +94,7 @@ class CAgent_Cmd_Log_Form(QWidget):
             cb.setChecked( v if v is not None else True ) # при добавлении нового стандартного фильтра или если его стерли в конфиге выставляем его значение в True
 
         ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
+        # ALM.AgentLogBuffUpdated.connect( self.AgentLogBuffUpdated )
 
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки
@@ -164,9 +165,9 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         self.sbAgentN.setValue( self.agentLink().agentN )
 
-    def AgentLogUpdated( self, agentLink, logRow ):
+    def AgentLogUpdated( self, logRow ):
         if self.agentLink is None: return
-        if self.agentLink() is not agentLink: return
+        if self.agentLink() is not logRow.agentLink_Ref(): return
 
         if logRow.event in errListEvents:
             self.teAgentErrorLog.append( logRow.data )
@@ -176,20 +177,38 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         self.teAgentFullLog.append( logRow.data )
 
-        if self.teAgentFullLog.document().lineCount() > LogCount:
-            # self.fillAgentLog()
+        self.limitLogLength()
 
-            # вместо полной перезагрузки лога удаляем от начала лога половину его строк
-            cursor = self.teAgentFullLog.textCursor()
-            # если курсор не в конце лога (нет автопрокрутки), то не удаляем лог, пока пользователь не переместит курсор обратно в конец
-            if not cursor.atEnd(): return
+    def AgentLogBuffUpdated( self, buffLogRows ):
+        if self.agentLink is None: return
 
+        for logRow in buffLogRows:
+            if self.agentLink() is not logRow.agentLink_Ref(): continue
+
+            if logRow.event in errListEvents:
+                self.teAgentErrorLog.append( logRow.data )
+                
+            if not self.filter_LogRow( logRow ): continue
+
+            self.teAgentFullLog.append( logRow.data )
+
+        self.limitLogLength()
+
+    def limitLogLength( self ):
+        cursor = self.teAgentFullLog.textCursor()
+        # если курсор не в конце лога (нет автопрокрутки), то не удаляем лог, пока пользователь не переместит курсор обратно в конец
+        if not cursor.atEnd(): return
+
+        if self.teAgentFullLog.document().lineCount() <= LogCount: return
+
+        while self.teAgentFullLog.document().lineCount() > LogCount:
+            # вместо полной перезагрузки лога (self.fillAgentLog()) удаляем от начала лога половину его строк
             cursor.movePosition( QTextCursor.Start )
             cursor.movePosition( QTextCursor.Down, QTextCursor.KeepAnchor, LogCount / 2 )
             # self.teAgentFullLog.setTextCursor( cursor )
             cursor.removeSelectedText()
 
-            self.teAgentFullLog.moveCursor( QTextCursor.End )
+        self.teAgentFullLog.moveCursor( QTextCursor.End )
 
     @pyqtSlot("bool")
     def on_btnFilter_clicked( self, bVal ):
