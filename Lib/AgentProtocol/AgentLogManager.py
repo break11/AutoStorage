@@ -3,7 +3,7 @@ import datetime
 import weakref
 from collections import namedtuple
 
-from PyQt5.QtCore import QObject, pyqtSignal, QTime
+from PyQt5.QtCore import QObject, pyqtSignal
 
 from Lib.Common.Utils import wrapSpan, wrapDiv
 from Lib.Common.FileUtils import appLogPath
@@ -52,13 +52,8 @@ def eventColor( e ):
 
 class CAgentLogManager( QObject ):
     AgentLogUpdated = pyqtSignal( CLogRow )
-    AgentLogBuffUpdated = pyqtSignal( list )
     def __init__( self ):
         super().__init__()
-
-        self.buffLogTime = QTime()
-        self.buffLogTime.start()
-        self.buffLogRows = []
 
     @classmethod
     def sDateTime( cls ):
@@ -102,7 +97,6 @@ class CAgentLogManager( QObject ):
         self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
 
         self.AgentLogUpdated.emit( logRow )
-        self.doBuffLog( logRow )
 
     @classmethod
     def decorateLogString( cls, agentLink, thread_UID, data, color ):
@@ -125,7 +119,6 @@ class CAgentLogManager( QObject ):
         self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
 
         self.AgentLogUpdated.emit( logRow )
-        self.doBuffLog( logRow )
 
         return logRow
 
@@ -149,13 +142,5 @@ class CAgentLogManager( QObject ):
         data = wrapDiv( data )
 
         return data
-
-    def doBuffLog( self, logRow ):
-        if self.buffLogTime.elapsed() > 1000:
-            self.AgentLogBuffUpdated.emit( self.buffLogRows )
-            self.buffLogRows.clear()
-            self.buffLogTime.restart()
-        else:
-            self.buffLogRows.append( logRow )
 
 ALM = CAgentLogManager()

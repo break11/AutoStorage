@@ -2,6 +2,7 @@ import os
 import weakref
 
 from PyQt5.Qt import pyqtSlot
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QWidget, QCheckBox
 from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
@@ -94,7 +95,12 @@ class CAgent_Cmd_Log_Form(QWidget):
             cb.setChecked( v if v is not None else True ) # при добавлении нового стандартного фильтра или если его стерли в конфиге выставляем его значение в True
 
         ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
-        # ALM.AgentLogBuffUpdated.connect( self.AgentLogBuffUpdated )
+
+        self.buffLogRows = []
+        self.main_Timer = QTimer()
+        self.main_Timer.setInterval( 500 )
+        self.main_Timer.timeout.connect( self.logTick )
+        self.main_Timer.start()
 
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки
@@ -122,6 +128,7 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.teAgentErrorLog.clear()
         if self.agentLink:
             self.agentLink().log.clear()
+        self.buffLogRows.clear()
 
     def filter_LogRow( self, logRow ):
         # filter by TX, RX
@@ -160,6 +167,8 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.teAgentErrorLog.setHtml( "".join( filteredErrorRows ) )
         self.teAgentErrorLog.moveCursor( QTextCursor.End )
 
+        self.buffLogRows.clear()
+
     def updateAgentControls( self ):
         if self.agentLink is None: return
 
@@ -175,24 +184,18 @@ class CAgent_Cmd_Log_Form(QWidget):
         if not self.filter_LogRow( logRow ):
             return
 
-        self.teAgentFullLog.append( logRow.data )
+        # self.teAgentFullLog.append( logRow.data )
+        self.buffLogRows.append( logRow )
+
+        # self.limitLogLength()
+
+    def logTick( self ):
+        for logRow in self.buffLogRows:
+            if self.filter_LogRow( logRow ):
+                self.teAgentFullLog.append( logRow.data )
 
         self.limitLogLength()
-
-    def AgentLogBuffUpdated( self, buffLogRows ):
-        if self.agentLink is None: return
-
-        for logRow in buffLogRows:
-            if self.agentLink() is not logRow.agentLink_Ref(): continue
-
-            if logRow.event in errListEvents:
-                self.teAgentErrorLog.append( logRow.data )
-                
-            if not self.filter_LogRow( logRow ): continue
-
-            self.teAgentFullLog.append( logRow.data )
-
-        self.limitLogLength()
+        self.buffLogRows.clear()
 
     def limitLogLength( self ):
         cursor = self.teAgentFullLog.textCursor()
