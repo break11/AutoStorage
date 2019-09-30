@@ -190,18 +190,6 @@ class CAgent_Cmd_Log_Form(QWidget):
         for logRow in self.buffLogRows:
           self.teAgentFullLog.append( logRow )
 
-        # cursor = QTextCursor( self.teAgentFullLog.document() )
-        # cursor.movePosition( QTextCursor.End )
-        # cursor.insertBlock()
-        # cursor.insertHtml( "".join( self.buffLogRows ) )
-        # cursor.movePosition( QTextCursor.End )
-        # self.teAgentFullLog.moveCursor ( QTextCursor.End )
-
-        # cursor = self.teAgentFullLog.textCursor()
-        # self.teAgentFullLog.moveCursor ( QTextCursor.End )
-        # self.teAgentFullLog.insertHtml ( "".join( self.buffLogRows ) )
-        # self.teAgentFullLog.setTextCursor( cursor )
-
         self.limitLogLength()
         self.buffLogRows.clear()
 
