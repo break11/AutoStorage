@@ -98,7 +98,7 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         self.buffLogRows = []
         self.main_Timer = QTimer()
-        self.main_Timer.setInterval( 500 )
+        self.main_Timer.setInterval( 300 )
         self.main_Timer.timeout.connect( self.logTick )
         self.main_Timer.start()
 
@@ -184,15 +184,23 @@ class CAgent_Cmd_Log_Form(QWidget):
         if not self.filter_LogRow( logRow ):
             return
 
-        # self.teAgentFullLog.append( logRow.data )
-        self.buffLogRows.append( logRow )
-
-        # self.limitLogLength()
+        self.buffLogRows.append( logRow.data )
 
     def logTick( self ):
         for logRow in self.buffLogRows:
-            if self.filter_LogRow( logRow ):
-                self.teAgentFullLog.append( logRow.data )
+          self.teAgentFullLog.append( logRow )
+
+        # cursor = QTextCursor( self.teAgentFullLog.document() )
+        # cursor.movePosition( QTextCursor.End )
+        # cursor.insertBlock()
+        # cursor.insertHtml( "".join( self.buffLogRows ) )
+        # cursor.movePosition( QTextCursor.End )
+        # self.teAgentFullLog.moveCursor ( QTextCursor.End )
+
+        # cursor = self.teAgentFullLog.textCursor()
+        # self.teAgentFullLog.moveCursor ( QTextCursor.End )
+        # self.teAgentFullLog.insertHtml ( "".join( self.buffLogRows ) )
+        # self.teAgentFullLog.setTextCursor( cursor )
 
         self.limitLogLength()
         self.buffLogRows.clear()
