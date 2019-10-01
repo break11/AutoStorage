@@ -185,6 +185,7 @@ class CAgent_Cmd_Log_Form(QWidget):
             return
 
         self.buffLogRows.append( logRow.data )
+        # self.teAgentFullLog.append( logRow.data )
 
     def logTick( self ):
         for logRow in self.buffLogRows:
