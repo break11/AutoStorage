@@ -49,8 +49,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>937</width>
-         <height>612</height>
+         <width>935</width>
+         <height>630</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -141,7 +141,7 @@
      <x>0</x>
      <y>0</y>
      <width>1021</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -396,6 +396,19 @@
          </property>
          <property name="checkable">
           <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnDisconnect">
+         <property name="styleSheet">
+          <string notr="true">background-color: red;</string>
+         </property>
+         <property name="text">
+          <string>Disconnect</string>
+         </property>
+         <property name="shortcut">
+          <string>Del</string>
          </property>
         </widget>
        </item>

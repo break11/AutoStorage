@@ -135,6 +135,15 @@ class CAM_MainWindow(QMainWindow):
         agentNO = self.Agents_Model.agentNO_from_Index( ci )
         agentNO.destroy()
 
+    @pyqtSlot("bool")
+    def on_btnDisconnect_clicked( self, bVal ):
+        ci = self.tvAgents.currentIndex()
+        if not ci.isValid(): return
+        
+        agentNO = self.Agents_Model.agentNO_from_Index( ci )
+        aLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name) )
+        for socket in aLink.socketThreads:
+            socket.disconnectFromServer()
     ###################################################
 
     @pyqtSlot("bool")
