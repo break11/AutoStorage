@@ -105,8 +105,7 @@ class CAgentServer_Net_Thread(QThread):
         agentLink.Express_TX_Packets.clear()
 
     def sendTX_cmd( self ):
-        if not self.bConnected:
-            return
+        if not self.bConnected: return
 
         acc = self.agentLink().ACC_cmd
         if self.agentLink().lastTX_ACC_packetN == acc.packetN:
