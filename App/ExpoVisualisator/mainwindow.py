@@ -16,6 +16,8 @@ from Lib.Net.Net_Events import ENet_Event as EV
 import Lib.Common.FileUtils as FU
 import Lib.Common.StrConsts as SC
 import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.Common import StorageGraphTypes as SGT
+import Lib.Common.GraphUtils as GU
 
 from Lib.Common.StorageScheme import CStorageScheme, CRedisWatcher, EBTask_Status, SBoxTask, processTask, setRandomTask
 
@@ -51,6 +53,8 @@ class CEV_MainWindow(QMainWindow):
         self.hasBox = {}
         self.buttons = {}
         self.movies_labels  = {}
+
+        self.lastBoxNode = ""
 
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -150,6 +154,7 @@ class CEV_MainWindow(QMainWindow):
             if task.getBack:
                 agentNO.task = task.invert().toString()
             else:
+                self.lastBoxNode = task.To
                 agentNO.task = ""
         else:
             processTask( self.graphRootNode().nxGraph, agentNO, task )
@@ -219,6 +224,12 @@ class CEV_MainWindow(QMainWindow):
             if cmd.value:
                 task = SBoxTask.fromString( cmd.value )
                 if task is None: return
+
+                if task.From == self.lastBoxNode:
+                    nxGraph = self.graphRootNode().nxGraph
+                    NeighborsIDs = list(nxGraph.successors( task.From )) + list(nxGraph.predecessors( task.From ))
+                    NeighborsIDs = [ nodeID for nodeID in NeighborsIDs if GU.nodeType( nxGraph, nodeID ) != SGT.ENodeTypes.Terminal ]
+                    agentNO.goToNode( NeighborsIDs[0] )
 
                 self.setTask( agentN, task )
                 key = ( task.From, task.loadSide )
