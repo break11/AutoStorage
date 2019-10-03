@@ -191,11 +191,20 @@ class CEV_MainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_btnBox_Autotest_clicked(self, b):
         self.RedisWatcher.set( CRedisWatcher.s_BoxAutotest, int(b) )
+        self.RedisWatcher.set( CRedisWatcher.s_RemoveBox, int(b) )
 
     def onTick(self):
-        self.btnConveyorReady.setChecked( self.RedisWatcher.get( CRedisWatcher.s_ConveyorState ) )
+        
+        ConveyorState = self.RedisWatcher.get( CRedisWatcher.s_ConveyorState )
+        self.btnConveyorReady.setChecked( ConveyorState )
+        
+        BoxAutotest = self.RedisWatcher.get( CRedisWatcher.s_BoxAutotest )
+        self.btnBox_Autotest.setChecked( BoxAutotest )
+
+        if ConveyorState and not BoxAutotest:
+            self.RedisWatcher.set( CRedisWatcher.s_RemoveBox, 0 )
+
         self.btnRemoveBox.setChecked( self.RedisWatcher.get( CRedisWatcher.s_RemoveBox ) )
-        self.btnBox_Autotest.setChecked( self.RedisWatcher.get( CRedisWatcher.s_BoxAutotest ) )
 
         self.processTasks()
 

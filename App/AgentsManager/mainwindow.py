@@ -78,14 +78,11 @@ class CAM_MainWindow(QMainWindow):
     def currArentNO(self):
         if not self.tvAgents.selectionModel().currentIndex().isValid():
             return
-
         agentNO = self.Agents_Model.agentNO_from_Index( self.tvAgents.selectionModel().currentIndex() )
         return agentNO
 
-
     def currAgentN( self ):
         agentNO = self.currArentNO()
-        
         if agentNO is not None:
             return int (agentNO.name)
 
