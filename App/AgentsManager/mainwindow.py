@@ -3,12 +3,15 @@ import random
 import os
 import networkx as nx
 
-from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.QtCore import pyqtSlot, QTimer, QTime
 from PyQt5.QtWidgets import QMainWindow, QLayout
 from PyQt5 import uic
 
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, EAgent_Status, agentsNodeCache
+from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, agentsNodeCache, SAP
+import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
 from Lib.Net.Agent_Widget import CAgent_Widget
 import Lib.Common.StrConsts as SC
@@ -23,8 +26,7 @@ from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
-
-from Lib.Common.StorageScheme import CRedisWatcher
+import Lib.AgentProtocol.AgentDataTypes as ADT
 
 class CAM_MainWindow(QMainWindow):
     def registerObjects_Widgets(self):
@@ -51,9 +53,6 @@ class CAM_MainWindow(QMainWindow):
 
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
         self.registerObjects_Widgets()
-
-        self.RedisWatcher = CRedisWatcher()
-        self.RedisWatcher.set( CRedisWatcher.s_BoxAutotest, 0 )
                
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -119,38 +118,30 @@ class CAM_MainWindow(QMainWindow):
         agentNO = self.Agents_Model.agentNO_from_Index( ci )
         agentNO.destroy()
 
+    @pyqtSlot("bool")
+    def on_btnDisconnect_clicked( self, bVal ):
+        ci = self.tvAgents.currentIndex()
+        if not ci.isValid(): return
+        
+        agentNO = self.Agents_Model.agentNO_from_Index( ci )
+        aLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name) )
+        for socket in aLink.socketThreads:
+            socket.disconnectFromServer()
     ###################################################
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
-        if self.RedisWatcher.get( CRedisWatcher.s_BoxAutotest ):
-            self.btnSimpleAgent_Test.setChecked( False )
-            return
-
         if bVal:
             self.SimpleAgentTest_Timer.start()
         else:
             self.SimpleAgentTest_Timer.stop()
-
-    @pyqtSlot(bool)
-    def on_btnBox_Autotest_clicked(self, b):
-        b = b and not self.btnSimpleAgent_Test.isChecked()
-        self.RedisWatcher.set( CRedisWatcher.s_BoxAutotest, int(b) )
-        self.btnBox_Autotest.setChecked( b )
-
-    @pyqtSlot("bool")
-    def on_btnReset_Task_clicked( self, bVal ):
-        agentNO = self.currArentNO()
-        if agentNO is not None:
-            agentNO.task = ""
-
 
     enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
                            SGT.ENodeTypes.PickStation,
                            SGT.ENodeTypes.PickStationIn,
                            SGT.ENodeTypes.PickStationOut ]
                            
-    blockAutoTestStatuses = [ EAgent_Status.Charging, EAgent_Status.CantCharge ]
+    blockAutoTestStatuses = [ ADT.EAgent_Status.Charging, ADT.EAgent_Status.CantCharge ]
 
     def AgentTestMoving(self, agentNO, targetNode = None):
         if self.AgentsConnectionServer is None: return
@@ -159,7 +150,7 @@ class CAM_MainWindow(QMainWindow):
         if agentNO.isOnTrack() is None: return
         if agentNO.route != "": return
         if agentNO.status in self.blockAutoTestStatuses: return
-        if agentNO.status == EAgent_Status.GoToCharge: # здесь agentNO.route == ""
+        if agentNO.status == ADT.EAgent_Status.GoToCharge: # здесь agentNO.route == ""
             agentNO.prepareCharging()
             return
 
@@ -168,13 +159,13 @@ class CAM_MainWindow(QMainWindow):
         startNode = tKey[0]
 
         if targetNode is None:
-            if agentNO.BS.supercapPercentCharge() < 30:
+            if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
                 route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
                 if len(nodes_route) == 0:
-                    agentNO.status = EAgent_Status.NoRouteToCharge
+                    agentNO.status = ADT.EAgent_Status.NoRouteToCharge
                     print(f"{SC.sError} Cant find any route to service station.")
                 else:
-                    agentNO.status = EAgent_Status.GoToCharge
+                    agentNO.status = ADT.EAgent_Status.GoToCharge
             else:
                 nodes = list( nxGraph.nodes )
                 while True:

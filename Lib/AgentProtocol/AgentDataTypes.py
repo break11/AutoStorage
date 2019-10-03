@@ -5,8 +5,16 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 from Lib.Common import StorageGraphTypes as SGT
 import Lib.Common.StrConsts as SC
 
+minChargeValue = 30
+
 TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerPassed }
 BL_BU_Events = { AEV.BoxLoad, AEV.BoxUnload }
+
+class EConnectedStatus( BaseEnum ):
+    connected    = auto()
+    disconnected = auto()
+    freeze       = auto()
+    Default      = disconnected
 
 class EAgent_CMD_State( BaseEnum ):
     Init = auto()
@@ -60,7 +68,7 @@ class EAgentBattery_Type( BaseEnum ):
 
 
 class SAgent_BatteryState:
-    defVal = "S,33.44V,40.00V,47.64V,01.1A/00.3A"
+    __defVal = "S,33.44V,40.00V,47.64V,01.1A/00.3A"
     C = 1000
     max_S_U = 43.2
     min_S_U = 25
@@ -82,6 +90,10 @@ class SAgent_BatteryState:
         return 100 * ( max(E - self.E_empty, 0) ) / ( self.E_full - self.E_empty )
 
     @classmethod
+    def defVal( cls ):
+        return SAgent_BatteryState.fromString( cls.__defVal )
+
+    @classmethod
     def fromString( cls, data ):
         try:
             l = data.split( "," )
@@ -98,7 +110,7 @@ class SAgent_BatteryState:
             return SAgent_BatteryState( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
         except:
             print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal}'!" )
-            return SAgent_BatteryState.fromString( cls.defVal )
+            return cls.defVal()
 
     def toString( self ):
         return f"{ EAgentBattery_Type.toString( self.PowerType ) },{self.S_V:05.2f}V,{self.L_V:05.2f}V,{self.power_U:05.2f}V,{self.power_I1:04.1f}A/{self.power_I2:04.1f}A"

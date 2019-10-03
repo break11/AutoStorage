@@ -1,4 +1,6 @@
 
+from PyQt5.QtCore import QTimer
+
 import networkx as nx
 from copy import deepcopy
 from collections import namedtuple
@@ -8,36 +10,37 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.AgentProtocol.AgentDataTypes import EAgent_Status, blockAutoControlStatuses, EAgent_CMD_State
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Utils import СStrProps_Meta
 import Lib.Common.StrConsts as SC
 
 class SAgentProps( metaclass = СStrProps_Meta ):
-    edge          = None
-    position      = None
-    route         = None
-    route_idx     = None
-    angle         = None
-    odometer      = None
-    status        = None
-    auto_control  = None
-    connectedTime = None
-    task          = None
-    cmd_PE        = None
-    cmd_PD        = None
-    cmd_BR        = None
-    cmd_ES        = None
-    cmd_BL_L      = None
-    cmd_BL_R      = None
-    cmd_BU_L      = None
-    cmd_BU_R      = None
-    cmd_BA        = None
-    cmd_CM        = None
-    RTele         = None
-    BS            = None
-    TS            = None
+    edge            = None
+    position        = None
+    route           = None
+    route_idx       = None
+    angle           = None
+    odometer        = None
+    status          = None
+    auto_control    = None
+    connectedTime   = None
+    connectedStatus = None
+    task            = None
+    cmd_PE          = None
+    cmd_PD          = None
+    cmd_BR          = None
+    cmd_ES          = None
+    cmd_BL_L        = None
+    cmd_BL_R        = None
+    cmd_BU_L        = None
+    cmd_BU_R        = None
+    cmd_BA          = None
+    cmd_CM          = None
+    RTele           = None
+    BS              = None
+    TS              = None
 
 SAP = SAgentProps
 
@@ -61,17 +64,22 @@ for k, v in cmdProps.items():
 
 cmdProps_keys = cmdProps.keys()
 
-def_props = { SAP.status: EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP.route: "", SAP.route_idx: 0,
-              SAP.angle : 0.0, SAP.odometer : 0, SAP.connectedTime : 0, SAP.auto_control : 1,
+def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP.route: "", SAP.route_idx: 0,
+              SAP.angle : 0.0, SAP.odometer : 0,
+              
+              SAP.connectedTime : 0,
+              SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
+              
+              SAP.auto_control : 1,
               SAP.task : "",
 
-              SAP.cmd_PE   : EAgent_CMD_State.Done, SAP.cmd_PD   : EAgent_CMD_State.Done,
-              SAP.cmd_BR   : EAgent_CMD_State.Done, SAP.cmd_ES   : EAgent_CMD_State.Done,
-              SAP.cmd_BL_L : EAgent_CMD_State.Done, SAP.cmd_BL_R : EAgent_CMD_State.Done,
-              SAP.cmd_BU_L : EAgent_CMD_State.Done, SAP.cmd_BU_R : EAgent_CMD_State.Done,
-              SAP.cmd_BA   : EAgent_CMD_State.Done, SAP.cmd_CM   : EAgent_CMD_State.Done,
+              SAP.cmd_PE   : ADT.EAgent_CMD_State.Done, SAP.cmd_PD   : ADT.EAgent_CMD_State.Done,
+              SAP.cmd_BR   : ADT.EAgent_CMD_State.Done, SAP.cmd_ES   : ADT.EAgent_CMD_State.Done,
+              SAP.cmd_BL_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BL_R : ADT.EAgent_CMD_State.Done,
+              SAP.cmd_BU_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BU_R : ADT.EAgent_CMD_State.Done,
+              SAP.cmd_BA   : ADT.EAgent_CMD_State.Done, SAP.cmd_CM   : ADT.EAgent_CMD_State.Done,
 
-              SAP.BS : "", SAP.TS : "",
+              SAP.BS : ADT.SAgent_BatteryState.defVal(), SAP.TS : "",
 
               SAP.RTele : 1 }
 
@@ -88,11 +96,27 @@ class CAgent_NO( CNetObj ):
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphRootNode = graphNodeCache()
+        self.lastConnectedTime = 0
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
+        self.tick_Timer = QTimer()
+        self.tick_Timer.setInterval( 1000 )
+        self.tick_Timer.timeout.connect( self.onTick )
+        self.tick_Timer.start()
+
+    def onTick( self ):
+        if self.connectedTime == 0:
+           self.connectedStatus = ADT.EConnectedStatus.disconnected
+        elif self.connectedTime == self.lastConnectedTime:
+           self.connectedStatus = ADT.EConnectedStatus.freeze
+        else:
+           self.connectedStatus = ADT.EConnectedStatus.connected
+
+        self.lastConnectedTime = self.connectedTime
 
     def ObjPropUpdated( self, netCmd ):
         if netCmd.sPropName == SAP.status:
-            if netCmd.value in blockAutoControlStatuses:
+            if netCmd.value in ADT.blockAutoControlStatuses:
                 self.auto_control = 0
 
     # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
@@ -154,10 +178,10 @@ class CAgent_NO( CNetObj ):
 
         route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, startNode, self.angle )
         if len(nodes_route) == 0:
-            self.status = EAgent_Status.NoRouteToCharge
+            self.status = ADT.EAgent_Status.NoRouteToCharge
             print(f"{SC.sError} Cant find any route to service station.")
         else:
-            self.status = EAgent_Status.GoToCharge
+            self.status = ADT.EAgent_Status.GoToCharge
 
         self.applyRoute( nodes_route )
 
@@ -167,7 +191,7 @@ class CAgent_NO( CNetObj ):
             self.status = EAgent_Status.CantCharge
             return
 
-        self.cmd_CM = EAgent_CMD_State.Init
+        self.cmd_CM = ADT.EAgent_CMD_State.Init
 
     def applyRoute( self, nodes_route ):
         route_size = len(nodes_route)
@@ -209,6 +233,3 @@ class CAgent_NO( CNetObj ):
         self.route = ",".join( nodes_route )
 
         return nodes_route
-
-
-

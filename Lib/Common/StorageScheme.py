@@ -11,13 +11,13 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Agent_NetObject import cmdDesc_To_Prop, cmdDesc
 from  Lib.Common.StrTypeConverter import CStrTypeConverter
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
-from Lib.AgentProtocol.AgentDataTypes import EAgent_CMD_State
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 import Lib.Common.GraphUtils as GU
 import Lib.Common.StrConsts as SC
 
-CStoragePlace = namedtuple('CStoragePlace', 'UID label nodeID side')
-CConveyor     = namedtuple('CConveyor',     'UID label nodeID side')
+CStoragePlace = namedtuple('CStoragePlace', 'UID label img nodeID side')
+CConveyor     = namedtuple('CConveyor',     'UID label img nodeID side')
 
 s_storage_places = "storage_places"
 s_conveyors      = "conveyors"
@@ -143,7 +143,7 @@ def processTaskStage(nxGraph, agentNO, task, BL_BU_event, targetNode):
     
     desk = cmdDesc( event = BL_BU_event, data=agenSide.toChar() )
     prop = cmdDesc_To_Prop[ desk ]
-    agentNO[ prop ] = EAgent_CMD_State.Init
+    agentNO[ prop ] = ADT.EAgent_CMD_State.Init
     
     task.status = EBTask_Status( task.status + 1 )
 

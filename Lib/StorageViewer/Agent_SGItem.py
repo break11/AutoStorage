@@ -13,41 +13,30 @@ from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import getEdgeCoords
 from Lib.Common.Vectors import Vector2
 
-from Lib.AgentProtocol.AgentDataTypes import EAgent_Status
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.Net_Events import ENet_Event as EV
 
-class EConnectedStatus( Enum ):
-    connected    = auto()
-    disconnected = auto()
-    freeze       = auto()
+import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.Common.Agent_NetObject import SAP
 
-bgColorsByConnectedStatus = { EConnectedStatus.connected    : Qt.darkGreen, 
-                              EConnectedStatus.disconnected : Qt.darkGray,
-                              EConnectedStatus.freeze       : Qt.gray }
+bgColorsByConnectedStatus = { ADT.EConnectedStatus.connected    : Qt.darkGreen, 
+                              ADT.EConnectedStatus.disconnected : Qt.darkGray,
+                              ADT.EConnectedStatus.freeze       : Qt.gray }
 
-colorsByStatus = { EAgent_Status.Idle            : Qt.green,
-                   EAgent_Status.GoToCharge      : Qt.blue,
-                   EAgent_Status.Charging        : Qt.gray,
-                   EAgent_Status.PosSyncError    : Qt.darkRed,
-                   EAgent_Status.NoRouteToCharge : Qt.darkRed,
-                   EAgent_Status.OnRoute         : Qt.blue,
-                   EAgent_Status.CantCharge      : Qt.darkRed,
-                   EAgent_Status.AgentError      : Qt.darkRed,
+colorsByStatus = { ADT.EAgent_Status.Idle            : Qt.green,
+                   ADT.EAgent_Status.GoToCharge      : Qt.blue,
+                   ADT.EAgent_Status.Charging        : Qt.gray,
+                   ADT.EAgent_Status.PosSyncError    : Qt.darkRed,
+                   ADT.EAgent_Status.NoRouteToCharge : Qt.darkRed,
+                   ADT.EAgent_Status.OnRoute         : Qt.blue,
+                   ADT.EAgent_Status.CantCharge      : Qt.darkRed,
+                   ADT.EAgent_Status.AgentError      : Qt.darkRed,
                  }
 
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  = 20 # расширение BBox для удобства выделения
-
-    @property
-    def connectedStatus( self ): return self.__connectedStatus
-
-    @connectedStatus.setter
-    def connectedStatus( self, value ):
-        if self.__connectedStatus == value: return
-
-        self.__connectedStatus = value
-        self.update()
 
     def __init__(self, SGM, agentNetObj, parent ):
         super().__init__( parent = parent )
@@ -58,9 +47,7 @@ class CAgent_SGItem(QGraphicsItem):
         self.setZValue( 40 )
         
         self.createGraphicElements()
-
-        self.lastConnectedTime = 0
-        self.__connectedStatus = EConnectedStatus.disconnected
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
     def createGraphicElements(self):
         w = SGT.wide_Rail_Width
@@ -158,20 +145,17 @@ class CAgent_SGItem(QGraphicsItem):
 
         super().setPos(x, y)
 
-    def onTick( self ):
-        if self.__agentNetObj().connectedTime == 0:
-           self.connectedStatus = EConnectedStatus.disconnected
-        elif self.__agentNetObj().connectedTime == self.lastConnectedTime:
-           self.connectedStatus = EConnectedStatus.freeze
-        else:
-           self.connectedStatus = EConnectedStatus.connected
+    def onObjPropUpdated( self, cmd ):
+        if cmd.Obj_UID != self.__agentNetObj().UID:
+            return
 
-        self.lastConnectedTime = self.__agentNetObj().connectedTime
+        if cmd.sPropName == SAP.connectedStatus:
+            self.update()
 
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
         selection_color = Qt.darkRed
-        bgColor = bgColorsByConnectedStatus[ self.connectedStatus ]
+        bgColor = bgColorsByConnectedStatus[ self.__agentNetObj().connectedStatus ]
 
         ## BBox
         # pen = QPen( Qt.blue )
@@ -248,7 +232,7 @@ class CAgent_SGItem(QGraphicsItem):
 
         alignFlags = Qt.AlignLeft | Qt.AlignTop
         status = self.__agentNetObj().status
-        textTop    = f"ID: {self.__agentNetObj().name}\nCS: {self.connectedStatus.name}"
+        textTop    = f"ID: {self.__agentNetObj().name}\nCS: {self.__agentNetObj().connectedStatus.name}"
         textBottom = f"ST: {status}"
 
         h = self.textRect.height()
@@ -274,7 +258,7 @@ class CAgent_SGItem(QGraphicsItem):
         status = self.__agentNetObj().status
         painter.setPen( self.BL_BU_pen )
 
-        if status in [EAgent_Status.BoxLoad_Right, EAgent_Status.BoxUnload_Right]:
+        if status in [ADT.EAgent_Status.BoxLoad_Right, ADT.EAgent_Status.BoxUnload_Right]:
             painter.drawLine( 0, 250, 0, 340 )
-        elif status in [EAgent_Status.BoxLoad_Left, EAgent_Status.BoxUnload_Left]:
+        elif status in [ADT.EAgent_Status.BoxLoad_Left, ADT.EAgent_Status.BoxUnload_Left]:
             painter.drawLine( 0, -250, 0, -340 )

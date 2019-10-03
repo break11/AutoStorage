@@ -1,7 +1,7 @@
 from collections import deque
 
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
-from Lib.AgentProtocol.AgentDataTypes import SAgent_BatteryState, EAgentBattery_Type, SOD_OP_Data
+import Lib.AgentProtocol.AgentDataTypes as ADT
 
 class CFakeAgentLink( CAgentServer_Link ):
     def __init__( self, agentN ):
@@ -20,5 +20,5 @@ class CFakeAgentLink( CAgentServer_Link ):
         self.bCharging = False
         self.bErrorState = False
 
-        self.batteryState = SAgent_BatteryState( EAgentBattery_Type.Supercap, 43.2, 39.31, 47.43, 00.9, 00.4 )
-        self.OD_OP_Data  = SOD_OP_Data()
+        self.batteryState = ADT.SAgent_BatteryState( ADT.EAgentBattery_Type.Supercap, 43.2, 39.31, 47.43, 00.9, 00.4 )
+        self.OD_OP_Data  = ADT.SOD_OP_Data()

@@ -1,5 +1,6 @@
 import os
 import datetime
+import weakref
 from collections import namedtuple
 
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -22,9 +23,9 @@ Telemetry_color = "#388E3C"
 TX_RX_byBool_str    = { True: s_TX, False: s_RX, None: "" }
 TX_RX_byBool_colors = { True: TX_color, False: RX_color, None: "#000000"}
 
-LogCount = 10000
+LogCount = 2000
 
-CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX status')
+CLogRow = namedtuple('CLogRow' , 'data event bTX_or_RX status agentLink_Ref')
 
 colorsByEvents = { EAgentServer_Event.BatteryState:       Telemetry_color,
                    EAgentServer_Event.TemperatureState:   Telemetry_color,
@@ -50,9 +51,16 @@ def eventColor( e ):
     return colorData
 
 class CAgentLogManager( QObject ):
-    AgentLogUpdated = pyqtSignal( object, CLogRow )
+    AgentLogUpdated = pyqtSignal( CLogRow )
     def __init__( self ):
         super().__init__()
+
+    @classmethod
+    def sDateTime( cls ):
+        now = datetime.datetime.now()
+        sD = now.strftime("%d-%m-%Y")
+        sT = now.strftime("%H-%M-%S")
+        return f"{sD}:{sT}"
 
     @classmethod
     def genAgentLogFName( cls, agentN ):
@@ -78,25 +86,23 @@ class CAgentLogManager( QObject ):
 
     ###############
 
-    def doLogString( self, agentLink, data, color = "#000000" ):
+    def doLogString( self, agentLink, thread_UID, data, color = "#000000" ):
         if agentLink is None:
             print( data )
             return
 
-        data = self.decorateLogString( agentLink, data, color )
-        logRow = CLogRow( data=data, event=None, bTX_or_RX=None, status = None )
+        data = self.decorateLogString( agentLink, thread_UID, data, color )
+        logRow = CLogRow( data=data, event=None, bTX_or_RX=None, status = None, agentLink_Ref = weakref.ref(agentLink) )
         self.__appendLog_with_Cut( agentLink, logRow )
-        self.writeToLogFile( agentLink.sLogFName, logRow )
+        self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
 
-        self.AgentLogUpdated.emit( agentLink, logRow )
+        self.AgentLogUpdated.emit( logRow )
 
     @classmethod
-    def decorateLogString( cls, agentLink, data, color ):
-        now = datetime.datetime.now()
-        sD = now.strftime("%d-%m-%Y")
-        sT = now.strftime("%H-%M-%S")
+    def decorateLogString( cls, agentLink, thread_UID, data, color ):
+        data = "AL " + data
         data = wrapSpan( data, color )
-        data = f"{sD}:{sT} {data}"
+        data = f"{cls.sDateTime()} T:{ thread_UID } {data}"
 
         return wrapDiv( data )
 
@@ -108,11 +114,11 @@ class CAgentLogManager( QObject ):
             return
         
         data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
-        logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX, status = packet.status )
+        logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX, status = packet.status, agentLink_Ref = weakref.ref(agentLink) )
         self.__appendLog_with_Cut( agentLink, logRow )
-        self.writeToLogFile( agentLink.sLogFName, logRow )
+        self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
 
-        self.AgentLogUpdated.emit( agentLink, logRow )
+        self.AgentLogUpdated.emit( logRow )
 
         return logRow
 
@@ -132,7 +138,7 @@ class CAgentLogManager( QObject ):
 
         data = f"{wrapSpan( sTX_or_RX, colorTX_or_RX, 400 )} {wrapSpan( data, colorData )}"
 
-        data = f"T:{ thread_UID } {data}"
+        data = f"{cls.sDateTime()} T:{ thread_UID } {data}"
         data = wrapDiv( data )
 
         return data

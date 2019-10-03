@@ -19,4 +19,4 @@ def main():
 
     CSM.saveSettings()
 
-    sys.exit( r )
+    return r

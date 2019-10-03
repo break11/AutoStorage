@@ -7,7 +7,7 @@ from enum import Flag, auto, Enum
 from copy import deepcopy
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, pyqtSignal
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem, QGraphicsScene
 
 from .Node_SGItem import CNode_SGItem
@@ -96,10 +96,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.GraphRoot_ParentGItem     = None
         self.EdgeDecorates_ParentGItem = None
 
-        self.tickTimer = QTimer()
-        self.tickTimer.setInterval( 1000 )
-        self.tickTimer.timeout.connect( self.onTick )
-
         self.disabledTouchTypes = [type(None), CEdge_SGItem, CEdgeDecorate_SGItem, CAgent_SGItem]
         self.selectionMode = EGSceneSelectionMode.Select
 
@@ -127,12 +123,6 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         if self.Agents_ParentGItem.scene() is None:
             self.gScene.addItem( self.Agents_ParentGItem )
-
-        self.tickTimer.start()
-
-    def onTick(self):
-        for agentGItem in self.agentGItems.values():
-            agentGItem.onTick()
 
     @time_func( sMsg="Scene clear time =" )
     def clear(self):

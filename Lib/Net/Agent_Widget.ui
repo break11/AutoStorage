@@ -6,14 +6,45 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>378</width>
-    <height>372</height>
+    <width>374</width>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QLabel" name="lbName">
+       <property name="text">
+        <string>ID:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbNameVal">
+       <property name="text">
+        <string>NameVal</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="QPushButton" name="btnAutoControl">
      <property name="styleSheet">
@@ -134,6 +165,18 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <property name="spacing">
+       <number>2</number>
+      </property>
       <item row="1" column="3">
        <widget class="QPushButton" name="btnBU_R">
         <property name="styleSheet">
@@ -277,6 +320,9 @@
    </item>
    <item>
     <widget class="QProgressBar" name="pbCharge">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="value">
       <number>50</number>
      </property>
@@ -309,7 +355,7 @@
      <item>
       <widget class="QLineEdit" name="leBS">
        <property name="readOnly">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="propRef" stdset="0">
         <string>BS</string>
@@ -330,10 +376,52 @@
      <item>
       <widget class="QLineEdit" name="leTS">
        <property name="readOnly">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="propRef" stdset="0">
         <string>TS</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_8">
+     <item>
+      <widget class="QLabel" name="lbConnectedStatus">
+       <property name="text">
+        <string>ConnectedStatus:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edConnectedStatusVal">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>connectedStatus</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QLabel" name="lbStatus">
+       <property name="text">
+        <string>Status:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edStatusVal">
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>status</string>
        </property>
       </widget>
      </item>

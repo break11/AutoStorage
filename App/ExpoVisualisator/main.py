@@ -9,4 +9,4 @@ from  Lib.Common.BaseApplication import baseAppRun
 from .def_settings import AM_DefSet
 
 def main():    
-    return baseAppRun( default_settings = AM_DefSet, mainWindowClass = CEV_MainWindow, bNetworkMode = True )
+    return baseAppRun( default_settings = AM_DefSet, mainWindowClass = CEV_MainWindow, bShowFullscreen = True, bNetworkMode = True )
