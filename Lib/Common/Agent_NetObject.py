@@ -37,6 +37,7 @@ class SAgentProps( metaclass = СStrProps_Meta ):
     cmd_BU_L        = None
     cmd_BU_R        = None
     cmd_BA          = None
+    cmd_CM          = None
     RTele           = None
     BS              = None
     TS              = None
@@ -54,6 +55,7 @@ cmdProps = { SAP.cmd_PE   : cmdDesc( event=EV.PowerEnable,    data=None),
              SAP.cmd_BU_L : cmdDesc( event=EV.BoxUnload,      data=SGT.ESide.Left.toChar()  ),
              SAP.cmd_BU_R : cmdDesc( event=EV.BoxUnload,      data=SGT.ESide.Right.toChar() ),
              SAP.cmd_BA   : cmdDesc( event=EV.BoxLoadAborted, data=None),
+             SAP.cmd_CM   : cmdDesc( event=EV.ChargeMe,       data=None),
             }
 
 cmdDesc_To_Prop = {} #type:ignore
@@ -75,7 +77,7 @@ def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0,
               SAP.cmd_BR   : ADT.EAgent_CMD_State.Done, SAP.cmd_ES   : ADT.EAgent_CMD_State.Done,
               SAP.cmd_BL_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BL_R : ADT.EAgent_CMD_State.Done,
               SAP.cmd_BU_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BU_R : ADT.EAgent_CMD_State.Done,
-              SAP.cmd_BA   : ADT.EAgent_CMD_State.Done,
+              SAP.cmd_BA   : ADT.EAgent_CMD_State.Done, SAP.cmd_CM   : ADT.EAgent_CMD_State.Done,
 
               SAP.BS : ADT.SAgent_BatteryState.defVal(), SAP.TS : "",
 
@@ -183,6 +185,13 @@ class CAgent_NO( CNetObj ):
 
         self.applyRoute( nodes_route )
 
+    def prepareCharging(self):
+        tKey = GU.tEdgeKeyFromStr( self.edge )
+        if not GU.isOnNode( self.nxGraph, SGT.ENodeTypes.ServiceStation, tKey, self.position ):
+            self.status = EAgent_Status.CantCharge
+            return
+
+        self.cmd_CM = ADT.EAgent_CMD_State.Init
 
     def applyRoute( self, nodes_route ):
         route_size = len(nodes_route)

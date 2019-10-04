@@ -94,6 +94,8 @@ class CAgentServer_Net_Thread(QThread):
         ALM.doLogPacket( self.agentLink(), self.UID, cmd, True, isAgent=not self.bIsServer )
 
     def sendExpressCMDs( self ):
+        if not self.bConnected: return
+
         agentLink = self.agentLink()
         if not agentLink:
             return
@@ -103,6 +105,8 @@ class CAgentServer_Net_Thread(QThread):
         agentLink.Express_TX_Packets.clear()
 
     def sendTX_cmd( self ):
+        if not self.bConnected: return
+
         ## ACC send
         acc = self.agentLink().ACC_cmd
         if self.agentLink().lastTX_ACC_packetN == acc.packetN:

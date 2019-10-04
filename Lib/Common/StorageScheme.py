@@ -14,6 +14,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 import Lib.Common.GraphUtils as GU
+import Lib.Common.StrConsts as SC
 
 CStoragePlace = namedtuple('CStoragePlace', 'UID label img nodeID side')
 CConveyor     = namedtuple('CConveyor',     'UID label img nodeID side')
@@ -49,25 +50,25 @@ class CStorageScheme:
             conveyor = CConveyor( **kwargs )
             self.conveyors [ conveyor.UID ] = conveyor
 
-class CFakeConveyor:
+class CRedisWatcher:
     s_ConveyorState = "ConveyorState"
     s_RemoveBox     = "RemoveBox"
+    s_BoxAutotest   = "BoxAutotest"
+
+    defaults = {
+                    s_ConveyorState : 0,
+                    s_RemoveBox     : 0,
+                    s_BoxAutotest   : 0,
+                }
     def __init__(self):
         self.redisConn = None
-
         self.connect()
 
-    def isReady(self) -> int:
-        return CStrTypeConverter.ValFromStr( self.redisConn.get( self.s_ConveyorState ) )
+    def get(self, key):
+        return CStrTypeConverter.ValFromStr( self.redisConn.get(key) )
 
-    def setReady(self, isReady:int):
-        self.redisConn.set( self.s_ConveyorState, CStrTypeConverter.ValToStr( isReady ) )
-
-    def isRemove(self) -> int:
-        return CStrTypeConverter.ValFromStr( self.redisConn.get( self.s_RemoveBox ) )
-
-    def setRemoveBox(self, nRemove:int):
-        self.redisConn.set( self.s_RemoveBox, CStrTypeConverter.ValToStr( nRemove ) )
+    def set(self, key, val):
+        self.redisConn.set( key, CStrTypeConverter.ValToStr( val ) )
 
     def connect(self):
         redisOptDict = CSM.rootOpt( "redis" )
@@ -76,11 +77,9 @@ class CFakeConveyor:
 
         self.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db = 3, charset="utf-8", decode_responses=True)
 
-        state = self.redisConn.get( self.s_ConveyorState )
-        if state is None: self.redisConn.set( self.s_ConveyorState, CStrTypeConverter.ValToStr(0) )
-
-        state = self.redisConn.get( self.s_RemoveBox )
-        if state is None: self.redisConn.set( self.s_RemoveBox, CStrTypeConverter.ValToStr(0) )
+        for k, v in self.defaults.items():
+            state = self.redisConn.get( k )
+            if state is None: self.redisConn.set( k, CStrTypeConverter.ValToStr( v ) )
 
 class EBTask_Status( IntEnum ):
     Init       = auto()

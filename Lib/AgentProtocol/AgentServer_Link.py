@@ -1,6 +1,6 @@
 from collections import deque
 
-from Lib.AgentProtocol.AgentLogManager import ALM
+from Lib.AgentProtocol.AgentLogManager import ALM, LogCount
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN, getACC_Event_ThisSide
@@ -17,9 +17,7 @@ class CAgentServer_Link:
     def __init__( self, agentN, bIsServer ):
         super().__init__()
 
-        self.log = []
-        self.sLogFName = ALM.genAgentLogFName( agentN )
-        ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={agentN} Created" )
+        self.log = deque( maxlen = LogCount )
 
         self.agentN = agentN
         self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
@@ -32,6 +30,8 @@ class CAgentServer_Link:
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         self.bIsServer = bIsServer
+        
+        ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={agentN} Created" )
 
     def __del__(self):
         self.done()

@@ -2,6 +2,7 @@ import os
 import weakref
 
 from PyQt5.Qt import pyqtSlot
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QWidget, QCheckBox
 from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
@@ -95,6 +96,12 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
 
+        self.buffLogRows = []
+        self.main_Timer = QTimer()
+        self.main_Timer.setInterval( 300 )
+        self.main_Timer.timeout.connect( self.logTick )
+        self.main_Timer.start()
+
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки
         ALC_Form_set = CSM.options[ s_agent_log_cmd_form ]
@@ -121,6 +128,7 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.teAgentErrorLog.clear()
         if self.agentLink:
             self.agentLink().log.clear()
+        self.buffLogRows.clear()
 
     def filter_LogRow( self, logRow ):
         # filter by TX, RX
@@ -147,7 +155,8 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         filteredRows = []
         filteredErrorRows = []
-        for logRow in self.agentLink().log:
+        # создание листа необходимо для корректного копирования в TextEdit, т.к. очередь может в процессе прохода измениться
+        for logRow in list(self.agentLink().log):
             if self.filter_LogRow( logRow ):
                 filteredRows.append( logRow.data )
             if logRow.event in errListEvents:
@@ -159,14 +168,16 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.teAgentErrorLog.setHtml( "".join( filteredErrorRows ) )
         self.teAgentErrorLog.moveCursor( QTextCursor.End )
 
+        self.buffLogRows.clear()
+
     def updateAgentControls( self ):
         if self.agentLink is None: return
 
         self.sbAgentN.setValue( self.agentLink().agentN )
 
-    def AgentLogUpdated( self, agentLink, logRow ):
+    def AgentLogUpdated( self, logRow ):
         if self.agentLink is None: return
-        if self.agentLink() is not agentLink: return
+        if self.agentLink() is not logRow.agentLink_Ref(): return
 
         if logRow.event in errListEvents:
             self.teAgentErrorLog.append( logRow.data )
@@ -174,10 +185,31 @@ class CAgent_Cmd_Log_Form(QWidget):
         if not self.filter_LogRow( logRow ):
             return
 
-        self.teAgentFullLog.append( logRow.data )
+        self.buffLogRows.append( logRow.data )
+        # self.teAgentFullLog.append( logRow.data )
 
-        if self.teAgentFullLog.document().lineCount() > LogCount:
-            self.fillAgentLog()
+    def logTick( self ):
+        for logRow in self.buffLogRows:
+          self.teAgentFullLog.append( logRow )
+
+        self.limitLogLength()
+        self.buffLogRows.clear()
+
+    def limitLogLength( self ):
+        cursor = self.teAgentFullLog.textCursor()
+        # если курсор не в конце лога (нет автопрокрутки), то не удаляем лог, пока пользователь не переместит курсор обратно в конец
+        if not cursor.atEnd(): return
+
+        if self.teAgentFullLog.document().lineCount() <= LogCount: return
+
+        while self.teAgentFullLog.document().lineCount() > LogCount:
+            # вместо полной перезагрузки лога (self.fillAgentLog()) удаляем от начала лога половину его строк
+            cursor.movePosition( QTextCursor.Start )
+            cursor.movePosition( QTextCursor.Down, QTextCursor.KeepAnchor, LogCount / 2 )
+            # self.teAgentFullLog.setTextCursor( cursor )
+            cursor.removeSelectedText()
+
+        self.teAgentFullLog.moveCursor( QTextCursor.End )
 
     @pyqtSlot("bool")
     def on_btnFilter_clicked( self, bVal ):

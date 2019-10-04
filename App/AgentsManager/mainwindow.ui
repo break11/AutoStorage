@@ -49,8 +49,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>937</width>
-         <height>592</height>
+         <width>935</width>
+         <height>630</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -141,7 +141,7 @@
      <x>0</x>
      <y>0</y>
      <width>1021</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -228,31 +228,6 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="btnBox_Autotest">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QPushButton { background-color: rgb(196, 160, 0); } QPushButton:checked { border:3px solid red; border-radius:5px }</string>
-         </property>
-         <property name="text">
-          <string>Box Autotest</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QPushButton" name="btnSimpleAgent_Test">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -334,18 +309,15 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnReset_Task">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QPushButton" name="btnDisconnect">
+         <property name="styleSheet">
+          <string notr="true">background-color: red;</string>
          </property>
          <property name="text">
-          <string>Reset Task</string>
+          <string>Disconnect</string>
          </property>
-         <property name="checkable">
-          <bool>false</bool>
+         <property name="shortcut">
+          <string>Del</string>
          </property>
         </widget>
        </item>

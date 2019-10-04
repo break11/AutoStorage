@@ -110,7 +110,7 @@ class EAppStartPhase( Enum ):
     BeforeRedisConnect = auto()
     AfterRedisConnect  = auto()
 
-def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParams={} ):
+def baseAppRun( default_settings, bNetworkMode, mainWindowClass, bShowFullscreen=False, mainWindowParams={} ):
     CSM.loadSettings( default=default_settings )
 
     app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode )
@@ -130,7 +130,10 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, mainWindowParam
         app.init_NetObj_Monitor( parent = window.dkNetObj_Monitor )
     window.init( EAppStartPhase.AfterRedisConnect )
 
-    window.show()
+    if bShowFullscreen:
+        window.showFullScreen()
+    else:
+        window.show()
 
     app.exec_() # главный цикл сообщений Qt
  
