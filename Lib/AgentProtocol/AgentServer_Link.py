@@ -23,7 +23,7 @@ class CAgentServer_Link:
         self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN  = 1
-        self.lastTXpacketN = 1
+        self.lastTXpacketN = None
         self.lastTX_ACC_packetN = 1
         self.ACC_cmd = ASP( event=getACC_Event_ThisSide( bIsServer ), agentN = self.agentN )
         # self.last_RX_packetN = 1000 # Now as property

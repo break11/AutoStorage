@@ -15,32 +15,37 @@ def getACC_Event_OtherSide( bIsServer ):
 def verifyRxPacket( agentLink, agentThread, cmd ):
 
     if cmd.event == getACC_Event_OtherSide( agentThread.bIsServer ):
-        assert agentLink.lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
-
-        delta = cmd.packetN - agentLink.lastTXpacketN
-
-        #всё корректно, пришло CA по текущей активной команде - сносим ее из очереди отправки ( lastTX_N=000 CA_N=000 )
-        if delta == 0 or cmd.packetN == 0:
-            if len(agentLink.TX_Packets) and agentLink.TX_Packets[0].packetN == cmd.packetN:
-                # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
-                agentLink.TX_Packets.popleft()
-                cmd.status = EPacket_Status.Normal
-                agentThread.bSendTX_cmd = True
-                agentThread.nReSendTX_Counter = 0
-            else:
-                #видимо, пришло повтороное подтверждение на команду
-                cmd.status = EPacket_Status.Duplicate
-            if cmd.packetN == 0:
-                cmd.status = EPacket_Status.Normal
-        #если разница -1 или 999, это дубликат последней полученной команды ( lastTX_N=001 CA_N=000 ), ( lastTX_N=000 CA_N=999 )
-        elif delta == -1 or delta == 998:
-            cmd.status = EPacket_Status.Duplicate
-        #ошибка(возможно старые пакеты)
-        elif delta < -1:
-            cmd.status = EPacket_Status.Error
-        #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
+        if cmd.packetN == agentLink.lastTXpacketN:
+            cmd.status = EPacket_Status.Normal
         else:
-            cmd.status = EPacket_Status.Error
+            cmd.status = EPacket_Status.Duplicate
+
+        # assert agentLink.lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
+
+        # delta = cmd.packetN - agentLink.lastTXpacketN
+
+        # #всё корректно, пришло CA по текущей активной команде - сносим ее из очереди отправки ( lastTX_N=000 CA_N=000 )
+        # if delta == 0 or cmd.packetN == 0:
+        #     if len(agentLink.TX_Packets) and agentLink.TX_Packets[0].packetN == cmd.packetN:
+        #         # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
+        #         agentLink.TX_Packets.popleft()
+        #         cmd.status = EPacket_Status.Normal
+        #         agentThread.bSendTX_cmd = True
+        #         agentThread.nReSendTX_Counter = 0
+        #     else:
+        #         #видимо, пришло повтороное подтверждение на команду
+        #         cmd.status = EPacket_Status.Duplicate
+        #     if cmd.packetN == 0:
+        #         cmd.status = EPacket_Status.Normal
+        # #если разница -1 или 999, это дубликат последней полученной команды ( lastTX_N=001 CA_N=000 ), ( lastTX_N=000 CA_N=999 )
+        # elif delta == -1 or delta == 998:
+        #     cmd.status = EPacket_Status.Duplicate
+        # #ошибка(возможно старые пакеты)
+        # elif delta < -1:
+        #     cmd.status = EPacket_Status.Error
+        # #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
+        # else:
+        #     cmd.status = EPacket_Status.Error
 
     else:
         # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
