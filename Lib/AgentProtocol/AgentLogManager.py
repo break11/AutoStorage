@@ -69,7 +69,11 @@ class CAgentLogManager( QObject ):
         return appLogPath() + f"{agentN}__{sD}.log.html"
 
     @classmethod
-    def writeToLogFile( cls, sLogFName, logRow ):
+    def writeToLogFile( cls, agentLink, logRow ):
+
+        agentLink.log.append( logRow )
+
+        sLogFName = cls.genAgentLogFName( agentLink.agentN )
         if not os.path.exists( sLogFName ):
             with open( sLogFName, 'a' ) as file:
                 file.write( "<script src=\"../Common/jquery-3.4.1.min.js\"></script>" )
@@ -77,12 +81,6 @@ class CAgentLogManager( QObject ):
 
         with open( sLogFName, 'a' ) as file:
             file.write( logRow.data )
-
-    @classmethod
-    def __appendLog_with_Cut( cls, agentLink, logRow ):
-        agentLink.log.append( logRow )
-        if len( agentLink.log ) > LogCount:
-            agentLink.log = agentLink.log[ LogCount // 2: ]
 
     ###############
 
@@ -93,8 +91,8 @@ class CAgentLogManager( QObject ):
 
         data = self.decorateLogString( agentLink, thread_UID, data, color )
         logRow = CLogRow( data=data, event=None, bTX_or_RX=None, status = None, agentLink_Ref = weakref.ref(agentLink) )
-        self.__appendLog_with_Cut( agentLink, logRow )
-        self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
+        
+        self.writeToLogFile( agentLink, logRow )
 
         self.AgentLogUpdated.emit( logRow )
 
@@ -115,8 +113,8 @@ class CAgentLogManager( QObject ):
         
         data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
         logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX, status = packet.status, agentLink_Ref = weakref.ref(agentLink) )
-        self.__appendLog_with_Cut( agentLink, logRow )
-        self.writeToLogFile( self.genAgentLogFName( agentLink.agentN ), logRow )
+
+        self.writeToLogFile( agentLink, logRow )
 
         self.AgentLogUpdated.emit( logRow )
 

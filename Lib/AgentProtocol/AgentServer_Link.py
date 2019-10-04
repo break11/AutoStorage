@@ -1,6 +1,6 @@
 from collections import deque
 
-from Lib.AgentProtocol.AgentLogManager import ALM
+from Lib.AgentProtocol.AgentLogManager import ALM, LogCount
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN, getACC_Event_ThisSide
@@ -17,7 +17,7 @@ class CAgentServer_Link:
     def __init__( self, agentN, bIsServer ):
         super().__init__()
 
-        self.log = []
+        self.log = deque( maxlen = LogCount )
 
         self.agentN = agentN
         self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные

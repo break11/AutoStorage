@@ -155,7 +155,8 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         filteredRows = []
         filteredErrorRows = []
-        for logRow in self.agentLink().log:
+        # создание листа необходимо для корректного копирования в TextEdit, т.к. очередь может в процессе прохода измениться
+        for logRow in list(self.agentLink().log):
             if self.filter_LogRow( logRow ):
                 filteredRows.append( logRow.data )
             if logRow.event in errListEvents:

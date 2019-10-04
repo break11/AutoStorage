@@ -122,8 +122,8 @@ class CAM_MainWindow(QMainWindow):
         
         agentNO = self.Agents_Model.agentNO_from_Index( ci )
         aLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name) )
-        for socket in aLink.socketThreads:
-            socket.disconnectFromServer()
+        for socketThread in aLink.socketThreads:
+            socketThread.disconnectFromServer()
     ###################################################
 
     @pyqtSlot("bool")
