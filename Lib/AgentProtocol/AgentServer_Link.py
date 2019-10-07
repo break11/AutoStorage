@@ -24,7 +24,8 @@ class CAgentServer_Link:
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN  = 1
         self.lastTXpacketN = None
-        self.lastTX_ACC_packetN = 1
+        self.lastTX_ACC_packetN = None # для определения дубликатов по отправленным ACC
+        self.lastRX_ACC_packetN = None  # для определения дубликатов по полученным ACC
         self.ACC_cmd = ASP( event=getACC_Event_ThisSide( bIsServer ), agentN = self.agentN )
         # self.last_RX_packetN = 1000 # Now as property
 

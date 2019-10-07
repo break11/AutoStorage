@@ -15,10 +15,11 @@ def getACC_Event_OtherSide( bIsServer ):
 def verifyRxPacket( agentLink, agentThread, cmd ):
 
     if cmd.event == getACC_Event_OtherSide( agentThread.bIsServer ):
-        if cmd.packetN == agentLink.lastTXpacketN:
-            cmd.status = EPacket_Status.Normal
-        else:
+        if cmd.packetN == agentLink.lastRX_ACC_packetN:
             cmd.status = EPacket_Status.Duplicate
+        else:
+            cmd.status = EPacket_Status.Normal
+        agentLink.lastRX_ACC_packetN = cmd.packetN
 
         # assert agentLink.lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
 
