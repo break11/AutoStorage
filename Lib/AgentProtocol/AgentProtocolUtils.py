@@ -19,7 +19,13 @@ def verifyRxPacket( agentLink, agentThread, cmd ):
             cmd.status = EPacket_Status.Duplicate
         else:
             cmd.status = EPacket_Status.Normal
-        agentLink.lastRX_ACC_packetN = cmd.packetN
+            agentLink.lastRX_ACC_packetN = cmd.packetN
+
+            # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
+            if len(agentLink.TX_Packets) and agentLink.TX_Packets[0].packetN == cmd.packetN:
+                agentLink.TX_Packets.popleft()
+                agentThread.nReSendTX_Counter = 0
+
 
         # assert agentLink.lastTXpacketN != None # т.к. инициализация по HW прошла, то агент должен существовать
 
@@ -49,29 +55,36 @@ def verifyRxPacket( agentLink, agentThread, cmd ):
         #     cmd.status = EPacket_Status.Error
 
     else:
-        # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
-        wantedPacketN = calcNextPacketN( agentLink.last_RX_packetN )
-        delta = cmd.packetN - wantedPacketN
-
-        # если разница в номерах пакетов 0, то всё корректно
-        # так же считаем корректным пакет с входящим кодом 0
-        if  delta == 0 or cmd.packetN == 0:
-            if cmd.packetN != 0:
-                agentLink.last_RX_packetN = cmd.packetN
-            # agentLink.last_RX_packetN = cmd.packetN
-
-            cmd.status = EPacket_Status.Normal
-            agentThread.bSendTX_cmd = True
-            agentThread.nReSendTX_Counter = 0
-        #если разница -1, это дубликат последней полученной команды
-        elif delta == -1 or delta == 998:
+        if cmd.packetN == agentLink.last_RX_packetN:
             cmd.status = EPacket_Status.Duplicate
-        #ошибка(возможно старые пакеты)
-        elif delta < -1:
-            cmd.status = EPacket_Status.Error
-        #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
         else:
-            cmd.status = EPacket_Status.Error
+            cmd.status = EPacket_Status.Normal
+            agentLink.last_RX_packetN = cmd.packetN
+        
+
+        # # wantedPacketN - ожидаемый пакет, считаем ожидаемый пакет как последний полученный + 1
+        # wantedPacketN = calcNextPacketN( agentLink.last_RX_packetN )
+        # delta = cmd.packetN - wantedPacketN
+
+        # # если разница в номерах пакетов 0, то всё корректно
+        # # так же считаем корректным пакет с входящим кодом 0
+        # if  delta == 0 or cmd.packetN == 0:
+        #     if cmd.packetN != 0:
+        #         agentLink.last_RX_packetN = cmd.packetN
+        #     # agentLink.last_RX_packetN = cmd.packetN
+
+        #     cmd.status = EPacket_Status.Normal
+        #     agentThread.bSendTX_cmd = True
+        #     agentThread.nReSendTX_Counter = 0
+        # #если разница -1, это дубликат последней полученной команды
+        # elif delta == -1 or delta == 998:
+        #     cmd.status = EPacket_Status.Duplicate
+        # #ошибка(возможно старые пакеты)
+        # elif delta < -1:
+        #     cmd.status = EPacket_Status.Error
+        # #ошибка(нумерация пакетов намного больше ожидаемой, возможно была потеря пакетов)
+        # else:
+        #     cmd.status = EPacket_Status.Error
 
 CA_SA_Events = [ EAgentServer_Event.ServerAccepting, EAgentServer_Event.ClientAccepting ]
 def processAcceptedPacket( cmd, handler=None ):
