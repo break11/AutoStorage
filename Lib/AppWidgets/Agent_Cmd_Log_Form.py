@@ -20,8 +20,9 @@ baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.TaskList,
                   EAgentServer_Event.OdometerDistance,
                   EAgentServer_Event.DistanceEnd,
-                  EAgentServer_Event.ClientAccepting,
-                  EAgentServer_Event.ServerAccepting ]
+                  EAgentServer_Event.Accepted ]
+                #   EAgentServer_Event.ClientAccepting,
+                #   EAgentServer_Event.ServerAccepting ] ##remove##
 
 baseFilterSet = []
 for e in EAgentServer_Event:

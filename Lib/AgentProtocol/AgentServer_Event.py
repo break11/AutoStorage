@@ -6,8 +6,9 @@ class EAgentServer_Event( Enum ):
     Warning_           = auto() # Warning text message with symbol #
     Text               = auto() # Text message to Log
     HelloWorld         = auto() # @HW
-    ClientAccepting    = auto() # @CA
-    ServerAccepting    = auto() # @SA
+    # ClientAccepting    = auto() # @CA
+    # ServerAccepting    = auto() # @SA ##remove##
+    Accepted           = auto() # AC
     BatteryState       = auto() # @BS
     TemperatureState   = auto() # @TS
     TaskList           = auto() # @TL
@@ -52,8 +53,9 @@ _AgentServer_Event_from_BStr = {
                                 b"#"  : EAgentServer_Event.Warning_,
                                 b""   : EAgentServer_Event.Text,
                                 b"@HW": EAgentServer_Event.HelloWorld,
-                                b"@CA": EAgentServer_Event.ClientAccepting,
-                                b"@SA": EAgentServer_Event.ServerAccepting,
+                                # b"@CA": EAgentServer_Event.ClientAccepting, ##remove##
+                                # b"@SA": EAgentServer_Event.ServerAccepting,
+                                b"@AC": EAgentServer_Event.Accepted,
                                 b"@BS": EAgentServer_Event.BatteryState,
                                 b"@TS": EAgentServer_Event.TemperatureState,
                                 b"@TL": EAgentServer_Event.TaskList,

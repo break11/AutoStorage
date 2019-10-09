@@ -10,8 +10,9 @@ class EPacket_Status( Enum ):
     Duplicate = auto()
 
 class CAgentServerPacket:
-    accEvents = [ EAgentServer_Event.ServerAccepting,
-                  EAgentServer_Event.ClientAccepting, ]
+    ##remove##
+    # accEvents = [ EAgentServer_Event.ServerAccepting,
+    #               EAgentServer_Event.ClientAccepting, ]
 
     textEvents = [ EAgentServer_Event.Warning_,
                    EAgentServer_Event.Error,
@@ -28,7 +29,8 @@ class CAgentServerPacket:
         self.status    = status
 
     def __repr__( self ):
-        if self.event in self.accEvents:
+        ##remove##if self.event in self.accEvents:
+        if self.event != EAgentServer_Event.Accepted:
             return f"{self.packetN:03d},{ EAgentServer_Event.toStr( self.event ) }"
         else:
             sResult = f"{self.packetN:03d},{self.agentN:03d}:{ EAgentServer_Event.toStr( self.event ) }"
@@ -42,7 +44,8 @@ class CAgentServerPacket:
         Event_Sign = EAgentServer_Event.toStr( self.event )
         sResult = ""
 
-        if self.event in self.accEvents:
+        ##remove##if self.event in self.accEvents:
+        if self.event == EAgentServer_Event.Accepted:
             sResult = f"{ Event_Sign }:{self.packetN:03d}"
         elif (self.event in self.textEvents):
             if bTX_or_RX == False: # пока текстовые сообщения только с челнока - на челнок они вроде не передаются...
@@ -116,7 +119,8 @@ class CAgentServerPacket:
         packetN = agentN = channelN = timeStamp = None
 
         try:
-            if event in cls.accEvents: # @CA:000, @SA:000
+            ##remove## if event in cls.accEvents: # @CA:000, @SA:000
+            if event == EAgentServer_Event.Accepted:
                 packetN = int( l[1].decode() )
             else:
                 sAttrs = l[0].split( b"," )

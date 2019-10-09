@@ -6,7 +6,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtNetwork import QTcpSocket
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, calcNextPacketN, getACC_Event_OtherSide
+from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, calcNextPacketN##remove##, getACC_Event_OtherSide
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status, UNINITED_AGENT_N
 from Lib.AgentProtocol.AgentLogManager import ALM
 import Lib.AgentProtocol.AgentDataTypes as ADT

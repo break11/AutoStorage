@@ -3,7 +3,7 @@ from collections import deque
 from Lib.AgentProtocol.AgentLogManager import ALM, LogCount
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN, getACC_Event_ThisSide
+from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN ##remove##, getACC_Event_ThisSide
 
 class CAgentServer_Link:
     @property
@@ -26,7 +26,8 @@ class CAgentServer_Link:
         self.lastTXpacketN = None
         self.lastTX_ACC_packetN = None # для определения дубликатов по отправленным ACC
         self.lastRX_ACC_packetN = None  # для определения дубликатов по полученным ACC
-        self.ACC_cmd = ASP( event=getACC_Event_ThisSide( bIsServer ), agentN = self.agentN )
+        ##remove##self.ACC_cmd = ASP( event=getACC_Event_ThisSide( bIsServer ), agentN = self.agentN )
+        self.ACC_cmd = ASP( event=EAgentServer_Event.Accepted, agentN = self.agentN )
         # self.last_RX_packetN = 1000 # Now as property
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
