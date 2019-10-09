@@ -171,16 +171,6 @@ class CAgentServer_Net_Thread(QThread):
         while self.bRunning:
             if self.initHW(): break
 
-        ##remove##
-        # if self.bIsServer:
-        #     # send HW cmd and wait HW answer from Agent for init agentN
-        #     initHW_Counter = 0 # для оптимизации и уменьшения лишних посылок запроса HW челноку
-        #     while self.bRunning and self.agentLink() is None:
-        #         self.initHW( initHW_Counter )
-        #         initHW_Counter += 1
-
-        # if not self.bRunning: return
-
         self.noRxTimer = time.time()
         while self.bRunning:
             self.process()
@@ -196,34 +186,6 @@ class CAgentServer_Net_Thread(QThread):
 
     ##############################################
 
-        ##remove##
-    # def initHW( self, nCounter ):
-    #     # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
-    #     self.tcpSocket.waitForReadyRead(1)
-    #     if nCounter % 100 == 0:
-    #         self.writeTo_Socket( CAgentServerPacket( event = EAgentServer_Event.HelloWorld ) )
-        
-    #     while self.tcpSocket.canReadLine(): #and self.agentN == UNINITED_AGENT_N:
-    #         line = self.tcpSocket.readLine()
-    #         cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
-
-    #         if cmd is None: continue
-    #         if cmd.event == getACC_Event_OtherSide( self.bIsServer ): continue
-            
-    #         if not self.ACS().getAgentLink( cmd.agentN, bWarning = False):
-    #             assert cmd.agentN is not None, f"agentN need to be inited! cmd={cmd}"
-    #             self.newAgent.emit( cmd.agentN )
-    #             while (not self.ACS().getAgentLink( cmd.agentN, bWarning = False)):
-    #                 self.msleep(10)
-
-    #         self.handleHW( cmd )
-
-    #         self.agentNumberInited.emit( cmd.agentN )
-    #         self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
-    #         self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
-
-    #         _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd, isAgent=not self.bIsServer, handler=self.processRxPacket )
-
     def process( self ):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
         self.tcpSocket.waitForReadyRead(1)
@@ -233,14 +195,21 @@ class CAgentServer_Net_Thread(QThread):
         self.sendExpressCMDs()
 
         self.nReSendTX_Counter += 1
+
+        # ReSend Old CMD
         if self.nReSendTX_Counter > 499:
             self.bSendTX_cmd = True
-            ALM.doLogString( self.agentLink(), self.UID, "ReSend Old CMD", color="#636363" )
+            # ALM.doLogString( self.agentLink(), self.UID, "ReSend Old CMD", color="#636363" )
         
-        # if self.bSendTX_cmd == False and self.currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.currentTX_cmd().packetN ):
+        # Send New ACC
+        if self.agentLink().ACC_cmd.packetN != self.agentLink().lastTX_ACC_packetN:
+            self.bSendTX_cmd = True
+            # ALM.doLogString( self.agentLink(), self.UID, "Send New ACC", color="#636363" )
+
+        # Send New CMD
         if self.currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.currentTX_cmd().packetN ):
             self.bSendTX_cmd = True
-            ALM.doLogString( self.agentLink(), self.UID, "Send New CMD", color="#636363" )
+            # ALM.doLogString( self.agentLink(), self.UID, "Send New CMD", color="#636363" )        
 
         if self.bSendTX_cmd:
             self.sendTX_cmd()

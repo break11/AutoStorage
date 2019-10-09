@@ -188,7 +188,7 @@ class CAgent_NO( CNetObj ):
     def prepareCharging(self):
         tKey = GU.tEdgeKeyFromStr( self.edge )
         if not GU.isOnNode( self.nxGraph, SGT.ENodeTypes.ServiceStation, tKey, self.position ):
-            self.status = EAgent_Status.CantCharge
+            self.status = ADT.EAgent_Status.CantCharge
             return
 
         self.cmd_CM = ADT.EAgent_CMD_State.Init

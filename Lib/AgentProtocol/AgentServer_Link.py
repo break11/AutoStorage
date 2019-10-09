@@ -54,10 +54,6 @@ class CAgentServer_Link:
 
     def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True, bAllowDuplicate=True ):
         # если allowDuplicate=False кладем в очередь команду, только если ее там нет (это будет значить, что сторона получателя ее приняла)
-        ##remove## возможно очередь команд должна набиваться и когда нет соединения ?????????????
-        if not self.isConnected():
-            return
-
         if bReMap_PacketN:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )

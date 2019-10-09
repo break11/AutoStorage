@@ -131,8 +131,6 @@ class CAgentLogManager( QObject ):
             colorData = eventColor( packet.event )
         elif packet.status == EPacket_Status.Duplicate:
             colorData = Duplicate_color
-        elif packet.status == EPacket_Status.Error:
-            colorData = Error_color
 
         data = f"{wrapSpan( sTX_or_RX, colorTX_or_RX, 400 )} {wrapSpan( data, colorData )}"
 

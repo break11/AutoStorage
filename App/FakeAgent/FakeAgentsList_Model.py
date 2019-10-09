@@ -118,14 +118,9 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         del self.FA_Dict[ agentN ]
         self.endRemoveRows()
 
-    def connect( self, agentN, ip, port, bReConnect=False ):
+    def connect( self, agentN, ip, port ):
         fakeAgentLink = self.FA_Dict[ agentN ]
         if fakeAgentLink.isConnected(): return
-
-        # bReConnect - параметр указывающий, что агент подключится с сохранением прежнего номера последнего полученного пакета от сервера
-        # то есть это не настоящий дисконнект был, а лишь временная потеря соединения
-        if bReConnect == False:
-            fakeAgentLink.last_RX_packetN = 0
 
         FA_Thread = CFakeAgentThread()
         FA_Thread.initFakeAgent( fakeAgentLink, ip, port )

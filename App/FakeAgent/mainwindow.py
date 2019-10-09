@@ -43,6 +43,10 @@ class CFA_MainWindow(QMainWindow):
         self.tvAgents.setModel( self.Agents_Model )
         self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
 
+        self.reconnectTest_Timer = QTimer()
+        self.reconnectTest_Timer.setInterval(4000)
+        self.reconnectTest_Timer.timeout.connect( self.tick )
+
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
         self.Agents_Model.saveAgentsList()
@@ -80,12 +84,6 @@ class CFA_MainWindow(QMainWindow):
 
         self.Agents_Model.connect( agentN=agentN, ip=self.cbServerIP.currentText(), port=int(self.cbServerPort.currentText()) )
 
-    def on_btnReConnect_released( self ):
-        agentN = self.currAgentN()
-        if not agentN: return
-
-        self.Agents_Model.connect( agentN=agentN, ip=self.cbServerIP.currentText(), port=int(self.cbServerPort.currentText()), bReConnect=True )
-
     def on_btnDisconnect_released( self ):
         agentN = self.currAgentN()
         if not agentN: return
@@ -98,5 +96,22 @@ class CFA_MainWindow(QMainWindow):
 
         self.Agents_Model.disconnect( agentN, bLostSignal = True )
 
+    @pyqtSlot("bool")
+    def on_btnReconnectTest_clicked( self, bVal ):
+        if bVal: self.reconnectTest_Timer.start()
+        else: self.reconnectTest_Timer.stop()
 
     ###################################################
+
+    def tick(self):
+        for i in range( self.Agents_Model.rowCount() ):
+            agentN = self.Agents_Model.agentN( i )
+            fakeAgentLink = self.Agents_Model.getAgentLink( agentN )
+            if fakeAgentLink.isConnected():
+                self.Agents_Model.disconnect( agentN )
+                self.reconnectTest_Timer.setInterval(500)
+                self.reconnectTest_Timer.start()
+            else:
+                self.Agents_Model.connect( agentN=agentN, ip=self.cbServerIP.currentText(), port=int(self.cbServerPort.currentText()) )
+                self.reconnectTest_Timer.setInterval(4000)
+                self.reconnectTest_Timer.start()

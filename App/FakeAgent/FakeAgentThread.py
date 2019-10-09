@@ -39,7 +39,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         self.tcpSocket.waitForReadyRead(1)
 
         self.writeTo_Socket( CAgentServerPacket( event = AEV.HelloWorld, agentN=self.agentLink().agentN ) )
-        self.msleep(1000)
+        self.msleep(500)
 
         while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()

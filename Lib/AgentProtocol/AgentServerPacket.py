@@ -8,7 +8,6 @@ from enum import Enum, auto
 class EPacket_Status( Enum ):
     Normal    = auto()
     Duplicate = auto()
-    Error     = auto()
 
 class CAgentServerPacket:
     accEvents = [ EAgentServer_Event.ServerAccepting,

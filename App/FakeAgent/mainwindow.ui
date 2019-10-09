@@ -298,26 +298,13 @@
        <item>
         <widget class="QPushButton" name="btnConnect">
          <property name="toolTip">
-          <string>Reconnect with zero RX packet Number</string>
+          <string/>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color: lightGreen;</string>
          </property>
          <property name="text">
           <string>Connect</string>
-         </property>
-         <property name="shortcut">
-          <string>Del</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnReConnect">
-         <property name="toolTip">
-          <string>Reconnect with save last RX packet Number</string>
-         </property>
-         <property name="text">
-          <string>ReConnect</string>
          </property>
          <property name="shortcut">
           <string>Del</string>
@@ -344,6 +331,19 @@
          </property>
          <property name="shortcut">
           <string>Del</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnReconnectTest">
+         <property name="text">
+          <string>ReconnectTest</string>
+         </property>
+         <property name="shortcut">
+          <string>Del</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
