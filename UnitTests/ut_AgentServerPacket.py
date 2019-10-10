@@ -133,20 +133,11 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toRX_BStr(), p2.toRX_BStr(), p3 )
         self.assertEqual( p1.toRX_BStr(), p2.toRX_BStr() )
         self.assertEqual( p1.toRX_BStr(), p3 )
-        # @CA
+        # @AC
         ###################################################
-        p1 = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=23 )
-        p2 = CAgentServerPacket.fromRX_BStr( b"@CA:023" )
-        p3 = b"@CA:023\n"
-
-        print( p1.toRX_BStr(), p2.toTX_BStr(), p3 )
-        self.assertEqual( p1.toRX_BStr(), p2.toTX_BStr() )
-        self.assertEqual( p1.toTX_BStr(), p3 )
-        # @SA
-        ###################################################
-        p1 = CAgentServerPacket( event=EAgentServer_Event.ServerAccepting, packetN=31 )
-        p2 = CAgentServerPacket.fromRX_BStr( b"@SA:031" )
-        p3 = b"@SA:031\n"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.Accepted, packetN=23 )
+        p2 = CAgentServerPacket.fromRX_BStr( b"@AC:023" )
+        p3 = b"@AC:023\n"
 
         print( p1.toRX_BStr(), p2.toTX_BStr(), p3 )
         self.assertEqual( p1.toRX_BStr(), p2.toTX_BStr() )

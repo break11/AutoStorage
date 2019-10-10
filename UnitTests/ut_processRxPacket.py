@@ -78,7 +78,7 @@ class Test_processRxPacket(unittest.TestCase):
         DAT.initAgentServer( socketDescriptor, ACS )
         DAL.ACC_cmd.packetN=33
 
-        cmd = CAgentServerPacket( event=EAgentServer_Event.ClientAccepting, packetN=1 )
+        cmd = CAgentServerPacket( event=EAgentServer_Event.Accepted, packetN=1 )
         # при получении CA по команде - эта команда удаляется из буфера отправки
         _processRxPacket( DAL, DAT, cmd )
 
