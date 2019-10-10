@@ -179,7 +179,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         for nodeID, nodeGItem in self.nodeGItems.items():
             self.updateNodeMiddleLine( nodeGItem )
         
-        ##remove## gvFitToPage( self.gView ) - не нужно т.к. выполоняется как реакция на GraphNet_Obj
+        ## gvFitToPage( self.gView ) - здесь не нужно т.к. выполоняется как реакция на GraphNet_Obj
         self.bHasChanges = False  # сбрасываем признак изменения сцены после загрузки
 
         self.bGraphLoading = False

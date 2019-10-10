@@ -28,7 +28,6 @@ class CAgentThread( CAgentServer_Net_Thread ):
 
                 self.agentNumberInited.emit( cmd.agentN )
                 self._agentLink = weakref.ref( self.ACS().getAgentLink( cmd.agentN ) )
-                ##remove## self.agentLink().last_RX_packetN = cmd.packetN # принимаем стартовую нумерацию команд из агента
                 return True
 
     def processRxPacket( self, cmd ): self.processRxPacket_signal.emit( cmd )

@@ -32,8 +32,6 @@ colorsByEvents = { EAgentServer_Event.BatteryState:       Telemetry_color,
                    EAgentServer_Event.TaskList:           Telemetry_color,
                    EAgentServer_Event.OdometerDistance:   Telemetry_color,
                    EAgentServer_Event.OdometerPassed:     Telemetry_color,
-                #    EAgentServer_Event.ClientAccepting:    "#1565C0", ##remove##
-                #    EAgentServer_Event.ServerAccepting:    "#1595C0",
                    EAgentServer_Event.Accepted:           "#1595C0",
                    EAgentServer_Event.HelloWorld:         "#BC6000",
                    EAgentServer_Event.Error:              Error_color,

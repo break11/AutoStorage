@@ -10,10 +10,6 @@ class EPacket_Status( Enum ):
     Duplicate = auto()
 
 class CAgentServerPacket:
-    ##remove##
-    # accEvents = [ EAgentServer_Event.ServerAccepting,
-    #               EAgentServer_Event.ClientAccepting, ]
-
     textEvents = [ EAgentServer_Event.Warning_,
                    EAgentServer_Event.Error,
                    EAgentServer_Event.Text ]
@@ -29,7 +25,6 @@ class CAgentServerPacket:
         self.status    = status
 
     def __repr__( self ):
-        ##remove##if self.event in self.accEvents:
         if self.event != EAgentServer_Event.Accepted:
             return f"{self.packetN:03d},{ EAgentServer_Event.toStr( self.event ) }"
         else:
@@ -44,7 +39,6 @@ class CAgentServerPacket:
         Event_Sign = EAgentServer_Event.toStr( self.event )
         sResult = ""
 
-        ##remove##if self.event in self.accEvents:
         if self.event == EAgentServer_Event.Accepted:
             sResult = f"{ Event_Sign }:{self.packetN:03d}"
         elif (self.event in self.textEvents):
@@ -119,7 +113,6 @@ class CAgentServerPacket:
         packetN = agentN = channelN = timeStamp = None
 
         try:
-            ##remove## if event in cls.accEvents: # @CA:000, @SA:000
             if event == EAgentServer_Event.Accepted:
                 packetN = int( l[1].decode() )
             else:
