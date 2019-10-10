@@ -32,52 +32,54 @@ class EAgentServer_Event( Enum ):
     ServiceLog         = auto() # @SL
     OK                 = auto() # @OK
 
-    @classmethod
-    def fromBStr( cls, data ):
-        return _AgentServer_Event_from_BStr.get( data )
+    # @classmethod
+    # def fromBStr( cls, data ):
+    #     return _AgentServer_Event_from_BStr.get( data )
+##remove##
 
     @classmethod
     def fromStr( cls, data ):
-        return cls.fromBStr( data.encode() )
+        ##remove##return cls.fromBStr( data.encode() )
+        return _AgentServer_Event_from_Str.get( data )
         
     def toStr( self ):
         return _AgentServer_Event_to_Str.get( self )
 
 OD_OP_events = [EAgentServer_Event.OdometerDistance, EAgentServer_Event.OdometerPassed]
 
-_AgentServer_Event_from_BStr = {
-                                # b"@FA": EAgentServer_Event.FakeAgentDevPacket,
-                                b"@ER": EAgentServer_Event.Error,
-                                b"@WR": EAgentServer_Event.Warning_,
-                                b"@TX": EAgentServer_Event.Text,
-                                b"@HW": EAgentServer_Event.HelloWorld,
-                                b"@AC": EAgentServer_Event.Accepted,
-                                b"@BS": EAgentServer_Event.BatteryState,
-                                b"@TS": EAgentServer_Event.TemperatureState,
-                                b"@TL": EAgentServer_Event.TaskList,
-                                b"@WO": EAgentServer_Event.WheelOrientation,
-                                b"@NT": EAgentServer_Event.NewTask,
-                                b"@PE": EAgentServer_Event.PowerEnable,
-                                b"@PD": EAgentServer_Event.PowerDisable,
-                                b"@BR": EAgentServer_Event.BrakeRelease,
-                                b"@ES": EAgentServer_Event.EmergencyStop,
-                                b"@SB": EAgentServer_Event.SequenceBegin,
-                                b"@SE": EAgentServer_Event.SequenceEnd,
-                                b"@DP": EAgentServer_Event.DistancePassed,
-                                b"@OZ": EAgentServer_Event.OdometerZero,
-                                b"@OP": EAgentServer_Event.OdometerPassed,
-                                b"@OD": EAgentServer_Event.OdometerDistance,
-                                b"@DE": EAgentServer_Event.DistanceEnd,
-                                b"@BL": EAgentServer_Event.BoxLoad,
-                                b"@BU": EAgentServer_Event.BoxUnload,
-                                b"@BA": EAgentServer_Event.BoxLoadAborted,
-                                b"@CM": EAgentServer_Event.ChargeMe,
-                                b"@CB": EAgentServer_Event.ChargeBegin,
-                                b"@CE": EAgentServer_Event.ChargeEnd,
-                                b"@SL": EAgentServer_Event.ServiceLog,
-                                b"@OK": EAgentServer_Event.OK,
-                               }
+_AgentServer_Event_from_Str = {
+                                # "@FA": EAgentServer_Event.FakeAgentDevPacket,
+                                "@ER": EAgentServer_Event.Error,
+                                "@WR": EAgentServer_Event.Warning_,
+                                "@TX": EAgentServer_Event.Text,
+                                "@HW": EAgentServer_Event.HelloWorld,
+                                "@AC": EAgentServer_Event.Accepted,
+                                "@BS": EAgentServer_Event.BatteryState,
+                                "@TS": EAgentServer_Event.TemperatureState,
+                                "@TL": EAgentServer_Event.TaskList,
+                                "@WO": EAgentServer_Event.WheelOrientation,
+                                "@NT": EAgentServer_Event.NewTask,
+                                "@PE": EAgentServer_Event.PowerEnable,
+                                "@PD": EAgentServer_Event.PowerDisable,
+                                "@BR": EAgentServer_Event.BrakeRelease,
+                                "@ES": EAgentServer_Event.EmergencyStop,
+                                "@SB": EAgentServer_Event.SequenceBegin,
+                                "@SE": EAgentServer_Event.SequenceEnd,
+                                "@DP": EAgentServer_Event.DistancePassed,
+                                "@OZ": EAgentServer_Event.OdometerZero,
+                                "@OP": EAgentServer_Event.OdometerPassed,
+                                "@OD": EAgentServer_Event.OdometerDistance,
+                                "@DE": EAgentServer_Event.DistanceEnd,
+                                "@BL": EAgentServer_Event.BoxLoad,
+                                "@BU": EAgentServer_Event.BoxUnload,
+                                "@BA": EAgentServer_Event.BoxLoadAborted,
+                                "@CM": EAgentServer_Event.ChargeMe,
+                                "@CB": EAgentServer_Event.ChargeBegin,
+                                "@CE": EAgentServer_Event.ChargeEnd,
+                                "@SL": EAgentServer_Event.ServiceLog,
+                                "@OK": EAgentServer_Event.OK,
+                              }
 
 _AgentServer_Event_to_Str = {}
-for k, v in _AgentServer_Event_from_BStr.items():
-    _AgentServer_Event_to_Str[ v ] = k.decode()
+for k, v in _AgentServer_Event_from_Str.items():
+    _AgentServer_Event_to_Str[ v ] = k

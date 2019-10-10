@@ -9,7 +9,7 @@ from PyQt5 import uic
 
 import Lib.Common.StrConsts as SC
 
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status, MS
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor, TX_color, RX_color, Duplicate_color
 from Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -45,6 +45,11 @@ class CAgent_Cmd_Log_Form(QWidget):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/Agent_Cmd_Log_Form.ui", self )
+
+        self.lbMS_1.setText( MS )
+        self.lbMS_2.setText( MS )
+        self.lbMS_3.setText( MS )
+
         self.agentLink = None
 
         weakSelf = weakref.ref(self)
@@ -172,8 +177,6 @@ class CAgent_Cmd_Log_Form(QWidget):
     def updateAgentControls( self ):
         if self.agentLink is None: return
 
-        self.sbAgentN.setValue( self.agentLink().agentN )
-
     def AgentLogUpdated( self, logRow ):
         if self.agentLink is None: return
         if self.agentLink() is not logRow.agentLink_Ref(): return
@@ -220,6 +223,9 @@ class CAgent_Cmd_Log_Form(QWidget):
     def on_btnClear_clicked( self, bVal ):
         self.clear()
     
+    def on_leCMD_TimeStamp_returnPressed( self ):
+        self.sendCustom_CMD()
+
     def on_leCMD_Event_returnPressed( self ):
         self.sendCustom_CMD()
 
@@ -236,10 +242,11 @@ class CAgent_Cmd_Log_Form(QWidget):
         if AL is None: return
         AL = AL()
 
-        agentN = self.sbAgentN.value()
+        timeStamp = int( self.leCMD_TimeStamp.text(), 16 ) if self.leCMD_TimeStamp.text() else None
 
-        cmd = CAgentServerPacket( agentN=agentN, packetN=self.sbPacketN.value(),
+        cmd = CAgentServerPacket( packetN=self.sbPacketN.value(),
                                   event=EAgentServer_Event.fromStr( self.leCMD_Event.text() ),
+                                  timeStamp=timeStamp,
                                   data=self.leCMD_Data.text() )
 
         if cmd.event is None:

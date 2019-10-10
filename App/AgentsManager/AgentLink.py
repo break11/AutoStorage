@@ -77,7 +77,7 @@ class CAgentLink( CAgentServer_Link ):
         elif cmd.sPropName in cmdProps_keys:
             if cmd.value == ADT.EAgent_CMD_State.Init:
                 cmd_desc = cmdProps[ cmd.sPropName ]
-                self.pushCmd( self.genPacket( event = cmd_desc.event, data=cmd_desc.data ) )
+                self.pushCmd( ASP( event = cmd_desc.event, data=cmd_desc.data ) )
                 agentNO[ cmd.sPropName ] = ADT.EAgent_CMD_State.Done
 
         elif cmd.sPropName == SAP.route:
@@ -101,7 +101,6 @@ class CAgentLink( CAgentServer_Link ):
 
             for seq in seqList:
                 for cmd in seq:
-                    ##remove##CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, timeStamp=timeStamp, data=packetData )
                     self.pushCmd( ASP.fromStr( f"000,{self.agentN}:{cmd}" ) )
 
     ##################
@@ -111,7 +110,7 @@ class CAgentLink( CAgentServer_Link ):
 
         if agentNO.RTele:
             for e in ADT.TeleEvents:
-                self.pushCmd( self.genPacket( event=e ), bAllowDuplicate=False )
+                self.pushCmd( ASP( event=e ), bAllowDuplicate=False )
 
         # обновление статуса connectedTime для NetObj челнока
         if self.isConnected():
@@ -233,7 +232,7 @@ class CAgentLink( CAgentServer_Link ):
         try:
             agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
         except ValueError:
-            ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop, agentN=self.agentN )
+            ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
             self.pushCmd( ES_cmd )
             agentNO.status = ADT.EAgent_Status.PosSyncError
 
@@ -250,7 +249,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
-        self.pushCmd( self.genPacket( EAgentServer_Event.ChargeMe ) )
+        self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
 
     def doChargeCMD( self, chargeCMD ):
         tKey = GU.tEdgeKeyFromStr( self.agentNO().edge )
@@ -265,5 +264,5 @@ class CAgentLink( CAgentServer_Link ):
 
     # def genFA_DevPacket( self, **kwargs ):
     #     # отправка спец команды фейк агенту, т.к. для него это единственный способ получить оповещение о восстановлении заряда
-    #     cmd = ASP( agentN=self.agentN, event=EAgentServer_Event.FakeAgentDevPacket, data=SFakeAgent_DevPacketData( **kwargs ).toString() )
+    #     cmd = ASP( event=EAgentServer_Event.FakeAgentDevPacket, data=SFakeAgent_DevPacketData( **kwargs ).toString() )
     #     self.pushCmd( cmd )

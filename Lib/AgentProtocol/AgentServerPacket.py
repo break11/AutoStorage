@@ -12,7 +12,6 @@ class EPacket_Status( Enum ):
 
 class EPacket_ElemntPosition( IntEnum ):
     PacketN   = 0
-    AgentN    = auto()
     TimeStamp = auto()
     EventSign = auto()
     Data      = auto()
@@ -25,30 +24,29 @@ class CAgentServerPacket:
                    EAgentServer_Event.Error,
                    EAgentServer_Event.Text ]
 
-    def __init__( self, event, packetN=0, agentN=0, timeStamp=None, data=None, status=EPacket_Status.Normal ):
+    def __init__( self, event, packetN=0, timeStamp=None, data=None, status=EPacket_Status.Normal ):
         self.event     = event
-        self.agentN    = agentN
         self.packetN   = packetN
         self.timeStamp = timeStamp
         self.data      = data
 
         self.status    = status
 
-    def __str__( self ): return self.toBStr().decode()    
+    def __str__( self ): return self.toStr()
 
-    def toBStr( self, appendLF=True ):
+    def toStr( self, appendLF=True ):
         Event_Sign = EAgentServer_Event.toStr( self.event )
 
         sTimestamp = f"{self.timeStamp:08x}" if self.timeStamp is not None else ""
         sData = self.data if self.data is not None else ""
-        sResult = f"{self.packetN:03d}{ MS }{self.agentN:03d}{ MS }{sTimestamp}{ MS }{ Event_Sign }{ MS }{sData}"
+        sResult = f"{self.packetN:03d}{ MS }{sTimestamp}{ MS }{ Event_Sign }{ MS }{sData}"
 
         if appendLF:
             sResult += "\n"
                 
-        return sResult.encode()
+        return sResult
 
-    def toStr( self, bTX_or_RX, appendLF=True ): return self.toBStr( appendLF=appendLF ).decode()
+    def toBStr( self, appendLF=True ): return self.toStr( appendLF=appendLF ).encode()
 
     ############################################################
 
@@ -58,32 +56,31 @@ class CAgentServerPacket:
         print( f"{CAgentServerPacket.s_Cant_Parse_Cmd}={data} Context={context}" )
 
     @classmethod
-    def fromBStr( cls, data, removeLF=True ):
+    def fromStr( cls, data, removeLF=True ):
         if removeLF:
-            data = data.replace( b"\n", b"" )
+            data = data.replace( "\n", "" )
 
-        l = data.split( MS.encode() )
+        l = data.split( MS )
 
         if len(l) != EPos.PosCount:
             cls.printError( data, "Cmd pos count mistmath!" )
             return None
         
-        event = EAgentServer_Event.fromBStr( l[ EPos.EventSign ] )
+        event = EAgentServer_Event.fromStr( l[ EPos.EventSign ] )
         if event is None:
             cls.printError( data, f"UnknownEventType: {l[ EPos.EventSign ]}!" )
             return None
 
         try:
-            packetN    = int( l[ EPos.PacketN ].decode() )
-            agentN     = int( l[ EPos.AgentN ].decode() )
-            sTM = l[ EPos.TimeStamp ].decode()
+            packetN    = int( l[ EPos.PacketN ] )
+            sTM = l[ EPos.TimeStamp ]
             timeStamp  = int( sTM, 16 ) if sTM != "" else None
-            packetData = l[ EPos.Data ].decode()
+            packetData = l[ EPos.Data ]
 
-            return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, timeStamp=timeStamp, data=packetData )
+            return CAgentServerPacket( event=event, packetN=packetN, timeStamp=timeStamp, data=packetData )
         except Exception as e:
             cls.printError( data, e )
             return None
 
     @classmethod
-    def fromStr( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), removeLF=removeLF )
+    def fromBStr( cls, data, removeLF=True ): return cls.fromStr( data.decode(), removeLF=removeLF )

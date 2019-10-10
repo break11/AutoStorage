@@ -121,7 +121,7 @@ class CAgentLogManager( QObject ):
 
     @classmethod
     def decorateLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX ):
-        data = packet.toBStr( appendLF=False ).decode()
+        data = packet.toStr( appendLF=False )
 
         sTX_or_RX     = TX_RX_byBool_str   [ bTX_or_RX ]
         colorTX_or_RX = TX_RX_byBool_colors[ bTX_or_RX ]

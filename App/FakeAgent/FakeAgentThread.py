@@ -38,7 +38,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
         self.tcpSocket.waitForReadyRead(1)
 
-        self.writeTo_Socket( ASP( event = AEV.HelloWorld, agentN=self.agentLink().agentN,
+        self.writeTo_Socket( ASP( event = AEV.HelloWorld, timeStamp=int(time.time()),
                                   data=ADT.SHW_Data(agentN=self.agentLink().agentN, agentType="cartV1").toString() ) )
         self.msleep(500)
 
@@ -65,14 +65,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"##COMMAND IN ERROR STATE IGNORED: {cmd_str}{data}" ) )
             return
 
-        if cmd.event == AEV.HelloWorld:
-            # cmd = self.genPacket( event = AEV.HelloWorld, data = ADT.SHW_Data( FAL.last_RX_packetN ).toString() )
-            # cmd.packetN = 0
-            # FAL.pushCmd( cmd, bPut_to_TX_FIFO = False, bReMap_PacketN=False )
-
-            FAL.pushCmd( self.genPacket( event = AEV.HelloWorld, data = ADT.SHW_Data( FAL.last_RX_packetN ).toString() ) )
-
-        elif cmd.event == AEV.TaskList:
+        if cmd.event == AEV.TaskList:
             FAL.pushCmd( self.genPacket( event = AEV.TaskList, data = str( len( FAL.tasksList ) ) ) )
 
         elif cmd.event == AEV.BatteryState:
@@ -223,4 +216,4 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         return False
 
     def genPacket( self, event, data=None ):
-        return ASP( event = event, agentN = self.agentLink().agentN, timeStamp=int(time.time()), data = data )
+        return ASP( event = event, timeStamp=int(time.time()), data = data )

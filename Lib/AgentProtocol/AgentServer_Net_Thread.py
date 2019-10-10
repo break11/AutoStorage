@@ -84,12 +84,6 @@ class CAgentServer_Net_Thread(QThread):
     def agentLink( self ):
         if self._agentLink is not None: return self._agentLink()
 
-    def genPacket( self, event, timeStamp=None, data=None ):
-        if self._agentLink is None:
-            return
-            
-        return self.agentLink().genPacket( event=event, timeStamp=timeStamp, data=data )
-
     def writeTo_Socket( self, cmd ):
         self.tcpSocket.write( cmd.toBStr() )
         ALM.doLogPacket( self.agentLink(), self.UID, cmd, True )

@@ -26,7 +26,7 @@ class CAgentServer_Link:
         self.lastTXpacketN = None
         self.lastTX_ACC_packetN = None # для определения дубликатов по отправленным ACC
         self.lastRX_ACC_packetN = None  # для определения дубликатов по полученным ACC
-        self.ACC_cmd = ASP( event=EAgentServer_Event.Accepted, agentN = self.agentN )
+        self.ACC_cmd = ASP( event=EAgentServer_Event.Accepted )
         # self.last_RX_packetN = 1000 # Now as property
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
@@ -76,6 +76,3 @@ class CAgentServer_Link:
         for cmd in self.TX_Packets:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
-
-    def genPacket( self, event, timeStamp=None, data=None ):
-        return ASP( event = event, agentN = self.agentN, timeStamp=timeStamp, data = data )
