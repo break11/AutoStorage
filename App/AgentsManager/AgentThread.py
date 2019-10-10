@@ -5,8 +5,8 @@ from PyQt5.QtCore import pyqtSignal
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
-
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
+from Lib.AgentProtocol.AgentLogManager import ALM
 
 class CAgentThread( CAgentServer_Net_Thread ):
     processRxPacket_signal   = pyqtSignal( CAgentServerPacket )
@@ -16,7 +16,8 @@ class CAgentThread( CAgentServer_Net_Thread ):
 
         while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
-            cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
+            cmd = CAgentServerPacket.fromBStr( line.data() )
+            ALM.doLogPacket( agentLink=None, thread_UID=self.UID, packet=cmd, bTX_or_RX=False )
 
             if cmd is None: continue
             if cmd.event == AEV.HelloWorld:

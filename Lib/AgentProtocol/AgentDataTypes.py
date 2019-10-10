@@ -2,6 +2,7 @@
 from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
+from Lib.AgentProtocol.AgentServerPacket import DS
 from Lib.Common import StorageGraphTypes as SGT
 import Lib.Common.StrConsts as SC
 
@@ -139,26 +140,31 @@ class SFakeAgent_DevPacketData:
 class SHW_Data:
     "000"
     "056"
-    def __init__( self, lastRXPacketN ):
-        self.lastRXPacketN = lastRXPacketN
-        self.bIsValid = True
+    def __init__( self, agentType, agentN ):
+        self.agentType = agentType
+        self.agentN    = agentN
+        self.bIsValid  = True
 
     @classmethod
     def fromString( cls, data ):
+        l = data.split( DS )
+
         try:
-            lastRXPacketN = int( data )
+            agentType = l[0]
+            agentN    = int(l[1])
             bIsValid = True
         except:
-            lastRXPacketN = 0
+            agentType = "Unknown Agent"
+            agentN    = 0
             bIsValid = False
 
-        HW_Data = SHW_Data( lastRXPacketN )
+        HW_Data = SHW_Data( agentType, agentN )
         HW_Data.bIsValid = bIsValid
 
         return HW_Data
 
     def toString( self ):
-        return f"{self.lastRXPacketN:03d}"
+        return f"{self.agentType}{ DS }{self.agentN:03d}"
 
 #########################################################
 

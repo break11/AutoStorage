@@ -248,6 +248,6 @@ class CAgent_Cmd_Log_Form(QWidget):
         
         if AL.isConnected():
             AL.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
-            ALM.doLogString( AL, thread_UID="M", data=f"Send custom cmd={cmd.toStr( bTX_or_RX=AL.bIsServer, appendLF=False )}" )
+            ALM.doLogString( AL, thread_UID="M", data=f"Send custom cmd={cmd.toStr( appendLF=False )}" )
 
 

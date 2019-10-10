@@ -5,7 +5,7 @@ import Lib.AgentProtocol.AgentDataTypes as ADT
 
 class CFakeAgentLink( CAgentServer_Link ):
     def __init__( self, agentN ):
-        super().__init__( agentN = agentN, bIsServer = False )
+        super().__init__( agentN = agentN )
 
         self.tasksList = deque()
         self.TS_Answer = "24,29,29,29,29,25,25,25,25"

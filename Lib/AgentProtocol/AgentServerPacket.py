@@ -1,169 +1,89 @@
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 
-UNINITED_AGENT_N = 0
+MS = "~" # Main Splitter
+DS = "^" # Data Splitter
 
-from enum import Enum, auto
+from enum import Enum, IntEnum, auto
 
 class EPacket_Status( Enum ):
     Normal    = auto()
     Duplicate = auto()
+
+class EPacket_ElemntPosition( IntEnum ):
+    PacketN   = 0
+    AgentN    = auto()
+    TimeStamp = auto()
+    EventSign = auto()
+    Data      = auto()
+    PosCount  = auto()
+
+EPos = EPacket_ElemntPosition
 
 class CAgentServerPacket:
     textEvents = [ EAgentServer_Event.Warning_,
                    EAgentServer_Event.Error,
                    EAgentServer_Event.Text ]
 
-    def __init__( self, event, packetN=0, agentN=UNINITED_AGENT_N, channelN=1, timeStamp=0, data=None, status=EPacket_Status.Normal ):
+    def __init__( self, event, packetN=0, agentN=0, timeStamp=None, data=None, status=EPacket_Status.Normal ):
         self.event     = event
         self.agentN    = agentN
         self.packetN   = packetN
-        self.channelN  = channelN
         self.timeStamp = timeStamp
         self.data      = data
 
         self.status    = status
 
-    def __repr__( self ):
-        if self.event != EAgentServer_Event.Accepted:
-            return f"{self.packetN:03d},{ EAgentServer_Event.toStr( self.event ) }"
-        else:
-            sResult = f"{self.packetN:03d},{self.agentN:03d}:{ EAgentServer_Event.toStr( self.event ) }"
+    def __str__( self ): return self.toBStr().decode()    
 
-        if self.data:
-            sResult = f"{sResult}:{self.data}"
-
-        return sResult
-
-    def toBStr( self, bTX_or_RX, appendLF=True ):
+    def toBStr( self, appendLF=True ):
         Event_Sign = EAgentServer_Event.toStr( self.event )
-        sResult = ""
 
-        if self.event == EAgentServer_Event.Accepted:
-            sResult = f"{ Event_Sign }:{self.packetN:03d}"
-        elif (self.event in self.textEvents):
-            if bTX_or_RX == False: # пока текстовые сообщения только с челнока - на челнок они вроде не передаются...
-                data = self.data
-                if self.event != EAgentServer_Event.Text:
-                    if data and not data[0] in ["#", "*"]:
-                        data = Event_Sign + data
-                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{data}"
-        else:
-            if bTX_or_RX:
-                sResult = f"{self.packetN:03d},{self.agentN:03d}:{ Event_Sign }"
-            else:
-                sResult = f"{self.packetN:03d},{self.agentN:03d},{self.channelN:01d},{self.timeStamp:08x}:{ Event_Sign }"
-                
-            if self.data:
-                sResult = f"{sResult}:{self.data}"
+        sTimestamp = f"{self.timeStamp:08x}" if self.timeStamp is not None else ""
+        sData = self.data if self.data is not None else ""
+        sResult = f"{self.packetN:03d}{ MS }{self.agentN:03d}{ MS }{sTimestamp}{ MS }{ Event_Sign }{ MS }{sData}"
 
         if appendLF:
             sResult += "\n"
                 
         return sResult.encode()
 
-    def toStr( self, bTX_or_RX, appendLF=True ): return self.toBStr( bTX_or_RX, appendLF=appendLF ).decode()
-
-    def toRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
-    def toTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True,  appendLF=appendLF ).decode()
-
-    def toRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
-    def toTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True,  appendLF=appendLF )
-
-    # # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
-    # def toCRX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF ).decode()
-    # def toCTX_Str( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF ).decode()
-
-    # def toCRX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=True, appendLF=appendLF )
-    # def toCTX_BStr( self, appendLF=True ): return self.toBStr( bTX_or_RX=False, appendLF=appendLF )
+    def toStr( self, bTX_or_RX, appendLF=True ): return self.toBStr( appendLF=appendLF ).decode()
 
     ############################################################
 
     s_Cant_Parse_Cmd = "Can't parse cmd"
     @staticmethod
-    def printError( data ):
-        print( f"{CAgentServerPacket.s_Cant_Parse_Cmd}={data}" )
+    def printError( data, context ):
+        print( f"{CAgentServerPacket.s_Cant_Parse_Cmd}={data} Context={context}" )
 
     @classmethod
-    def fromBStr( cls, data, bTX_or_RX, removeLF=True ):
-        event = None
+    def fromBStr( cls, data, removeLF=True ):
         if removeLF:
             data = data.replace( b"\n", b"" )
 
-        l = data.split( b":" )
-        if len(l) < 2:
-            cls.printError( data )
+        l = data.split( MS.encode() )
+
+        if len(l) != EPos.PosCount:
+            cls.printError( data, "Cmd pos count mistmath!" )
             return None
-
-        for s in l:
-            if s.startswith( b"@" ): break
-        else:
-            # нет символа @ - текстовые сообщения, ворнинги и ошибки
-            data = l[1].decode()
-            if data.find( "#" ) != -1: event = EAgentServer_Event.Warning_
-            elif data.find( "*" ) != -1: event = EAgentServer_Event.Error
-            else: event = EAgentServer_Event.Text
         
-        if event is None: # если эвент не был распознан как текстовое сообщение, ворнинг, ошибка
-            event = EAgentServer_Event.fromBStr( s )
-            if event is None:
-                cls.printError( data )
-                return None
-
-        packetN = agentN = channelN = timeStamp = None
+        event = EAgentServer_Event.fromBStr( l[ EPos.EventSign ] )
+        if event is None:
+            cls.printError( data, f"UnknownEventType: {l[ EPos.EventSign ]}!" )
+            return None
 
         try:
-            if event == EAgentServer_Event.Accepted:
-                packetN = int( l[1].decode() )
-            else:
-                sAttrs = l[0].split( b"," )
-                packetN = int( sAttrs[0].decode() )
-                agentN  = int( sAttrs[1].decode() )                
-                if bTX_or_RX: # 000,000:@HW  ///  001,555:@BS
-                    pass
-                else:          # 011,555,1,00000010:@HW:000   ///   012,555,1,00000010:@BS:S,43.2V,39.31V,47.43V,-0.06A
-                    channelN  = int( sAttrs[2].decode() )
-                    timeStamp = int( sAttrs[3].decode(), 16 )
+            packetN    = int( l[ EPos.PacketN ].decode() )
+            agentN     = int( l[ EPos.AgentN ].decode() )
+            sTM = l[ EPos.TimeStamp ].decode()
+            timeStamp  = int( sTM, 16 ) if sTM != "" else None
+            packetData = l[ EPos.Data ].decode()
 
-                if event not in cls.textEvents:
-                    if len(l) > 2: # если data реально есть в передаваемой команде - например команда DE (001,011:@DP:000331,F,H,B,C)
-                        data = l[2].decode()
-                    else:
-                        data = None
-                else:
-                    # хитрая обработка из-за того, что в ошибках, ворнингах и тексте может быть двоеточие внутри
-                    # и с сообщением где в качестве текста только знак ":" - опять не работает - требуется пересмотреть формат сообщений
-                    subData = ":".join( [ s.decode() for s in l[2:] ] )
-                    if subData != "":
-                        data = data + ":" + subData
-
-            return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, channelN=channelN, timeStamp=timeStamp, data=data )
+            return CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, timeStamp=timeStamp, data=packetData )
         except Exception as e:
-            print( e )
-            cls.printError( data )
+            cls.printError( data, e )
             return None
 
     @classmethod
-    def fromStr( cls, data, bTX_or_RX, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=bTX_or_RX, removeLF=removeLF )
-
-    @classmethod
-    def fromRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
-    @classmethod
-    def fromTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
-
-    @classmethod
-    def fromRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=False, removeLF=removeLF )
-    @classmethod
-    def fromTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
-
-    # # для парсинга команд на клиентской стороне понятие bTX_or_RX инвертируется
-    # @classmethod
-    # def fromCRX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=True, removeLF=removeLF )
-    # @classmethod
-    # def fromCTX_Str( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), bTX_or_RX=False, removeLF=removeLF )
-
-    # @classmethod
-    # def fromCRX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=True, removeLF=removeLF )
-    # @classmethod
-    # def fromCTX_BStr( cls, data, removeLF=True ): return cls.fromBStr( data, bTX_or_RX=False, removeLF=removeLF )
-
+    def fromStr( cls, data, removeLF=True ): return cls.fromBStr( data.encode(), removeLF=removeLF )

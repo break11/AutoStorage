@@ -105,12 +105,12 @@ class CAgentLogManager( QObject ):
 
     ###############
 
-    def doLogPacket( self, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
+    def doLogPacket( self, agentLink, thread_UID, packet, bTX_or_RX ):
         if agentLink is None:
             print( f"{TX_RX_byBool_str[bTX_or_RX]}: {packet}" )
             return
         
-        data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX, isAgent )
+        data = self.decorateLogPacket( agentLink, thread_UID, packet, bTX_or_RX )
         logRow = CLogRow( data=data, event=packet.event, bTX_or_RX=bTX_or_RX, status = packet.status, agentLink_Ref = weakref.ref(agentLink) )
 
         self.writeToLogFile( agentLink, logRow )
@@ -120,8 +120,8 @@ class CAgentLogManager( QObject ):
         return logRow
 
     @classmethod
-    def decorateLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX, isAgent=False ):
-        data = packet.toBStr( bTX_or_RX=not bTX_or_RX if isAgent else bTX_or_RX, appendLF=False ).decode()
+    def decorateLogPacket( cls, agentLink, thread_UID, packet, bTX_or_RX ):
+        data = packet.toBStr( appendLF=False ).decode()
 
         sTX_or_RX     = TX_RX_byBool_str   [ bTX_or_RX ]
         colorTX_or_RX = TX_RX_byBool_colors[ bTX_or_RX ]

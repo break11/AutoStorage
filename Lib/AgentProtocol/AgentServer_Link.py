@@ -14,7 +14,7 @@ class CAgentServer_Link:
     def last_RX_packetN( self, value ):
         self.ACC_cmd.packetN = value
 
-    def __init__( self, agentN, bIsServer ):
+    def __init__( self, agentN ):
         super().__init__()
 
         self.log = deque( maxlen = LogCount )
@@ -30,7 +30,6 @@ class CAgentServer_Link:
         # self.last_RX_packetN = 1000 # Now as property
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
-        self.bIsServer = bIsServer
         
         ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={agentN} Created" )
 
@@ -78,5 +77,5 @@ class CAgentServer_Link:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
 
-    def genPacket( self, event, data=None ):
-        return ASP( event = event, agentN = self.agentN, data = data )
+    def genPacket( self, event, timeStamp=None, data=None ):
+        return ASP( event = event, agentN = self.agentN, timeStamp=timeStamp, data = data )

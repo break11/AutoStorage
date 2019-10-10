@@ -7,7 +7,7 @@ from PyQt5.QtNetwork import QTcpSocket
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, calcNextPacketN
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status, UNINITED_AGENT_N
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
 from Lib.AgentProtocol.AgentLogManager import ALM
 import Lib.AgentProtocol.AgentDataTypes as ADT
 
@@ -45,9 +45,9 @@ class CAgentServer_Net_Thread(QThread):
         self.bConnected = False
         # timer to ckeck if there is no incoming data - thread will be closed if no activity on socket for more than 5 secs or so
         self.noRxTimer = 0
+        self.bIsServer = False
 
     def initFakeAgent( self, agentLink, host, port ):
-        self.bIsServer = False
         self.host = host
         self.port = port
         self._agentLink = weakref.ref( agentLink )
@@ -84,14 +84,15 @@ class CAgentServer_Net_Thread(QThread):
     def agentLink( self ):
         if self._agentLink is not None: return self._agentLink()
 
-    def genPacket( self, event, data=None ):
-        if self._agentLink is None: return
+    def genPacket( self, event, timeStamp=None, data=None ):
+        if self._agentLink is None:
+            return
             
-        return self.agentLink().genPacket( event, data )
+        return self.agentLink().genPacket( event=event, timeStamp=timeStamp, data=data )
 
     def writeTo_Socket( self, cmd ):
-        self.tcpSocket.write( cmd.toBStr( bTX_or_RX=self.bIsServer ) )
-        ALM.doLogPacket( self.agentLink(), self.UID, cmd, True, isAgent=not self.bIsServer )
+        self.tcpSocket.write( cmd.toBStr() )
+        ALM.doLogPacket( self.agentLink(), self.UID, cmd, True )
 
     def sendExpressCMDs( self ):
         if not self.bConnected: return
@@ -132,16 +133,6 @@ class CAgentServer_Net_Thread(QThread):
             return self.agentLink().TX_Packets[ 0 ]
         except:
             return None
-
-    # обработка команды HW - ответа от челнока - в ответе должен присутствовать номер команды сервера, которую ожидает челнок
-    def handleHW( self, cmd ):
-        if not self.bIsServer: return
-
-        if cmd.event == EAgentServer_Event.HelloWorld:
-            HW_Data = ADT.SHW_Data.fromString( cmd.data )
-            if HW_Data.bIsValid:
-                packetN = HW_Data.lastRXPacketN
-                self.ACS().getAgentLink( cmd.agentN ).remapPacketsNumbers( calcNextPacketN( packetN ) )
 
     ##############################################
 
@@ -217,14 +208,12 @@ class CAgentServer_Net_Thread(QThread):
         while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
 
-            cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
+            cmd = CAgentServerPacket.fromBStr( line.data() )
             if cmd is None: continue
-
-            self.handleHW( cmd )
 
             self.noRxTimer = time.time()
 
-            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd, isAgent=not self.bIsServer, handler=self.processRxPacket )
+            _processRxPacket( agentLink=self.agentLink(), agentThread=self, cmd=cmd, handler=self.processRxPacket )
 
         # отключение соединения если в течении 5 секунд не было ответа
         t = (time.time() - self.noRxTimer)

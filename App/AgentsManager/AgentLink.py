@@ -36,7 +36,7 @@ class CAgentLink( CAgentServer_Link ):
         return agentNO.graphRootNode().nxGraph
 
     def __init__(self, agentN):
-        super().__init__( agentN = agentN, bIsServer = True )
+        super().__init__( agentN = agentN )
 
 
         # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
@@ -101,7 +101,8 @@ class CAgentLink( CAgentServer_Link ):
 
             for seq in seqList:
                 for cmd in seq:
-                    self.pushCmd( ASP.fromTX_Str( f"000,{self.agentN}:{cmd}" ) )
+                    ##remove##CAgentServerPacket( event=event, packetN=packetN, agentN=agentN, timeStamp=timeStamp, data=packetData )
+                    self.pushCmd( ASP.fromStr( f"000,{self.agentN}:{cmd}" ) )
 
     ##################
 

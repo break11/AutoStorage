@@ -27,9 +27,9 @@ def processAcceptedPacket( cmd, handler=None ):
     if ( cmd.status == EPacket_Status.Normal ) and ( cmd.event != EAgentServer_Event.Accepted ):
         handler( cmd )
 
-def _processRxPacket( agentLink, agentThread, cmd, isAgent=False, handler=None ):
+def _processRxPacket( agentLink, agentThread, cmd, handler=None ):
     verifyRxPacket( agentLink, agentThread, cmd )
-    ALM.doLogPacket( agentLink, agentThread.UID, cmd, False, isAgent )
+    ALM.doLogPacket( agentLink, agentThread.UID, cmd, False )
     if handler is not None:
         processAcceptedPacket( cmd, handler )
 

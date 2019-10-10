@@ -14,13 +14,14 @@ import Lib.AgentProtocol.AgentDataTypes as ADT
 
 class TestASP_DataParser(unittest.TestCase):
     def test_HW(self):
-        sData = "045"
+        sData = "cartV1^555"
         packet = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, data = sData )
 
         eData = extractASP_Data( packet )
 
         self.assertEqual( type(eData), ADT.SHW_Data )
-        self.assertEqual( eData.lastRXPacketN, 45 )
+        self.assertEqual( eData.agentType, "cartV1" )
+        self.assertEqual( eData.agentN, 555 )
         self.assertEqual( eData.bIsValid, True )
 
         self.assertEqual( sData, eData.toString() )
@@ -32,10 +33,8 @@ class TestASP_DataParser(unittest.TestCase):
 
         eData = extractASP_Data( packet )
         self.assertEqual( type(eData), ADT.SHW_Data )
-        self.assertEqual( eData.lastRXPacketN, 0 )
+        self.assertEqual( eData.agentN, 0 )
         self.assertEqual( eData.bIsValid, False )
-
-        self.assertEqual( "000", eData.toString() )
 
     def test_BS(self):
         sData = "S,33.44V,40.00V,47.64V,01.1A/00.3A"

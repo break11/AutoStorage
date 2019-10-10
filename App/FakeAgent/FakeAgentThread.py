@@ -7,10 +7,10 @@ from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
 import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 
 DP_DELTA_PER_CYCLE   = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE   = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds
@@ -38,12 +38,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
         self.tcpSocket.waitForReadyRead(1)
 
-        self.writeTo_Socket( CAgentServerPacket( event = AEV.HelloWorld, agentN=self.agentLink().agentN ) )
+        self.writeTo_Socket( ASP( event = AEV.HelloWorld, agentN=self.agentLink().agentN,
+                                  data=ADT.SHW_Data(agentN=self.agentLink().agentN, agentType="cartV1").toString() ) )
         self.msleep(500)
 
         while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
-            cmd = CAgentServerPacket.fromBStr( line.data(), bTX_or_RX=not self.bIsServer )
+            cmd = ASP.fromBStr( line.data() )
 
             if cmd is None: continue
             if cmd.event == AEV.HelloWorld:
@@ -213,10 +214,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         else:
             FAL.currentTask = None
             ALM.doLogString( FAL, self.UID, "All tasks done!" )
-            FAL.pushCmd( CAgentServerPacket( event=AEV.NewTask, data="ID" ) )
+            FAL.pushCmd( self.genPacket( event=AEV.NewTask, data="ID" ) )
 
     def findEvent_In_TasksList(self, event):
         for cmd in self.agentLink().tasksList:
             if cmd.event == event:
                 return True
         return False
+
+    def genPacket( self, event, data=None ):
+        return ASP( event = event, agentN = self.agentLink().agentN, timeStamp=int(time.time()), data = data )

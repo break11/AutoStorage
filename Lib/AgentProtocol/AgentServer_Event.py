@@ -47,9 +47,9 @@ OD_OP_events = [EAgentServer_Event.OdometerDistance, EAgentServer_Event.Odometer
 
 _AgentServer_Event_from_BStr = {
                                 # b"@FA": EAgentServer_Event.FakeAgentDevPacket,
-                                b"*"  : EAgentServer_Event.Error,
-                                b"#"  : EAgentServer_Event.Warning_,
-                                b""   : EAgentServer_Event.Text,
+                                b"@ER": EAgentServer_Event.Error,
+                                b"@WR": EAgentServer_Event.Warning_,
+                                b"@TX": EAgentServer_Event.Text,
                                 b"@HW": EAgentServer_Event.HelloWorld,
                                 b"@AC": EAgentServer_Event.Accepted,
                                 b"@BS": EAgentServer_Event.BatteryState,
