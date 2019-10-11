@@ -10,9 +10,9 @@ extractData_Types = { EAgentServer_Event.BatteryState       : ADT.SAgent_Battery
                       EAgentServer_Event.NewTask            : ADT.SNT_Data,
                     }
 
-def extractASP_Data( packet ):
-    assert packet is not None
-    assert packet.event is not None
-
-    f = extractData_Types[ packet.event ].fromString
-    return f( packet.data )
+def extractASP_Data( event, data ):
+    dataType = extractData_Types.get( event )
+    if dataType is None:
+        return data
+    else:
+        return dataType.fromString( data )

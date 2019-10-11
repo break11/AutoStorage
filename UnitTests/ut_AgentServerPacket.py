@@ -8,7 +8,9 @@ import os
 sys.path.append( os.path.abspath(os.curdir)  )
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, MS, DS
+from Lib.AgentProtocol.AgentDataTypes import MS, DS
+import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 
 class TestAgentServerPacket(unittest.TestCase):
 
@@ -87,11 +89,11 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr( appendLF=False ), p3 )
         ###################################################
         # test space instead zero
-        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16), data=f"cartV1{DS}17" )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16), data=ADT.SHW_Data.fromString( f"cartV1{DS}17" ) )
         p2 = CAgentServerPacket.fromStr( f" 11{MS} 0000000a{MS}HW{MS}cartV1{DS}17" )
 
         print( "int(data)=", p1.data, p2.data )
-        self.assertEqual( p1.data, p2.data )
+        self.assertEqual( str(p1.data), str(p2.data) )
         print( "packetN=", p1.packetN, p2.packetN )
         self.assertEqual( p1.packetN, p2.packetN )
         ###################################################
@@ -114,8 +116,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
         ###################
-        s = f"011{MS}0000000a{MS}HW{MS}000"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16), data="000" )
+        s = f"011{MS}0000000a{MS}HW{MS}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16), data="" )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -143,9 +145,9 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
         #########################
-        sData = "S{DS}43.2V{DS}39.31V{DS}47.43V{DS}-0.06A"
+        sData = f"S{DS}43.20V{DS}39.31V{DS}47.43V{DS}1.10A{DS}-0.06A"
         s = f"035{MS}00000020{MS}BS{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=35, timeStamp=int("20", 16), data=sData )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=35, timeStamp=int("20", 16), data=ADT.SAgent_BatteryState.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -165,7 +167,7 @@ class TestAgentServerPacket(unittest.TestCase):
         #########################
         sData = f"22{DS}23{DS}22{DS}24{DS}24{DS}25{DS}25{DS}25{DS}25"
         s = f"002{MS}00025fdc{MS}TS{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=2, timeStamp=int( "25fdc", 16 ), data=sData )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=2, timeStamp=int( "25fdc", 16 ), data=ADT.SAgent_TemperatureState.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 

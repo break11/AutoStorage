@@ -21,7 +21,6 @@ import Lib.Common.ChargeUtils as CU
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
-from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
 import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
@@ -143,10 +142,7 @@ class CAgentLink( CAgentServer_Link ):
             self.agentNO().status = ADT.EAgent_Status.AgentError
 
         elif cmd.event == EAgentServer_Event.BatteryState:
-            agentNO = self.agentNO()
-
-            BS = extractASP_Data( cmd )
-            agentNO.BS = BS
+            self.agentNO().BS = cmd.data
 
         elif cmd.event == EAgentServer_Event.TemperatureState:
             self.agentNO().TS = cmd.data
@@ -175,7 +171,7 @@ class CAgentLink( CAgentServer_Link ):
             if tKey is None: return
             if len(self.nodes_route) == 0: return
         
-            OD_OP_Data = extractASP_Data( cmd )
+            OD_OP_Data = cmd.data
             new_od = OD_OP_Data.getDistance()
                 
             distance = self.currSII().K * ( new_od - agentNO.odometer )
@@ -210,8 +206,7 @@ class CAgentLink( CAgentServer_Link ):
             self.doChargeCMD( CU.EChargeCMD.off )
 
         elif cmd.event == EAgentServer_Event.NewTask:
-            NT_Data = extractASP_Data( cmd )
-            # print( NT_Data.event, NT_Data.data, NT_Data.bIdle )
+            NT_Data = cmd.data
             
             if NT_Data.bIdle:
                 if self.agentNO().status in ADT.BL_BU_Agent_Status_vals:

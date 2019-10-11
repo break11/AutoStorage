@@ -9,7 +9,7 @@ from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
 import Lib.Common.StrConsts as SC
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentProtocol.AgentServerPacket import DS
+from Lib.AgentProtocol.AgentDataTypes import DS
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 
 RH_LOW = 0

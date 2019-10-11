@@ -7,7 +7,6 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
-from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
 # from Lib.AgentProtocol.AgentDataTypes import SHW_Data
 
 class CAgentThread( CAgentServer_Net_Thread ):
@@ -23,16 +22,16 @@ class CAgentThread( CAgentServer_Net_Thread ):
 
             if cmd is None: continue
             if cmd.event == AEV.HelloWorld:
-                HW = extractASP_Data( cmd )
-                if not HW.bIsValid: continue
+                HW_Data = cmd.data
+                if not HW_Data.bIsValid: continue
                 
-                if not self.ACS().getAgentLink( HW.agentN, bWarning = False):
-                    self.newAgent.emit( HW.agentN )
-                    while (not self.ACS().getAgentLink( HW.agentN, bWarning = False)):
+                if not self.ACS().getAgentLink( HW_Data.agentN, bWarning = False):
+                    self.newAgent.emit( HW_Data.agentN )
+                    while (not self.ACS().getAgentLink( HW_Data.agentN, bWarning = False)):
                         self.msleep(10)
 
-                self.agentNumberInited.emit( HW.agentN )
-                self._agentLink = weakref.ref( self.ACS().getAgentLink( HW.agentN ) )
+                self.agentNumberInited.emit( HW_Data.agentN )
+                self._agentLink = weakref.ref( self.ACS().getAgentLink( HW_Data.agentN ) )
                 return True
 
     def processRxPacket( self, cmd ): self.processRxPacket_signal.emit( cmd )

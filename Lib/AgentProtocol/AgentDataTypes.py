@@ -2,9 +2,11 @@
 from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
-from Lib.AgentProtocol.AgentServerPacket import DS
 from Lib.Common import StorageGraphTypes as SGT
 import Lib.Common.StrConsts as SC
+
+MS = "~" # Main Splitter
+DS = "^" # Data Splitter
 
 minChargeValue = 30
 
@@ -68,7 +70,7 @@ class EAgentBattery_Type( BaseEnum ):
         return toStrD[ self ]
 
 class SAgent_TemperatureState:
-    sDefVal = "24^29^29^29^29^25^25^25^25"
+    sDefVal = f"24{DS}29{DS}29{DS}29{DS}29{DS}25{DS}25{DS}25{DS}25"
     def __init__( self, t1, t2, t3, t4, t5, t6, t7, t8, t9 ):
         self.t1 = t1
         self.t2 = t2
@@ -118,7 +120,7 @@ class SAgent_TemperatureState:
                f"{self.t9:.0f}"
 
 class SAgent_BatteryState:
-    sDefVal = "S^33.44V^40.00V^47.64V^01.1A^00.3A"
+    sDefVal = f"S{DS}33.44V{DS}40.00V{DS}47.64V{DS}1.10A{DS}0.30A"
     C = 1000
     max_S_U = 43.2
     min_S_U = 25
@@ -158,10 +160,10 @@ class SAgent_BatteryState:
             return SAgent_BatteryState( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
         except:
             print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
-            return cls.sDefVal()
+            return cls.defVal()
 
     def toString( self ):
-        return f"{ EAgentBattery_Type.toString( self.PowerType ) }{DS}{self.S_V:05.2f}V{DS}{self.L_V:05.2f}V{DS}{self.power_U:05.2f}V{DS}{self.power_I1:04.1f}A{DS}{self.power_I2:04.1f}A"
+        return f"{ EAgentBattery_Type.toString( self.PowerType ) }{DS}{self.S_V:.2f}V{DS}{self.L_V:.2f}V{DS}{self.power_U:.2f}V{DS}{self.power_I1:.2f}A{DS}{self.power_I2:.2f}A"
 
 #########################################################
 class SHW_Data:
@@ -170,6 +172,8 @@ class SHW_Data:
         self.agentType = agentType
         self.agentN    = agentN
         self.bIsValid  = True
+
+    def __str__( self ): return self.toString()
 
     @classmethod
     def fromString( cls, data ):
@@ -195,13 +199,15 @@ class SHW_Data:
 #########################################################
 
 class SOD_OP_Data:
-    "OD:100"
-    "OP:138"
-    "OP:U"
+    "OD~100"
+    "OP~138"
+    "OP~U"
 
     def __init__( self, bUndefined=True, nDistance=0 ):
         self.bUndefined = bUndefined
         self.nDistance = nDistance
+
+    def __str__( self ): return self.toString()
 
     def getDistance( self ): return 0 if self.bUndefined else self.nDistance
 
@@ -232,6 +238,8 @@ class SNT_Data:
         self.event = event
         self.data = data
 
+    def __str__( self ): return self.toString()
+
     @classmethod
     def fromString( cls, data ):
         if data == cls.sIdle:
@@ -249,7 +257,7 @@ class SNT_Data:
     def toString( self ):
         if self.bIdle: return self.sIdle
 
-        sResult = self.event.tostr()[1:]
+        sResult = self.event.toStr()
 
         if self.event in BL_BU_Events:
             sResult += SGT.ESide.toChar()

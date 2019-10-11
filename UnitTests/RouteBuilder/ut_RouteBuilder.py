@@ -12,7 +12,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from App.AgentsManager.routeBuilder import CRouteBuilder
 from Lib.Common import StorageGraphTypes as SGT
 import Lib.Common.GraphUtils as gu
-from Lib.AgentProtocol.AgentServerPacket import MS
+from Lib.AgentProtocol.AgentDataTypes import MS
 
 
 sDir = "./UnitTests/RouteBuilder/"

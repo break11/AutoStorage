@@ -69,16 +69,16 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = AEV.TaskList, data = str( len( FAL.tasksList ) ) ) )
 
         elif cmd.event == AEV.BatteryState:
-            FAL.pushCmd( self.genPacket( event = AEV.BatteryState, data = FAL.batteryState.toString() ) )
+            FAL.pushCmd( self.genPacket( event = AEV.BatteryState, data = FAL.batteryState ) )
 
         elif cmd.event == AEV.TemperatureState:
-            FAL.pushCmd( self.genPacket( event = AEV.TemperatureState, data = FAL.temperatureState.toString() ) )
+            FAL.pushCmd( self.genPacket( event = AEV.TemperatureState, data = FAL.temperatureState ) )
 
         elif cmd.event == AEV.OdometerDistance:
-            FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
+            FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data ) )
 
         elif cmd.event == AEV.OdometerPassed:
-            FAL.pushCmd( self.genPacket( event = AEV.OdometerPassed, data = FAL.OD_OP_Data.toString() ) )
+            FAL.pushCmd( self.genPacket( event = AEV.OdometerPassed, data = FAL.OD_OP_Data ) )
 
         elif cmd.event == AEV.BrakeRelease:
             FAL.bErrorState = False

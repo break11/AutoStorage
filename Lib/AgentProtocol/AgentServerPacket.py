@@ -1,8 +1,7 @@
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-
-MS = "~" # Main Splitter
-DS = "^" # Data Splitter
+from Lib.AgentProtocol.AgentDataTypes import MS
+from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
 
 from enum import Enum, IntEnum, auto
 
@@ -38,7 +37,7 @@ class CAgentServerPacket:
         Event_Sign = EAgentServer_Event.toStr( self.event )
 
         sTimestamp = f"{self.timeStamp:08x}" if self.timeStamp is not None else ""
-        sData = self.data if self.data is not None else ""
+        sData = str( self.data ) if self.data is not None else ""
         sResult = f"{self.packetN:03d}{ MS }{sTimestamp}{ MS }{ Event_Sign }{ MS }{sData}"
 
         if appendLF:
@@ -73,9 +72,14 @@ class CAgentServerPacket:
 
         try:
             packetN    = int( l[ EPos.PacketN ] )
-            sTM = l[ EPos.TimeStamp ]
+            sTM        = l[ EPos.TimeStamp ]
             timeStamp  = int( sTM, 16 ) if sTM != "" else None
-            packetData = l[ EPos.Data ]
+
+            sData = l[ EPos.Data ]
+            if sData != "":
+                packetData = extractASP_Data( event, l[ EPos.Data ] )
+            else:
+                packetData = None
 
             return CAgentServerPacket( event=event, packetN=packetN, timeStamp=timeStamp, data=packetData )
         except Exception as e:
