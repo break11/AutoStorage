@@ -67,9 +67,58 @@ class EAgentBattery_Type( BaseEnum ):
                  }
         return toStrD[ self ]
 
+class SAgent_TemperatureState:
+    sDefVal = "24^29^29^29^29^25^25^25^25"
+    def __init__( self, t1, t2, t3, t4, t5, t6, t7, t8, t9 ):
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+        self.t4 = t4
+        self.t5 = t5
+        self.t6 = t6
+        self.t7 = t7
+        self.t8 = t8
+        self.t9 = t9
+
+    def __str__( self ): return self.toString()
+
+    @classmethod
+    def defVal( cls ):
+        return SAgent_TemperatureState.fromString( cls.sDefVal )
+
+    @classmethod
+    def fromString( cls, data ):
+        try:
+            l = data.split( DS )
+
+            t1 = float( l[0] )
+            t2 = float( l[1] )
+            t3 = float( l[2] )
+            t4 = float( l[3] )
+            t5 = float( l[4] )
+            t6 = float( l[5] )
+            t7 = float( l[6] )
+            t8 = float( l[7] )
+            t9 = float( l[8] )
+
+            return SAgent_TemperatureState( t1, t2, t3, t4, t5, t6, t7, t8, t9 )
+        except:
+            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
+            return cls.defVal()
+
+    def toString( self ):
+        return f"{self.t1:.0f}{ DS }"\
+               f"{self.t2:.0f}{ DS }"\
+               f"{self.t3:.0f}{ DS }"\
+               f"{self.t4:.0f}{ DS }"\
+               f"{self.t5:.0f}{ DS }"\
+               f"{self.t6:.0f}{ DS }"\
+               f"{self.t7:.0f}{ DS }"\
+               f"{self.t8:.0f}{ DS }"\
+               f"{self.t9:.0f}"
 
 class SAgent_BatteryState:
-    __defVal = "S,33.44V,40.00V,47.64V,01.1A/00.3A"
+    sDefVal = "S^33.44V^40.00V^47.64V^01.1A^00.3A"
     C = 1000
     max_S_U = 43.2
     min_S_U = 25
@@ -92,54 +141,31 @@ class SAgent_BatteryState:
 
     @classmethod
     def defVal( cls ):
-        return SAgent_BatteryState.fromString( cls.__defVal )
+        return SAgent_BatteryState.fromString( cls.sDefVal )
 
     @classmethod
     def fromString( cls, data ):
         try:
-            l = data.split( "," )
+            l = data.split( DS )
             
             PowerType = EAgentBattery_Type.fromString( l[0] )
             S_V       = float( l[1][:-1] )
             L_V       = float( l[2][:-1] )
             power_U   = float( l[3][:-1] )
-
-            I = l[4].split( "/" )
-            power_I1 = float( I[0][:-1] )
-            power_I2 = float( I[1][:-1] )
+            power_I1  = float( l[4][:-1] )
+            power_I2  = float( l[5][:-1] )
 
             return SAgent_BatteryState( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
         except:
-            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal}'!" )
-            return cls.defVal()
+            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
+            return cls.sDefVal()
 
     def toString( self ):
-        return f"{ EAgentBattery_Type.toString( self.PowerType ) },{self.S_V:05.2f}V,{self.L_V:05.2f}V,{self.power_U:05.2f}V,{self.power_I1:04.1f}A/{self.power_I2:04.1f}A"
-
-#########################################################
-
-class SFakeAgent_DevPacketData:
-    "Charging,XXX,XXX"
-    "1,XXX,XXX"
-
-    def __init__( self, bCharging ):
-        self.bCharging = bCharging
-    
-    @classmethod
-    def fromString( cls, data ):
-        params = data.split(",")
-        return SFakeAgent_DevPacketData( bCharging = bool( int( params[ 0 ] ) ) )
-
-    def toString( self ):
-        cmds = []
-        cmds.append( str( int( self.bCharging ) ) )
-
-        return ",".join( cmds )
+        return f"{ EAgentBattery_Type.toString( self.PowerType ) }{DS}{self.S_V:05.2f}V{DS}{self.L_V:05.2f}V{DS}{self.power_U:05.2f}V{DS}{self.power_I1:04.1f}A{DS}{self.power_I2:04.1f}A"
 
 #########################################################
 class SHW_Data:
-    "000"
-    "056"
+    "cartV1^555"
     def __init__( self, agentType, agentN ):
         self.agentType = agentType
         self.agentN    = agentN
@@ -211,7 +237,7 @@ class SNT_Data:
         if data == cls.sIdle:
             return SNT_Data( event = None, data = None, bIdle = True )
 
-        l = data.split(",")
+        l = data.split( DS )
         event = AEV.fromStr( l[0] )
         nt_data = None
 

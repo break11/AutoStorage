@@ -261,8 +261,3 @@ class CAgentLink( CAgentServer_Link ):
             return
 
         CU.controlCharge( chargeCMD, port )
-
-    # def genFA_DevPacket( self, **kwargs ):
-    #     # отправка спец команды фейк агенту, т.к. для него это единственный способ получить оповещение о восстановлении заряда
-    #     cmd = ASP( event=EAgentServer_Event.FakeAgentDevPacket, data=SFakeAgent_DevPacketData( **kwargs ).toString() )
-    #     self.pushCmd( cmd )

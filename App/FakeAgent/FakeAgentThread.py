@@ -72,7 +72,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = AEV.BatteryState, data = FAL.batteryState.toString() ) )
 
         elif cmd.event == AEV.TemperatureState:
-            FAL.pushCmd( self.genPacket( event = AEV.TemperatureState, data = FAL.TS_Answer ) )
+            FAL.pushCmd( self.genPacket( event = AEV.TemperatureState, data = FAL.temperatureState.toString() ) )
 
         elif cmd.event == AEV.OdometerDistance:
             FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )

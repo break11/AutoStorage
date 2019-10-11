@@ -39,9 +39,7 @@ colorsByEvents = { EAgentServer_Event.BatteryState:       Telemetry_color,
                    
                    EAgentServer_Event.ChargeMe:           Charge_color,
                    EAgentServer_Event.ChargeBegin:        Charge_color,
-                   EAgentServer_Event.ChargeEnd:          Charge_color,
-                
-                   #EAgentServer_Event.FakeAgentDevPacket: "#FF70FF",
+                   EAgentServer_Event.ChargeEnd:          Charge_color,                
                   }
 
 def eventColor( e ):

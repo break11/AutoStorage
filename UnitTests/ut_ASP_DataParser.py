@@ -37,7 +37,7 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.bIsValid, False )
 
     def test_BS(self):
-        sData = "S,33.44V,40.00V,47.64V,01.1A/00.3A"
+        sData = ADT.SAgent_BatteryState.sDefVal
         packet = CAgentServerPacket( event = EAgentServer_Event.BatteryState, data = sData )
 
         eData = extractASP_Data( packet )
@@ -52,23 +52,18 @@ class TestASP_DataParser(unittest.TestCase):
 
         self.assertEqual( sData, eData.toString() )
 
-    # def test_FA(self):
-    #     sData = f"1"
-    #     packet = CAgentServerPacket( event = EAgentServer_Event.FakeAgentDevPacket, data = sData )
+    def test_TS(self):
+        sData = ADT.SAgent_TemperatureState.sDefVal
+        packet = CAgentServerPacket( event = EAgentServer_Event.TemperatureState, data = sData )
 
-    #     eData = extractASP_Data( packet )
-    #     self.assertEqual( type(eData), ADT.SFakeAgent_DevPacketData )
-    #     self.assertEqual( eData.bCharging, True )
+        eData = extractASP_Data( packet )
 
-    #     self.assertEqual( sData, eData.toString() )
+        self.assertEqual( type(eData), ADT.SAgent_TemperatureState )
+        self.assertEqual( eData.t1, 24 )
+        self.assertEqual( eData.t2, 29 )
+        self.assertEqual( eData.t9, 25 )
 
-    #     sData = f"0"
-    #     packet = CAgentServerPacket( event = EAgentServer_Event.FakeAgentDevPacket, data = sData )
-    #     eData = extractASP_Data( packet )
-    #     self.assertEqual( type(eData), ADT.SFakeAgent_DevPacketData )
-    #     self.assertEqual( eData.bCharging, False )
-
-    #     self.assertEqual( sData, eData.toString() )
+        self.assertEqual( sData, eData.toString() )
 
     def test_OD_OP(self):
         sData="U"

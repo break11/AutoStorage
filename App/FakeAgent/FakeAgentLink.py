@@ -8,8 +8,7 @@ class CFakeAgentLink( CAgentServer_Link ):
         super().__init__( agentN = agentN )
 
         self.tasksList = deque()
-        self.TS_Answer = "24,29,29,29,29,25,25,25,25"
-        
+                
         self.currentTask = None
         self.currentWheelsOrientation = ''
         self.currentDirection = ''
@@ -20,5 +19,6 @@ class CFakeAgentLink( CAgentServer_Link ):
         self.bCharging = False
         self.bErrorState = False
 
+        self.temperatureState = ADT.SAgent_TemperatureState( 24,29,29,29,29,25,25,25,25 )
         self.batteryState = ADT.SAgent_BatteryState( ADT.EAgentBattery_Type.Supercap, 43.2, 39.31, 47.43, 00.9, 00.4 )
         self.OD_OP_Data  = ADT.SOD_OP_Data()

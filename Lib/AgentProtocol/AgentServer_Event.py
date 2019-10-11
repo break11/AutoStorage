@@ -1,7 +1,6 @@
 from enum import Enum, auto
 
 class EAgentServer_Event( Enum ):
-    # FakeAgentDevPacket = auto() # специальные команды для взаимодействия с фейк агентом - например команда об окончании заряда
     Error              = auto() # Error text message with symbol*
     Warning_           = auto() # Warning text message with symbol #
     Text               = auto() # Text message to Log
@@ -48,7 +47,6 @@ class EAgentServer_Event( Enum ):
 OD_OP_events = [EAgentServer_Event.OdometerDistance, EAgentServer_Event.OdometerPassed]
 
 _AgentServer_Event_from_Str = {
-                                # "FA": EAgentServer_Event.FakeAgentDevPacket,
                                 "ER": EAgentServer_Event.Error,
                                 "WR": EAgentServer_Event.Warning_,
                                 "TX": EAgentServer_Event.Text,
