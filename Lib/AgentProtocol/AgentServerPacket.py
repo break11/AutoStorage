@@ -1,7 +1,8 @@
 
+import Lib.Common.StrConsts as SC
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentDataTypes import MS
-from Lib.AgentProtocol.ASP_DataParser import extractASP_Data
+from Lib.AgentProtocol.ASP_DataParser import extractASP_Data, extractData_Types
 
 from enum import Enum, IntEnum, auto
 
@@ -28,6 +29,15 @@ class CAgentServerPacket:
         self.packetN   = packetN
         self.timeStamp = timeStamp
         self.data      = data
+
+        if self.data is not None:
+            expectedType = extractData_Types.get( self.event )
+            if expectedType is not None:
+                gotType = type( self.data )
+                if not ( gotType is expectedType ):
+                    ##remove##
+                    # print( f"{SC.sWarning} Expected type {expectedType.__class__.__name__} don't equal with got type {gotType.__class__.__name__}!" )
+                    print( f"{SC.sWarning} Expected type {expectedType} don't equal with got type {gotType}!" )
 
         self.status    = status
 
