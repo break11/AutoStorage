@@ -8,6 +8,9 @@ from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
 import Lib.Common.StrConsts as SC
+from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
+from Lib.AgentProtocol.AgentServerPacket import DS
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 
 RH_LOW = 0
 RH_HIGH = 1
@@ -414,10 +417,9 @@ class CRouteBuilder():
 
     def SegmentsToCommands(self, Segments, temp__direction):
         commands = []
-        widthTypeChar = widthTypeToChar[ Segments[0].widthType ]
         direction = temp__direction
-        commands.append('@SB')
-        commands.append( f"@WO:{widthTypeChar}" )
+        commands.append( ASP( event=EV.SequenceBegin ) )
+        commands.append( ASP( event=EV.WheelOrientation, data = widthTypeToChar[ Segments[0].widthType ] ) )
 
         for segment in Segments:
             lengthStr = ('{:06d}').format(int(segment.length))
@@ -425,19 +427,8 @@ class CRouteBuilder():
             sensorSideStr = sensorSideToChar[ (segment.sensorSide, direction) ]
             curvatureChar = curvatureToChar[ segment.curvature ]
             directionChar = directionToChar[ direction ]
-            command = f"@DP:{lengthStr},{ directionChar },{railHeightStr},{sensorSideStr},{curvatureChar}"
-            commands.append( command )
+            dpData = f"{lengthStr}{DS}{ directionChar }{DS}{railHeightStr}{DS}{sensorSideStr}{DS}{curvatureChar}"
+            commands.append( ASP( event=EV.DistancePassed, data=dpData ) )
         
-        commands.append('@SE')
+        commands.append( ASP( event=EV.SequenceEnd ) )
         return commands
-
-
-
-
-
-
-
-
-
-
-

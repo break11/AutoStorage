@@ -33,7 +33,7 @@ class Test_processRxPacket(unittest.TestCase):
 
     def test_Data_packets(self):
         # нормальная ситуация - получение следующего по порядку пакета (без перехода через 999)
-        DAL = CDummyAgentLink( 555, True )
+        DAL = CDummyAgentLink( 555 )
         DAT = CDummyAgentThread()
         socketDescriptor = self
         ACS = self
@@ -68,7 +68,7 @@ class Test_processRxPacket(unittest.TestCase):
         self.assertEqual( testI, 6 ) # функция обработки пакеты была вызвана
 
     def test_CA_Normal_and_Duplicate_in_WorkLoop(self):
-        DAL = CDummyAgentLink( 555, True )
+        DAL = CDummyAgentLink( 555 )
         DAT = CDummyAgentThread()
 
         DAL.TX_Packets.append( CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=1 ) )

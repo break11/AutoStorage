@@ -12,6 +12,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from App.AgentsManager.routeBuilder import CRouteBuilder
 from Lib.Common import StorageGraphTypes as SGT
 import Lib.Common.GraphUtils as gu
+from Lib.AgentProtocol.AgentServerPacket import MS
 
 
 sDir = "./UnitTests/RouteBuilder/"
@@ -56,6 +57,7 @@ with open( sDir + "routeCases_correct_700.txt" , "r") as routes_file:
 routeBuilder = CRouteBuilder()
 
 class CTestRouteBuilder(unittest.TestCase):
+    maxDiff = None
 
     def test_buildRoute(self):
         # n = 0
@@ -69,7 +71,8 @@ class CTestRouteBuilder(unittest.TestCase):
             CommandsList = []
             for sequence in route:
                 for command in sequence:
-                    CommandsList.append( command )
+                    data = command.data if command.data is not None else ""
+                    CommandsList.append( f"{command.event.toStr()}{MS}{data}" )
 
             route_str = ",".join( CommandsList )
 

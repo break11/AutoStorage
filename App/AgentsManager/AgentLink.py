@@ -101,7 +101,7 @@ class CAgentLink( CAgentServer_Link ):
 
             for seq in seqList:
                 for cmd in seq:
-                    self.pushCmd( ASP.fromStr( f"000,{self.agentN}:{cmd}" ) )
+                    self.pushCmd( cmd )
 
     ##################
 

@@ -17,13 +17,6 @@ from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj
 from .AgentThread import CAgentThread
 
 class CAgentsConnectionServer(QTcpServer):
-    """
-    QTcpServer wrapper to listen for incoming connections.
-    When new connection detected - creates a corresponding thread and adds it to self.unknownAgentThreadPool
-    Then sends a @HW greeting to remote side to ask if it's an agent and what it's number
-    When answer with agent number received ("Agent number estimated" event)- creates a corresponding agent if needed and asign a thread to it
-    This thread will be deleted when there is no incoming data for more than 5 seconds ("dirty" disconnected link)
-    """
     s_AgentsNetServer = "Agents Net Server"
 
     def __init__(self, parent=None):

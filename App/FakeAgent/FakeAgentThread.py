@@ -198,7 +198,6 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
         if len(FAL.tasksList):
             FAL.currentTask = FAL.tasksList.popleft()
-            #self.sendPacketToServer('@NT:{:s}'.format(FAL.currentTask[1:1+2].decode()).encode('utf-8'))
             ALM.doLogString( FAL, self.UID, f"Starting new task: {FAL.currentTask}" )
 
             if FAL.currentTask.event == AEV.DistancePassed:

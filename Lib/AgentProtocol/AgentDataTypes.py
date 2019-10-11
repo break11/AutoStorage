@@ -169,8 +169,8 @@ class SHW_Data:
 #########################################################
 
 class SOD_OP_Data:
-    "@OD:100"
-    "@OP:138"
+    "OD:100"
+    "OP:138"
     "OP:U"
 
     def __init__( self, bUndefined=True, nDistance=0 ):
@@ -212,7 +212,7 @@ class SNT_Data:
             return SNT_Data( event = None, data = None, bIdle = True )
 
         l = data.split(",")
-        event = AEV.fromStr( "@" + l[0] )
+        event = AEV.fromStr( l[0] )
         nt_data = None
 
         if event in BL_BU_Events:
