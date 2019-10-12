@@ -83,7 +83,7 @@
         <string>Send Custom CMD to Agent</string>
        </property>
        <property name="text">
-        <string>@HW</string>
+        <string>HW</string>
        </property>
       </widget>
      </item>

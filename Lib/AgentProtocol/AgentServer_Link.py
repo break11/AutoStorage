@@ -51,13 +51,13 @@ class CAgentServer_Link:
     def isConnected( self ):
         return len(self.socketThreads) > 0
 
-    def pushCmd( self, cmd, bPut_to_TX_FIFO = True, bReMap_PacketN=True, bAllowDuplicate=True ):
+    def pushCmd( self, cmd, bExpressPacket = False, bReMap_PacketN=True, bAllowDuplicate=True ):
         # если allowDuplicate=False кладем в очередь команду, только если ее там нет (это будет значить, что сторона получателя ее приняла)
         if bReMap_PacketN:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
         
-        if bPut_to_TX_FIFO:
+        if not bExpressPacket:
             if bAllowDuplicate or not self.eventPresent( cmd.event, self.TX_Packets ):
                 self.TX_Packets.append( cmd )
         else:

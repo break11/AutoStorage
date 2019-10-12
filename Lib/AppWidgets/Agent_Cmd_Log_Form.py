@@ -243,19 +243,27 @@ class CAgent_Cmd_Log_Form(QWidget):
         if AL is None: return
         AL = AL()
 
+        event = EAgentServer_Event.fromStr( self.leCMD_Event.text() )
+
         timeStamp = int( self.leCMD_TimeStamp.text(), 16 ) if self.leCMD_TimeStamp.text() else None
 
+        sData = self.leCMD_Data.text()
+        if sData:
+            expectedType = extractData_Types.get( event )
+            data = expectedType.fromString( sData )
+        else:
+            data = None
         cmd = CAgentServerPacket( packetN=self.sbPacketN.value(),
-                                  event=EAgentServer_Event.fromStr( self.leCMD_Event.text() ),
+                                  event=event,
                                   timeStamp=timeStamp,
-                                  data=self.leCMD_Data.text() )
+                                  data=data )
 
         if cmd.event is None:
             print( f"{SC.sWarning} invalid command: {cmd}" )
             return
         
         if AL.isConnected():
-            AL.pushCmd( cmd, bPut_to_TX_FIFO = cmd.packetN != 0, bReMap_PacketN=cmd.packetN == -1 )
+            AL.pushCmd( cmd, bExpressPacket = (cmd.packetN == 0), bReMap_PacketN=(cmd.packetN == -1) )
             ALM.doLogString( AL, thread_UID="M", data=f"Send custom cmd={cmd.toStr( appendLF=False )}" )
 
 

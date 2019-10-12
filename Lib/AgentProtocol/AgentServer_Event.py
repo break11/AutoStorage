@@ -31,14 +31,8 @@ class EAgentServer_Event( Enum ):
     ServiceLog         = auto() # @SL
     OK                 = auto() # @OK
 
-    # @classmethod
-    # def fromBStr( cls, data ):
-    #     return _AgentServer_Event_from_BStr.get( data )
-##remove##
-
     @classmethod
     def fromStr( cls, data ):
-        ##remove##return cls.fromBStr( data.encode() )
         return _AgentServer_Event_from_Str.get( data )
         
     def toStr( self ):
