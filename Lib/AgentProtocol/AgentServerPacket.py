@@ -1,5 +1,4 @@
 
-import Lib.Common.StrConsts as SC
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentDataTypes import MS
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data, extractData_Types
@@ -35,9 +34,7 @@ class CAgentServerPacket:
             if expectedType is not None:
                 gotType = type( self.data )
                 if not ( gotType is expectedType ):
-                    ##remove##
-                    # print( f"{SC.sWarning} Expected type {expectedType.__class__.__name__} don't equal with got type {gotType.__class__.__name__}!" )
-                    print( f"{SC.sWarning} Expected type {expectedType} don't equal with got type {gotType}!" )
+                    assert expectedType == gotType, f"Expected type {expectedType} don't equal with got type {gotType}!"
 
         self.status    = status
 

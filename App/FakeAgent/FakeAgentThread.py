@@ -40,7 +40,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
         self.writeTo_Socket( ASP( event = AEV.HelloWorld, timeStamp=int(time.time()),
                                   data=ADT.SHW_Data(agentN=self.agentLink().agentN, agentType="cartV1") ) )
-        self.msleep(500)
+        ##remove## self.msleep(1000)
 
         while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine()
@@ -48,9 +48,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
             if cmd is None: continue
             if cmd.event == AEV.HelloWorld:
-                print( "11111111111111111111" )
-                break
-        return True
+                return True
 
     # местная ф-я обработки пакета, если он признан актуальным
     # на часть команд отвечаем - часть заносим в taskList
