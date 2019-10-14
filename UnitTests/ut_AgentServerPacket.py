@@ -308,7 +308,7 @@ class TestAgentServerPacket(unittest.TestCase):
         #########################
         sData = "50"
         s = f"040{MS}0000aabb{MS}OP{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerPassed, packetN=40, timeStamp=int( "AABB", 16 ), data=sData )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerPassed, packetN=40, timeStamp=int( "AABB", 16 ), data=ADT.SOD_OP_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -320,7 +320,7 @@ class TestAgentServerPacket(unittest.TestCase):
         #########################
         sData = "50"
         s = f"040{MS}0000aabb{MS}OD{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, timeStamp=int( "AABB", 16 ), data=sData )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, timeStamp=int( "AABB", 16 ), data=ADT.SOD_OP_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 

@@ -7,14 +7,14 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 import Lib.AgentProtocol.AgentDataTypes as ADT
 
 class TestASP_DataParser(unittest.TestCase):
     def test_HW(self):
         sData = "cartV1^555"
-        packet = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, data = ADT.SHW_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.HelloWorld, data = ADT.SHW_Data.fromString( sData ) )
 
         eData = packet.data
         self.assertEqual( type(eData), ADT.SHW_Data )
@@ -27,7 +27,7 @@ class TestASP_DataParser(unittest.TestCase):
         # проверка правильной обработки некорректных данных в пакете HW - символы вместо int
 
         sData = "fdfdfdfdfd"
-        packet = CAgentServerPacket( event = EAgentServer_Event.HelloWorld, data = ADT.SHW_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.HelloWorld, data = ADT.SHW_Data.fromString( sData ) )
 
         eData = packet.data
 
@@ -37,7 +37,7 @@ class TestASP_DataParser(unittest.TestCase):
 
     def test_BS(self):
         sData = ADT.SAgent_BatteryState.sDefVal
-        packet = CAgentServerPacket( event = EAgentServer_Event.BatteryState, data = ADT.SAgent_BatteryState.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.BatteryState, data = ADT.SAgent_BatteryState.fromString( sData ) )
 
         eData = packet.data
 
@@ -53,7 +53,7 @@ class TestASP_DataParser(unittest.TestCase):
 
     def test_TS(self):
         sData = ADT.SAgent_TemperatureState.sDefVal
-        packet = CAgentServerPacket( event = EAgentServer_Event.TemperatureState, data = ADT.SAgent_TemperatureState.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.TemperatureState, data = ADT.SAgent_TemperatureState.fromString( sData ) )
 
         eData = packet.data
 
@@ -66,7 +66,7 @@ class TestASP_DataParser(unittest.TestCase):
 
     def test_OD_OP(self):
         sData="U"
-        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerPassed, data = ADT.SOD_OP_Data.fromString( sData ) )
 
         eData = packet.data
         self.assertEqual( type(eData), ADT.SOD_OP_Data )
@@ -74,7 +74,7 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.nDistance, 0 )
 
         sData="100"
-        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerPassed, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerPassed, data = ADT.SOD_OP_Data.fromString( sData ) )
 
         eData = packet.data
         self.assertEqual( type(eData), ADT.SOD_OP_Data )
@@ -82,7 +82,7 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.nDistance, 100 )
 
         sData="U"
-        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
 
         eData = packet.data
         self.assertEqual( type(eData), ADT.SOD_OP_Data )
@@ -90,7 +90,7 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.nDistance, 0 )
 
         sData="100"
-        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
 
         eData = packet.data
         self.assertEqual( type(eData), ADT.SOD_OP_Data )
@@ -98,12 +98,31 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.nDistance, 100 )
 
         sData="10.5"
-        packet = CAgentServerPacket( event = EAgentServer_Event.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
 
         eData = packet.data
         self.assertEqual( type(eData), ADT.SOD_OP_Data )
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
+
+    def test_NT_OP(self):
+        # NT^ID
+        sData= EV.Idle.toStr()
+        packet = CAgentServerPacket( event = EV.NewTask, data = ADT.SNT_Data.fromString( sData ) )
+
+        eData = packet.data
+        self.assertEqual( type(eData), ADT.SNT_Data )
+        self.assertEqual( eData.event, EV.Idle )
+        self.assertEqual( eData.data, None )
+
+        # NT^WO
+        sData= EV.WheelOrientation.toStr()
+        packet = CAgentServerPacket( event = EV.NewTask, data = ADT.SNT_Data.fromString( sData ) )
+
+        eData = packet.data
+        self.assertEqual( type(eData), ADT.SNT_Data )
+        self.assertEqual( eData.event, EV.WheelOrientation )
+        self.assertEqual( eData.data, None )
 
 if __name__ == '__main__':
     unittest.main()

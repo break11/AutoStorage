@@ -230,11 +230,11 @@ class SOD_OP_Data:
 
         return sResult
 
-class SNT_Data:
-    sIdle = "ID"
+#########################################################
 
-    def __init__(self, event, data, bIdle = False):
-        self.bIdle = bIdle
+class SNT_Data:
+    "NT^ID"
+    def __init__(self, event, data=None):
         self.event = event
         self.data = data
 
@@ -242,26 +242,19 @@ class SNT_Data:
 
     @classmethod
     def fromString( cls, data ):
-        if data == cls.sIdle:
-            return SNT_Data( event = None, data = None, bIdle = True )
-
         l = data.split( DS )
         event = AEV.fromStr( l[0] )
-        nt_data = None
-
-        if event in BL_BU_Events:
-            nt_data = SGT.ESide.fromChar( l[1] )
+        if len(l) > 1:
+            data = f"{DS}".join( l[1::] )
+        else:
+            data = None
         
-        return SNT_Data( event, nt_data )
+        return SNT_Data( event, data )
 
     def toString( self ):
-        if self.bIdle: return self.sIdle
-
         sResult = self.event.toStr()
 
-        if self.event in BL_BU_Events:
-            sResult += SGT.ESide.toChar()
+        if self.data is not None:
+            sResult += f"{ DS }{self.data}"
 
         return sResult
-
-    

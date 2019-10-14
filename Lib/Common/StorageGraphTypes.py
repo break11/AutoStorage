@@ -55,6 +55,8 @@ class EWidthType( BaseEnum ):
     Wide    = auto()
 
     Default = Narrow
+    
+    def shortName( self ): return self.name[0]
 
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
@@ -74,6 +76,8 @@ class ECurvature( BaseEnum ):
 
     Default = Straight
 
+    def shortName( self ): return self.name[0]
+
 class ESensorSide( BaseEnum ):
     SLeft    = auto()
     SRight   = auto()
@@ -83,10 +87,10 @@ class ESensorSide( BaseEnum ):
     Default  = SBoth
 
 class EDirection( BaseEnum ):
-    Forward = auto()
-    Rear    = auto()
-    F       = Forward
-    R       = Rear
+    F       = auto()
+    R       = auto()
+    Forward = F
+    Rear    = R
     Error   = auto()
 
     Default = Error

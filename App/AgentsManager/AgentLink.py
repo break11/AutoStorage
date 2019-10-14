@@ -208,7 +208,7 @@ class CAgentLink( CAgentServer_Link ):
         elif cmd.event == EAgentServer_Event.NewTask:
             NT_Data = cmd.data
             
-            if NT_Data.bIdle:
+            if NT_Data.event == EAgentServer_Event.Idle:
                 if self.agentNO().status in ADT.BL_BU_Agent_Status_vals:
                     #TODO пока ставим статус idle только если предыдущий статус был в ADT.BL_BU_Agent_Status_vals,
                     # так как в некоторых местах мы ориентируемся на предыдущий статус (например, GoToCharge)

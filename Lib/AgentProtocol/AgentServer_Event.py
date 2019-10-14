@@ -1,35 +1,36 @@
 from enum import Enum, auto
 
 class EAgentServer_Event( Enum ):
-    Error              = auto() # Error text message with symbol*
-    Warning_           = auto() # Warning text message with symbol #
-    Text               = auto() # Text message to Log
-    HelloWorld         = auto() # @HW
+    Error              = auto() # ER
+    Warning_           = auto() # WR
+    Text               = auto() # TX
+    HelloWorld         = auto() # HW
     Accepted           = auto() # AC
-    BatteryState       = auto() # @BS
-    TemperatureState   = auto() # @TS
-    TaskList           = auto() # @TL
-    WheelOrientation   = auto() # @WO
-    NewTask            = auto() # @NT
-    PowerEnable        = auto() # @PE
-    PowerDisable       = auto() # @PD
-    BrakeRelease       = auto() # @BR
-    EmergencyStop      = auto() # @ES
-    SequenceBegin      = auto() # @SB
-    SequenceEnd        = auto() # @SE
-    DistancePassed     = auto() # @DP
-    OdometerZero       = auto() # @OZ
-    OdometerPassed     = auto() # @OP
-    OdometerDistance   = auto() # @OD
-    DistanceEnd        = auto() # @DE
-    BoxLoad            = auto() # @BL
-    BoxUnload          = auto() # @BU
-    BoxLoadAborted     = auto() # @BA
-    ChargeMe           = auto() # @CM
-    ChargeBegin        = auto() # @CB
-    ChargeEnd          = auto() # @CE
-    ServiceLog         = auto() # @SL
-    OK                 = auto() # @OK
+    BatteryState       = auto() # BS
+    TemperatureState   = auto() # TS
+    TaskList           = auto() # TL
+    WheelOrientation   = auto() # WO
+    NewTask            = auto() # NT
+    PowerEnable        = auto() # PE
+    PowerDisable       = auto() # PD
+    BrakeRelease       = auto() # BR
+    EmergencyStop      = auto() # ES
+    SequenceBegin      = auto() # SB
+    SequenceEnd        = auto() # SE
+    DistancePassed     = auto() # DP
+    OdometerZero       = auto() # OZ
+    OdometerPassed     = auto() # OP
+    OdometerDistance   = auto() # OD
+    DistanceEnd        = auto() # DE
+    BoxLoad            = auto() # BL
+    BoxUnload          = auto() # BU
+    BoxLoadAborted     = auto() # BA
+    ChargeMe           = auto() # CM
+    ChargeBegin        = auto() # CB
+    ChargeEnd          = auto() # CE
+    ServiceLog         = auto() # SL
+    OK                 = auto() # OK
+    Idle               = auto() # ID
 
     @classmethod
     def fromStr( cls, data ):
@@ -70,6 +71,7 @@ _AgentServer_Event_from_Str = {
                                 "CE": EAgentServer_Event.ChargeEnd,
                                 "SL": EAgentServer_Event.ServiceLog,
                                 "OK": EAgentServer_Event.OK,
+                                "ID": EAgentServer_Event.Idle,
                               }
 
 _AgentServer_Event_to_Str = {}

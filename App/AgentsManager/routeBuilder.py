@@ -35,11 +35,6 @@ sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.F): 'L',
                       (SGT.ESensorSide.SPassive, SGT.EDirection.R): 'P'
                     }
 
-directionToChar = { SGT.EDirection.F: "F",
-                    SGT.EDirection.R: "R",
-                  }
-
-curvatureToChar      = { SGT.ECurvature.Straight: 'S', SGT.ECurvature.Curve: 'C' }
 widthTypeToLedgeSize = { SGT.EWidthType.Narrow: SGT.sensorNarr, SGT.EWidthType.Wide: SGT.sensorWide }
 dirToK               = { SGT.EDirection.F : 1,
                          SGT.EDirection.R : -1,
@@ -419,15 +414,15 @@ class CRouteBuilder():
         commands = []
         direction = temp__direction
         commands.append( ASP( event=EV.SequenceBegin ) )
-        commands.append( ASP( event=EV.WheelOrientation, data = widthTypeToChar[ Segments[0].widthType ] ) )
+        commands.append( ASP( event=EV.WheelOrientation, data = Segments[0].widthType.shortName() ) )
 
         for segment in Segments:
             lengthStr = ('{:06d}').format(int(segment.length))
             railHeightStr = railHeightToChar[segment.railHeight]
             sensorSideStr = sensorSideToChar[ (segment.sensorSide, direction) ]
-            curvatureChar = curvatureToChar[ segment.curvature ]
-            directionChar = directionToChar[ direction ]
-            dpData = f"{lengthStr}{DS}{ directionChar }{DS}{railHeightStr}{DS}{sensorSideStr}{DS}{curvatureChar}"
+            curvatureChar = segment.curvature.shortName()
+            directionChar = direction.name
+            dpData = f"{lengthStr}{ DS }{directionChar}{ DS }{railHeightStr}{ DS }{sensorSideStr}{ DS }{curvatureChar}"
             commands.append( ASP( event=EV.DistancePassed, data=dpData ) )
         
         commands.append( ASP( event=EV.SequenceEnd ) )
