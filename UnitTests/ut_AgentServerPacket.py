@@ -117,7 +117,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         ###################
         s = f"011{MS}0000000a{MS}HW{MS}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16), data="" )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -208,7 +208,7 @@ class TestAgentServerPacket(unittest.TestCase):
         #########################
         sData = "DP"
         s = f"040{MS}0000aabb{MS}NT{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.NewTask, packetN=40, timeStamp=int( "AABB", 16 ), data=sData )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.NewTask, packetN=40, timeStamp=int( "AABB", 16 ), data=ADT.SNT_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 

@@ -167,7 +167,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
                 FAL.currentWheelsOrientation = FAL.currentTask.data[ 0:1 ]
                 # will be 'N' for narrow, 'W' for wide, or emtpy if uninited
-                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = "WO" ) )
+                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = ADT.SNT_Data.fromString("WO") ) )
 
                 self.startNextTask()
 
@@ -186,7 +186,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                         else:
                             FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance - DP_DELTA_PER_CYCLE
                         
-                        FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data.toString() ) )
+                        FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data ) )
 
                     elif FAL.distanceToPass <= 0:
                         FAL.distanceToPass = 0
@@ -209,7 +209,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         else:
             FAL.currentTask = None
             ALM.doLogString( FAL, self.UID, "All tasks done!" )
-            FAL.pushCmd( self.genPacket( event=AEV.NewTask, data="ID" ) )
+            FAL.pushCmd( self.genPacket( event=AEV.NewTask, data=ADT.SNT_Data.fromString("ID") ) )
 
     def findEvent_In_TasksList(self, event):
         for cmd in self.agentLink().tasksList:
