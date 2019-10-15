@@ -17,10 +17,6 @@ def verifyRxPacket( agentLink, agentThread, cmd ):
             CurrCmd = agentLink.currentTX_cmd()
             if CurrCmd and CurrCmd.packetN == cmd.packetN:
                 agentLink.clearCurrentTX_cmd()
-
-            ##remove##
-            # if len(agentLink.TX_Packets) and agentLink.TX_Packets[0].packetN == cmd.packetN:
-            #     agentLink.TX_Packets.popleft()
     else:
         if cmd.packetN == agentLink.last_RX_packetN:
             cmd.status = EPacket_Status.Duplicate
@@ -28,13 +24,15 @@ def verifyRxPacket( agentLink, agentThread, cmd ):
             cmd.status = EPacket_Status.Normal
             agentLink.last_RX_packetN = cmd.packetN
 
-def processAcceptedPacket( cmd, handler=None ):
-    if ( cmd.status == EPacket_Status.Normal ) and ( cmd.event != EAgentServer_Event.Accepted ):
-        handler( cmd )
+def processAcceptedPacket( agentThread, cmd, handler=None ):
+    if cmd.event != EAgentServer_Event.Accepted:
+        if cmd.status == EPacket_Status.Normal:
+            handler( cmd )
+        agentThread.sendACC_cmd() # ACC шлются и на дубликаты
 
 def _processRxPacket( agentLink, agentThread, cmd, handler=None ):
     verifyRxPacket( agentLink, agentThread, cmd )
     ALM.doLogPacket( agentLink, agentThread.UID, cmd, False )
     if handler is not None:
-        processAcceptedPacket( cmd, handler )
+        processAcceptedPacket( agentThread, cmd, handler )
 

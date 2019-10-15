@@ -170,11 +170,6 @@ class CAgentServer_Net_Thread(QThread):
             self.bSendTX_cmd = True
             # ALM.doLogString( self.agentLink(), self.UID, "ReSend Old CMD", color="#636363" )
         
-        # Send New ACC
-        if self.agentLink().ACC_cmd.packetN != self.agentLink().lastTX_ACC_packetN:
-            self.sendACC_cmd()
-            # ALM.doLogString( self.agentLink(), self.UID, "Send New ACC", color="#636363" )
-
         # Send New CMD
         if self.agentLink().currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.agentLink().currentTX_cmd().packetN ):
             self.bSendTX_cmd = True
