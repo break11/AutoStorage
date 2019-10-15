@@ -88,7 +88,7 @@ class CAgentServer_Net_Thread(QThread):
         self.tcpSocket.write( cmd.toBStr() )
         ALM.doLogPacket( self.agentLink(), self.UID, cmd, True )
 
-    def sendTX_cmd( self ):
+    def sendACC_cmd( self ):
         if not self.bConnected: return
 
         ## ACC send
@@ -99,6 +99,9 @@ class CAgentServer_Net_Thread(QThread):
             acc.status = EPacket_Status.Normal
         self.writeTo_Socket( acc )
         self.agentLink().lastTX_ACC_packetN = acc.packetN
+
+    def sendTX_cmd( self ):
+        if not self.bConnected: return
 
         ## CMD Send
         TX_cmd = self.agentLink().currentTX_cmd()
@@ -169,7 +172,7 @@ class CAgentServer_Net_Thread(QThread):
         
         # Send New ACC
         if self.agentLink().ACC_cmd.packetN != self.agentLink().lastTX_ACC_packetN:
-            self.bSendTX_cmd = True
+            self.sendACC_cmd()
             # ALM.doLogString( self.agentLink(), self.UID, "Send New ACC", color="#636363" )
 
         # Send New CMD
