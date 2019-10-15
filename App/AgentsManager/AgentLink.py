@@ -231,12 +231,6 @@ class CAgentLink( CAgentServer_Link ):
             self.pushCmd( ES_cmd )
             agentNO.status = ADT.EAgent_Status.PosSyncError
 
-    def remapPacketsNumbers( self, startPacketN ):
-        self.genTxPacketN = startPacketN
-        for cmd in self.TX_Packets:
-            cmd.packetN = self.genTxPacketN
-            self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
-
     def prepareCharging( self ):
         agentNO = self.agentNO()
         tKey = GU.tEdgeKeyFromStr( agentNO.edge )

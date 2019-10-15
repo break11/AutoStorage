@@ -14,8 +14,13 @@ def verifyRxPacket( agentLink, agentThread, cmd ):
             agentLink.lastRX_ACC_packetN = cmd.packetN
 
             # пришло подтверждение по текущей активной команде - убираем ее из очереди отправки
-            if len(agentLink.TX_Packets) and agentLink.TX_Packets[0].packetN == cmd.packetN:
-                agentLink.TX_Packets.popleft()
+            CurrCmd = agentLink.currentTX_cmd()
+            if CurrCmd and CurrCmd.packetN == cmd.packetN:
+                agentLink.clearCurrentTX_cmd()
+
+            ##remove##
+            # if len(agentLink.TX_Packets) and agentLink.TX_Packets[0].packetN == cmd.packetN:
+            #     agentLink.TX_Packets.popleft()
     else:
         if cmd.packetN == agentLink.last_RX_packetN:
             cmd.status = EPacket_Status.Duplicate

@@ -20,7 +20,6 @@ class CAgentServer_Link:
         self.log = deque( maxlen = LogCount )
 
         self.agentN = agentN
-        self.Express_TX_Packets = deque() # очередь команд-пакетов с номером пакета 0 - внеочередные
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN  = 1
         self.lastTXpacketN = None
@@ -28,6 +27,7 @@ class CAgentServer_Link:
         self.lastRX_ACC_packetN = None  # для определения дубликатов по полученным ACC
         self.ACC_cmd = ASP( event=EAgentServer_Event.Accepted )
         # self.last_RX_packetN = 1000 # Now as property
+        self.__currentTX_cmd = None
 
         self.socketThreads = [] # list of QTcpSocket threads to send some data for this agent
         
@@ -36,6 +36,20 @@ class CAgentServer_Link:
     def __del__(self):
         self.done()
         ALM.doLogString( self, thread_UID="M", data=f"{self.__class__.__name__}={self.agentN} Destroyed" )
+
+    def currentTX_cmd( self ):
+        if self.__currentTX_cmd is not None:
+            return self.__currentTX_cmd
+        
+        try:
+            self.__currentTX_cmd = self.TX_Packets.popleft()
+        except:
+            self.__currentTX_cmd =  None
+
+        return self.__currentTX_cmd
+
+    def clearCurrentTX_cmd( self ):
+        self.__currentTX_cmd = None
         
     def done( self ):
         for thread in self.socketThreads:
@@ -57,22 +71,14 @@ class CAgentServer_Link:
             cmd.packetN = self.genTxPacketN
             self.genTxPacketN = calcNextPacketN( self.genTxPacketN )
         
-        if not bExpressPacket:
-            if bAllowDuplicate or not self.eventPresent( cmd.event, self.TX_Packets ):
+        if bAllowDuplicate or not self.eventPresent( cmd.event, self.TX_Packets ):
+            if bExpressPacket:
+                self.TX_Packets.appendleft( cmd )
+            else:
                 self.TX_Packets.append( cmd )
-        else:
-            if bAllowDuplicate or not self.eventPresent( cmd.event, self.Express_TX_Packets ):
-                self.Express_TX_Packets.append( cmd )
 
     def eventPresent( self, event, packetsDeque ):
         for cmd in packetsDeque:
             if cmd.event == event:
                 return True
         return False
-
-    def remapPacketsNumbers( self, startPacketN ):
-        assert startPacketN != 0
-        self.genTxPacketN = startPacketN
-        for cmd in self.TX_Packets:
-            cmd.packetN = self.genTxPacketN
-            self.genTxPacketN = calcNextPacketN( self.genTxPacketN )

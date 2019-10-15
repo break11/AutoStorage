@@ -88,17 +88,6 @@ class CAgentServer_Net_Thread(QThread):
         self.tcpSocket.write( cmd.toBStr() )
         ALM.doLogPacket( self.agentLink(), self.UID, cmd, True )
 
-    def sendExpressCMDs( self ):
-        if not self.bConnected: return
-
-        agentLink = self.agentLink()
-        if not agentLink:
-            return
-
-        for cmd in agentLink.Express_TX_Packets:
-            self.writeTo_Socket( cmd )
-        agentLink.Express_TX_Packets.clear()
-
     def sendTX_cmd( self ):
         if not self.bConnected: return
 
@@ -112,7 +101,7 @@ class CAgentServer_Net_Thread(QThread):
         self.agentLink().lastTX_ACC_packetN = acc.packetN
 
         ## CMD Send
-        TX_cmd = self.currentTX_cmd()
+        TX_cmd = self.agentLink().currentTX_cmd()
         if TX_cmd is not None:
             if self.agentLink().lastTXpacketN == TX_cmd.packetN:
                 TX_cmd.status = EPacket_Status.Duplicate
@@ -121,12 +110,6 @@ class CAgentServer_Net_Thread(QThread):
 
         self.bSendTX_cmd = False
         self.nReSendTX_Counter = 0
-
-    def currentTX_cmd( self ):
-        try:
-            return self.agentLink().TX_Packets[ 0 ]
-        except:
-            return None
 
     ##############################################
 
@@ -177,8 +160,6 @@ class CAgentServer_Net_Thread(QThread):
 
         if not self.bConnected: return
 
-        self.sendExpressCMDs()
-
         self.nReSendTX_Counter += 1
 
         # ReSend Old CMD
@@ -192,7 +173,7 @@ class CAgentServer_Net_Thread(QThread):
             # ALM.doLogString( self.agentLink(), self.UID, "Send New ACC", color="#636363" )
 
         # Send New CMD
-        if self.currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.currentTX_cmd().packetN ):
+        if self.agentLink().currentTX_cmd() and ( self.agentLink().lastTXpacketN != self.agentLink().currentTX_cmd().packetN ):
             self.bSendTX_cmd = True
             # ALM.doLogString( self.agentLink(), self.UID, "Send New CMD", color="#636363" )        
 
