@@ -171,6 +171,21 @@ class SAgent_BatteryState:
         return f"{ EAgentBattery_Type.toString( self.PowerType ) }{DS}{self.S_V:.2f}V{DS}{self.L_V:.2f}V{DS}{self.power_U:.2f}V{DS}{self.power_I1:.2f}A{DS}{self.power_I2:.2f}A"
 
 #########################################################
+class SDP_Data:
+    "DP~000210^F^L^B^S"
+    def __init__( self, length, direction, railHeight, sensorSide, curvature ):
+        self.length     = length
+        self.direction  = direction  # SGT.EDirection
+        self.railHeight = railHeight # SGT.ERailHeight
+        self.sensorSide = sensorSide # SGT.ESensorSide
+        self.curvature  = curvature  # SGT.ECurvature
+
+    def __str__( self ): return self.toString()
+
+    def toString( self ):
+        return f"{self.length:06d}{ DS }{self.direction.name}{ DS }{self.railHeight.name}{ DS }{self.sensorSide.shortName()}{ DS }{self.curvature.shortName()}"
+
+#########################################################
 class SHW_Data:
     "cartV1^555"
     def __init__( self, agentType, agentN ):

@@ -1,5 +1,5 @@
 
-from enum import auto
+from enum import auto, IntEnum
 import math
 from PyQt5.QtCore import Qt
 
@@ -49,6 +49,13 @@ nodeColors = {
 }
 
 #######################################################
+class ERailHeight( IntEnum ):
+    H = 1
+    L = 0
+    High = H
+    Low  = L
+
+#######################################################
     
 class EWidthType( BaseEnum ):
     Narrow  = auto()
@@ -85,6 +92,8 @@ class ESensorSide( BaseEnum ):
     SPassive = auto()
 
     Default  = SBoth
+
+    def shortName( self ): return self.name[1] # SLeft = L, SRight = R
 
 class EDirection( BaseEnum ):
     F       = auto()

@@ -12,27 +12,21 @@ from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentDataTypes import DS
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 
-RH_LOW = 0
-RH_HIGH = 1
-
 hysteresis = 30
 shiftFract = 10.0
 shiftLeast = 100
 
-widthTypeToChar   = { SGT.EWidthType.Narrow: 'N', SGT.EWidthType.Wide: 'W' }
-railHeightToChar  = { RH_LOW: 'L', RH_HIGH:'H' }
+sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.F): SGT.ESensorSide.SLeft,
+                      (SGT.ESensorSide.SLeft,    SGT.EDirection.R): SGT.ESensorSide.SRight,
 
-sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.F): 'L',
-                      (SGT.ESensorSide.SLeft,    SGT.EDirection.R): 'R',
+                      (SGT.ESensorSide.SRight,   SGT.EDirection.F): SGT.ESensorSide.SRight,
+                      (SGT.ESensorSide.SRight,   SGT.EDirection.R): SGT.ESensorSide.SLeft,
 
-                      (SGT.ESensorSide.SRight,   SGT.EDirection.F): 'R',
-                      (SGT.ESensorSide.SRight,   SGT.EDirection.R): 'L',
+                      (SGT.ESensorSide.SBoth,    SGT.EDirection.F): SGT.ESensorSide.SBoth,
+                      (SGT.ESensorSide.SPassive, SGT.EDirection.F): SGT.ESensorSide.SPassive,
 
-                      (SGT.ESensorSide.SBoth,    SGT.EDirection.F): 'B',
-                      (SGT.ESensorSide.SPassive, SGT.EDirection.F): 'P',
-
-                      (SGT.ESensorSide.SBoth,    SGT.EDirection.R): 'B',
-                      (SGT.ESensorSide.SPassive, SGT.EDirection.R): 'P'
+                      (SGT.ESensorSide.SBoth,    SGT.EDirection.R): SGT.ESensorSide.SBoth,
+                      (SGT.ESensorSide.SPassive, SGT.EDirection.R): SGT.ESensorSide.SPassive
                     }
 
 widthTypeToLedgeSize = { SGT.EWidthType.Narrow: SGT.sensorNarr, SGT.EWidthType.Wide: SGT.sensorWide }
@@ -319,16 +313,16 @@ class CRouteBuilder():
                 curvature        = edge[ SGA.curvature  ]
 
                 if highRailSizeFrom > 0:
-                    segment = CRailSegment(highRailSizeFrom, RH_HIGH, sensorSide, widthType, curvature)                    
+                    segment = CRailSegment(highRailSizeFrom, SGT.ERailHeight.High, sensorSide, widthType, curvature)                    
                     Segments.append(segment)
 
                 seg_length = edgeSize - highRailSizeFrom - highRailSizeTo
                 if seg_length > 0 :
-                    segment = CRailSegment(seg_length, RH_LOW, sensorSide, widthType, curvature)
+                    segment = CRailSegment(seg_length, SGT.ERailHeight.Low, sensorSide, widthType, curvature)
                     Segments.append(segment)
 
                 if highRailSizeTo > 0:
-                    segment = CRailSegment(highRailSizeTo, RH_HIGH, sensorSide, widthType, curvature)
+                    segment = CRailSegment(highRailSizeTo, SGT.ERailHeight.High, sensorSide, widthType, curvature)
                     Segments.append(segment)
         return Segments
 
@@ -418,8 +412,8 @@ class CRouteBuilder():
 
         for segment in Segments:
             lengthStr = ('{:06d}').format(int(segment.length))
-            railHeightStr = railHeightToChar[segment.railHeight]
-            sensorSideStr = sensorSideToChar[ (segment.sensorSide, direction) ]
+            railHeightStr = segment.railHeight.name
+            sensorSideStr = sensorSideToChar[ (segment.sensorSide, direction) ].shortName()
             curvatureChar = segment.curvature.shortName()
             directionChar = direction.name
             dpData = f"{lengthStr}{ DS }{directionChar}{ DS }{railHeightStr}{ DS }{sensorSideStr}{ DS }{curvatureChar}"
