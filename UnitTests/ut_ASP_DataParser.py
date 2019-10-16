@@ -58,9 +58,9 @@ class TestASP_DataParser(unittest.TestCase):
         eData = packet.data
 
         self.assertEqual( type(eData), ADT.SAgent_TemperatureState )
-        self.assertEqual( eData.t1, 24 )
-        self.assertEqual( eData.t2, 29 )
-        self.assertEqual( eData.t9, 25 )
+        self.assertEqual( eData.powerSource,   24 )
+        self.assertEqual( eData.wheelDriver_0, 29 )
+        self.assertEqual( eData.turnDriver_3 , 25 )
 
         self.assertEqual( sData, eData.toString() )
 

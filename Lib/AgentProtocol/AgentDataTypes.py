@@ -71,16 +71,19 @@ class EAgentBattery_Type( BaseEnum ):
 
 class SAgent_TemperatureState:
     sDefVal = f"24{DS}29{DS}29{DS}29{DS}29{DS}25{DS}25{DS}25{DS}25"
-    def __init__( self, t1, t2, t3, t4, t5, t6, t7, t8, t9 ):
-        self.t1 = t1
-        self.t2 = t2
-        self.t3 = t3
-        self.t4 = t4
-        self.t5 = t5
-        self.t6 = t6
-        self.t7 = t7
-        self.t8 = t8
-        self.t9 = t9
+    def __init__( self, powerSource, 
+                        wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
+                        turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 ):
+
+        self.powerSource   = powerSource
+        self.wheelDriver_0 = wheelDriver_0
+        self.wheelDriver_1 = wheelDriver_1
+        self.wheelDriver_2 = wheelDriver_2
+        self.wheelDriver_3 = wheelDriver_3
+        self.turnDriver_0  = turnDriver_0
+        self.turnDriver_1  = turnDriver_1
+        self.turnDriver_2  = turnDriver_2
+        self.turnDriver_3  = turnDriver_3
 
     def __str__( self ): return self.toString()
 
@@ -93,31 +96,33 @@ class SAgent_TemperatureState:
         try:
             l = data.split( DS )
 
-            t1 = float( l[0] )
-            t2 = float( l[1] )
-            t3 = float( l[2] )
-            t4 = float( l[3] )
-            t5 = float( l[4] )
-            t6 = float( l[5] )
-            t7 = float( l[6] )
-            t8 = float( l[7] )
-            t9 = float( l[8] )
+            powerSource   = float( l[0] )
+            wheelDriver_0 = float( l[1] )
+            wheelDriver_1 = float( l[2] )
+            wheelDriver_2 = float( l[3] )
+            wheelDriver_3 = float( l[4] )
+            turnDriver_0  = float( l[5] )
+            turnDriver_1  = float( l[6] )
+            turnDriver_2  = float( l[7] )
+            turnDriver_3  = float( l[8] )
 
-            return SAgent_TemperatureState( t1, t2, t3, t4, t5, t6, t7, t8, t9 )
+            return SAgent_TemperatureState( powerSource,
+                                            wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
+                                            turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 )
         except:
             print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
             return cls.defVal()
 
     def toString( self ):
-        return f"{self.t1:.0f}{ DS }"\
-               f"{self.t2:.0f}{ DS }"\
-               f"{self.t3:.0f}{ DS }"\
-               f"{self.t4:.0f}{ DS }"\
-               f"{self.t5:.0f}{ DS }"\
-               f"{self.t6:.0f}{ DS }"\
-               f"{self.t7:.0f}{ DS }"\
-               f"{self.t8:.0f}{ DS }"\
-               f"{self.t9:.0f}"
+        return f"{self.powerSource  :.0f}{ DS }"\
+               f"{self.wheelDriver_0:.0f}{ DS }"\
+               f"{self.wheelDriver_1:.0f}{ DS }"\
+               f"{self.wheelDriver_2:.0f}{ DS }"\
+               f"{self.wheelDriver_3:.0f}{ DS }"\
+               f"{self.turnDriver_0 :.0f}{ DS }"\
+               f"{self.turnDriver_1 :.0f}{ DS }"\
+               f"{self.turnDriver_2 :.0f}{ DS }"\
+               f"{self.turnDriver_3 :.0f}"
 
 class SAgent_BatteryState:
     sDefVal = f"S{DS}33.44V{DS}40.00V{DS}47.64V{DS}1.10A{DS}0.30A"
