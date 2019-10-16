@@ -43,7 +43,7 @@ class CAgentServerPacket:
     def toStr( self, appendLF=True ):
         Event_Sign = EAgentServer_Event.toStr( self.event )
 
-        sTimestamp = f"{self.timeStamp:08x}" if self.timeStamp is not None else ""
+        sTimestamp = f"{self.timeStamp:010d}" if self.timeStamp is not None else ""
         sData = str( self.data ) if self.data is not None else ""
         sResult = f"{self.packetN:03d}{ MS }{sTimestamp}{ MS }{ Event_Sign }{ MS }{sData}"
 
@@ -80,7 +80,7 @@ class CAgentServerPacket:
         try:
             packetN    = int( l[ EPos.PacketN ] )
             sTM        = l[ EPos.TimeStamp ]
-            timeStamp  = int( sTM, 16 ) if sTM != "" else None
+            timeStamp  = int( sTM ) if sTM != "" else None
 
             sData = l[ EPos.Data ]
             if sData != "":

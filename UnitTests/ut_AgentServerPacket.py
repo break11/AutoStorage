@@ -16,19 +16,20 @@ class TestAgentServerPacket(unittest.TestCase):
 
     def test_fromStr_toStr(self):
         # test Error Message with multiple symbol ":"
-        s = f"039{MS}00026caf{MS}ER{MS}*111:222:333"
+        sTimeStamp = "0123456789"
+        s = f"039{MS}{sTimeStamp}{MS}ER{MS}*111:222:333"
         p1 = CAgentServerPacket.fromStr( s )
         p2 = s + "\n"
 
         self.assertEqual( p1.event, EAgentServer_Event.Error )
         self.assertEqual( p1.packetN, 39 )
-        self.assertEqual( p1.timeStamp, int("26caf", 16) )
+        self.assertEqual( p1.timeStamp, int(sTimeStamp, 10) )
         self.assertEqual( p1.data, "*111:222:333" )
 
         print( p1.toStr(), p2 )
         self.assertEqual( p1.toStr(), p2 )
 
-        s = f"039{MS}00026caf{MS}ER{MS}111:222:333"
+        s = f"039{MS}0123456789{MS}ER{MS}111:222:333"
         p1 = CAgentServerPacket.fromStr( s )
         p2 = s + "\n"
 
@@ -37,39 +38,40 @@ class TestAgentServerPacket(unittest.TestCase):
         ###############################################
 
         # test Text Message
-        s = f"039{MS}00026caf{MS}TX{MS}Global Power Select to SUPERCAP"
+        s = f"039{MS}{sTimeStamp}{MS}TX{MS}Global Power Select to SUPERCAP"
         p1 = CAgentServerPacket.fromStr( s )
         p2 = s + "\n"
 
         self.assertEqual( p1.event, EAgentServer_Event.Text )
         self.assertEqual( p1.packetN, 39 )
-        self.assertEqual( p1.timeStamp, int("26caf", 16) )
+        self.assertEqual( p1.timeStamp, int(sTimeStamp, 10) )
         self.assertEqual( p1.data, "Global Power Select to SUPERCAP" )
 
         print( p1.toStr(), p2 )
         self.assertEqual( p1.toStr(), p2 )
 
         # test Warning Message
-        s = f"011{MS}00023eee{MS}WR{MS}#Warning"
+        sTimeStamp = "9876543210"
+        s = f"011{MS}{sTimeStamp}{MS}WR{MS}#Warning"
         p1 = CAgentServerPacket.fromStr( s )
         p2 = s + "\n"
 
         self.assertEqual( p1.event, EAgentServer_Event.Warning_ )
         self.assertEqual( p1.packetN, 11 )
-        self.assertEqual( p1.timeStamp, int("23eee", 16) )
+        self.assertEqual( p1.timeStamp, int(sTimeStamp, 10) )
         self.assertEqual( p1.data, "#Warning" )
 
         print( p1.toStr(), p2 )
         self.assertEqual( p1.toStr(), p2 )
 
         # test Error Message
-        s = f"011{MS}00034fff{MS}ER{MS}*Error"
+        s = f"011{MS}{sTimeStamp}{MS}ER{MS}*Error"
         p1 = CAgentServerPacket.fromStr( s )
         p2 = s + "\n"
 
         self.assertEqual( p1.event, EAgentServer_Event.Error )
         self.assertEqual( p1.packetN, 11 )
-        self.assertEqual( p1.timeStamp, int("34fff", 16) )
+        self.assertEqual( p1.timeStamp, int(sTimeStamp, 10) )
         self.assertEqual( p1.data, "*Error" )
 
         print( p1.toStr(), p2 )
@@ -89,8 +91,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr( appendLF=False ), p3 )
         ###################################################
         # test space instead zero
-        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16), data=ADT.SHW_Data.fromString( f"cartV1{DS}17" ) )
-        p2 = CAgentServerPacket.fromStr( f" 11{MS} 0000000a{MS}HW{MS}cartV1{DS}17" )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("27", 10), data=ADT.SHW_Data.fromString( f"cartV1{DS}17" ) )
+        p2 = CAgentServerPacket.fromStr( f" 11{MS}0000000027{MS}HW{MS}cartV1{DS}17" )
 
         print( "int(data)=", p1.data, p2.data )
         self.assertEqual( str(p1.data), str(p2.data) )
@@ -116,8 +118,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
         ###################
-        s = f"011{MS}0000000a{MS}HW{MS}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("0xA", 16) )
+        s = f"011{MS}0000000025{MS}HW{MS}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=11, timeStamp=int("025", 10) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -146,8 +148,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         #########################
         sData = f"S{DS}43.20V{DS}39.31V{DS}47.43V{DS}1.10A{DS}-0.06A"
-        s = f"035{MS}00000020{MS}BS{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=35, timeStamp=int("20", 16), data=ADT.SAgent_BatteryState.fromString( sData ) )
+        s = f"035{MS}0000000020{MS}BS{MS}{sData}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=35, timeStamp=int("20", 10), data=ADT.SAgent_BatteryState.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -166,8 +168,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         #########################
         sData = f"22{DS}23{DS}22{DS}24{DS}24{DS}25{DS}25{DS}25{DS}25"
-        s = f"002{MS}00025fdc{MS}TS{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=2, timeStamp=int( "25fdc", 16 ), data=ADT.SAgent_TemperatureState.fromString( sData ) )
+        s = f"002{MS}{sTimeStamp}{MS}TS{MS}{sData}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=2, timeStamp=int( sTimeStamp, 10 ), data=ADT.SAgent_TemperatureState.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -186,8 +188,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         #########################
         sData = "035"
-        s = f"040{MS}00000aab{MS}TL{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.TaskList, packetN=40, timeStamp=int( "AAB", 16 ), data=sData )
+        s = f"040{MS}{sTimeStamp}{MS}TL{MS}{sData}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.TaskList, packetN=40, timeStamp=int( sTimeStamp ), data=sData )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -207,8 +209,8 @@ class TestAgentServerPacket(unittest.TestCase):
         # @NT
         #########################
         sData = "DP"
-        s = f"040{MS}0000aabb{MS}NT{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.NewTask, packetN=40, timeStamp=int( "AABB", 16 ), data=ADT.SNT_Data.fromString( sData ) )
+        s = f"040{MS}{sTimeStamp}{MS}NT{MS}{sData}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.NewTask, packetN=40, timeStamp=int( sTimeStamp ), data=ADT.SNT_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -295,8 +297,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         # @OZ
         #########################
-        s = f"272{MS}0002a7f0{MS}OZ{MS}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerZero, packetN=272, timeStamp=int("2a7f0", 16) )
+        s = f"272{MS}{sTimeStamp}{MS}OZ{MS}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerZero, packetN=272, timeStamp=int(sTimeStamp) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -307,8 +309,9 @@ class TestAgentServerPacket(unittest.TestCase):
         # @OP
         #########################
         sData = "50"
-        s = f"040{MS}0000aabb{MS}OP{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerPassed, packetN=40, timeStamp=int( "AABB", 16 ), data=ADT.SOD_OP_Data.fromString( sData ) )
+        sTimeStamp = "1221122112"
+        s = f"040{MS}{sTimeStamp}{MS}OP{MS}{sData}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerPassed, packetN=40, timeStamp=int( sTimeStamp, 10 ), data=ADT.SOD_OP_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -319,8 +322,8 @@ class TestAgentServerPacket(unittest.TestCase):
         # @OD
         #########################
         sData = "50"
-        s = f"040{MS}0000aabb{MS}OD{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, timeStamp=int( "AABB", 16 ), data=ADT.SOD_OP_Data.fromString( sData ) )
+        s = f"040{MS}{sTimeStamp}{MS}OD{MS}{sData}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, timeStamp=int( sTimeStamp ), data=ADT.SOD_OP_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -330,8 +333,8 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         # @DE
         #########################
-        s = f"272{MS}0002a7f0{MS}DE{MS}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.DistanceEnd, packetN=272, timeStamp=int("2a7f0", 16) )
+        s = f"272{MS}{sTimeStamp}{MS}DE{MS}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.DistanceEnd, packetN=272, timeStamp=int(sTimeStamp) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 

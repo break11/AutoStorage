@@ -2,11 +2,14 @@
 
 import unittest
 
+import weakref
 import sys
 import os
 from collections import deque
 
 sys.path.append( os.path.abspath(os.curdir)  )
+
+from PyQt5.QtNetwork import QTcpSocket
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
@@ -18,7 +21,12 @@ class CDummyAgentLink( CAgentServer_Link ):
     pass
 
 class CDummyAgentThread( CAgentServer_Net_Thread ):
-    pass
+    def __init__( self ):
+        super().__init__()
+
+        # в процессе теста будут сообщения "QIODevice::write (QTcpSocket): device not open", т.к. будут пытаться слаться АКИ на полученные команды
+        # но сокет не открыт, т.к. в этом тесте нам это не важно
+        self.tcpSocket = QTcpSocket() 
 
 class Test_processRxPacket(unittest.TestCase):
 
@@ -38,6 +46,7 @@ class Test_processRxPacket(unittest.TestCase):
         socketDescriptor = self
         ACS = self
         DAT.initAgentServer( socketDescriptor, ACS )
+        DAT._agentLink = weakref.ref( DAL )
         DAL.last_RX_packetN = 24
         cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=25 )
 
