@@ -7,6 +7,7 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
+import Lib.Common.StorageGraphTypes as SGT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentDataTypes import MS, DS
 import Lib.AgentProtocol.AgentDataTypes as ADT
@@ -104,10 +105,10 @@ class TestAgentServerPacket(unittest.TestCase):
         print( pNone, "None" )
         self.assertEqual( pNone, None )
 
-        pNone = CAgentServerPacket.fromStr( "AAA,BBB:@HW" )
+        pNone = CAgentServerPacket.fromStr( "AAA,BBB:HW" )
         print( pNone, "None" )
         self.assertEqual( pNone, None )
-        # @HW
+        # HW
         ###################################################
         s = f"000{MS}{MS}HW{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.HelloWorld, packetN=0 )
@@ -126,7 +127,7 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toStr(), p2.toStr(), p3 )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @AC
+        # AC
         ###################################################
         s = f"023{MS}{MS}AC{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.Accepted, packetN=23 )
@@ -136,7 +137,7 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toStr(), p2.toStr(), p3 )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @BS
+        # BS
         ###################################################
         s = f"051{MS}{MS}BS{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=51 )
@@ -156,7 +157,7 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toStr(), p2.toStr(), p3 )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @TS
+        # TS
         ###################################################
         s = f"020{MS}{MS}TS{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=20 )
@@ -176,7 +177,7 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toStr(), p2.toStr(), p3 )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @TL
+        # TL
         ###################################################
         s = f"040{MS}{MS}TL{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.TaskList, packetN=40 )
@@ -196,7 +197,7 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toStr(), p2.toStr(), p3 )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @WO
+        # WO
         ###################################################
         s = f"040{MS}{MS}WO{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.WheelOrientation, packetN=40 )
@@ -206,7 +207,17 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toStr(), p2.toStr(), p3 )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @NT
+
+        sData = "N"
+        s = f"040{MS}{MS}WO{MS}{sData}"
+        p1 = CAgentServerPacket( event=EAgentServer_Event.WheelOrientation, packetN=40, data=SGT.EWidthType.Narrow )
+        p2 = CAgentServerPacket.fromStr( s )
+        p3 = s + "\n"
+
+        print( p1.toStr(), p2.toStr(), p3 )
+        self.assertEqual( p1.toStr(), p2.toStr() )
+        self.assertEqual( p1.toStr(), p3 )
+        # NT
         #########################
         sData = "DP"
         s = f"040{MS}{sTimeStamp}{MS}NT{MS}{sData}"
@@ -217,7 +228,7 @@ class TestAgentServerPacket(unittest.TestCase):
         print( p1.toStr(), p2.toStr(), p3 )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @PE
+        # PE
         #########################
         s = f"020{MS}{MS}PE{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.PowerEnable, packetN=20 )
@@ -228,7 +239,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.PowerEnable )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @PD
+        # PD
         #########################
         s = f"444{MS}{MS}PD{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.PowerDisable, packetN=444 )
@@ -239,7 +250,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.PowerDisable )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @BR
+        # BR
         #########################
         s = f"111{MS}{MS}BR{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.BrakeRelease, packetN=111 )
@@ -250,7 +261,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.BrakeRelease )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @ES
+        # ES
         #########################
         s = f"777{MS}{MS}ES{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.EmergencyStop, packetN=777 )
@@ -261,7 +272,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.EmergencyStop )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @SB
+        # SB
         #########################
         s = f"001{MS}{MS}SB{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.SequenceBegin, packetN=1)
@@ -272,7 +283,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.SequenceBegin )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @SE
+        # SE
         #########################
         s = f"999{MS}{MS}SE{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.SequenceEnd, packetN=999)
@@ -283,7 +294,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.SequenceEnd )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @DP
+        # DP
         #########################
         sData = "000331,F,H,B,C"
         s = f"001{MS}{MS}DP{MS}{sData}"
@@ -295,7 +306,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.DistancePassed )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @OZ
+        # OZ
         #########################
         s = f"272{MS}{sTimeStamp}{MS}OZ{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerZero, packetN=272, timeStamp=int(sTimeStamp) )
@@ -306,7 +317,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.OdometerZero )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @OP
+        # OP
         #########################
         sData = "50"
         sTimeStamp = "1221122112"
@@ -319,7 +330,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.OdometerPassed )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @OD
+        # OD
         #########################
         sData = "50"
         s = f"040{MS}{sTimeStamp}{MS}OD{MS}{sData}"
@@ -331,7 +342,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.OdometerDistance )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # @DE
+        # DE
         #########################
         s = f"272{MS}{sTimeStamp}{MS}DE{MS}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.DistanceEnd, packetN=272, timeStamp=int(sTimeStamp) )

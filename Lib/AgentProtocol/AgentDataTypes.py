@@ -113,7 +113,7 @@ class SAgent_TemperatureState:
             print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
             return cls.defVal()
 
-    def toString( self ):
+    def toString( self, bShortForm = False ):
         return f"{self.powerSource  :.0f}{ DS }"\
                f"{self.wheelDriver_0:.0f}{ DS }"\
                f"{self.wheelDriver_1:.0f}{ DS }"\
@@ -167,7 +167,7 @@ class SAgent_BatteryState:
             print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
             return cls.defVal()
 
-    def toString( self ):
+    def toString( self, bShortForm = False ):
         return f"{ EAgentBattery_Type.toString( self.PowerType ) }{DS}{self.S_V:.2f}V{DS}{self.L_V:.2f}V{DS}{self.power_U:.2f}V{DS}{self.power_I1:.2f}A{DS}{self.power_I2:.2f}A"
 
 #########################################################
@@ -182,7 +182,7 @@ class SDP_Data:
 
     def __str__( self ): return self.toString()
 
-    def toString( self ):
+    def toString( self, bShortForm = False ):
         return f"{self.length:06d}{ DS }{self.direction.name}{ DS }{self.railHeight.name}{ DS }{self.sensorSide.shortName()}{ DS }{self.curvature.shortName()}"
 
 #########################################################
@@ -213,7 +213,7 @@ class SHW_Data:
 
         return HW_Data
 
-    def toString( self ):
+    def toString( self, bShortForm = False ):
         return f"{self.agentType}{ DS }{self.agentN:03d}"
 
 #########################################################
@@ -242,7 +242,7 @@ class SOD_OP_Data:
 
         return SOD_OP_Data( bUndefined = bUndefined, nDistance = nDistance )
 
-    def toString( self ):
+    def toString( self, bShortForm = False ):
         if not self.bUndefined:
             sResult = str( self.nDistance )
         else:
@@ -271,7 +271,7 @@ class SNT_Data:
         
         return SNT_Data( event, data )
 
-    def toString( self ):
+    def toString( self, bShortForm = False ):
         sResult = self.event.toStr()
 
         if self.data is not None:

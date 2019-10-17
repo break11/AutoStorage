@@ -16,23 +16,23 @@ hysteresis = 30
 shiftFract = 10.0
 shiftLeast = 100
 
-sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.F): SGT.ESensorSide.SLeft,
-                      (SGT.ESensorSide.SLeft,    SGT.EDirection.R): SGT.ESensorSide.SRight,
+sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.Forward): SGT.ESensorSide.SLeft,
+                      (SGT.ESensorSide.SLeft,    SGT.EDirection.Rear)   : SGT.ESensorSide.SRight,
 
-                      (SGT.ESensorSide.SRight,   SGT.EDirection.F): SGT.ESensorSide.SRight,
-                      (SGT.ESensorSide.SRight,   SGT.EDirection.R): SGT.ESensorSide.SLeft,
+                      (SGT.ESensorSide.SRight,   SGT.EDirection.Forward): SGT.ESensorSide.SRight,
+                      (SGT.ESensorSide.SRight,   SGT.EDirection.Rear)   : SGT.ESensorSide.SLeft,
 
-                      (SGT.ESensorSide.SBoth,    SGT.EDirection.F): SGT.ESensorSide.SBoth,
-                      (SGT.ESensorSide.SPassive, SGT.EDirection.F): SGT.ESensorSide.SPassive,
+                      (SGT.ESensorSide.SBoth,    SGT.EDirection.Forward): SGT.ESensorSide.SBoth,
+                      (SGT.ESensorSide.SPassive, SGT.EDirection.Forward): SGT.ESensorSide.SPassive,
 
-                      (SGT.ESensorSide.SBoth,    SGT.EDirection.R): SGT.ESensorSide.SBoth,
-                      (SGT.ESensorSide.SPassive, SGT.EDirection.R): SGT.ESensorSide.SPassive
+                      (SGT.ESensorSide.SBoth,    SGT.EDirection.Rear)   : SGT.ESensorSide.SBoth,
+                      (SGT.ESensorSide.SPassive, SGT.EDirection.Rear)   : SGT.ESensorSide.SPassive
                     }
 
 widthTypeToLedgeSize = { SGT.EWidthType.Narrow: SGT.sensorNarr, SGT.EWidthType.Wide: SGT.sensorWide }
-dirToK               = { SGT.EDirection.F : 1,
-                         SGT.EDirection.R : -1,
-                         SGT.EDirection.Error : 1
+dirToK               = { SGT.EDirection.Forward : 1,
+                         SGT.EDirection.Rear    : -1,
+                         SGT.EDirection.Error   : 1
                        }
 
 class SI_Item:
@@ -189,7 +189,7 @@ class CRouteBuilder():
         
 
     def getDirection(self, tEdgeKey, agent_angle):
-        DirDict = { True: SGT.EDirection.R, False: SGT.EDirection.F, None: SGT.EDirection.Error }
+        DirDict = { True: SGT.EDirection.Rear, False: SGT.EDirection.Forward, None: SGT.EDirection.Error }
         angle, bReverse = getAgentAngle(self.nxGraph, tEdgeKey, agent_angle)
         return angle, DirDict[bReverse]
 
@@ -408,14 +408,14 @@ class CRouteBuilder():
         commands = []
         direction = temp__direction
         commands.append( ASP( event=EV.SequenceBegin ) )
-        commands.append( ASP( event=EV.WheelOrientation, data = Segments[0].widthType.shortName() ) )
+        commands.append( ASP( event=EV.WheelOrientation, data = Segments[0].widthType ) )
 
         for segment in Segments:
             lengthStr = ('{:06d}').format(int(segment.length))
             railHeightStr = segment.railHeight.name
             sensorSideStr = sensorSideToChar[ (segment.sensorSide, direction) ].shortName()
             curvatureChar = segment.curvature.shortName()
-            directionChar = direction.name
+            directionChar = direction.shortName()
             dpData = f"{lengthStr}{ DS }{directionChar}{ DS }{railHeightStr}{ DS }{sensorSideStr}{ DS }{curvatureChar}"
             commands.append( ASP( event=EV.DistancePassed, data=dpData ) )
         

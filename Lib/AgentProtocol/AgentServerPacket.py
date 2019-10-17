@@ -44,7 +44,15 @@ class CAgentServerPacket:
         Event_Sign = EAgentServer_Event.toStr( self.event )
 
         sTimestamp = f"{self.timeStamp:010d}" if self.timeStamp is not None else ""
-        sData = str( self.data ) if self.data is not None else ""
+
+        if self.data is None:
+            sData = ""
+        elif type( self.data ) == str:
+            sData = self.data
+        else:
+            sData = self.data.toString( bShortForm = True )
+        ##remove##sData = str( self.data ) if self.data is not None else ""
+
         sResult = f"{self.packetN:03d}{ MS }{sTimestamp}{ MS }{ Event_Sign }{ MS }{sData}"
 
         if appendLF:

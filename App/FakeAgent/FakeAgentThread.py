@@ -159,15 +159,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             #     self.startNextTask()
 
             elif FAL.currentTask.event == AEV.WheelOrientation:
-                newWheelsOrientation = FAL.currentTask.data[ 0:1 ]
                 FAL.OD_OP_Data.bUndefined = False
                 FAL.OD_OP_Data.nDistance = 0
                 # send an "odometry resetted" to server
                 FAL.pushCmd( self.genPacket( event = AEV.OdometerZero ) )
 
-                FAL.currentWheelsOrientation = FAL.currentTask.data[ 0:1 ]
-                # will be 'N' for narrow, 'W' for wide, or emtpy if uninited
-                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = ADT.SNT_Data.fromString("WO") ) )
+                FAL.currentWheelsOrientation = FAL.currentTask.data # EWidthType
+                FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = ADT.SNT_Data( event = AEV.WheelOrientation ) ) )
 
                 self.startNextTask()
 

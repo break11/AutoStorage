@@ -3,7 +3,7 @@ from enum import auto, IntEnum
 import math
 from PyQt5.QtCore import Qt
 
-from .BaseEnum import BaseEnum
+from .BaseEnum import BaseEnum, EnumToString
 from .Utils import СStrProps_Meta
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
@@ -56,7 +56,7 @@ class ERailHeight( IntEnum ):
     Low  = L
 
 #######################################################
-    
+                           
 class EWidthType( BaseEnum ):
     Narrow  = auto()
     Wide    = auto()
@@ -64,6 +64,25 @@ class EWidthType( BaseEnum ):
     Default = Narrow
     
     def shortName( self ): return self.name[0]
+
+    @classmethod
+    def fromString( cls, sValue ):
+        if sValue in __EWidthType_ShortSign.keys():
+            return __EWidthType_ShortSign[ sValue ]
+        
+        return super().fromString( sValue )
+
+    def toString( self, bShortForm = False ):
+        if not bShortForm:
+            return EnumToString( self )
+        else:
+            return self.shortName()
+
+_EWidthType__EWidthType_ShortSign = {
+                        "N": EWidthType.Narrow,
+                        "W": EWidthType.Wide
+                       }
+
 
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
@@ -96,11 +115,11 @@ class ESensorSide( BaseEnum ):
     def shortName( self ): return self.name[1] # SLeft = L, SRight = R
 
 class EDirection( BaseEnum ):
-    F       = auto()
-    R       = auto()
-    Forward = F
-    Rear    = R
+    Forward = auto()
+    Rear    = auto()
     Error   = auto()
+
+    def shortName( self ): return self.name[0]
 
     Default = Error
 

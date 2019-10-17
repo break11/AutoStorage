@@ -1,5 +1,6 @@
 from collections import deque
 
+import Lib.Common.StorageGraphTypes as SGT
 from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 import Lib.AgentProtocol.AgentDataTypes as ADT
 
@@ -10,7 +11,7 @@ class CFakeAgentLink( CAgentServer_Link ):
         self.tasksList = deque()
                 
         self.currentTask = None
-        self.currentWheelsOrientation = ''
+        self.currentWheelsOrientation = SGT.EWidthType.Narrow
         self.currentDirection = ''
         self.distanceToPass = 0
         self.dpTicksDivider = 0
