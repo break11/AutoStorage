@@ -208,9 +208,9 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
 
-        sData = "N"
+        sData = "W"
         s = f"040{MS}{MS}WO{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.WheelOrientation, packetN=40, data=SGT.EWidthType.Narrow )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.WheelOrientation, packetN=40, data=SGT.EWidthType.Wide )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 

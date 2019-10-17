@@ -5,9 +5,16 @@ class BaseEnum( Enum ):
     @classmethod
     def fromString( cls, sValue ): return EnumFromString( cls, sValue, cls.Default )
 
-    def toString( self ): return EnumToString( self )
+    # def toString( self ): return EnumToString( self )
+    def toString( self, bShortForm = False ):
+        if not bShortForm:
+            return EnumToString( self )
+        else:
+            return self.shortName()
 
     def __str__( self ): return self.toString()
+
+    def shortName( self ): return self.name[0]
 
 def EnumFromString( enum, sValue, defValue ):
     try:

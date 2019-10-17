@@ -49,7 +49,7 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.power_I1, 1.1 )
         self.assertEqual( eData.power_I2, 0.3 )
 
-        self.assertEqual( sData, eData.toString() )
+        self.assertEqual( sData, eData.toString(bShortForm=True) )
 
     def test_TS(self):
         sData = ADT.SAgent_TemperatureState.sDefVal

@@ -57,17 +57,13 @@ class EAgentBattery_Type( BaseEnum ):
     Supercap   = auto()
     Li         = auto()
     N          = auto()
+    # сокращенные элементы для работы fromString по ним
     S = Supercap
     L = Li
 
     Default    = Supercap
-
-    def toString( self ):
-        toStrD = { EAgentBattery_Type.Supercap: "S",
-                   EAgentBattery_Type.Li      : "L",
-                   EAgentBattery_Type.N       : "N"
-                 }
-        return toStrD[ self ]
+    
+#########################################################
 
 class SAgent_TemperatureState:
     sDefVal = f"24{DS}29{DS}29{DS}29{DS}29{DS}25{DS}25{DS}25{DS}25"
@@ -124,6 +120,8 @@ class SAgent_TemperatureState:
                f"{self.turnDriver_2 :.0f}{ DS }"\
                f"{self.turnDriver_3 :.0f}"
 
+#########################################################
+
 class SAgent_BatteryState:
     sDefVal = f"S{DS}33.44V{DS}40.00V{DS}47.64V{DS}1.10A{DS}0.30A"
     C = 1000
@@ -168,7 +166,7 @@ class SAgent_BatteryState:
             return cls.defVal()
 
     def toString( self, bShortForm = False ):
-        return f"{ EAgentBattery_Type.toString( self.PowerType ) }{DS}{self.S_V:.2f}V{DS}{self.L_V:.2f}V{DS}{self.power_U:.2f}V{DS}{self.power_I1:.2f}A{DS}{self.power_I2:.2f}A"
+        return f"{ self.PowerType.toString( bShortForm ) }{DS}{self.S_V:.2f}V{DS}{self.L_V:.2f}V{DS}{self.power_U:.2f}V{DS}{self.power_I1:.2f}A{DS}{self.power_I2:.2f}A"
 
 #########################################################
 class SDP_Data:
@@ -183,7 +181,26 @@ class SDP_Data:
     def __str__( self ): return self.toString()
 
     def toString( self, bShortForm = False ):
-        return f"{self.length:06d}{ DS }{self.direction.name}{ DS }{self.railHeight.name}{ DS }{self.sensorSide.shortName()}{ DS }{self.curvature.shortName()}"
+        if bShortForm:
+            return f"{self.length:06d}{ DS }{self.direction.shortName()}{ DS }{self.railHeight.name}{ DS }{self.sensorSide.shortName()}{ DS }{self.curvature.shortName()}"
+        else:
+            return f"{self.length:06d}{ DS }{self.direction.name}{ DS }{self.railHeight.name}{ DS }{self.sensorSide.shortName()}{ DS }{self.curvature.shortName()}"
+
+    @classmethod
+    def fromString( cls, data ):
+        try:
+            l = data.split( DS )
+            
+            length     = int( l[0] )
+            direction  = float( l[1][:-1] )
+            railHeight = float( l[2][:-1] )
+            sensorSide = float( l[3][:-1] )
+            curvature  = float( l[4][:-1] )
+
+            return SDP_Data( length, direction, railHeight, sensorSide, curvature )
+        except:
+            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
+            return cls.defVal()
 
 #########################################################
 class SHW_Data:

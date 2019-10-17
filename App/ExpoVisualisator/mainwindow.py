@@ -178,7 +178,7 @@ class CEV_MainWindow(QMainWindow):
 
         for agentNO in self.agentsNode().children:
             if not agentNO.task:
-                agentNO.task = ",".join( [ sp.nodeID, sp.side.toChar(), cr.nodeID, cr.side.toChar(), "1" ] )
+                agentNO.task = ",".join( [ sp.nodeID, sp.side.shortName(), cr.nodeID, cr.side.shortName(), "1" ] )
 
     @pyqtSlot(bool)
     def on_btnConveyorReady_clicked(self, b):

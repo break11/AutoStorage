@@ -3,7 +3,7 @@ from enum import auto, IntEnum
 import math
 from PyQt5.QtCore import Qt
 
-from .BaseEnum import BaseEnum, EnumToString
+from .BaseEnum import BaseEnum
 from .Utils import СStrProps_Meta
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
@@ -60,30 +60,12 @@ class ERailHeight( IntEnum ):
 class EWidthType( BaseEnum ):
     Narrow  = auto()
     Wide    = auto()
+    # сокращенные элементы для работы fromString по ним
+    N = Narrow
+    W = Wide
 
     Default = Narrow
     
-    def shortName( self ): return self.name[0]
-
-    @classmethod
-    def fromString( cls, sValue ):
-        if sValue in __EWidthType_ShortSign.keys():
-            return __EWidthType_ShortSign[ sValue ]
-        
-        return super().fromString( sValue )
-
-    def toString( self, bShortForm = False ):
-        if not bShortForm:
-            return EnumToString( self )
-        else:
-            return self.shortName()
-
-_EWidthType__EWidthType_ShortSign = {
-                        "N": EWidthType.Narrow,
-                        "W": EWidthType.Wide
-                       }
-
-
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
 
@@ -102,8 +84,6 @@ class ECurvature( BaseEnum ):
 
     Default = Straight
 
-    def shortName( self ): return self.name[0]
-
 class ESensorSide( BaseEnum ):
     SLeft    = auto()
     SRight   = auto()
@@ -119,13 +99,13 @@ class EDirection( BaseEnum ):
     Rear    = auto()
     Error   = auto()
 
-    def shortName( self ): return self.name[0]
-
     Default = Error
 
 class ESide( BaseEnum ):
-    Left            = auto()
-    Right           = auto()
+    Left    = auto()
+    Right   = auto()
+    L       = Left
+    R       = Right
 
     Default = Right
 
@@ -138,16 +118,10 @@ class ESide( BaseEnum ):
         else:
             return ESide.Right
 
-    @classmethod
-    def fromChar( cls, side_char ):
-        sideFromData = { "L": "Left", "R": "Right" }
-        return cls.fromString( sideFromData.get( side_char ) )
-
     def invert(self):
         return ESide.Left if self == ESide.Right else ESide.Right
 
-    def toChar(self):
-        return self.toString()[0]
+###########################################################
 
 graphEnums = { SGA.nodeType   : ENodeTypes, 
                SGA.sensorSide : ESensorSide,

@@ -118,8 +118,8 @@ class SBoxTask():
         try:
             task = SBoxTask()
             
-            task.From, task.loadSide = L[0], SGT.ESide.fromChar( L[1] )
-            task.To, task.unloadSide = L[2], SGT.ESide.fromChar( L[3] )
+            task.From, task.loadSide = L[0], SGT.ESide.fromString( L[1] )
+            task.To, task.unloadSide = L[2], SGT.ESide.fromString( L[3] )
             task.getBack = bool( int( L[4] ) )
         except Exception as e:
             print( f"{SC.sError} Task format wrong! ({e})" )
@@ -128,7 +128,7 @@ class SBoxTask():
         return task
 
     def toString(self):
-        L = [ self.From, self.loadSide.toChar(), self.To, self.unloadSide.toChar(), str( int(self.getBack) ) ]
+        L = [ self.From, self.loadSide.shortName(), self.To, self.unloadSide.shortName(), str( int(self.getBack) ) ]
         return ",".join( L )
 
 def processTaskStage(nxGraph, agentNO, task, BL_BU_event, targetNode):
@@ -141,7 +141,7 @@ def processTaskStage(nxGraph, agentNO, task, BL_BU_event, targetNode):
     event_side = task.loadSide if BL_BU_event == AEV.BoxLoad else task.unloadSide
     agenSide = event_side if agentSide == SGT.ESide.Right else event_side.invert()
     
-    desk = cmdDesc( event = BL_BU_event, data=agenSide.toChar() )
+    desk = cmdDesc( event = BL_BU_event, data=agenSide.shortName() )
     prop = cmdDesc_To_Prop[ desk ]
     agentNO[ prop ] = ADT.EAgent_CMD_State.Init
     
@@ -168,4 +168,4 @@ def setRandomTask(scheme, agentNO):
     cr = conveyors[ random.randint(0, len( conveyors ) - 1) ]
 
     if not agentNO.task:
-        agentNO.task = ",".join( [ sp.nodeID, sp.side.toChar(), cr.nodeID, cr.side.toChar(), "1" ] )
+        agentNO.task = ",".join( [ sp.nodeID, sp.side.shortName(), cr.nodeID, cr.side.shortName(), "1" ] )
