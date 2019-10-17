@@ -203,7 +203,7 @@ class SDP_Data:
 
             return SDP_Data( length, direction, railHeight, sensorSide, curvature )
         except Exception as e:
-            print( e )
+            print( f"Exception: {e}" )
             print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.sDefVal}'!" )
             return cls.defVal()
 

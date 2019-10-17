@@ -9,14 +9,14 @@ from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
 import Lib.Common.StrConsts as SC
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentProtocol.AgentDataTypes import DS
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 
 hysteresis = 30
 shiftFract = 10.0
 shiftLeast = 100
 
-sensorSideToChar  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.Forward): SGT.ESensorSide.SLeft,
+sensorSide_from_SideDir  = { (SGT.ESensorSide.SLeft,    SGT.EDirection.Forward): SGT.ESensorSide.SLeft,
                       (SGT.ESensorSide.SLeft,    SGT.EDirection.Rear)   : SGT.ESensorSide.SRight,
 
                       (SGT.ESensorSide.SRight,   SGT.EDirection.Forward): SGT.ESensorSide.SRight,
@@ -411,12 +411,18 @@ class CRouteBuilder():
         commands.append( ASP( event=EV.WheelOrientation, data = Segments[0].widthType ) )
 
         for segment in Segments:
-            lengthStr = ('{:06d}').format(int(segment.length))
-            railHeightStr = segment.railHeight.shortName()
-            sensorSideStr = sensorSideToChar[ (segment.sensorSide, direction) ].shortName()
-            curvatureChar = segment.curvature.shortName()
-            directionChar = direction.shortName()
-            dpData = f"{lengthStr}{ DS }{directionChar}{ DS }{railHeightStr}{ DS }{sensorSideStr}{ DS }{curvatureChar}"
+            ##remove##
+            # lengthStr = ('{:06d}').format(int(segment.length))
+            # railHeightStr = segment.railHeight.shortName()
+            # sensorSideStr = sensorSide_from_SideDir[ (segment.sensorSide, direction) ].shortName()
+            # curvatureChar = segment.curvature.shortName()
+            # directionChar = direction.shortName()
+            # dpData = f"{lengthStr}{ DS }{directionChar}{ DS }{railHeightStr}{ DS }{sensorSideStr}{ DS }{curvatureChar}"
+            dpData = ADT.SDP_Data( length = int(segment.length),
+                                   direction=direction,
+                                   railHeight=segment.railHeight,
+                                   sensorSide=sensorSide_from_SideDir[ (segment.sensorSide, direction) ],
+                                   curvature=segment.curvature )
             commands.append( ASP( event=EV.DistancePassed, data=dpData ) )
         
         commands.append( ASP( event=EV.SequenceEnd ) )
