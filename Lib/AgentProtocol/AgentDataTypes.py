@@ -170,7 +170,6 @@ class STS_Data:
 #########################################################
 
 class SDP_Data:
-    "DP~000210^F^L^B^S"
     sDefVal = "000000^F^L^B^S"
     def __init__( self, length, direction, railHeight, sensorSide, curvature ):
         self.length     = length
@@ -203,8 +202,9 @@ class SDP_Data:
             curvature  = SGT.ECurvature.fromString ( l[4] )
 
             return SDP_Data( length, direction, railHeight, sensorSide, curvature )
-        except:
-            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
+        except Exception as e:
+            print( e )
+            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.sDefVal}'!" )
             return cls.defVal()
 
 #########################################################

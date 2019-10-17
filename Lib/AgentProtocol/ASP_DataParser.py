@@ -10,6 +10,7 @@ extractData_Types = { EAgentServer_Event.BatteryState       : ADT.SBS_Data,
                       EAgentServer_Event.HelloWorld         : ADT.SHW_Data,
                       EAgentServer_Event.NewTask            : ADT.SNT_Data,
                       EAgentServer_Event.WheelOrientation   : SGT.EWidthType,
+                      EAgentServer_Event.DistancePassed     : ADT.SDP_Data,
                     }
 
 def extractASP_Data( event, data ):

@@ -296,9 +296,9 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         # DP
         #########################
-        sData = "000331,F,H,B,C"
+        sData = "000331^F^H^B^C"
         s = f"001{MS}{MS}DP{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.DistancePassed, packetN=1, data=sData )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.DistancePassed, packetN=1, data=ADT.SDP_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
