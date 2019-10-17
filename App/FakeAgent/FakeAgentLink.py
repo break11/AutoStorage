@@ -20,6 +20,6 @@ class CFakeAgentLink( CAgentServer_Link ):
         self.bCharging = False
         self.bErrorState = False
 
-        self.temperatureState = ADT.SAgent_TemperatureState( 24,29,29,29,29,25,25,25,25 )
-        self.batteryState = ADT.SAgent_BatteryState( ADT.EAgentBattery_Type.Supercap, 43.2, 39.31, 47.43, 00.9, 00.4 )
+        self.temperatureState = ADT.STS_Data( 24,29,29,29,29,25,25,25,25 )
+        self.batteryState = ADT.SBS_Data( ADT.EAgentBattery_Type.Supercap, 43.2, 39.31, 47.43, 00.9, 00.4 )
         self.OD_OP_Data  = ADT.SOD_OP_Data()

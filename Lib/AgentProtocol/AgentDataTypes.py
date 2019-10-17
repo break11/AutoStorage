@@ -65,64 +65,7 @@ class EAgentBattery_Type( BaseEnum ):
     
 #########################################################
 
-class SAgent_TemperatureState:
-    sDefVal = f"24{DS}29{DS}29{DS}29{DS}29{DS}25{DS}25{DS}25{DS}25"
-    def __init__( self, powerSource, 
-                        wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
-                        turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 ):
-
-        self.powerSource   = powerSource
-        self.wheelDriver_0 = wheelDriver_0
-        self.wheelDriver_1 = wheelDriver_1
-        self.wheelDriver_2 = wheelDriver_2
-        self.wheelDriver_3 = wheelDriver_3
-        self.turnDriver_0  = turnDriver_0
-        self.turnDriver_1  = turnDriver_1
-        self.turnDriver_2  = turnDriver_2
-        self.turnDriver_3  = turnDriver_3
-
-    def __str__( self ): return self.toString()
-
-    @classmethod
-    def defVal( cls ):
-        return SAgent_TemperatureState.fromString( cls.sDefVal )
-
-    @classmethod
-    def fromString( cls, data ):
-        try:
-            l = data.split( DS )
-
-            powerSource   = float( l[0] )
-            wheelDriver_0 = float( l[1] )
-            wheelDriver_1 = float( l[2] )
-            wheelDriver_2 = float( l[3] )
-            wheelDriver_3 = float( l[4] )
-            turnDriver_0  = float( l[5] )
-            turnDriver_1  = float( l[6] )
-            turnDriver_2  = float( l[7] )
-            turnDriver_3  = float( l[8] )
-
-            return SAgent_TemperatureState( powerSource,
-                                            wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
-                                            turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 )
-        except:
-            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
-            return cls.defVal()
-
-    def toString( self, bShortForm = False ):
-        return f"{self.powerSource  :.0f}{ DS }"\
-               f"{self.wheelDriver_0:.0f}{ DS }"\
-               f"{self.wheelDriver_1:.0f}{ DS }"\
-               f"{self.wheelDriver_2:.0f}{ DS }"\
-               f"{self.wheelDriver_3:.0f}{ DS }"\
-               f"{self.turnDriver_0 :.0f}{ DS }"\
-               f"{self.turnDriver_1 :.0f}{ DS }"\
-               f"{self.turnDriver_2 :.0f}{ DS }"\
-               f"{self.turnDriver_3 :.0f}"
-
-#########################################################
-
-class SAgent_BatteryState:
+class SBS_Data:
     sDefVal = f"S{DS}33.44V{DS}40.00V{DS}47.64V{DS}1.10A{DS}0.30A"
     C = 1000
     max_S_U = 43.2
@@ -145,8 +88,7 @@ class SAgent_BatteryState:
         return 100 * ( max(E - self.E_empty, 0) ) / ( self.E_full - self.E_empty )
 
     @classmethod
-    def defVal( cls ):
-        return SAgent_BatteryState.fromString( cls.sDefVal )
+    def defVal( cls ): return __class__.fromString( cls.sDefVal )
 
     @classmethod
     def fromString( cls, data ):
@@ -160,17 +102,76 @@ class SAgent_BatteryState:
             power_I1  = float( l[4][:-1] )
             power_I2  = float( l[5][:-1] )
 
-            return SAgent_BatteryState( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
+            return SBS_Data( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
         except:
             print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
             return cls.defVal()
 
     def toString( self, bShortForm = False ):
-        return f"{ self.PowerType.toString( bShortForm ) }{DS}{self.S_V:.2f}V{DS}{self.L_V:.2f}V{DS}{self.power_U:.2f}V{DS}{self.power_I1:.2f}A{DS}{self.power_I2:.2f}A"
+        return f"{ self.PowerType.toString( bShortForm=bShortForm ) }{DS}"\
+               f"{self.S_V:.2f}V{DS}{self.L_V:.2f}V{DS}{self.power_U:.2f}V{DS}{self.power_I1:.2f}A{DS}{self.power_I2:.2f}A"
 
 #########################################################
+
+class STS_Data:
+    sDefVal = f"24{DS}29{DS}29{DS}29{DS}29{DS}25{DS}25{DS}25{DS}25"
+    def __init__( self, powerSource, 
+                        wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
+                        turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 ):
+
+        self.powerSource   = powerSource
+        self.wheelDriver_0 = wheelDriver_0
+        self.wheelDriver_1 = wheelDriver_1
+        self.wheelDriver_2 = wheelDriver_2
+        self.wheelDriver_3 = wheelDriver_3
+        self.turnDriver_0  = turnDriver_0
+        self.turnDriver_1  = turnDriver_1
+        self.turnDriver_2  = turnDriver_2
+        self.turnDriver_3  = turnDriver_3
+
+    def __str__( self ): return self.toString()
+
+    @classmethod
+    def defVal( cls ): return __class__.fromString( cls.sDefVal )
+
+    @classmethod
+    def fromString( cls, data ):
+        try:
+            l = data.split( DS )
+
+            powerSource   = float( l[0] )
+            wheelDriver_0 = float( l[1] )
+            wheelDriver_1 = float( l[2] )
+            wheelDriver_2 = float( l[3] )
+            wheelDriver_3 = float( l[4] )
+            turnDriver_0  = float( l[5] )
+            turnDriver_1  = float( l[6] )
+            turnDriver_2  = float( l[7] )
+            turnDriver_3  = float( l[8] )
+
+            return STS_Data( powerSource,
+                                            wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
+                                            turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 )
+        except:
+            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
+            return cls.defVal()
+
+    def toString( self, bShortForm = False ):
+        return f"{self.powerSource  :.0f}{ DS }"\
+               f"{self.wheelDriver_0:.0f}{ DS }"\
+               f"{self.wheelDriver_1:.0f}{ DS }"\
+               f"{self.wheelDriver_2:.0f}{ DS }"\
+               f"{self.wheelDriver_3:.0f}{ DS }"\
+               f"{self.turnDriver_0 :.0f}{ DS }"\
+               f"{self.turnDriver_1 :.0f}{ DS }"\
+               f"{self.turnDriver_2 :.0f}{ DS }"\
+               f"{self.turnDriver_3 :.0f}"
+
+#########################################################
+
 class SDP_Data:
     "DP~000210^F^L^B^S"
+    sDefVal = "000000^F^L^B^S"
     def __init__( self, length, direction, railHeight, sensorSide, curvature ):
         self.length     = length
         self.direction  = direction  # SGT.EDirection
@@ -181,10 +182,14 @@ class SDP_Data:
     def __str__( self ): return self.toString()
 
     def toString( self, bShortForm = False ):
-        if bShortForm:
-            return f"{self.length:06d}{ DS }{self.direction.shortName()}{ DS }{self.railHeight.name}{ DS }{self.sensorSide.shortName()}{ DS }{self.curvature.shortName()}"
-        else:
-            return f"{self.length:06d}{ DS }{self.direction.name}{ DS }{self.railHeight.name}{ DS }{self.sensorSide.shortName()}{ DS }{self.curvature.shortName()}"
+        return f"{self.length:06d}{ DS }"\
+               f"{self.direction.toString( bShortForm=bShortForm )}{ DS }"\
+               f"{self.railHeight.toString( bShortForm=bShortForm )}{ DS }"\
+               f"{self.sensorSide.toString( bShortForm=bShortForm )}{ DS }"\
+               f"{self.curvature.toString( bShortForm=bShortForm )}"
+
+    @classmethod
+    def defVal( cls ): return __class__.fromString( cls.sDefVal )
 
     @classmethod
     def fromString( cls, data ):
@@ -192,10 +197,10 @@ class SDP_Data:
             l = data.split( DS )
             
             length     = int( l[0] )
-            direction  = float( l[1][:-1] )
-            railHeight = float( l[2][:-1] )
-            sensorSide = float( l[3][:-1] )
-            curvature  = float( l[4][:-1] )
+            direction  = SGT.EDirection.fromString ( l[1] )
+            railHeight = SGT.ERailHeight.fromString( l[2] )
+            sensorSide = SGT.ESensorSide.fromString( l[3] )
+            curvature  = SGT.ECurvature.fromString ( l[4] )
 
             return SDP_Data( length, direction, railHeight, sensorSide, curvature )
         except:

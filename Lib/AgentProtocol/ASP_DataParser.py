@@ -3,8 +3,8 @@ import Lib.Common.StorageGraphTypes as SGT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 import Lib.AgentProtocol.AgentDataTypes as ADT
 
-extractData_Types = { EAgentServer_Event.BatteryState       : ADT.SAgent_BatteryState,
-                      EAgentServer_Event.TemperatureState   : ADT.SAgent_TemperatureState,
+extractData_Types = { EAgentServer_Event.BatteryState       : ADT.SBS_Data,
+                      EAgentServer_Event.TemperatureState   : ADT.STS_Data,
                       EAgentServer_Event.OdometerDistance   : ADT.SOD_OP_Data,
                       EAgentServer_Event.OdometerPassed     : ADT.SOD_OP_Data,
                       EAgentServer_Event.HelloWorld         : ADT.SHW_Data,

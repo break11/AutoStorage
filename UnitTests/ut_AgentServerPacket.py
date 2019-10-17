@@ -150,7 +150,7 @@ class TestAgentServerPacket(unittest.TestCase):
         #########################
         sData = f"S{DS}43.20V{DS}39.31V{DS}47.43V{DS}1.10A{DS}-0.06A"
         s = f"035{MS}0000000020{MS}BS{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=35, timeStamp=int("20", 10), data=ADT.SAgent_BatteryState.fromString( sData ) )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=35, timeStamp=int("20", 10), data=ADT.SBS_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 
@@ -170,7 +170,7 @@ class TestAgentServerPacket(unittest.TestCase):
         #########################
         sData = f"22{DS}23{DS}22{DS}24{DS}24{DS}25{DS}25{DS}25{DS}25"
         s = f"002{MS}{sTimeStamp}{MS}TS{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=2, timeStamp=int( sTimeStamp, 10 ), data=ADT.SAgent_TemperatureState.fromString( sData ) )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.TemperatureState, packetN=2, timeStamp=int( sTimeStamp, 10 ), data=ADT.STS_Data.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 

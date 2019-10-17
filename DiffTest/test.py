@@ -1,5 +1,5 @@
 
-from enum import Enum
+from enum import Enum, IntEnum
 
 class ESomeEnum( Enum ):
     Narrow = 1
@@ -9,6 +9,13 @@ class ESomeEnum( Enum ):
 
 print( ESomeEnum.Narrow == ESomeEnum.N )
 print( ESomeEnum.N.name )
+print( ESomeEnum["N"] )
+
+class EIntEnum( Enum ):
+    H = 1
+    L = 0
+
+print( EIntEnum.H == 1 )
 
 
 # class СStrProps_Meta(type):

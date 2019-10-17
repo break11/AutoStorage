@@ -7,6 +7,7 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
+import Lib.Common.StorageGraphTypes as SGT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 import Lib.AgentProtocol.AgentDataTypes as ADT
@@ -35,13 +36,21 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.agentN, 0 )
         self.assertEqual( eData.bIsValid, False )
 
-    def test_BS(self):
-        sData = ADT.SAgent_BatteryState.sDefVal
-        packet = CAgentServerPacket( event = EV.BatteryState, data = ADT.SAgent_BatteryState.fromString( sData ) )
+    def test_DP(self):
+        sData = ADT.SDP_Data.sDefVal
+        packet = CAgentServerPacket( event = EV.DistancePassed, data = ADT.SDP_Data.fromString( sData ) )
 
         eData = packet.data
 
-        self.assertEqual( type(eData), ADT.SAgent_BatteryState )
+        self.assertEqual( type(eData), ADT.SDP_Data )
+
+    def test_BS(self):
+        sData = ADT.SBS_Data.sDefVal
+        packet = CAgentServerPacket( event = EV.BatteryState, data = ADT.SBS_Data.fromString( sData ) )
+
+        eData = packet.data
+
+        self.assertEqual( type(eData), ADT.SBS_Data )
         self.assertEqual( eData.PowerType, ADT.EAgentBattery_Type.Supercap )
         self.assertEqual( eData.S_V, 33.44 )
         self.assertEqual( eData.L_V, 40.00 )
@@ -52,12 +61,12 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( sData, eData.toString(bShortForm=True) )
 
     def test_TS(self):
-        sData = ADT.SAgent_TemperatureState.sDefVal
-        packet = CAgentServerPacket( event = EV.TemperatureState, data = ADT.SAgent_TemperatureState.fromString( sData ) )
+        sData = ADT.STS_Data.sDefVal
+        packet = CAgentServerPacket( event = EV.TemperatureState, data = ADT.STS_Data.fromString( sData ) )
 
         eData = packet.data
 
-        self.assertEqual( type(eData), ADT.SAgent_TemperatureState )
+        self.assertEqual( type(eData), ADT.STS_Data )
         self.assertEqual( eData.powerSource,   24 )
         self.assertEqual( eData.wheelDriver_0, 29 )
         self.assertEqual( eData.turnDriver_3 , 25 )
@@ -105,7 +114,7 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
 
-    def test_NT_OP(self):
+    def test_NT(self):
         # NT^ID
         sData= EV.Idle.toStr()
         packet = CAgentServerPacket( event = EV.NewTask, data = ADT.SNT_Data.fromString( sData ) )
@@ -123,6 +132,47 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( type(eData), ADT.SNT_Data )
         self.assertEqual( eData.event, EV.WheelOrientation )
         self.assertEqual( eData.data, None )
+
+    def test_WO(self):
+        # WO^W
+        sData = SGT.EWidthType.Wide.toString()
+        packet = CAgentServerPacket( event = EV.WheelOrientation, data = SGT.EWidthType.fromString( sData ) )
+
+        eData = packet.data
+        self.assertEqual( type(eData), SGT.EWidthType )
+        self.assertEqual( eData, SGT.EWidthType.Wide )
+
+        # WO^W
+        sData = "W"
+        packet = CAgentServerPacket( event = EV.WheelOrientation, data = SGT.EWidthType.fromString( sData ) )
+
+        eData = packet.data
+        self.assertEqual( type(eData), SGT.EWidthType )
+        self.assertEqual( eData, SGT.EWidthType.Wide )
+
+        # WO^Wide
+        sData = "Wide"
+        packet = CAgentServerPacket( event = EV.WheelOrientation, data = SGT.EWidthType.fromString( sData ) )
+
+        eData = packet.data
+        self.assertEqual( type(eData), SGT.EWidthType )
+        self.assertEqual( eData, SGT.EWidthType.Wide )
+
+        # WO^Narrow
+        sData = "Narrow"
+        packet = CAgentServerPacket( event = EV.WheelOrientation, data = SGT.EWidthType.fromString( sData ) )
+
+        eData = packet.data
+        self.assertEqual( type(eData), SGT.EWidthType )
+        self.assertEqual( eData, SGT.EWidthType.Narrow )
+
+        # WO^N
+        sData = "N"
+        packet = CAgentServerPacket( event = EV.WheelOrientation, data = SGT.EWidthType.fromString( sData ) )
+
+        eData = packet.data
+        self.assertEqual( type(eData), SGT.EWidthType )
+        self.assertEqual( eData, SGT.EWidthType.Narrow )
 
 if __name__ == '__main__':
     unittest.main()

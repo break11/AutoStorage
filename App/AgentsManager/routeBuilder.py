@@ -412,7 +412,7 @@ class CRouteBuilder():
 
         for segment in Segments:
             lengthStr = ('{:06d}').format(int(segment.length))
-            railHeightStr = segment.railHeight.name
+            railHeightStr = segment.railHeight.shortName()
             sensorSideStr = sensorSideToChar[ (segment.sensorSide, direction) ].shortName()
             curvatureChar = segment.curvature.shortName()
             directionChar = direction.shortName()

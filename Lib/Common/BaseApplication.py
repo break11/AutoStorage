@@ -33,9 +33,9 @@ def registerNetObj_Props_UserTypes():
     reg( "e", SGT.ECurvature )
     reg( "g", SGT.ESide )
     reg( "h", ADT.EAgent_CMD_State )
-    reg( "j", ADT.SAgent_BatteryState )
+    reg( "j", ADT.SBS_Data )
     reg( "k", ADT.EConnectedStatus )
-    reg( "l", ADT.SAgent_TemperatureState )
+    reg( "l", ADT.STS_Data )
 
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):

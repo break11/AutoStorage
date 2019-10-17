@@ -109,7 +109,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         
         # зарядка суперконденсаторов до максимального значения
         if FAL.bCharging:
-            if FAL.batteryState.S_V < ADT.SAgent_BatteryState.max_S_U:
+            if FAL.batteryState.S_V < ADT.SBS_Data.max_S_U:
                 FAL.batteryState.S_V += DP_CHARGE_PER_CYCLE
             else:
                 FAL.bCharging = False

@@ -46,7 +46,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnLinker.addButton( self.btnRTele, 1, 0 )
         self.btnLinker.addButton( self.btnAutoControl, 1, 0 )
 
-        self.elLinker.addEditLine( self.leBS, customClass = ADT.SAgent_BatteryState )
+        self.elLinker.addEditLine( self.leBS, customClass = ADT.SBS_Data )
         self.elLinker.addEditLine( self.leTS )
         self.elLinker.addEditLine( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
         self.elLinker.addEditLine( self.edStatusVal, customClass = ADT.EAgent_Status )

@@ -79,8 +79,8 @@ def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0,
               SAP.cmd_BU_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BU_R : ADT.EAgent_CMD_State.Done,
               SAP.cmd_BA   : ADT.EAgent_CMD_State.Done, SAP.cmd_CM   : ADT.EAgent_CMD_State.Done,
 
-              SAP.BS : ADT.SAgent_BatteryState.defVal(),
-              SAP.TS : ADT.SAgent_TemperatureState.defVal(),
+              SAP.BS : ADT.SBS_Data.defVal(),
+              SAP.TS : ADT.STS_Data.defVal(),
 
               SAP.RTele : 1 }
 

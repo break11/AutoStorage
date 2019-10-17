@@ -1,5 +1,5 @@
 
-from enum import auto, IntEnum
+from enum import auto
 import math
 from PyQt5.QtCore import Qt
 
@@ -49,11 +49,13 @@ nodeColors = {
 }
 
 #######################################################
-class ERailHeight( IntEnum ):
-    H = 1
-    L = 0
-    High = H
-    Low  = L
+class ERailHeight( BaseEnum ):
+    High = auto()
+    Low  = auto()
+    H = High
+    L = Low
+
+    Default = Low
 
 #######################################################
                            
@@ -81,6 +83,9 @@ railWidth = { EWidthType.Narrow : narrow_Rail_Width,
 class ECurvature( BaseEnum ):
     Curve    = auto()
     Straight = auto()
+    # сокращенные элементы для работы fromString по ним
+    C = Curve
+    S = Straight
 
     Default = Straight
 
@@ -89,6 +94,11 @@ class ESensorSide( BaseEnum ):
     SRight   = auto()
     SBoth    = auto()
     SPassive = auto()
+    # сокращенные элементы для работы fromString по ним
+    L = SLeft
+    R = SRight
+    B = SBoth
+    P = SPassive
 
     Default  = SBoth
 
@@ -98,12 +108,16 @@ class EDirection( BaseEnum ):
     Forward = auto()
     Rear    = auto()
     Error   = auto()
+    # сокращенные элементы для работы fromString по ним
+    F = Forward
+    R = Rear
 
     Default = Error
 
 class ESide( BaseEnum ):
     Left    = auto()
     Right   = auto()
+    # сокращенные элементы для работы fromString по ним
     L       = Left
     R       = Right
 
@@ -129,8 +143,6 @@ graphEnums = { SGA.nodeType   : ENodeTypes,
                SGA.curvature  : ECurvature, 
                SGA.chargeSide : ESide,      
              }
-
-
 
 def prepareGraphProps( nxGraph, bToEnum = True ):
     keys = graphEnums.keys()
