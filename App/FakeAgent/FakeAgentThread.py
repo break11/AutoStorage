@@ -6,6 +6,7 @@ import sys, time
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
+import Lib.Common.StorageGraphTypes as SGT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
 from Lib.AgentProtocol.AgentLogManager import ALM
 from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
@@ -179,7 +180,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                     FAL.dpTicksDivider = 0
                     if FAL.distanceToPass > 0:
                         FAL.distanceToPass = FAL.distanceToPass - DP_DELTA_PER_CYCLE
-                        if FAL.currentDirection == 'F':
+                        if FAL.currentDirection == SGT.EDirection.Forward:
                             FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance + DP_DELTA_PER_CYCLE
                         else:
                             FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance - DP_DELTA_PER_CYCLE
@@ -202,8 +203,8 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             ALM.doLogString( FAL, self.UID, f"Starting new task: {FAL.currentTask}" )
 
             if FAL.currentTask.event == AEV.DistancePassed:
-                FAL.distanceToPass   = int( FAL.currentTask.data[ 0:6 ] )
-                FAL.currentDirection = FAL.currentTask.data[ 7:8 ] # F or R
+                FAL.distanceToPass   = FAL.currentTask.data.length
+                FAL.currentDirection = FAL.currentTask.data.direction # SGT.EDirection
         else:
             FAL.currentTask = None
             ALM.doLogString( FAL, self.UID, "All tasks done!" )

@@ -411,13 +411,6 @@ class CRouteBuilder():
         commands.append( ASP( event=EV.WheelOrientation, data = Segments[0].widthType ) )
 
         for segment in Segments:
-            ##remove##
-            # lengthStr = ('{:06d}').format(int(segment.length))
-            # railHeightStr = segment.railHeight.shortName()
-            # sensorSideStr = sensorSide_from_SideDir[ (segment.sensorSide, direction) ].shortName()
-            # curvatureChar = segment.curvature.shortName()
-            # directionChar = direction.shortName()
-            # dpData = f"{lengthStr}{ DS }{directionChar}{ DS }{railHeightStr}{ DS }{sensorSideStr}{ DS }{curvatureChar}"
             dpData = ADT.SDP_Data( length = int(segment.length),
                                    direction=direction,
                                    railHeight=segment.railHeight,

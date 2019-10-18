@@ -71,9 +71,11 @@ class CTestRouteBuilder(unittest.TestCase):
             CommandsList = []
             for sequence in route:
                 for command in sequence:
-                    data = command.data if command.data is not None else ""
-                    if type( data ) != str: ##remove## возможно убрать когда все команды станут передавать структуры, а не строки
-                        data = data.toString( bShortForm=True )
+                    if command.data is None:
+                        data = ""
+                    else:
+                        data = command.data.toString( bShortForm=True )
+
                     CommandsList.append( f"{command.event.toStr()}{MS}{data}" )
 
             route_str = ",".join( CommandsList )

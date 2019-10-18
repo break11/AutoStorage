@@ -53,6 +53,28 @@ BL_BU_Agent_Status_vals = BL_BU_Agent_Status.values()
 
 #########################################################
 
+# базовый класс для некоторых типов данных команд - нужен для убирания повторяемого кода
+# в наследниках нужна реализация _fromString - внутри которой не обрабытываются исключения
+# должно быть поле класса sDefVal - с дефолтным значением, на случай, если пришло невалидное значение, которое нельзя распознать из строки
+class СBaseDataType:
+    @classmethod
+    def defVal( cls ): return cls.fromString( cls.sDefVal )
+
+    def __str__( self ): return self.toString()
+
+    @classmethod
+    def fromString( cls, data ):
+        try:
+            return cls._fromString( data )
+        except Exception as e:
+            print( f"Exception: {e}'!" )
+            val = cls.defVal()
+            val.bUsingDefaultValue = True
+            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{val}'!" )
+            return val
+
+#########################################################
+
 class EAgentBattery_Type( BaseEnum ):
     Supercap   = auto()
     Li         = auto()
@@ -65,7 +87,7 @@ class EAgentBattery_Type( BaseEnum ):
     
 #########################################################
 
-class SBS_Data:
+class SBS_Data( СBaseDataType ):
     sDefVal = f"S{DS}33.44V{DS}40.00V{DS}47.64V{DS}1.10A{DS}0.30A"
     C = 1000
     max_S_U = 43.2
@@ -81,31 +103,22 @@ class SBS_Data:
         self.power_I1 = power_I1
         self.power_I2 = power_I2
 
-    def __str__( self ): return self.toString()
-
     def supercapPercentCharge( self ):
         E = 0.5 * self.C * (self.S_V ** 2)
         return 100 * ( max(E - self.E_empty, 0) ) / ( self.E_full - self.E_empty )
 
     @classmethod
-    def defVal( cls ): return __class__.fromString( cls.sDefVal )
+    def _fromString( cls, data ):
+        l = data.split( DS )
+        
+        PowerType = EAgentBattery_Type.fromString( l[0] )
+        S_V       = float( l[1][:-1] )
+        L_V       = float( l[2][:-1] )
+        power_U   = float( l[3][:-1] )
+        power_I1  = float( l[4][:-1] )
+        power_I2  = float( l[5][:-1] )
 
-    @classmethod
-    def fromString( cls, data ):
-        try:
-            l = data.split( DS )
-            
-            PowerType = EAgentBattery_Type.fromString( l[0] )
-            S_V       = float( l[1][:-1] )
-            L_V       = float( l[2][:-1] )
-            power_U   = float( l[3][:-1] )
-            power_I1  = float( l[4][:-1] )
-            power_I2  = float( l[5][:-1] )
-
-            return SBS_Data( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
-        except:
-            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
-            return cls.defVal()
+        return SBS_Data( PowerType, S_V, L_V, power_U, power_I1, power_I2 )
 
     def toString( self, bShortForm = False ):
         return f"{ self.PowerType.toString( bShortForm=bShortForm ) }{DS}"\
@@ -113,7 +126,7 @@ class SBS_Data:
 
 #########################################################
 
-class STS_Data:
+class STS_Data( СBaseDataType ):
     sDefVal = f"24{DS}29{DS}29{DS}29{DS}29{DS}25{DS}25{DS}25{DS}25"
     def __init__( self, powerSource, 
                         wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
@@ -129,32 +142,22 @@ class STS_Data:
         self.turnDriver_2  = turnDriver_2
         self.turnDriver_3  = turnDriver_3
 
-    def __str__( self ): return self.toString()
-
     @classmethod
-    def defVal( cls ): return __class__.fromString( cls.sDefVal )
+    def _fromString( cls, data ):
+        l = data.split( DS )
 
-    @classmethod
-    def fromString( cls, data ):
-        try:
-            l = data.split( DS )
+        powerSource   = float( l[0] )
+        wheelDriver_0 = float( l[1] )
+        wheelDriver_1 = float( l[2] )
+        wheelDriver_2 = float( l[3] )
+        wheelDriver_3 = float( l[4] )
+        turnDriver_0  = float( l[5] )
+        turnDriver_1  = float( l[6] )
+        turnDriver_2  = float( l[7] )
+        turnDriver_3  = float( l[8] )
 
-            powerSource   = float( l[0] )
-            wheelDriver_0 = float( l[1] )
-            wheelDriver_1 = float( l[2] )
-            wheelDriver_2 = float( l[3] )
-            wheelDriver_3 = float( l[4] )
-            turnDriver_0  = float( l[5] )
-            turnDriver_1  = float( l[6] )
-            turnDriver_2  = float( l[7] )
-            turnDriver_3  = float( l[8] )
-
-            return STS_Data( powerSource,
-                                            wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
-                                            turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 )
-        except:
-            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.defVal()}'!" )
-            return cls.defVal()
+        return STS_Data( powerSource, wheelDriver_0, wheelDriver_1, wheelDriver_2, wheelDriver_3,
+                                      turnDriver_0, turnDriver_1, turnDriver_2, turnDriver_3 )
 
     def toString( self, bShortForm = False ):
         return f"{self.powerSource  :.0f}{ DS }"\
@@ -169,7 +172,7 @@ class STS_Data:
 
 #########################################################
 
-class SDP_Data:
+class SDP_Data( СBaseDataType ):
     sDefVal = "000000^F^L^B^S"
     def __init__( self, length, direction, railHeight, sensorSide, curvature ):
         self.length     = length
@@ -177,8 +180,6 @@ class SDP_Data:
         self.railHeight = railHeight # SGT.ERailHeight
         self.sensorSide = sensorSide # SGT.ESensorSide
         self.curvature  = curvature  # SGT.ECurvature
-
-    def __str__( self ): return self.toString()
 
     def toString( self, bShortForm = False ):
         return f"{self.length:06d}{ DS }"\
@@ -188,24 +189,49 @@ class SDP_Data:
                f"{self.curvature.toString( bShortForm=bShortForm )}"
 
     @classmethod
-    def defVal( cls ): return __class__.fromString( cls.sDefVal )
+    def _fromString( cls, data ):
+        l = data.split( DS )
+        
+        length     = int( l[0] )
+        direction  = SGT.EDirection.fromString ( l[1] )
+        railHeight = SGT.ERailHeight.fromString( l[2] )
+        sensorSide = SGT.ESensorSide.fromString( l[3] )
+        curvature  = SGT.ECurvature.fromString ( l[4] )
+
+        return SDP_Data( length, direction, railHeight, sensorSide, curvature )
+
+#########################################################
+
+class SNT_Data( СBaseDataType ):
+    sDefVal = "ID"
+    def __init__(self, event, data=None):
+        self.event = event
+        self.data = data
+
+    # def __str__( self ): return self.toString()
 
     @classmethod
-    def fromString( cls, data ):
-        try:
-            l = data.split( DS )
-            
-            length     = int( l[0] )
-            direction  = SGT.EDirection.fromString ( l[1] )
-            railHeight = SGT.ERailHeight.fromString( l[2] )
-            sensorSide = SGT.ESensorSide.fromString( l[3] )
-            curvature  = SGT.ECurvature.fromString ( l[4] )
+    def _fromString( cls, data ):
+        l = data.split( DS )
+        
+        event = AEV.fromStr( l[0] )
+        if event is None:
+            event = AEV.Idle
 
-            return SDP_Data( length, direction, railHeight, sensorSide, curvature )
-        except Exception as e:
-            print( f"Exception: {e}" )
-            print( f"{SC.sWarning} {cls.__name__} can't construct from string '{data}', using default value '{cls.sDefVal}'!" )
-            return cls.defVal()
+        if len(l) > 1:
+            data = f"{DS}".join( l[1::] )
+        else:
+            data = None
+        
+        return SNT_Data( event, data )
+
+    def toString( self, bShortForm = False ):
+        sResult = self.event.toStr()
+
+        if self.data is not None:
+            sResult += f"{ DS }{self.data}"
+
+        return sResult
 
 #########################################################
 class SHW_Data:
@@ -269,34 +295,5 @@ class SOD_OP_Data:
             sResult = str( self.nDistance )
         else:
             sResult = "U"
-
-        return sResult
-
-#########################################################
-
-class SNT_Data:
-    "NT^ID"
-    def __init__(self, event, data=None):
-        self.event = event
-        self.data = data
-
-    def __str__( self ): return self.toString()
-
-    @classmethod
-    def fromString( cls, data ):
-        l = data.split( DS )
-        event = AEV.fromStr( l[0] )
-        if len(l) > 1:
-            data = f"{DS}".join( l[1::] )
-        else:
-            data = None
-        
-        return SNT_Data( event, data )
-
-    def toString( self, bShortForm = False ):
-        sResult = self.event.toStr()
-
-        if self.data is not None:
-            sResult += f"{ DS }{self.data}"
 
         return sResult

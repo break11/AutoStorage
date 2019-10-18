@@ -207,16 +207,17 @@ class CAgentLink( CAgentServer_Link ):
 
         elif cmd.event == EAgentServer_Event.NewTask:
             NT_Data = cmd.data
-            
-            if NT_Data.event == EAgentServer_Event.Idle:
-                if self.agentNO().status in ADT.BL_BU_Agent_Status_vals:
-                    #TODO пока ставим статус idle только если предыдущий статус был в ADT.BL_BU_Agent_Status_vals,
-                    # так как в некоторых местах мы ориентируемся на предыдущий статус (например, GoToCharge)
-                    # и не можем после завершения маршрута сбросить в Idle
-                    self.agentNO().status = ADT.EAgent_Status.Idle
 
-            elif NT_Data.event in ADT.BL_BU_Events:
-                self.agentNO().status = ADT.BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
+            if NT_Data:
+                if NT_Data.event == EAgentServer_Event.Idle:
+                    if self.agentNO().status in ADT.BL_BU_Agent_Status_vals:
+                        #TODO пока ставим статус idle только если предыдущий статус был в ADT.BL_BU_Agent_Status_vals,
+                        # так как в некоторых местах мы ориентируемся на предыдущий статус (например, GoToCharge)
+                        # и не можем после завершения маршрута сбросить в Idle
+                        self.agentNO().status = ADT.EAgent_Status.Idle
+
+                elif NT_Data.event in ADT.BL_BU_Events:
+                    self.agentNO().status = ADT.BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
 
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
