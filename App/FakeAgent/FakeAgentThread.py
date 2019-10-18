@@ -63,10 +63,10 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         if FAL.batteryState.PowerType == ADT.EAgentBattery_Type.N and cmd.event == AEV.BrakeRelease:
             FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"cannot brake release without power on" ) )
 
-        if FAL.bErrorState and cmd.event not in NotIgnoreEvents:
-            data = f":{cmd.data}" if cmd.data is not None else ""
-            cmd_str = cmd.event.toStr()[1:]
-            FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"##COMMAND IN ERROR STATE IGNORED: {cmd_str}{data}" ) )
+        if FAL.bErrorState and ( cmd.event not in NotIgnoreEvents ):
+            print( cmd )
+            sData = f":{cmd.data}" if cmd.data is not None else ""
+            FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"##COMMAND IN ERROR STATE IGNORED: {cmd.event}{sData}" ) )
             return
 
         if cmd.event == AEV.TaskList:

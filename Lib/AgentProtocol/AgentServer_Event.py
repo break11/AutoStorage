@@ -32,6 +32,8 @@ class EAgentServer_Event( Enum ):
     OK                 = auto() # OK
     Idle               = auto() # ID
 
+    def __str__( self ): return self.toStr()
+
     @classmethod
     def fromStr( cls, data ):
         return _AgentServer_Event_from_Str.get( data )

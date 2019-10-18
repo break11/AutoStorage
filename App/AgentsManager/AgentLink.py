@@ -127,7 +127,7 @@ class CAgentLink( CAgentServer_Link ):
         angle, bReverse = GU.getAgentAngle( self.nxGraph, tEdgeKey, agentNO.angle)
         agentNO.angle = angle
     ####################
-    def currSII(self): return self.SII[ self.DE_IDX ]
+    def currSII(self): return self.SII[ self.DE_IDX ] if len( self.SII ) else None
     
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
@@ -221,16 +221,22 @@ class CAgentLink( CAgentServer_Link ):
 
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
-        agentNO.position  = self.currSII().pos
-        agentNO.angle     = self.currSII().angle
-        tKey              = self.currSII().edge
-        agentNO.edge      = GU.tEdgeKeyToStr( tKey )
-        try:
-            agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
-        except ValueError:
+
+        if self.currSII() is None:
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
             self.pushCmd( ES_cmd )
             agentNO.status = ADT.EAgent_Status.PosSyncError
+        else:
+            agentNO.position  = self.currSII().pos
+            agentNO.angle     = self.currSII().angle
+            tKey              = self.currSII().edge
+            agentNO.edge      = GU.tEdgeKeyToStr( tKey )
+            try:
+                agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
+            except ValueError:
+                ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
+                self.pushCmd( ES_cmd )
+                agentNO.status = ADT.EAgent_Status.PosSyncError
 
     def prepareCharging( self ):
         agentNO = self.agentNO()
