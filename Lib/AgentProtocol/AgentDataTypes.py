@@ -13,6 +13,15 @@ minChargeValue = 30
 TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerPassed }
 BL_BU_Events = { AEV.BoxLoad, AEV.BoxUnload }
 
+# хелперная функция для принудительного перевода данных команды в строку, независимо от исходного типа
+def agentDataToStr( data, bShortForm = False ):
+    if data is None:
+        return ""
+    elif type(data) == str:
+        return data
+    else:
+        return data.toString( bShortForm=bShortForm )
+
 class EConnectedStatus( BaseEnum ):
     connected    = auto()
     disconnected = auto()

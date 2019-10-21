@@ -1,6 +1,6 @@
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentDataTypes import MS
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.ASP_DataParser import extractASP_Data, extractData_Types
 
 from enum import Enum, IntEnum, auto
@@ -45,14 +45,9 @@ class CAgentServerPacket:
 
         sTimestamp = f"{self.timeStamp:010d}" if self.timeStamp is not None else ""
 
-        if self.data is None:
-            sData = ""
-        elif type( self.data ) == str:
-            sData = self.data
-        else:
-            sData = self.data.toString( bShortForm = True )
+        sData = ADT.agentDataToStr( data=self.data, bShortForm = True )
 
-        sResult = f"{self.packetN:03d}{ MS }{sTimestamp}{ MS }{ Event_Sign }{ MS }{sData}"
+        sResult = f"{self.packetN:03d}{ ADT.MS }{sTimestamp}{ ADT.MS }{ Event_Sign }{ ADT.MS }{sData}"
 
         if appendLF:
             sResult += "\n"
@@ -73,7 +68,7 @@ class CAgentServerPacket:
         if removeLF:
             data = data.replace( "\n", "" )
 
-        l = data.split( MS )
+        l = data.split( ADT.MS )
 
         if len(l) != EPos.PosCount:
             cls.printError( data, "Cmd pos count mistmath!" )

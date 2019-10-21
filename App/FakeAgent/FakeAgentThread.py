@@ -64,8 +64,8 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"cannot brake release without power on" ) )
 
         if FAL.bErrorState and ( cmd.event not in NotIgnoreEvents ):
-            print( cmd )
-            sData = f":{cmd.data}" if cmd.data is not None else ""
+            sData = ADT.agentDataToStr( data=cmd.data, bShortForm = True )
+            if sData: sData = ":" + sData
             FAL.pushCmd( self.genPacket( event = AEV.Warning_, data = f"##COMMAND IN ERROR STATE IGNORED: {cmd.event}{sData}" ) )
             return
 

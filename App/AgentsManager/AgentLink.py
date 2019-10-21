@@ -221,11 +221,11 @@ class CAgentLink( CAgentServer_Link ):
 
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
+        if agentNO.status == ADT.EAgent_Status.PosSyncError:
+            return
 
         if self.currSII() is None:
-            ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
-            self.pushCmd( ES_cmd )
-            agentNO.status = ADT.EAgent_Status.PosSyncError
+            self.push_ES_and_ErrorStatus()
         else:
             agentNO.position  = self.currSII().pos
             agentNO.angle     = self.currSII().angle
@@ -234,9 +234,12 @@ class CAgentLink( CAgentServer_Link ):
             try:
                 agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
             except ValueError:
-                ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
-                self.pushCmd( ES_cmd )
-                agentNO.status = ADT.EAgent_Status.PosSyncError
+                self.push_ES_and_ErrorStatus()
+    
+    def push_ES_and_ErrorStatus(self):
+            ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
+            self.pushCmd( ES_cmd )
+            self.agentNO().status = ADT.EAgent_Status.PosSyncError
 
     def prepareCharging( self ):
         agentNO = self.agentNO()
