@@ -140,6 +140,8 @@ class CAgentLink( CAgentServer_Link ):
 
         elif cmd.event == EAgentServer_Event.Error:
             self.agentNO().status = ADT.EAgent_Status.AgentError
+            self.clearCurrentTX_cmd()
+            self.TX_Packets.clear()
 
         elif cmd.event == EAgentServer_Event.BatteryState:
             self.agentNO().BS = cmd.data

@@ -22,7 +22,6 @@ class CNetObj_Control_Linker( QObject ):
 
     def addControl( self, control ):
         sPropName = self.controlPropRef( control )
-        # sPropName = control.property( self.s_propRef )
         assert sPropName is not None, f'Control "{control.objectName()}" need to have custom prop "propRef" for CNetObj_Control_Linker!'
         self.control_by_PropName[ sPropName ] = control
 
@@ -30,8 +29,8 @@ class CNetObj_Control_Linker( QObject ):
         if ( self.agentNO is None ) or ( netCmd.Obj_UID != self.agentNO.UID ): return
 
         if netCmd.sPropName in self.control_by_PropName:
-            btn = self.control_by_PropName[ netCmd.sPropName ]
-            self.updateControlState( btn, netCmd.value )
+            control = self.control_by_PropName[ netCmd.sPropName ]
+            self.updateControlState( control, netCmd.value )
 
     def init( self, agentNO ):
         self.__agentNO = weakref.ref( agentNO )

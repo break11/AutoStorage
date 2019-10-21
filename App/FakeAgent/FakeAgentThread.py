@@ -31,7 +31,7 @@ taskCommands = [ AEV.SequenceBegin,
                  AEV.PowerEnable
                ]
 
-NotIgnoreEvents = ADT.TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.OdometerPassed, AEV.BoxLoadAborted } )
+NotIgnoreEvents = ADT.TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.OdometerPassed, AEV.BoxLoadAborted, AEV.BrakeRelease } )
 
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     hwCounter = 0

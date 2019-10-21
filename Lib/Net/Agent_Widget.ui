@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>374</width>
-    <height>485</height>
+    <width>466</width>
+    <height>621</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -420,6 +420,9 @@
        <property name="readOnly">
         <bool>false</bool>
        </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
        <property name="propRef" stdset="0">
         <string>status</string>
        </property>
@@ -449,6 +452,56 @@
        </property>
        <property name="propRef" stdset="0">
         <string>RTele</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="lbRoute">
+       <property name="text">
+        <string>Route:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edRoute">
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>route</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbRouteIDX">
+       <property name="text">
+        <string>RouteIDX:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edRouteIDX">
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>route_idx</string>
        </property>
       </widget>
      </item>

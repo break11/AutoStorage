@@ -50,6 +50,8 @@ class CAgent_Widget( CNetObj_Widget ):
         self.elLinker.addEditLine( self.leTS )
         self.elLinker.addEditLine( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
         self.elLinker.addEditLine( self.edStatusVal, customClass = ADT.EAgent_Status )
+        self.elLinker.addEditLine( self.edRoute )
+        self.elLinker.addEditLine( self.edRouteIDX )
 
         self.updateControls_Timer = QTimer()
         self.updateControls_Timer.setInterval(1000)
