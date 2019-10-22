@@ -13,7 +13,7 @@ from Lib.StorageViewer.Node_SGItem import CNode_SGItem
 from Lib.Common.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker
+from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker, CNetObj_ProgressBar_Linker
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
 import Lib.AgentProtocol.AgentDataTypes as ADT
@@ -38,6 +38,7 @@ class CAgent_Widget( CNetObj_Widget ):
 
         self.btnLinker = CNetObj_Button_Linker()
         self.elLinker  = CNetObj_EditLine_Linker()
+        self.pbLinker  = CNetObj_ProgressBar_Linker()
 
         l = self.fmAgentCommands.layout()
         for i in range( l.count() ):
@@ -47,11 +48,19 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnLinker.addButton( self.btnAutoControl, 1, 0 )
 
         self.elLinker.addEditLine( self.leBS, customClass = ADT.SBS_Data )
-        self.elLinker.addEditLine( self.leTS )
+        self.elLinker.addEditLine( self.leTS, customClass = ADT.STS_Data )
         self.elLinker.addEditLine( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
         self.elLinker.addEditLine( self.edStatusVal, customClass = ADT.EAgent_Status )
-        self.elLinker.addEditLine( self.edRoute )
-        self.elLinker.addEditLine( self.edRouteIDX )
+        self.elLinker.addControl( self.edRoute )
+        self.elLinker.addControl( self.edRouteIDX, valToControlFunc = lambda data: str(data), valFromControlFunc = lambda data: int(data) )
+
+        self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
+
+        def routeIdx_to_Percent( idx ):
+           l = self.agentNO.route.split(",")
+           return idx / len( l ) * 100
+
+        self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
 
         self.updateControls_Timer = QTimer()
         self.updateControls_Timer.setInterval(1000)
@@ -86,6 +95,7 @@ class CAgent_Widget( CNetObj_Widget ):
 
         self.btnLinker.init( self.netObj )
         self.elLinker.init( self.netObj )
+        self.pbLinker.init( self.netObj )
 
         self.lbNameVal.setText( netObj.name )
 
@@ -99,6 +109,7 @@ class CAgent_Widget( CNetObj_Widget ):
 
         self.btnLinker.clear()
         self.elLinker.clear()
+        self.pbLinker.clear()
 
         self.lbNameVal.clear()
 
@@ -148,8 +159,6 @@ class CAgent_Widget( CNetObj_Widget ):
 
         if cmd.sPropName == SAP.angle:
             self.sbAngle.setValue( cmd.value )
-        elif cmd.sPropName == SAP.BS:
-            self.pbCharge.setValue( cmd.value.supercapPercentCharge() )
     
     #######################################################
 

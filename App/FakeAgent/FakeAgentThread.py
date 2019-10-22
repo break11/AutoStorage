@@ -90,9 +90,6 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = AEV.BrakeRelease, data = "FW" ) )
             FAL.pushCmd( self.genPacket( event = AEV.OK ) )
 
-        # elif cmd.event == AEV.PowerEnable:
-            # FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = "ID" ) )
-
         elif cmd.event == AEV.PowerDisable:
             FAL.tasksList.clear()
             FAL.bErrorState = True
@@ -146,18 +143,13 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                 self.startNextTask()
 
             elif (FAL.currentTask.event == AEV.BoxLoad) or (FAL.currentTask.event == AEV.BoxUnload):
-                cmd_str = FAL.currentTask.event.toStr()[1:]
-
                 if FAL.BL_BU_Time < BL_BU_TIME:
-                    if FAL.BL_BU_Time == 0: FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"{cmd_str},{FAL.currentTask.data}" ) )
+                    if FAL.BL_BU_Time == 0:
+                        FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = ADT.SNT_Data( event = FAL.currentTask.event, data = FAL.currentTask.data ) ) )
                     FAL.BL_BU_Time += BL_BU_TIME_PER_CYCLE
                 else:
                     FAL.BL_BU_Time = 0
                     self.startNextTask()
-
-            # elif FAL.currentTask.event == AEV.BoxUnload:
-            #     FAL.pushCmd( self.genPacket( event = AEV.NewTask, data = f"BU,{FAL.currentTask.data}" ) )
-            #     self.startNextTask()
 
             elif FAL.currentTask.event == AEV.WheelOrientation:
                 FAL.OD_OP_Data.bUndefined = False
@@ -208,7 +200,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         else:
             FAL.currentTask = None
             ALM.doLogString( FAL, self.UID, "All tasks done!" )
-            FAL.pushCmd( self.genPacket( event=AEV.NewTask, data=ADT.SNT_Data.fromString("ID") ) )
+            FAL.pushCmd( self.genPacket( event=AEV.NewTask, data=ADT.SNT_Data( event = AEV.Idle ) ) )
 
     def findEvent_In_TasksList(self, event):
         for cmd in self.agentLink().tasksList:

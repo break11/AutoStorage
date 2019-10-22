@@ -10,8 +10,7 @@ from PyQt5 import uic
 import Lib.Common.StrConsts as SC
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
-from Lib.AgentProtocol.AgentDataTypes import MS
-from Lib.AgentProtocol.ASP_DataParser import extractData_Types
+import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor, TX_color, RX_color, Duplicate_color
 from Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -48,9 +47,9 @@ class CAgent_Cmd_Log_Form(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/Agent_Cmd_Log_Form.ui", self )
 
-        self.lbMS_1.setText( MS )
-        self.lbMS_2.setText( MS )
-        self.lbMS_3.setText( MS )
+        self.lbMS_1.setText( ADT.MS )
+        self.lbMS_2.setText( ADT.MS )
+        self.lbMS_3.setText( ADT.MS )
 
         self.agentLink = None
 
@@ -250,7 +249,7 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         sData = self.leCMD_Data.text()
         if sData:
-            expectedType = extractData_Types.get( event )
+            expectedType = ADT.DT_by_events.get( event )
             data = expectedType.fromString( sData )
         else:
             data = None

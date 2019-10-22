@@ -1,7 +1,6 @@
 
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
 import Lib.AgentProtocol.AgentDataTypes as ADT
-from Lib.AgentProtocol.ASP_DataParser import extractASP_Data, extractData_Types
 
 from enum import Enum, IntEnum, auto
 
@@ -30,7 +29,7 @@ class CAgentServerPacket:
         self.data      = data
 
         if self.data is not None:
-            expectedType = extractData_Types.get( self.event )
+            expectedType = ADT.DT_by_events.get( self.event )
             if expectedType is not None:
                 gotType = type( self.data )
                 if not ( gotType is expectedType ):
@@ -86,7 +85,7 @@ class CAgentServerPacket:
 
             sData = l[ EPos.Data ]
             if sData != "":
-                packetData = extractASP_Data( event, l[ EPos.Data ] )
+                packetData = ADT.extractDT( event, l[ EPos.Data ] )
             else:
                 packetData = None
 

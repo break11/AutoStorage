@@ -52,8 +52,8 @@ class EAgent_Status( BaseEnum ):
 
 blockAutoControlStatuses = [ EAgent_Status.NoRouteToCharge, EAgent_Status.PosSyncError, EAgent_Status.CantCharge, EAgent_Status.AgentError ]
 
-BL_BU_Agent_Status = { (AEV.BoxLoad, SGT.ESide.Left)    : EAgent_Status.BoxLoad_Left,
-                       (AEV.BoxLoad, SGT.ESide.Right)   : EAgent_Status.BoxLoad_Right,
+BL_BU_Agent_Status = { (AEV.BoxLoad,   SGT.ESide.Left)  : EAgent_Status.BoxLoad_Left,
+                       (AEV.BoxLoad,   SGT.ESide.Right) : EAgent_Status.BoxLoad_Right,
                        (AEV.BoxUnload, SGT.ESide.Left)  : EAgent_Status.BoxUnload_Left,
                        (AEV.BoxUnload, SGT.ESide.Right) : EAgent_Status.BoxUnload_Right,
                     }
@@ -87,10 +87,11 @@ class СBaseDataType:
 class EAgentBattery_Type( BaseEnum ):
     Supercap   = auto()
     Li         = auto()
-    N          = auto()
+    NoPower    = auto()
     # сокращенные элементы для работы fromString по ним
     S = Supercap
     L = Li
+    N = NoPower
 
     Default    = Supercap
     
@@ -217,8 +218,6 @@ class SNT_Data( СBaseDataType ):
         self.event = event
         self.data = data
 
-    # def __str__( self ): return self.toString()
-
     @classmethod
     def _fromString( cls, data ):
         l = data.split( DS )
@@ -226,11 +225,12 @@ class SNT_Data( СBaseDataType ):
         event = AEV.fromStr( l[0] )
         if event is None:
             event = AEV.Idle
-
-        if len(l) > 1:
-            data = f"{DS}".join( l[1::] )
         else:
-            data = None
+            if len(l) > 1:
+                data = f"{DS}".join( l[1::] )
+                data = extractDT( event, data )
+            else:
+                data = None
         
         return SNT_Data( event, data )
 
@@ -238,7 +238,7 @@ class SNT_Data( СBaseDataType ):
         sResult = self.event.toStr()
 
         if self.data is not None:
-            sResult += f"{ DS }{self.data}"
+            sResult += f"{ DS }{self.data.toString( bShortForm=bShortForm )}"
 
         return sResult
 
@@ -306,3 +306,24 @@ class SOD_OP_Data:
             sResult = "U"
 
         return sResult
+
+#########################################################
+
+DT_by_events = { AEV.BatteryState       : SBS_Data,
+                 AEV.TemperatureState   : STS_Data,
+                 AEV.OdometerDistance   : SOD_OP_Data,
+                 AEV.OdometerPassed     : SOD_OP_Data,
+                 AEV.HelloWorld         : SHW_Data,
+                 AEV.NewTask            : SNT_Data,
+                 AEV.WheelOrientation   : SGT.EWidthType,
+                 AEV.DistancePassed     : SDP_Data,
+                 AEV.BoxLoad            : SGT.ESide,
+                 AEV.BoxUnload          : SGT.ESide,
+               }
+
+def extractDT( event, data ):
+    dataType = DT_by_events.get( event )
+    if dataType is None:
+        return data
+    else:
+        return dataType.fromString( data )
