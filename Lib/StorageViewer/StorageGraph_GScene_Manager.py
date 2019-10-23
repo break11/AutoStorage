@@ -361,6 +361,7 @@ class CStorageGraph_GScene_Manager( QObject ):
             # в процессе операции разворачивания граней - не нужно удалять "графикc итем" грани
             if not self.bEdgeReversing:
                 self.deleteEdge( fsEdgeKey )
+            print( "1111111111111111111111" )
         else:
             edgeGItem.update()
 
