@@ -518,6 +518,9 @@
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
+     <property name="textVisible">
+      <bool>true</bool>
+     </property>
      <property name="propRef" stdset="0">
       <string>route_idx</string>
      </property>

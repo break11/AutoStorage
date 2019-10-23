@@ -126,7 +126,7 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         self.agentLink = weakref.ref( agentLink )
         self.fillAgentLog()
-        self.updateAgentControls()
+        # self.updateAgentControls()
 
     def clear( self ):
         self.teAgentFullLog.clear()
@@ -175,8 +175,8 @@ class CAgent_Cmd_Log_Form(QWidget):
 
         self.buffLogRows.clear()
 
-    def updateAgentControls( self ):
-        if self.agentLink is None: return
+    # def updateAgentControls( self ):
+    #     if self.agentLink is None: return
 
     def AgentLogUpdated( self, logRow ):
         if self.agentLink is None: return
@@ -195,12 +195,19 @@ class CAgent_Cmd_Log_Form(QWidget):
         # self.limitLogLength()
 
     def logTick( self ):
+        if self.agentLink is None: return
+
         # отправка лога по таймеру с задержкой для снижения нагрузки CPU
         for logRow in self.buffLogRows:
           self.teAgentFullLog.append( logRow )
 
         self.limitLogLength()
         self.buffLogRows.clear()
+
+        q = self.agentLink().TX_Packets
+        self.lbTX_Count_val.setText( str( len( q ) ) )
+        s = ",".join( [ str(x.packetN) for x in q ] )
+        self.leTX_Numbers_val.setText( s )
 
     def limitLogLength( self ):
         cursor = self.teAgentFullLog.textCursor()

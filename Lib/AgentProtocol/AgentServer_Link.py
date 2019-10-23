@@ -19,10 +19,10 @@ class CAgentServer_Link:
 
         self.log = deque( maxlen = LogCount )
         
-        self.agentN = agentN
+        self.agentN             = agentN
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
-        self.genTxPacketN  = 1
-        self.lastTXpacketN = None
+        self.genTxPacketN       = 1
+        self.lastTXpacketN      = None
         self.lastTX_ACC_packetN = None # для определения дубликатов по отправленным ACC
         self.lastRX_ACC_packetN = None  # для определения дубликатов по полученным ACC
         self.ACC_cmd = ASP( event=EAgentServer_Event.Accepted )
