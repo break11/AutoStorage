@@ -189,9 +189,13 @@ class CAgent_Cmd_Log_Form(QWidget):
             return
 
         self.buffLogRows.append( logRow.data )
+
+        # моментальная отправка лога
         # self.teAgentFullLog.append( logRow.data )
+        # self.limitLogLength()
 
     def logTick( self ):
+        # отправка лога по таймеру с задержкой для снижения нагрузки CPU
         for logRow in self.buffLogRows:
           self.teAgentFullLog.append( logRow )
 

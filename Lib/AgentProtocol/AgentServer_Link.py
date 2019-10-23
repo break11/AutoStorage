@@ -18,7 +18,7 @@ class CAgentServer_Link:
         super().__init__()
 
         self.log = deque( maxlen = LogCount )
-
+        
         self.agentN = agentN
         self.TX_Packets         = deque() # очередь команд-пакетов на отправку - используется всеми потоками одного агента
         self.genTxPacketN  = 1
