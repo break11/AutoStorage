@@ -121,6 +121,9 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.gScene.addItem( self.GraphRoot_ParentGItem )
         self.updateDecorateOnScene()
 
+        self.initAgents_ParentGItem()
+    
+    def initAgents_ParentGItem( self ):
         if self.Agents_ParentGItem.scene() is None:
             self.gScene.addItem( self.Agents_ParentGItem )
 
@@ -131,6 +134,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         self.gScene.removeItem( self.Agents_ParentGItem )
         self.gScene.clear()
+        self.initAgents_ParentGItem()
 
         self.GraphRoot_ParentGItem     = None
         self.EdgeDecorates_ParentGItem = None
