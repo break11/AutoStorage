@@ -58,7 +58,7 @@ class CAgent_Widget( CNetObj_Widget ):
 
         def routeIdx_to_Percent( idx ):
            l = self.agentNO.route.split(",")
-           return idx / len( l ) * 100
+           return (idx+1) / len( l ) * 100
 
         self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
 

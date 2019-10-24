@@ -240,7 +240,7 @@ class CAgentLink( CAgentServer_Link ):
     
     def push_ES_and_ErrorStatus(self):
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
-            self.pushCmd( ES_cmd )
+            self.pushCmd( ES_cmd, bExpressPacket=True )
             self.agentNO().status = ADT.EAgent_Status.PosSyncError
 
     def prepareCharging( self ):

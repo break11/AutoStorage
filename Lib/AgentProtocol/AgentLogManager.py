@@ -35,6 +35,7 @@ colorsByEvents = { EAgentServer_Event.BatteryState:       Telemetry_color,
                    EAgentServer_Event.Accepted:           "#1595C0",
                    EAgentServer_Event.HelloWorld:         "#BC6000",
                    EAgentServer_Event.Error:              Error_color,
+                   EAgentServer_Event.EmergencyStop:      Error_color,
                    EAgentServer_Event.Warning_:           "#FF6600",
                    
                    EAgentServer_Event.ChargeMe:           Charge_color,
