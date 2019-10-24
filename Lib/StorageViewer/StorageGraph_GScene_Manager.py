@@ -351,17 +351,19 @@ class CStorageGraph_GScene_Manager( QObject ):
     
     # удаление NetObj объектов определяющих грань
     def deleteEdge_NetObj(self, edgeNetObj):
-        # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
         tKey = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
         fsEdgeKey = frozenset( tKey )
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
+
+
         if edgeGItem is None: return
 
-        if edgeGItem.edgesNetObj_by_TKey[ tuple(reversed( tKey )) ]() is None:
+        # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
+        reversedEdgeNO = edgeGItem.edgesNetObj_by_TKey[ tuple(reversed( tKey )) ]()
+        if (reversedEdgeNO is None) or (reversedEdgeNO.bMarkDeleted):
             # в процессе операции разворачивания граней - не нужно удалять "графикc итем" грани
             if not self.bEdgeReversing:
                 self.deleteEdge( fsEdgeKey )
-            print( "1111111111111111111111" )
         else:
             edgeGItem.update()
 

@@ -30,6 +30,7 @@ class CNetObj( CTreeNode ):
         self.UID  = id if id else CNetObj_Manager.genNetObj_UID()
         self.props = props
         self.ext_fields = ext_fields
+        self.bMarkDeleted = False
 
         # В связи с тем, что в параметрах по умолчанию нельзя использовать дикты, здесь инициализируем данные переменные пустыми дикстами
         # В случае указания пустого дикта в заголовке ф-ции, все объекты будут ссылаться на один дикт и редактировать его
@@ -76,6 +77,7 @@ class CNetObj( CTreeNode ):
 
 ###################################################################################
     def __localDestroy( self ):
+        self.bMarkDeleted = True
         cmd = CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID )
         CNetObj_Manager.doCallbacks( cmd )
 
