@@ -57,8 +57,8 @@ class CAgent_Widget( CNetObj_Widget ):
         self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
 
         def routeIdx_to_Percent( idx ):
-           l = self.agentNO.route.split(",")
-           return (idx+1) / len( l ) * 100
+            l = self.agentNO.route.split(",")
+            return (idx + 1) / len( l ) * 100
 
         self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
 

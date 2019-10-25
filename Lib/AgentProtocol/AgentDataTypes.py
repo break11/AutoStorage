@@ -13,10 +13,6 @@ minChargeValue = 30
 TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerPassed }
 BL_BU_Events = { AEV.BoxLoad, AEV.BoxUnload }
 
-class ETaskData( BaseEnum ):
-    GoToPoint = auto
-    DoCharge = auto
-
 # хелперная функция для принудительного перевода данных команды в строку, независимо от исходного типа
 def agentDataToStr( data, bShortForm = False ):
     if data is None:

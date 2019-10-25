@@ -11,6 +11,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.AgentProtocol.AgentTaskData as ATD
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Utils import СStrProps_Meta
@@ -27,7 +28,8 @@ class SAgentProps( metaclass = СStrProps_Meta ):
     auto_control    = None
     connectedTime   = None
     connectedStatus = None
-    task            = None
+    task_list       = None
+    task_idx        = None
     cmd_PE          = None
     cmd_PD          = None
     cmd_BR          = None
@@ -71,7 +73,8 @@ def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0,
               SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
               
               SAP.auto_control : 1,
-              SAP.task : "",
+              SAP.task_list : ATD.CTaskList(),
+              SAP.task_idx  : 0,
 
               SAP.cmd_PE   : ADT.EAgent_CMD_State.Done, SAP.cmd_PD   : ADT.EAgent_CMD_State.Done,
               SAP.cmd_BR   : ADT.EAgent_CMD_State.Done, SAP.cmd_ES   : ADT.EAgent_CMD_State.Done,

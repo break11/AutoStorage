@@ -15,6 +15,7 @@ from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 import Lib.Common.StorageGraphTypes as SGT
 import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.AgentProtocol.AgentTaskData as ATD
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -36,6 +37,7 @@ def registerNetObj_Props_UserTypes():
     reg( "j", ADT.SBS_Data )
     reg( "k", ADT.EConnectedStatus )
     reg( "l", ADT.STS_Data )
+    reg( "m", ATD.CTaskList )
 
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):
