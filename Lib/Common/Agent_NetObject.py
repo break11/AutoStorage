@@ -16,6 +16,7 @@ from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Utils import СStrProps_Meta
 import Lib.Common.StrConsts as SC
+from Lib.Common.SerializedList import CStrList
 
 class SAgentProps( metaclass = СStrProps_Meta ):
     edge            = None
@@ -66,13 +67,16 @@ for k, v in cmdProps.items():
 
 cmdProps_keys = cmdProps.keys()
 
-def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP.route: "", SAP.route_idx: 0,
+def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0,
               SAP.angle : 0.0, SAP.odometer : 0,
               
               SAP.connectedTime : 0,
               SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
               
               SAP.auto_control : 1,
+
+              SAP.route: CStrList(),
+              SAP.route_idx: 0,
               SAP.task_list : ATD.CTaskList(),
               SAP.task_idx  : 0,
 

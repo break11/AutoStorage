@@ -87,8 +87,10 @@ class CNetObj_EditLine_Linker( CNetObj_Control_Linker ):
     def __init__( self ):
         super().__init__()
 
-    def addEditLine( self, control, customClass ):
-        self.addControl( control, valToControlFunc   = lambda data : customClass.toString( data ),
+    def addEditLine_for_Class( self, control, customClass ):
+        # self.addControl( control, valToControlFunc   = lambda data : customClass.toString( data ),
+        #                           valFromControlFunc = lambda data : customClass.fromString( data ) )
+        self.addControl( control, valToControlFunc   = lambda data : data.toString(),
                                   valFromControlFunc = lambda data : customClass.fromString( data ) )
         control.returnPressed.connect( self.returnPressed )
 

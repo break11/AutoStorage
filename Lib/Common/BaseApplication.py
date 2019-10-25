@@ -13,6 +13,7 @@ from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge
 from Lib.Common.Agent_NetObject import CAgent_NO
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.StrTypeConverter import CStrTypeConverter
+from Lib.Common.SerializedList import CStrList
 import Lib.Common.StorageGraphTypes as SGT
 import Lib.AgentProtocol.AgentDataTypes as ADT
 import Lib.AgentProtocol.AgentTaskData as ATD
@@ -38,6 +39,7 @@ def registerNetObj_Props_UserTypes():
     reg( "k", ADT.EConnectedStatus )
     reg( "l", ADT.STS_Data )
     reg( "m", ATD.CTaskList )
+    reg( "n", CStrList )
 
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):

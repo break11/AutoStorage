@@ -1,9 +1,8 @@
 
 from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
-# from Lib.AgentProtocol.AgentDataTypes import 
+from Lib.Common.SerializedList import CSerializedList
 
-TS  = "," # Task Splitter
 TDS = "=" # Task Data Splitter
 
 class ETaskType( BaseEnum ):
@@ -12,6 +11,8 @@ class ETaskType( BaseEnum ):
     DoCharge  = auto()
 
     Default = Undefined
+
+######################
 
 class CTask:
     dataFromStrFunc = {
@@ -43,7 +44,6 @@ class CTask:
         sR = f"{self.taskType}"
         if self.taskData is not None:
             sR = f"{sR}{TDS}{self.dataToString()}"
-        print( sR )
         return sR
     
     @classmethod
@@ -61,24 +61,8 @@ class CTask:
             return self.dataToStrFunc[ self.taskType ]( self.taskData )
         else:
             return None
+            
+######################
 
-class CTaskList:
-    def __init__( self, taskList=None ):
-        self.taskList = taskList if taskList is not None else []
-
-    def __str__( self ): return self.toString()
-        
-    @classmethod
-    def fromString( cls, data ):
-        if not data:
-            return CTaskList()
-
-        rL = []
-        l = data.split( TS )
-        for sTask in l:
-            task = CTask.fromString( sTask )
-            rL.append( task )
-        return CTaskList( rL )
-
-    def toString( self ):
-        return TS.join( map(str, self.taskList) )
+class CTaskList( CSerializedList ):
+    element_type = CTask #type: ignore

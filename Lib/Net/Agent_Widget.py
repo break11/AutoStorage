@@ -16,7 +16,9 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker, CNetObj_ProgressBar_Linker
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.SerializedList import CStrList
 import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.AgentProtocol.AgentTaskData as ATD
 
 from PyQt5.QtCore import QTimer
 
@@ -47,18 +49,22 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnLinker.addButton( self.btnRTele, 1, 0 )
         self.btnLinker.addButton( self.btnAutoControl, 1, 0 )
 
-        self.elLinker.addEditLine( self.leBS, customClass = ADT.SBS_Data )
-        self.elLinker.addEditLine( self.leTS, customClass = ADT.STS_Data )
-        self.elLinker.addEditLine( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
-        self.elLinker.addEditLine( self.edStatusVal, customClass = ADT.EAgent_Status )
-        self.elLinker.addControl( self.edRoute )
+        self.elLinker.addEditLine_for_Class( self.leBS, customClass = ADT.SBS_Data )
+        self.elLinker.addEditLine_for_Class( self.leTS, customClass = ADT.STS_Data )
+        self.elLinker.addEditLine_for_Class( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
+        self.elLinker.addEditLine_for_Class( self.edStatusVal, customClass = ADT.EAgent_Status )
+
+        self.elLinker.addEditLine_for_Class( self.edRoute, customClass = CStrList )
         self.elLinker.addControl( self.edRouteIDX, valToControlFunc = lambda data: str(data), valFromControlFunc = lambda data: int(data) )
+
+        self.elLinker.addEditLine_for_Class( self.edTaskList, customClass = ATD.CTaskList )
 
         self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
 
         def routeIdx_to_Percent( idx ):
             l = self.agentNO.route.split(",")
-            return (idx + 1) / len( l ) * 100
+            nCount = len(l)
+            return (idx + 1) / nCount * 100 if nCount > 1 else 0
 
         self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
 
