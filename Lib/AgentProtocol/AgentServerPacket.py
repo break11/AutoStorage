@@ -32,10 +32,9 @@ class CAgentServerPacket:
             expectedType = ADT.DT_by_events.get( self.event )
             if expectedType is not None:
                 gotType = type( self.data )
-                if not ( gotType is expectedType ):
-                    assert expectedType == gotType, f"Expected type {expectedType} don't equal with got type {gotType}!"
+                assert expectedType is gotType, f"Expected type {expectedType} don't equal with got type {gotType}!"
 
-        self.status    = status
+        self.status = status
 
     def __str__( self ): return self.toStr()
 

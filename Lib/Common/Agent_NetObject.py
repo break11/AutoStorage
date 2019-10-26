@@ -238,6 +238,6 @@ class CAgent_NO( CNetObj ):
             else:
                 return
 
-        self.route = ",".join( nodes_route )
+        self.route = CStrList( elementList = nodes_route )
 
         return nodes_route

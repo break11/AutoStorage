@@ -122,6 +122,10 @@ class CNetObj( CTreeNode ):
         cmd = CNetCmd( Event=EV.ObjPropUpdated, Obj_UID = self.UID, PropName=key, value=value )
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
+        else:
+            PropType = type( self.propsDict()[ cmd.sPropName ] )
+            ValueType = type( value )
+            assert PropType is ValueType, f"Prop type {PropType} don't equal with value type {ValueType} for prop '{cmd.sPropName}'!"
 
         self.propsDict()[ cmd.sPropName ] = value
         CNetObj_Manager.sendNetCMD( cmd )

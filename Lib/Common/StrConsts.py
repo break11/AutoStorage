@@ -18,3 +18,5 @@ for str_item in _strList:
 
 s_storage_graph_file__default = "GraphML/test.graphml"
 s_mainwindow_ui = "/mainwindow.ui"
+
+s_No_Graph_loaded = f"{sWarning} No Graph loaded."

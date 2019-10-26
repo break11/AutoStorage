@@ -50,7 +50,6 @@ class CAgentLink( CAgentServer_Link ):
         self.SII = []
         self.DE_IDX = 0
         self.segOD = 0
-        self.nodes_route = []
         self.edges_route = []
 
         self.main_Timer = QTimer()
@@ -81,22 +80,25 @@ class CAgentLink( CAgentServer_Link ):
 
         elif cmd.sPropName == SAP.route:
             if agentNO.status != ADT.EAgent_Status.GoToCharge:
-                if agentNO.route == "":
+                if agentNO.route.isEmpty():
                     if agentNO.status == ADT.EAgent_Status.OnRoute:
                         agentNO.status = ADT.EAgent_Status.Idle
                 else:
                     agentNO.status = ADT.EAgent_Status.OnRoute
 
             agentNO.route_idx = 0
-            self.nodes_route = GU.nodesList_FromStr( cmd.value )
-            self.edges_route = GU.edgesListFromNodes( self.nodes_route )
+            if self.graphRootNode() is None:
+                print( SC.s_No_Graph_loaded )
+                return
+
+            self.edges_route = GU.edgesListFromNodes( agentNO.route() )
             self.DE_IDX = 0
             self.segOD = 0
             self.SII = []
 
             if not cmd.value: return
 
-            seqList, self.SII = self.routeBuilder.buildRoute( nodeList = self.nodes_route, agent_angle = self.agentNO().angle )
+            seqList, self.SII = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
 
             for seq in seqList:
                 for cmd in seq:
@@ -156,14 +158,14 @@ class CAgentLink( CAgentServer_Link ):
             self.setPos_by_DE()
 
             if self.DE_IDX == len(self.SII)-1:
-                agentNO.route = ""
+                agentNO.route.clear()
 
             else:
                 self.DE_IDX += 1
 
         elif cmd.event in OD_OP_events:
             if self.graphRootNode() is None:
-                print( f"{SC.sWarning} No Graph loaded." )
+                print( SC.s_No_Graph_loaded )
                 return
 
             agentNO = self.agentNO()
@@ -171,7 +173,7 @@ class CAgentLink( CAgentServer_Link ):
             tKey = agentNO.isOnTrack()
 
             if tKey is None: return
-            if len(self.nodes_route) == 0: return
+            if agentNO.route.count() == 0: return
         
             OD_OP_Data = cmd.data
             new_od = OD_OP_Data.getDistance()
@@ -188,10 +190,10 @@ class CAgentLink( CAgentServer_Link ):
                 new_pos = distance + agentNO.position
 
                 # переход через грань
-                if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
+                if new_pos > edgeS and agentNO.route_idx < agentNO.route.count()-2:
                     newIDX = agentNO.route_idx + 1
                     agentNO.position = new_pos % edgeS
-                    tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
+                    tEdgeKey = ( agentNO.route[ newIDX ], agentNO.route[ newIDX + 1 ] )
                     agentNO.edge = GU.tEdgeKeyToStr( tEdgeKey )
                     agentNO.route_idx = newIDX
                 else:

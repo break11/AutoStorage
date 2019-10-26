@@ -145,7 +145,7 @@ class CAM_MainWindow(QMainWindow):
         agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
 
         if agentNO.isOnTrack() is None: return
-        if agentNO.route != "": return
+        if not agentNO.route.isEmpty(): return
         if agentNO.status in self.blockAutoTestStatuses: return
         if agentNO.status == ADT.EAgent_Status.GoToCharge: # здесь agentNO.route == ""
             agentNO.prepareCharging()

@@ -12,8 +12,7 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.Agent_NetObject as ANO
-# from Lib.Common import StorageGraphTypes as SGT
-# import Lib.Common.GraphUtils as gu
+##remove##from Lib.Common.SerializedList import CStrList
 
 sDir = "./GraphML/"
 
@@ -58,12 +57,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         agentNO.edge = strEdgeKey_1_2
         agentNO.position = 0
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_1) )
 
         self.assertEqual( test_route, Route_1 )
-        self.assertEqual( agentNO.route, strRoute_1 )
+        self.assertEqual( agentNO.route.toString(), strRoute_1 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, 0 )
 
@@ -73,12 +72,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round (edgeSize_1_2 * 0.5)
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_1) )
 
         self.assertEqual( test_route, Route_1 )
-        self.assertEqual( agentNO.route, strRoute_1 )
+        self.assertEqual( agentNO.route.toString(), strRoute_1 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, position )
 
@@ -88,12 +87,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round (edgeSize_1_2 * 0.5)
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(lEdgeKey_1_2) )
 
         self.assertEqual( test_route, lEdgeKey_1_2 )
-        self.assertEqual( agentNO.route, ",".join( lEdgeKey_1_2 ) )
+        self.assertEqual( agentNO.route(), lEdgeKey_1_2 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, position )
 
@@ -102,12 +101,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         # Из маршрута удаляется первая нода, челнок переставляется на первую грань нового маршрута, позиция 0.
         agentNO.edge = strEdgeKey_1_2
         agentNO.position = edgeSize_1_2
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_1) )
 
         self.assertEqual( test_route, Route_2 )
-        self.assertEqual( agentNO.route, strRoute_2 )
+        self.assertEqual( agentNO.route.toString(), strRoute_2 )
         self.assertEqual( agentNO.edge, strEdgeKey_2_3 )
         self.assertEqual( agentNO.position, 0 )
 
@@ -118,12 +117,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round (edgeSize_1_2 * 0.51)
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(lEdgeKey_1_2) )
 
         self.assertEqual( test_route, None )
-        self.assertEqual( agentNO.route, "" )
+        self.assertTrue ( agentNO.route.isEmpty() )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, position )
 
@@ -133,12 +132,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_2_1
         position = round (edgeSize_2_1 * 0.5)
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_1) )
 
         self.assertEqual( test_route, Route_1 )
-        self.assertEqual( agentNO.route, strRoute_1 )
+        self.assertEqual( str( agentNO.route ), strRoute_1 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, (edgeSize_2_1 - position) )
 
@@ -148,12 +147,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_2_1
         position = round (edgeSize_2_1 * 0.5)
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(lEdgeKey_1_2) )
 
         self.assertEqual( test_route, lEdgeKey_1_2 )
-        self.assertEqual( agentNO.route,  ",".join( lEdgeKey_1_2 ) )
+        self.assertEqual( agentNO.route(),  lEdgeKey_1_2 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, (edgeSize_2_1 - position) )
 
@@ -163,12 +162,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_2_1
         position = round( edgeSize_2_1 * 0.49 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_1) )
 
         self.assertEqual( test_route, Route_2 )
-        self.assertEqual( agentNO.route, strRoute_2 )
+        self.assertEqual( agentNO.route.toString(), strRoute_2 )
         self.assertEqual( agentNO.edge, strEdgeKey_2_3 )
         self.assertEqual( agentNO.position, 0 )
 
@@ -178,12 +177,12 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_2_1
         position = round( edgeSize_2_1 * 0.49 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(lEdgeKey_1_2) )
 
         self.assertEqual( test_route, None )
-        self.assertEqual( agentNO.route, "" )
+        self.assertTrue( agentNO.route.isEmpty() )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, (edgeSize_2_1 - position) )
 
@@ -193,11 +192,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_2_1
         position = round( edgeSize_2_1 * 0.49 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_2) )
         self.assertEqual( test_route, Route_2 )
-        self.assertEqual( agentNO.route, strRoute_2 )
+        self.assertEqual( agentNO.route.toString(), strRoute_2 )
         self.assertEqual( agentNO.edge, strEdgeKey_2_3 )
         self.assertEqual( agentNO.position, 0 )
 
@@ -207,11 +206,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_2_1
         position = round( edgeSize_2_1 * 0.5 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_2) )
         self.assertEqual( test_route, Route_1 )
-        self.assertEqual( agentNO.route, strRoute_1 )
+        self.assertEqual( agentNO.route.toString(), strRoute_1 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, (edgeSize_2_1 - position) )
 
@@ -221,11 +220,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.49 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( [ tEdgeKey_1_2[0] ] )
         self.assertEqual( test_route, None )
-        self.assertEqual( agentNO.route, "" )
+        self.assertTrue( agentNO.route.isEmpty() )
         self.assertEqual( agentNO.edge, strEdgeKey_2_1 )
         self.assertEqual( agentNO.position, (edgeSize_1_2 - position) )
 
@@ -235,11 +234,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.5 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( [ tEdgeKey_1_2[0] ] )
         self.assertEqual( test_route, lEdgeKey_2_1 )
-        self.assertEqual( agentNO.route, ",".join( lEdgeKey_2_1 ) )
+        self.assertEqual( agentNO.route(), lEdgeKey_2_1 )
         self.assertEqual( agentNO.edge, strEdgeKey_2_1 )
         self.assertEqual( agentNO.position, (edgeSize_1_2 - position) )
 
@@ -249,11 +248,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.5 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( [ tEdgeKey_1_2[1] ] )
         self.assertEqual( test_route, lEdgeKey_1_2 )
-        self.assertEqual( agentNO.route, ",".join( lEdgeKey_1_2 ) )
+        self.assertEqual( agentNO.route(), lEdgeKey_1_2 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, position )
 
@@ -263,11 +262,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.51 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( [ tEdgeKey_1_2[1] ] )
         self.assertEqual( test_route, None )
-        self.assertEqual( agentNO.route, "" )
+        self.assertTrue( agentNO.route.isEmpty() )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, position )
 
@@ -277,11 +276,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.5 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_2) )
         self.assertEqual( test_route, Route_1 )
-        self.assertEqual( agentNO.route, strRoute_1 )
+        self.assertEqual( agentNO.route.toString(), strRoute_1 )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, position )
 
@@ -291,11 +290,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         agentNO.edge = strEdgeKey_1_2
         position = round( edgeSize_1_2 * 0.51 )
         agentNO.position = position
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( deepcopy(Route_2) )
         self.assertEqual( test_route, Route_2 )
-        self.assertEqual( agentNO.route, strRoute_2 )
+        self.assertEqual( agentNO.route.toString(), strRoute_2 )
         self.assertEqual( agentNO.edge, strEdgeKey_2_3 )
         self.assertEqual( agentNO.position, 0 )
 
@@ -303,11 +302,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         # Маршрут - пустой лист.
         agentNO.edge = strEdgeKey_1_2
         agentNO.position = 0
-        agentNO.route = ""
+        agentNO.route.clear()
 
         test_route = agentNO.applyRoute( [] )
         self.assertEqual( test_route, None )
-        self.assertEqual( agentNO.route, "" )
+        self.assertTrue( agentNO.route.isEmpty() )
         self.assertEqual( agentNO.edge, strEdgeKey_1_2 )
         self.assertEqual( agentNO.position, 0 )
 
@@ -315,7 +314,7 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         # Челнок стоит на грани, ноды которой не присутствуют в начале маршрута.
         agentNO.edge = strEdgeKey_1_2
         agentNO.position = 0
-        agentNO.route = ""
+        agentNO.route.clear()
 
         with self.assertRaises( AssertionError ):
             agentNO.applyRoute( Route_3 )
@@ -324,7 +323,7 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         # Челнок вне графа.
         agentNO.edge = ""
         agentNO.position = 0
-        agentNO.route = ""
+        agentNO.route.clear()
 
         with self.assertRaises( AssertionError ):
             agentNO.applyRoute( deepcopy(Route_1) )

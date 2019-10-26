@@ -62,9 +62,8 @@ class CAgent_Widget( CNetObj_Widget ):
         self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
 
         def routeIdx_to_Percent( idx ):
-            l = self.agentNO.route.split(",")
-            nCount = len(l)
-            return (idx + 1) / nCount * 100 if nCount > 1 else 0
+            nCount = self.agentNO.route.count()
+            return idx / (nCount-1) * 100 if nCount > 1 else 0
 
         self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
 
@@ -151,7 +150,7 @@ class CAgent_Widget( CNetObj_Widget ):
 
     @pyqtSlot("bool")
     def on_btnReset_clicked( self, bVal ):
-        self.agentNO.route  = ""
+        self.agentNO.route.clear()
         self.agentNO.status = ADT.EAgent_Status.Idle
         for cmdProp in cmdProps_keys:
             self.agentNO[ cmdProp ] = ADT.EAgent_CMD_State.Done

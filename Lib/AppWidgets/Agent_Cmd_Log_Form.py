@@ -119,7 +119,7 @@ class CAgent_Cmd_Log_Form(QWidget):
             filterSet[ sFilterSign ] = cb.isChecked()
 
     def setAgentLink( self, agentLink ):
-        self.agentLink = agentLink
+        ##remove##self.agentLink = agentLink
         if agentLink is None:
             self.clear()
             return

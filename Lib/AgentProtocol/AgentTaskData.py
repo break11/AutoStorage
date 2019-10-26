@@ -17,14 +17,14 @@ class ETaskType( BaseEnum ):
 class CTask:
     dataFromStrFunc = {
                         ETaskType.Undefined : lambda sData : sData,
-                        ETaskType.GoToPoint : lambda sData : int( sData )
+                        ETaskType.GoToPoint : lambda sData : sData
                       }
     dataToStrFunc   = {
                         ETaskType.Undefined : lambda data : data,
-                        ETaskType.GoToPoint : lambda data : str( data )
+                        ETaskType.GoToPoint : lambda data : data
                       }
 
-    def __init__( self, taskType, taskData=None ):
+    def __init__( self, taskType=ETaskType.Undefined, taskData=None ):
         self.taskType = taskType
         self.taskData = taskData
 
