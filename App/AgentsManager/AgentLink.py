@@ -17,6 +17,7 @@ from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StorageGraphTypes import ENodeTypes
 import Lib.Common.ChargeUtils as CU
+from Lib.Common.SerializedList import CStrList
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
@@ -158,7 +159,7 @@ class CAgentLink( CAgentServer_Link ):
             self.setPos_by_DE()
 
             if self.DE_IDX == len(self.SII)-1:
-                agentNO.route.clear()
+                agentNO.route = CStrList()
 
             else:
                 self.DE_IDX += 1

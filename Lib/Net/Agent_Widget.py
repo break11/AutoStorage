@@ -63,7 +63,8 @@ class CAgent_Widget( CNetObj_Widget ):
 
         def routeIdx_to_Percent( idx ):
             nCount = self.agentNO.route.count()
-            return idx / (nCount-1) * 100 if nCount > 1 else 0
+            print( ((idx+1) / (nCount+1) * 100) if nCount > 0 else 0 ) ##remove##
+            return (idx+1) / (nCount+1) * 100 if nCount > 0 else 0
 
         self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
 
@@ -150,7 +151,7 @@ class CAgent_Widget( CNetObj_Widget ):
 
     @pyqtSlot("bool")
     def on_btnReset_clicked( self, bVal ):
-        self.agentNO.route.clear()
+        self.agentNO.route = CStrList()
         self.agentNO.status = ADT.EAgent_Status.Idle
         for cmdProp in cmdProps_keys:
             self.agentNO[ cmdProp ] = ADT.EAgent_CMD_State.Done
