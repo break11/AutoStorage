@@ -85,7 +85,6 @@ class CAgent_Widget( CNetObj_Widget ):
         else:
             self.leBS.setStyleSheet( "" )
 
-
     def setSGM( self, SGM ):
         self.SGM = SGM
         b = self.SGM is not None
