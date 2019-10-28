@@ -5,9 +5,9 @@ TS  = "," # Task Splitter
 split_pattern = " ,|,| |:|-"
 
 class CSerializedList:
-    element_type = None
+    element_type = type(None)
     def __init__( self, elementList=None ):
-        assert self.element_type is not None, "Need to specify type of list elements!"
+        assert self.element_type is not type(None), "Need to specify type of list elements!"
         self.elementList = elementList if elementList is not None else []
 
     def __str__( self ): return self.toString() # return string list of elements | "element,element"
@@ -43,4 +43,4 @@ class CSerializedList:
 ############
 
 class CStrList( CSerializedList ):
-    element_type = str #type: ignore
+    element_type = str
