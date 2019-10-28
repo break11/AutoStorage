@@ -30,6 +30,8 @@ class CTask:
 
     def __str__( self ): return self.toString()
 
+    def __eq__( self, other ): return self.taskType == other.taskType and self.taskData == other.taskData
+
     @classmethod
     def fromString( cls, data ):
         l = data.split( TDS )

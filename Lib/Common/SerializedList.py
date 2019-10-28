@@ -2,7 +2,7 @@
 import re
 
 TS  = "," # Task Splitter
-split_pattern = " ,|,| |:|-"
+split_pattern = " , | ,|, |,| |:|-"
 
 class CSerializedList:
     element_type = type(None)
@@ -15,6 +15,9 @@ class CSerializedList:
     def __call__( self ): return self.elementList # return list of type element_type | [ element, element ]
         
     def __getitem__( self, key ): return self.elementList[ key ]
+
+    def __eq__( self, other ):
+        return self.elementList == other.elementList
 
     def clear( self ): self.elementList.clear()
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>479</width>
+    <width>568</width>
     <height>759</height>
    </rect>
   </property>
@@ -334,34 +334,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QProgressBar" name="pbCharge">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="value">
-      <number>50</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="textVisible">
-      <bool>true</bool>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="textDirection">
-      <enum>QProgressBar::TopToBottom</enum>
-     </property>
-     <property name="format">
-      <string>Charge %p%</string>
-     </property>
-     <property name="propRef" stdset="0">
-      <string>BS</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="lbBS">
@@ -374,6 +346,40 @@
       <widget class="QLineEdit" name="leBS">
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>BS</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QProgressBar" name="pbCharge">
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="textVisible">
+        <bool>true</bool>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="textDirection">
+        <enum>QProgressBar::TopToBottom</enum>
+       </property>
+       <property name="format">
+        <string>Charge %p%</string>
        </property>
        <property name="propRef" stdset="0">
         <string>BS</string>
@@ -422,10 +428,6 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
       <widget class="QLabel" name="lbStatus">
        <property name="text">
@@ -532,7 +534,7 @@
         </size>
        </property>
        <property name="value">
-        <number>50</number>
+        <number>24</number>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -604,7 +606,7 @@
         </size>
        </property>
        <property name="value">
-        <number>50</number>
+        <number>24</number>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

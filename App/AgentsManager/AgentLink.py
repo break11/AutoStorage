@@ -105,6 +105,9 @@ class CAgentLink( CAgentServer_Link ):
                 for cmd in seq:
                     self.pushCmd( cmd )
 
+        elif cmd.sPropName == SAP.task_list:
+            print( cmd )
+
     ##################
 
     def tick(self):
@@ -160,7 +163,6 @@ class CAgentLink( CAgentServer_Link ):
 
             if self.DE_IDX == len(self.SII)-1:
                 agentNO.route = CStrList()
-
             else:
                 self.DE_IDX += 1
 
@@ -175,6 +177,7 @@ class CAgentLink( CAgentServer_Link ):
 
             if tKey is None: return
             if agentNO.route.count() == 0: return
+            if self.currSII() is None: return
         
             OD_OP_Data = cmd.data
             new_od = OD_OP_Data.getDistance()

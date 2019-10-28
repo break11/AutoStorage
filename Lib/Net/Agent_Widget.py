@@ -72,6 +72,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.updateControls_Timer.timeout.connect( self.updateControls )
         self.updateControls_Timer.start()
 
+    s_color_red = "color: red"
     def updateControls( self ):
         if self.agentNO is None: return
 
@@ -81,9 +82,19 @@ class CAgent_Widget( CNetObj_Widget ):
             self.pbCharge.setStyleSheet( "" )
 
         if self.agentNO.BS.PowerType == ADT.EAgentBattery_Type.N:
-            self.leBS.setStyleSheet( "color: red" )
+            self.leBS.setStyleSheet( self.s_color_red )
         else:
             self.leBS.setStyleSheet( "" )
+
+        if self.agentNO.connectedStatus == ADT.EConnectedStatus.connected:
+            self.edConnectedStatusVal.setStyleSheet( "" )
+        else:
+            self.edConnectedStatusVal.setStyleSheet( self.s_color_red )
+
+        if self.agentNO.status in ADT.blockAutoControlStatuses:
+            self.edStatusVal.setStyleSheet( self.s_color_red )
+        else:
+            self.edStatusVal.setStyleSheet( "" )
 
     def setSGM( self, SGM ):
         self.SGM = SGM

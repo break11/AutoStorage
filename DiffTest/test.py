@@ -1,21 +1,32 @@
 
-from enum import Enum, IntEnum
 
-class ESomeEnum( Enum ):
-    Narrow = 1
-    Wide   = 2
-    N      = 1
-    W      = 2
+class A:
+    test = [1, 2 ,3]
+    def __eq__( self, other ):
+        return self.test == other.test
 
-print( ESomeEnum.Narrow == ESomeEnum.N )
-print( ESomeEnum.N.name )
-print( ESomeEnum["N"] )
+a = A()
+b = A()
 
-class EIntEnum( Enum ):
-    H = 1
-    L = 0
+print( a == b )
 
-print( EIntEnum.H == 1 )
+# from enum import Enum, IntEnum
+
+# class ESomeEnum( Enum ):
+#     Narrow = 1
+#     Wide   = 2
+#     N      = 1
+#     W      = 2
+
+# print( ESomeEnum.Narrow == ESomeEnum.N )
+# print( ESomeEnum.N.name )
+# print( ESomeEnum["N"] )
+
+# class EIntEnum( Enum ):
+#     H = 1
+#     L = 0
+
+# print( EIntEnum.H == 1 )
 
 
 # class СStrProps_Meta(type):
