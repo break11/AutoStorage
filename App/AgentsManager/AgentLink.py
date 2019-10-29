@@ -80,33 +80,10 @@ class CAgentLink( CAgentServer_Link ):
                 agentNO[ cmd.sPropName ] = ADT.EAgent_CMD_State.Done
 
         elif cmd.sPropName == SAP.route:
-            if agentNO.status != ADT.EAgent_Status.GoToCharge:
-                if agentNO.route.isEmpty():
-                    if agentNO.status == ADT.EAgent_Status.OnRoute:
-                        agentNO.status = ADT.EAgent_Status.Idle
-                else:
-                    agentNO.status = ADT.EAgent_Status.OnRoute
-
-            agentNO.route_idx = 0
-            if self.graphRootNode() is None:
-                print( SC.s_No_Graph_loaded )
-                return
-
-            self.edges_route = GU.edgesListFromNodes( agentNO.route() )
-            self.DE_IDX = 0
-            self.segOD = 0
-            self.SII = []
-
-            if not cmd.value: return
-
-            seqList, self.SII = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
-
-            for seq in seqList:
-                for cmd in seq:
-                    self.pushCmd( cmd )
+            self.processRoute_Changed()
 
         elif cmd.sPropName == SAP.task_list:
-            print( cmd )
+            self.processTaskList_Changed()
 
     ##################
 
@@ -268,3 +245,43 @@ class CAgentLink( CAgentServer_Link ):
             return
 
         CU.controlCharge( chargeCMD, port )
+
+    #########################################################
+
+    def processRoute_Changed( self ):
+        agentNO = self.agentNO()
+
+        if agentNO.status != ADT.EAgent_Status.GoToCharge:
+            if agentNO.route.isEmpty():
+                if agentNO.status == ADT.EAgent_Status.OnRoute:
+                    agentNO.status = ADT.EAgent_Status.Idle
+            else:
+                agentNO.status = ADT.EAgent_Status.OnRoute
+
+        agentNO.route_idx = 0
+        if self.graphRootNode() is None:
+            print( SC.s_No_Graph_loaded )
+            return
+
+        self.edges_route = GU.edgesListFromNodes( agentNO.route() )
+        self.DE_IDX = 0
+        self.segOD = 0
+        self.SII = []
+
+        if not cmd.value: return
+
+        seqList, self.SII = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
+
+        for seq in seqList:
+            for cmd in seq:
+                self.pushCmd( cmd )
+
+
+    def processTaskList_Changed( self ):
+        agentNO = self.agentNO()
+
+        tl = agentNO.task_list
+
+        if tl.isEmpty():
+            agentNO.task_idx = 0
+            return
