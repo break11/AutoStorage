@@ -54,6 +54,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.elLinker.addEditLine_for_Class( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
         self.elLinker.addEditLine_for_Class( self.edStatusVal, customClass = ADT.EAgent_Status )
 
+        self.elLinker.addEditLine_for_Class( self.edEdge, customClass = CStrList )
         self.elLinker.addEditLine_for_Class( self.edRoute, customClass = CStrList )
         self.elLinker.addControl( self.edRouteIDX, valToControlFunc = lambda data: str(data), valFromControlFunc = lambda data: int(data) )
 
@@ -91,7 +92,7 @@ class CAgent_Widget( CNetObj_Widget ):
         else:
             self.edConnectedStatusVal.setStyleSheet( self.s_color_red )
 
-        if self.agentNO.status in ADT.blockAutoControlStatuses:
+        if self.agentNO.status in ADT.errorStatuses:
             self.edStatusVal.setStyleSheet( self.s_color_red )
         else:
             self.edStatusVal.setStyleSheet( "" )

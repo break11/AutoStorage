@@ -9,6 +9,19 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.Common.SerializedList import CStrList
 
 class Test_SList(unittest.TestCase):
+    def testTuple(self):
+        t = ( "3", "4" )
+        s = "3,4"
+        sList = CStrList.fromTumple( t )
+
+        self.assertEqual( sList.toString(), s )
+        self.assertEqual( sList.toTuple(), t )
+
+        sList = CStrList.fromString( s )
+
+        self.assertEqual( sList.toString(), s )
+        self.assertEqual( sList.toTuple(), t )
+
     def test(self):
         sList = CStrList()
 
@@ -40,12 +53,14 @@ class Test_SList(unittest.TestCase):
 
         sList1.clear()
         self.assertTrue( sList1.isEmpty() )
+        self.assertFalse( sList1 )
 
         l = ["one","two","three"]
         self.assertEqual( sList(), l )
 
         for idx in range(len(l)):
             self.assertEqual( sList[idx], l[idx] )
+        
 
 if __name__ == "__main__":
     unittest.main()

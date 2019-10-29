@@ -16,8 +16,9 @@ class CSerializedList:
         
     def __getitem__( self, key ): return self.elementList[ key ]
 
-    def __eq__( self, other ):
-        return self.elementList == other.elementList
+    def __eq__( self, other ): return self.elementList == other.elementList
+
+    def __bool__( self ): return len(self.elementList) != 0
 
     def clear( self ): self.elementList.clear() # don't use with net obj property - don't generate onPropUpdate Event
 
@@ -38,8 +39,16 @@ class CSerializedList:
                 rL.append( element )
         return cls( elementList=rL )
 
-    def toString( self ):
-        return TS.join( map(str, self.elementList) )
+    def toString( self ): return TS.join( map(str, self.elementList) )
+
+    @classmethod
+    def fromTumple( cls, t ):
+        rL = []
+        for item in t:
+            rL.append( item )
+        return cls( elementList=rL )
+
+    def toTuple( self ): return tuple( self.elementList )
 
     def count(self): return len( self.elementList )
 

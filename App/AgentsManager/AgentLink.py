@@ -175,7 +175,7 @@ class CAgentLink( CAgentServer_Link ):
                     newIDX = agentNO.route_idx + 1
                     agentNO.position = new_pos % edgeS
                     tEdgeKey = ( agentNO.route[ newIDX ], agentNO.route[ newIDX + 1 ] )
-                    agentNO.edge = GU.tEdgeKeyToStr( tEdgeKey )
+                    agentNO.edge = CStrList.fromTumple( tEdgeKey )
                     agentNO.route_idx = newIDX
                 else:
                     agentNO.position = new_pos
@@ -215,7 +215,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.position  = self.currSII().pos
             agentNO.angle     = self.currSII().angle
             tKey              = self.currSII().edge
-            agentNO.edge      = GU.tEdgeKeyToStr( tKey )
+            agentNO.edge      = CStrList.fromTumple( tKey )
             try:
                 agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
             except ValueError:
@@ -228,7 +228,7 @@ class CAgentLink( CAgentServer_Link ):
 
     def prepareCharging( self ):
         agentNO = self.agentNO()
-        tKey = GU.tEdgeKeyFromStr( agentNO.edge )
+        tKey = agentNO.edge.toTuple()
         if not GU.isOnNode( self.nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
@@ -236,7 +236,7 @@ class CAgentLink( CAgentServer_Link ):
         self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
 
     def doChargeCMD( self, chargeCMD ):
-        tKey = GU.tEdgeKeyFromStr( self.agentNO().edge )
+        tKey = self.agentNO().edge.toTuple()
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
 
         port = GU.nodeChargePort( self.nxGraph, nodeID )
@@ -259,16 +259,24 @@ class CAgentLink( CAgentServer_Link ):
                 agentNO.status = ADT.EAgent_Status.OnRoute
 
         agentNO.route_idx = 0
-        if self.graphRootNode() is None:
-            print( SC.s_No_Graph_loaded )
-            return
-
-        self.edges_route = GU.edgesListFromNodes( agentNO.route() )
         self.DE_IDX = 0
         self.segOD = 0
         self.SII = []
 
-        if not cmd.value: return
+        if self.graphRootNode() is None:
+            print( SC.s_No_Graph_loaded )
+            agentNO.status = ADT.EAgent_Status.RouteError
+            return
+
+        edges = GU.edgesListFromNodes( agentNO.route() )
+
+        if not all( [ self.nxGraph.has_edge(*e) for e in edges ] ):
+            agentNO.status = ADT.EAgent_Status.RouteError
+            return
+
+        self.edges_route = edges
+
+        if agentNO.route.isEmpty(): return
 
         seqList, self.SII = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
 

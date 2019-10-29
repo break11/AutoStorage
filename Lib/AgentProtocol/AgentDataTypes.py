@@ -37,20 +37,22 @@ class EAgent_Status( BaseEnum ):
     Idle            = auto()
     GoToCharge      = auto()
     Charging        = auto()
-    OnRoute         = auto() 
-    NoRouteToCharge = auto() # не найден маршрут к зарядке - зарядки нет на графе или неправильный угол челнока 
-    PosSyncError    = auto() # ошибка синхронизации по графу - несоответствие реального положения челнока и положения в программе
-    CantCharge      = auto() # нет свойства с именем chargePort в ноде зарядки
-    AgentError      = auto() # пришла ошибка с тележки
+    OnRoute         = auto()
 
     BoxLoad_Right   = auto()
     BoxLoad_Left    = auto()
     BoxUnload_Right = auto()
     BoxUnload_Left  = auto()
 
+    NoRouteToCharge = auto() # не найден маршрут к зарядке - зарядки нет на графе или неправильный угол челнока 
+    PosSyncError    = auto() # ошибка синхронизации по графу - несоответствие реального положения челнока и положения в программе
+    CantCharge      = auto() # нет свойства с именем chargePort в ноде зарядки
+    AgentError      = auto() # пришла ошибка с тележки
+    RouteError      = auto() # не загружен граф, в маршруте указаны несуществующие точки, грани
+
     Default         = Idle
 
-blockAutoControlStatuses = [ EAgent_Status.NoRouteToCharge, EAgent_Status.PosSyncError, EAgent_Status.CantCharge, EAgent_Status.AgentError ]
+errorStatuses = [ EAgent_Status.NoRouteToCharge, EAgent_Status.PosSyncError, EAgent_Status.CantCharge, EAgent_Status.AgentError, EAgent_Status.RouteError ]
 
 BL_BU_Agent_Status = { (AEV.BoxLoad,   SGT.ESide.Left)  : EAgent_Status.BoxLoad_Left,
                        (AEV.BoxLoad,   SGT.ESide.Right) : EAgent_Status.BoxLoad_Right,

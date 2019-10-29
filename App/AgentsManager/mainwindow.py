@@ -21,7 +21,7 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, nodeType, routeToServiceStation
+from Lib.Common.GraphUtils import nodeType, routeToServiceStation
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
@@ -152,17 +152,12 @@ class CAM_MainWindow(QMainWindow):
             return
 
         nxGraph = self.graphRootNode().nxGraph
-        tKey = tEdgeKeyFromStr( agentNO.edge )
+        tKey = agentNO.edge.toTuple()
         startNode = tKey[0]
 
         if targetNode is None:
             if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
-                route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
-                if len(nodes_route) == 0:
-                    agentNO.status = ADT.EAgent_Status.NoRouteToCharge
-                    print(f"{SC.sError} Cant find any route to service station.")
-                else:
-                    agentNO.status = ADT.EAgent_Status.GoToCharge
+                agentNO.goToCharge()
             else:
                 nodes = list( nxGraph.nodes )
                 while True:
@@ -173,10 +168,10 @@ class CAM_MainWindow(QMainWindow):
                         break
                 
                 nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
+                agentNO.applyRoute( nodes_route )
         else:
             nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
-
-        agentNO.applyRoute( nodes_route )
+            agentNO.applyRoute( nodes_route )
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return

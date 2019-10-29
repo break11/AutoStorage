@@ -67,13 +67,15 @@ for k, v in cmdProps.items():
 
 cmdProps_keys = cmdProps.keys()
 
-def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0,
-              SAP.angle : 0.0, SAP.odometer : 0,
-              
+def_props = { SAP.status: ADT.EAgent_Status.Idle,
               SAP.connectedTime : 0,
               SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
-              
               SAP.auto_control : 1,
+
+              SAP.edge: CStrList(),
+              SAP.position: 0,
+              SAP.angle : 0.0,
+              SAP.odometer : 0,              
 
               SAP.route: CStrList(),
               SAP.route_idx: 0,
@@ -124,7 +126,7 @@ class CAgent_NO( CNetObj ):
 
     def ObjPropUpdated( self, netCmd ):
         if netCmd.sPropName == SAP.status:
-            if netCmd.value in ADT.blockAutoControlStatuses:
+            if netCmd.value in ADT.errorStatuses:
                 self.auto_control = 0
 
     # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
@@ -132,7 +134,7 @@ class CAgent_NO( CNetObj ):
         if ( not self.edge ) or ( not self.graphRootNode() ):
             return
 
-        tEdgeKey = GU.tEdgeKeyFromStr(self.edge)
+        tEdgeKey = self.edge.toTuple()
 
         if len(tEdgeKey) < 2 :
             return
@@ -161,7 +163,7 @@ class CAgent_NO( CNetObj ):
         if len( edges ) == 0: return
 
         tEdgeKey = edges[ 0 ]
-        self.edge = GU.tEdgeKeyToStr( tEdgeKey )
+        self.edge = CStrList.fromTuple( tEdgeKey )
         self.position = 0 if tEdgeKey[ 0 ] == nodeID else GU.edgeSize( self.nxGraph, tEdgeKey )
 
     def goToNode( self, targetNode ):
@@ -194,7 +196,7 @@ class CAgent_NO( CNetObj ):
         self.applyRoute( nodes_route )
 
     def prepareCharging(self):
-        tKey = GU.tEdgeKeyFromStr( self.edge )
+        tKey = self.edge.toTuple()
         if not GU.isOnNode( self.nxGraph, SGT.ENodeTypes.ServiceStation, tKey, self.position ):
             self.status = ADT.EAgent_Status.CantCharge
             return
@@ -224,7 +226,7 @@ class CAgent_NO( CNetObj ):
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
         if ( nodes_route[1], nodes_route[0] ) == tKey:
             tKey = tuple( reversed(tKey) )
-            self.edge = GU.tEdgeKeyToStr( tKey )
+            self.edge = CStrList.fromTumple( tKey )
             curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
             self.position = curEdgeSize - self.position
         
@@ -233,7 +235,7 @@ class CAgent_NO( CNetObj ):
             if len( nodes_route ) > 2:
                 nodes_route = nodes_route[1:]
                 tKey = ( nodes_route[0], nodes_route[1] )
-                self.edge = GU.tEdgeKeyToStr( tKey )
+                self.edge = CStrList.fromTumple( tKey )
                 self.position = 0
             else:
                 return
