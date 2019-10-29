@@ -19,7 +19,7 @@ class CSerializedList:
     def __eq__( self, other ):
         return self.elementList == other.elementList
 
-    def clear( self ): self.elementList.clear()
+    def clear( self ): self.elementList.clear() # don't use with net obj property - don't generate onPropUpdate Event
 
     def isEmpty( self ): return len( self.elementList ) == 0
 
