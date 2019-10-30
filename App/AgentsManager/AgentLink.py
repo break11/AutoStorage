@@ -233,6 +233,12 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
+        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
+        port = GU.nodeChargePort( self.nxGraph, nodeID )
+        if port is None:
+            self.agentNO().status = ADT.EAgent_Status.CantCharge
+            return
+
         self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
 
     def doChargeCMD( self, chargeCMD ):
@@ -240,9 +246,7 @@ class CAgentLink( CAgentServer_Link ):
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
 
         port = GU.nodeChargePort( self.nxGraph, nodeID )
-        if port is None:
-            self.agentNO().status = ADT.EAgent_Status.CantCharge
-            return
+        # проверка на наличие порта выполнена в prepareCharging, предполагаем, что с момента prepareCharging челнок не перемещался по нодам
 
         CU.controlCharge( chargeCMD, port )
 

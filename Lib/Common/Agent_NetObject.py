@@ -195,13 +195,14 @@ class CAgent_NO( CNetObj ):
 
         self.applyRoute( nodes_route )
 
-    def prepareCharging(self):
-        tKey = self.edge.toTuple()
-        if not GU.isOnNode( self.nxGraph, SGT.ENodeTypes.ServiceStation, tKey, self.position ):
-            self.status = ADT.EAgent_Status.CantCharge
-            return
+    ##remove##
+    # def prepareCharging(self):
+    #     tKey = self.edge.toTuple()
+    #     if not GU.isOnNode( self.nxGraph, SGT.ENodeTypes.ServiceStation, tKey, self.position ):
+    #         self.status = ADT.EAgent_Status.CantCharge
+    #         return
 
-        self.cmd_CM = ADT.EAgent_CMD_State.Init
+    #     self.cmd_CM = ADT.EAgent_CMD_State.Init
 
     def applyRoute( self, nodes_route ):
         route_size = len(nodes_route)

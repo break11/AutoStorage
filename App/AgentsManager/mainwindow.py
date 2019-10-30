@@ -148,7 +148,7 @@ class CAM_MainWindow(QMainWindow):
         if not agentNO.route.isEmpty(): return
         if agentNO.status in self.blockAutoTestStatuses: return
         if agentNO.status == ADT.EAgent_Status.GoToCharge: # здесь agentNO.route == ""
-            agentNO.prepareCharging()
+            agentLink.prepareCharging()
             return
 
         nxGraph = self.graphRootNode().nxGraph
