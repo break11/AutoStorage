@@ -55,18 +55,29 @@ class CAgent_Widget( CNetObj_Widget ):
         self.elLinker.addEditLine_for_Class( self.edStatusVal, customClass = ADT.EAgent_Status )
 
         self.elLinker.addEditLine_for_Class( self.edEdge, customClass = CStrList )
+
+        # route, route_idx
         self.elLinker.addEditLine_for_Class( self.edRoute, customClass = CStrList )
         self.elLinker.addControl( self.edRouteIDX, valToControlFunc = lambda data: str(data), valFromControlFunc = lambda data: int(data) )
-
-        self.elLinker.addEditLine_for_Class( self.edTaskList, customClass = ATD.CTaskList )
-
-        self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
 
         def routeIdx_to_Percent( idx ):
             nCount = self.agentNO.route.count()
             return (idx+1) / (nCount-1) * 100 if nCount > 1 else 0
 
         self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
+
+        # task_list, task_idx
+        self.elLinker.addEditLine_for_Class( self.edTaskList, customClass = ATD.CTaskList )
+        self.elLinker.addControl( self.edTaskIDX, valToControlFunc = lambda data: str(data), valFromControlFunc = lambda data: int(data) )
+
+        def taskIdx_to_Percent( idx ):
+            nCount = self.agentNO.task_list.count()
+            return idx / nCount * 100 if nCount > 0 else 0
+
+        self.pbLinker.addControl( self.pbTask,  valToControlFunc = taskIdx_to_Percent  )
+
+        # charge
+        self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
 
         self.updateControls_Timer = QTimer()
         self.updateControls_Timer.setInterval(1000)

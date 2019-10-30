@@ -48,12 +48,16 @@ def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
 
     return nodeID
 
-def isOnNode( nxGraph, _nodeType, tKey, pos, allowOffset=50 ):
+def isOnNode( nxGraph, tKey, pos, allowOffset=50, _nodeID=None, _nodeType=None ):
     nodeID = nodeByPos( nxGraph, tKey, pos, allowOffset )
 
     if nodeID is None: return False
 
-    return nodeType( nxGraph, nodeID ) == _nodeType
+    bR = True if _nodeID is None else nodeID==_nodeID
+
+    bR = bR and ( True if _nodeType is None else nodeType( nxGraph, nodeID ) == _nodeType )
+
+    return bR
 
 def tEdgeKeyFromStr( edge_str ):
     return tuple( nodesList_FromStr( edge_str) )

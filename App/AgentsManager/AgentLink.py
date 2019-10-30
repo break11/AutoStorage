@@ -3,6 +3,7 @@ import weakref
 import math
 import os
 import subprocess
+import networkx as nx
 
 from PyQt5.QtCore import QTimer
 
@@ -25,6 +26,7 @@ from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
+import Lib.AgentProtocol.AgentTaskData as ATD
 
 from .routeBuilder import CRouteBuilder
 
@@ -80,10 +82,10 @@ class CAgentLink( CAgentServer_Link ):
                 agentNO[ cmd.sPropName ] = ADT.EAgent_CMD_State.Done
 
         elif cmd.sPropName == SAP.route:
-            self.processRoute_Changed()
+            self.processRoute()
 
-        elif cmd.sPropName == SAP.task_list:
-            self.processTaskList_Changed()
+        # elif cmd.sPropName == SAP.task_list:
+        #     self.processTaskList()
 
     ##################
 
@@ -99,6 +101,8 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.connectedTime += 1
         else:
             agentNO.connectedTime = 0
+
+        self.processTaskList()
 
     ####################
     def calcAgentAngle( self, agentNO ):
@@ -229,7 +233,7 @@ class CAgentLink( CAgentServer_Link ):
     def prepareCharging( self ):
         agentNO = self.agentNO()
         tKey = agentNO.edge.toTuple()
-        if not GU.isOnNode( self.nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
+        if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeType=ENodeTypes.ServiceStation ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
@@ -252,7 +256,7 @@ class CAgentLink( CAgentServer_Link ):
 
     #########################################################
 
-    def processRoute_Changed( self ):
+    def processRoute( self ):
         agentNO = self.agentNO()
 
         if agentNO.status != ADT.EAgent_Status.GoToCharge:
@@ -288,8 +292,9 @@ class CAgentLink( CAgentServer_Link ):
             for cmd in seq:
                 self.pushCmd( cmd )
 
+    #######################
 
-    def processTaskList_Changed( self ):
+    def processTaskList( self ):
         agentNO = self.agentNO()
 
         tl = agentNO.task_list
@@ -297,3 +302,50 @@ class CAgentLink( CAgentServer_Link ):
         if tl.isEmpty():
             agentNO.task_idx = 0
             return
+
+        try:
+            currentTask = agentNO.task_list[ agentNO.task_idx ]
+        except:
+            return
+
+        if self.taskComplete( currentTask ):
+            if agentNO.task_idx+1 < agentNO.task_list.count():
+                agentNO.task_idx += 1
+            else:
+                agentNO.task_list = ATD.CTaskList()
+                agentNO.task_idx = 0
+            return
+
+        if not self.readyForTask( currentTask ): return
+
+        self.processTask( currentTask )
+
+    #######################
+
+    def taskComplete( self, task ):
+        if task.type == ATD.ETaskType.Undefined:
+            return True
+        elif task.type == ATD.ETaskType.GoToNode:
+            nodeID = task.data
+            return self.agentNO().isOnNode( nodeID = nodeID )
+        return False
+
+    def readyForTask( self, task ):
+        if task.type == ATD.ETaskType.Undefined:
+            return True
+        elif task.type == ATD.ETaskType.GoToNode:
+            agentNO = self.agentNO()
+            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle
+
+        return False
+
+    def processTask( self, task ):
+        if task.type == ATD.ETaskType.GoToNode:
+            agentNO = self.agentNO()
+            tKey = agentNO.isOnTrack()
+            startNode = tKey[0]
+            targetNode = task.data
+            nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+            agentNO.applyRoute( nodes_route )
+
+        print( "processTask=", task )

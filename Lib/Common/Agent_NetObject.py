@@ -1,7 +1,7 @@
 
 from PyQt5.QtCore import QTimer
 
-import networkx as nx
+import networkx as nx ##remove##
 from copy import deepcopy
 from collections import namedtuple
 
@@ -147,13 +147,12 @@ class CAgent_NO( CNetObj ):
         
         return tEdgeKey
 
-    def isOnNode( self, nodeType = None ):
-        tEdgeKey = self.isOnTrack
+    def isOnNode( self, nodeID = None, nodeType = None ):
+        tEdgeKey = self.isOnTrack()
         if not tEdgeKey: return False
 
-        return True if (nodeType is None) else GU.isOnNode( self.nxGraph, nodeType, tEdgeKey, self.position )
+        return GU.isOnNode( self.nxGraph, tEdgeKey, self.position, _nodeID=nodeID, _nodeType=nodeType )
 
-    
     def putToNode( self, nodeID ):        
         if not self.nxGraph.has_node( nodeID ): return
 
@@ -178,6 +177,7 @@ class CAgent_NO( CNetObj ):
 
         if GU.nodeType( self.nxGraph, targetNode ) == SGT.ENodeTypes.Terminal: return
 
+        ##remove## заменить на присвоение соответствующего задания, вместо хардкорной прокладки маршрута
         nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
         self.applyRoute( nodes_route )
 
