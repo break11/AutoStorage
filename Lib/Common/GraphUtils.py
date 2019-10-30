@@ -146,24 +146,18 @@ def loadGraphML_File( sFName ):
 
     return nxGraph
 
-def vecsFromNodes( nxGraph, baseNodeID, NeighborsIDs):
-        
-    Neighbors_count = len(NeighborsIDs)
+def vecsFromNodes( nxGraph, baseNodeID, NeighborsIDs):        
     x1, y1 = getNodeCoords( nxGraph, baseNodeID )
-
     vecList = []
 
     for ID in NeighborsIDs:
         x2, y2 = getNodeCoords( nxGraph, ID )
         vec = Vector2 ( x2 - x1, - (y2 - y1) ).unit() #для координаты "y" берем отрицательное значение, тк в сцене ось "y" направлена вниз
-
         vecList.append(vec)
 
     return vecList
 
-
 def vecsPair_withMaxAngle(vecs):
-
     vecs_Pairs = []
     c = len( vecs )
 
@@ -195,7 +189,6 @@ def rotateToLeftSector(vec):
     return vec
 
 def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
-
     nodeVecs = vecsFromNodes( nxGraph = nxGraph, baseNodeID = nodeID, NeighborsIDs = NeighborsIDs )
     vecs_count = len(nodeVecs)
 
@@ -236,16 +229,15 @@ def pathsIntersections( path_1, path_2 ):
     if len(i_path): intersections.append( i_path )
     return intersections
 
-def closestCycleNode( nxGraph, nodeID, cycle ):
+def closestCycleNode( nxGraph, nodeID, cycle ): #поиск ближайшей ноды в цикле cycle для ноды nodeID
     if nodeID in cycle: return nodeID
     
     path = nx.dijkstra_path( nxGraph, nodeID, cycle[0] )
-
     i = pathsIntersections( path, cycle )
     
-    if len(i): return i[0][0]
+    return i[0][0]
 
-def remapCycle( targetStartNodeID, cycle ):
+def remapCycle( targetStartNodeID, cycle ): # remapCycle(targetStartNodeID = '3', cycle = [ '1', '2', '3', '4' ]) == [ '3', '4', '1', '2' ]
     start_idx = cycle.index( targetStartNodeID )
     cycle = cycle[start_idx:] + cycle[:start_idx]
     return cycle
@@ -280,7 +272,6 @@ def mergeCycleWithPath( cycle, simple_path ):
     return merged
 
 def pathWithTargetCycle(nxGraph, startNodeID, targetNodeID, cycle):
-    
     enterNode = closestCycleNode( nxGraph, startNodeID, cycle )
 
     pathToCycle   = nx.dijkstra_path( nxGraph, startNodeID, enterNode )
@@ -292,7 +283,6 @@ def pathWithTargetCycle(nxGraph, startNodeID, targetNodeID, cycle):
     return finalPath
 
 def pathsThroughCycles( nxGraph, simple_path ):
-    
     it_cycles = nx.simple_cycles( nxGraph )
     cycles = [ c for c in it_cycles if len(c) > 3 ] #циклы с кратными гранями (a->b->a) отбрасываем
 
@@ -310,7 +300,6 @@ def pathsThroughCycles( nxGraph, simple_path ):
     return paths_through_cycles
 
 def pathWeight( nxGraph, path, weight = SGA.edgeSize):
-
     if weight is None:
         return( len(path) - 1 )
     
@@ -326,7 +315,6 @@ def findNodes( nxGraph, prop, value ):
     return [ node[0] for node in nxGraph.nodes( data = prop ) if node[1] == value ]
 
 def makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
-    
     dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, startNode, targetNode)
 
     if targetSide is None:
@@ -351,7 +339,6 @@ def makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = No
     return paths_correct_side
 
 def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
-
     nodes_routes = makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
     nodes_routes_weighted = [ (pathWeight(nxGraph, route), route) for route in nodes_routes ]
     
@@ -361,7 +348,6 @@ def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide =
     return 0, []
 
 def routeToServiceStation( nxGraph, startNode, agentAngle ):
-
     charge_nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.ServiceStation )
     nodes_routes_weighted = []
 

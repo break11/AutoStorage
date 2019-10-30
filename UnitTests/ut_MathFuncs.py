@@ -369,6 +369,12 @@ class TestMathFuncs(unittest.TestCase):
         nodeID = gu.closestCycleNode( nxGraph_mag_ext, "18", cycle )
         self.assertEqual( nodeID, "18" )
 
+        nodeID = gu.closestCycleNode( nxGraph_mag_ext, "20", cycle )
+        self.assertEqual( nodeID, "20" )
+
+        nodeID = gu.closestCycleNode( nxGraph_mag_ext, "29", cycle )
+        self.assertEqual( nodeID, "20" )
+
     def test_remapCycle(self):
         cycle = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21"]
 
