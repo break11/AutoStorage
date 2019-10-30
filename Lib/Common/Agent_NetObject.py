@@ -226,7 +226,7 @@ class CAgent_NO( CNetObj ):
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
         if ( nodes_route[1], nodes_route[0] ) == tKey:
             tKey = tuple( reversed(tKey) )
-            self.edge = CStrList.fromTumple( tKey )
+            self.edge = CStrList.fromTuple( tKey )
             curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
             self.position = curEdgeSize - self.position
         
@@ -235,7 +235,7 @@ class CAgent_NO( CNetObj ):
             if len( nodes_route ) > 2:
                 nodes_route = nodes_route[1:]
                 tKey = ( nodes_route[0], nodes_route[1] )
-                self.edge = CStrList.fromTumple( tKey )
+                self.edge = CStrList.fromTuple( tKey )
                 self.position = 0
             else:
                 return

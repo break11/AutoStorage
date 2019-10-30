@@ -42,7 +42,7 @@ class CSerializedList:
     def toString( self ): return TS.join( map(str, self.elementList) )
 
     @classmethod
-    def fromTumple( cls, t ):
+    def fromTuple( cls, t ):
         rL = []
         for item in t:
             rL.append( item )

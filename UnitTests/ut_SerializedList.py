@@ -12,7 +12,7 @@ class Test_SList(unittest.TestCase):
     def testTuple(self):
         t = ( "3", "4" )
         s = "3,4"
-        sList = CStrList.fromTumple( t )
+        sList = CStrList.fromTuple( t )
 
         self.assertEqual( sList.toString(), s )
         self.assertEqual( sList.toTuple(), t )

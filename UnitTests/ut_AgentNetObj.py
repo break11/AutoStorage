@@ -26,14 +26,14 @@ nxGraph        = graphRootNode().nxGraph
 
 tEdgeKey_1_2   = ("1", "2")
 lEdgeKey_1_2   = list( tEdgeKey_1_2 )
-strList_EdgeKey_1_2 = CStrList.fromTumple( tEdgeKey_1_2 )
+strList_EdgeKey_1_2 = CStrList.fromTuple( tEdgeKey_1_2 )
 
 tEdgeKey_2_1   = ("2", "1")
 lEdgeKey_2_1   = list( tEdgeKey_2_1 )
-strList_EdgeKey_2_1 = CStrList.fromTumple( tEdgeKey_2_1 )
+strList_EdgeKey_2_1 = CStrList.fromTuple( tEdgeKey_2_1 )
 
 tEdgeKey_2_3   = ("2", "3")
-strList_EdgeKey_2_3 = CStrList.fromTumple( tEdgeKey_2_3 )
+strList_EdgeKey_2_3 = CStrList.fromTuple( tEdgeKey_2_3 )
 
 edgeSize_1_2   = GU.edgeSize( nxGraph, tEdgeKey_1_2 )
 edgeSize_2_1   = GU.edgeSize( nxGraph, tEdgeKey_2_1 )

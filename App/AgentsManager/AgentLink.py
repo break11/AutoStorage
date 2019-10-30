@@ -175,7 +175,7 @@ class CAgentLink( CAgentServer_Link ):
                     newIDX = agentNO.route_idx + 1
                     agentNO.position = new_pos % edgeS
                     tEdgeKey = ( agentNO.route[ newIDX ], agentNO.route[ newIDX + 1 ] )
-                    agentNO.edge = CStrList.fromTumple( tEdgeKey )
+                    agentNO.edge = CStrList.fromTuple( tEdgeKey )
                     agentNO.route_idx = newIDX
                 else:
                     agentNO.position = new_pos
@@ -215,7 +215,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.position  = self.currSII().pos
             agentNO.angle     = self.currSII().angle
             tKey              = self.currSII().edge
-            agentNO.edge      = CStrList.fromTumple( tKey )
+            agentNO.edge      = CStrList.fromTuple( tKey )
             try:
                 agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
             except ValueError:
