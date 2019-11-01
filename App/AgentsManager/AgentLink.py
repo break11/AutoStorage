@@ -259,11 +259,13 @@ class CAgentLink( CAgentServer_Link ):
     def processRoute( self ):
         agentNO = self.agentNO()
 
-        if agentNO.status != ADT.EAgent_Status.GoToCharge:
-            if agentNO.route.isEmpty():
-                if agentNO.status == ADT.EAgent_Status.OnRoute:
-                    agentNO.status = ADT.EAgent_Status.Idle
-            else:
+        if agentNO.status in ADT.errorStatuses:
+            return
+
+        if agentNO.route.isEmpty():
+            agentNO.status = ADT.EAgent_Status.Idle
+        else:
+            if agentNO.status == ADT.EAgent_Status.Idle:
                 agentNO.status = ADT.EAgent_Status.OnRoute
 
         agentNO.route_idx = 0
@@ -306,6 +308,11 @@ class CAgentLink( CAgentServer_Link ):
         try:
             currentTask = agentNO.task_list[ agentNO.task_idx ]
         except:
+            agentNO.status = ADT.EAgent_Status.TaskError
+            return
+
+        if not self.taskValid( currentTask ):
+            agentNO.status = ADT.EAgent_Status.TaskError
             return
 
         if self.taskComplete( currentTask ):
@@ -322,30 +329,75 @@ class CAgentLink( CAgentServer_Link ):
 
     #######################
 
-    def taskComplete( self, task ):
+    def taskValid( self, task ):
+        agentNO = self.agentNO()
+
         if task.type == ATD.ETaskType.Undefined:
-            return True
+            return False
         elif task.type == ATD.ETaskType.GoToNode:
-            nodeID = task.data
-            return self.agentNO().isOnNode( nodeID = nodeID )
+            return self.nxGraph.has_node( task.data )
+        elif task.type == ATD.ETaskType.DoCharge:
+            return task.data > 0 and task.data <= 100
+        elif task.type == ATD.ETaskType.JmpToTask:
+            return task.data < agentNO.task_list.count()
+
+        return False
+
+    def taskComplete( self, task ):
+        agentNO = self.agentNO()
+
+        if task.type == ATD.ETaskType.Undefined:
+            return False
+        elif task.type == ATD.ETaskType.GoToNode:
+            return agentNO.isOnNode( nodeID = task.data )
+        elif task.type == ATD.ETaskType.DoCharge:
+            return agentNO.BS.supercapPercentCharge() >= task.data
+        elif task.type == ATD.ETaskType.JmpToTask:
+            return agentNO.task_idx == task.data
+
         return False
 
     def readyForTask( self, task ):
+        agentNO = self.agentNO()
+
         if task.type == ATD.ETaskType.Undefined:
             return True
-        elif task.type == ATD.ETaskType.GoToNode:
-            agentNO = self.agentNO()
-            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle
+        elif task.type == ATD.ETaskType.GoToNode:    
+            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+        elif task.type == ATD.ETaskType.DoCharge:
+            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+        elif task.type == ATD.ETaskType.JmpToTask:
+            return agentNO.status == ADT.EAgent_Status.Idle
 
         return False
 
     def processTask( self, task ):
+        agentNO = self.agentNO()
+
         if task.type == ATD.ETaskType.GoToNode:
-            agentNO = self.agentNO()
             tKey = agentNO.isOnTrack()
             startNode = tKey[0]
             targetNode = task.data
             nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+            agentNO.status = ADT.EAgent_Status.OnRoute
             agentNO.applyRoute( nodes_route )
+
+        elif task.type == ATD.ETaskType.DoCharge:
+            if not agentNO.isOnNode( nodeType = ENodeTypes.ServiceStation ):
+                tKey = agentNO.isOnTrack()
+                startNode = tKey[0]
+
+                route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, startNode, agentNO.angle )
+                if len(nodes_route) == 0:
+                    agentNO.status = ADT.EAgent_Status.NoRouteToCharge
+                else:
+                    agentNO.status = ADT.EAgent_Status.GoToCharge
+                    agentNO.applyRoute( nodes_route )
+            else:
+                if agentNO.status == ADT.EAgent_Status.Idle:
+                    self.prepareCharging()
+
+        elif task.type == ATD.ETaskType.JmpToTask:
+            agentNO.task_idx = task.data
 
         print( "processTask=", task )

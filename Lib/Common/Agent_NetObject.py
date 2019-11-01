@@ -1,7 +1,6 @@
 
 from PyQt5.QtCore import QTimer
 
-import networkx as nx ##remove##
 from copy import deepcopy
 from collections import namedtuple
 
@@ -10,9 +9,10 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import graphNodeCache
+from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
 import Lib.AgentProtocol.AgentDataTypes as ADT
 import Lib.AgentProtocol.AgentTaskData as ATD
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
+import Lib.AgentProtocol.AgentTaskData as ATD
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Utils import СStrProps_Meta
 import Lib.Common.StrConsts as SC
@@ -129,7 +129,6 @@ class CAgent_NO( CNetObj ):
             if netCmd.value in ADT.errorStatuses:
                 self.auto_control = 0
 
-    # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
     def isOnTrack( self ):
         if ( not self.edge ) or ( not self.graphRootNode() ):
             return
@@ -177,32 +176,7 @@ class CAgent_NO( CNetObj ):
 
         if GU.nodeType( self.nxGraph, targetNode ) == SGT.ENodeTypes.Terminal: return
 
-        ##remove## заменить на присвоение соответствующего задания, вместо хардкорной прокладки маршрута
-        nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
-        self.applyRoute( nodes_route )
-
-    def goToCharge(self):
-        tEdgeKey = self.isOnTrack()
-        if tEdgeKey is None: return
-        startNode = tEdgeKey[0]
-
-        route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, startNode, self.angle )
-        if len(nodes_route) == 0:
-            self.status = ADT.EAgent_Status.NoRouteToCharge
-            print(f"{SC.sError} Cant find any route to service station.")
-        else:
-            self.status = ADT.EAgent_Status.GoToCharge
-
-        self.applyRoute( nodes_route )
-
-    ##remove##
-    # def prepareCharging(self):
-    #     tKey = self.edge.toTuple()
-    #     if not GU.isOnNode( self.nxGraph, SGT.ENodeTypes.ServiceStation, tKey, self.position ):
-    #         self.status = ADT.EAgent_Status.CantCharge
-    #         return
-
-    #     self.cmd_CM = ADT.EAgent_CMD_State.Init
+        self.task_list = ATD.CTaskList( elementList=[ ATD.CTask( taskType=ATD.ETaskType.GoToNode, taskData=targetNode ) ] )
 
     def applyRoute( self, nodes_route ):
         route_size = len(nodes_route)
@@ -220,7 +194,7 @@ class CAgent_NO( CNetObj ):
             else:
                 nodes_route = list( tKey )
         else:
-            # выполнится только одно уловие, тк одна из нод tKey присутствует в маршруте ( см. assert выше )
+            # выполнится только одно условие, тк одна из нод tKey присутствует в маршруте ( см. assert выше )
             if tKey[0] not in nodes_route: nodes_route.insert( 0, tKey[0] )
             if tKey[1] not in nodes_route: nodes_route.insert( 0, tKey[1] )
 

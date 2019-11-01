@@ -170,6 +170,9 @@ class CAgent_Widget( CNetObj_Widget ):
     def on_leGoTo_returnPressed( self ):
         self.agentNO.goToNode( self.leGoTo.text() )
 
+    def on_btnDoCharge_released( self ):
+        self.agentNO.task_list = ATD.CTaskList( elementList=[ ATD.CTask( taskType=ATD.ETaskType.DoCharge, taskData=97 ) ] )
+
     @pyqtSlot("bool")
     def on_btnReset_clicked( self, bVal ):
         self.agentNO.route = CStrList()

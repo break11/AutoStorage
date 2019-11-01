@@ -7,8 +7,9 @@ TDS = "=" # Task Data Splitter
 
 class ETaskType( BaseEnum ):
     Undefined = auto()
-    GoToNode = auto()
+    GoToNode  = auto()
     DoCharge  = auto()
+    JmpToTask = auto()
 
     Default = Undefined
 
@@ -17,11 +18,15 @@ class ETaskType( BaseEnum ):
 class CTask:
     dataFromStrFunc = {
                         ETaskType.Undefined : lambda sData : sData,
-                        ETaskType.GoToNode : lambda sData : sData
+                        ETaskType.GoToNode  : lambda sData : sData,
+                        ETaskType.DoCharge  : lambda sData : float(sData),
+                        ETaskType.JmpToTask : lambda sData : int(sData),
                       }
     dataToStrFunc   = {
-                        ETaskType.Undefined : lambda data : data,
-                        ETaskType.GoToNode : lambda data : data
+                        ETaskType.Undefined : lambda data  : data,
+                        ETaskType.GoToNode  : lambda data  : data,
+                        ETaskType.DoCharge  : lambda sData : str(sData),
+                        ETaskType.JmpToTask : lambda data  : str(data),
                       }
 
     def __init__( self, taskType=ETaskType.Undefined, taskData=None ):
@@ -67,4 +72,4 @@ class CTask:
 ######################
 
 class CTaskList( CSerializedList ):
-    element_type = CTask #type: ignore
+    element_type = CTask

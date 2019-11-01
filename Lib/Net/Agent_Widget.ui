@@ -126,6 +126,16 @@
      <item>
       <widget class="QLineEdit" name="leGoTo"/>
      </item>
+     <item>
+      <widget class="QPushButton" name="btnDoCharge">
+       <property name="text">
+        <string>DoCharge</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -157,9 +167,6 @@
        <property name="readOnly">
         <bool>false</bool>
        </property>
-       <property name="clearButtonEnabled">
-        <bool>true</bool>
-       </property>
        <property name="propRef" stdset="0">
         <string>edge</string>
        </property>
@@ -173,6 +180,9 @@
       </widget>
      </item>
      <item>
+      <widget class="QSpinBox" name="spinBox"/>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnAngleUp">
        <property name="toolTip">
         <string>Ctrl+Up</string>
@@ -184,9 +194,6 @@
         <string>Ctrl+Up</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="spinBox"/>
      </item>
      <item>
       <widget class="QDoubleSpinBox" name="sbAngle">
@@ -485,9 +492,6 @@
        <property name="readOnly">
         <bool>false</bool>
        </property>
-       <property name="clearButtonEnabled">
-        <bool>false</bool>
-       </property>
        <property name="propRef" stdset="0">
         <string>status</string>
        </property>
@@ -535,9 +539,6 @@
       <widget class="QLineEdit" name="edRoute">
        <property name="readOnly">
         <bool>false</bool>
-       </property>
-       <property name="clearButtonEnabled">
-        <bool>true</bool>
        </property>
        <property name="propRef" stdset="0">
         <string>route</string>
@@ -607,9 +608,6 @@
       <widget class="QLineEdit" name="edTaskList">
        <property name="readOnly">
         <bool>false</bool>
-       </property>
-       <property name="clearButtonEnabled">
-        <bool>true</bool>
        </property>
        <property name="propRef" stdset="0">
         <string>task_list</string>
