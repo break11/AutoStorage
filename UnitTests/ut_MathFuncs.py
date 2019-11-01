@@ -432,25 +432,25 @@ class TestMathFuncs(unittest.TestCase):
         ############# Варианты без необходимости рассчета разворота (кратчайший путь даст неоходимий поворот) ############
         nodes_route = ["26", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = None )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("26", "25"), agentAngle = 90.0, targetNode = "40", targetSide = None )
         self.assertEqual ( nodes_route, test_nodes_route )
         
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = None )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("26", "25"), agentAngle = 270.0, targetNode = "40", targetSide = None )
         self.assertEqual ( nodes_route, test_nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("26", "25"), agentAngle = 90.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertEqual ( nodes_route, test_nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("26", "25"), agentAngle = 270.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertEqual ( nodes_route, test_nodes_route )
 
         ################################# Рассчет разворота, кратчайший путь частично проходит через цикл ##################
         nodes_route = ["26", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("26", "25"), agentAngle = 90.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertEqual ( nodes_route, test_nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "26", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("26", "25"), agentAngle = 270.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertEqual ( nodes_route, test_nodes_route )
 
         ##################  Рассчет разворота, кратчайший путь стартует с цикла и частично проходит через цикл ##############
@@ -458,39 +458,39 @@ class TestMathFuncs(unittest.TestCase):
         # case 1
         nodes_route = ["25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "25", targetNode = "40", agentAngle = 90.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("25", "24"), agentAngle = 90.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertEqual ( nodes_route, test_nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "25", targetNode = "40", agentAngle = 270.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("25", "24"), agentAngle = 270.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertEqual ( nodes_route, test_nodes_route )
 
         # case 2
         nodes_route = ["19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "19", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("19", "18"), agentAngle = 0.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertEqual ( nodes_route, test_nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "19", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("19", "18"), agentAngle = 180.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertEqual ( nodes_route, test_nodes_route )
 
 
         ###### Без разворота, кратчайший путь стартует с цикла и эта нода - единственное пересечение с циклом #######
         nodes_route = ["20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("20", "29"), agentAngle = 180.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertEqual ( nodes_route, test_nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("20", "29"), agentAngle = 0.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertEqual ( nodes_route, test_nodes_route )
 
         ###### Рассчет разворота, кратчайший путь стартует с цикла и эта нода - единственное пересечение с циклом #######
         nodes_route_1 = ["20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
         nodes_route_2 = ["20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("20", "19"), agentAngle = 0.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "20", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("20", "21"), agentAngle = 180.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
 
@@ -499,59 +499,76 @@ class TestMathFuncs(unittest.TestCase):
         nodes_route_1 = ["44", "43", "38", "37", "36", "35", "34", "31", "30", "29", "20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
         nodes_route_2 = ["44", "43", "38", "37", "36", "35", "34", "31", "30", "29", "20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29", "30", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "44", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("44", "43"), agentAngle = 0.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "44", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("44", "43"), agentAngle = 180.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
         # case 2
         nodes_route_1 = ["29", "20", "19", "18", "17", "16", "24", "25", "23", "22", "21", "20", "29"]
         nodes_route_2 = ["29", "20", "21", "22", "23", "25", "24", "16", "17", "18", "19", "20", "29"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 0.0, targetNode = "29", targetSide = SGT.ESide.Left )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "29", targetSide = SGT.ESide.Right )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
         # case 3
         nodes_route_1 = ["61", "62", "77", "78", "68", "76", "67", "95", "66", "71", "70", "64", "96", "69", "75", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
         nodes_route_2 = ["61", "62", "75", "69", "96", "64", "70", "71", "66", "95", "67", "76", "68", "78", "77", "62", "61", "54", "33", "31", "34", "35", "36", "37", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "61", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("61", "62"), agentAngle = 0.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "61", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("61", "62"), agentAngle = 180.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
         ################## Стартовая и целевая ноды совпадают, разворот не требуется #####################################
         nodes_route = ["29"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 0.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 0.0, targetNode = "29", targetSide = SGT.ESide.Right )
         self.assertEqual ( test_nodes_route, nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "29", targetNode = "29", agentAngle = 180.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "29", targetSide = SGT.ESide.Left )
         self.assertEqual ( test_nodes_route, nodes_route )
 
         ###################  Стартовая и целевая ноды совпадают, разворот #################################################
         nodes_route_1 = ['40', '39', '38', '37', '36', '35', '34', '31', '30', '29', '20', '21', '22', '23', '25', '24', '16', '17', '18', '19', '20', '29', '30', '31', '34', '35', '36', '37', '38', '39', '40']
         nodes_route_2 = ['40', '39', '38', '37', '36', '35', '34', '31', '30', '29', '20', '19', '18', '17', '16', '24', '25', '23', '22', '21', '20', '29', '30', '31', '34', '35', '36', '37', '38', '39', '40']
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "40", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("40", "39"), agentAngle = 0.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "40", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("40", "39"), agentAngle = 180.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertIn ( test_nodes_route, [ nodes_route_1, nodes_route_2 ] )
 
         #############  Разворот с использованием однонаправленного цикла, кратчайший маршрут пересекается с циклом  #######
         nodes_route = ["83", "90", "89", "53", "86", "79", "80", "81", "82", "87", "83", "90", "89", "53", "52", "51", "50", "49", "48", "47", "46", "45", "44", "43", "38", "39", "40"]
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "83", targetNode = "40", agentAngle = 0.0, targetSide = SGT.ESide.Left )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("83", "90"), agentAngle = 0.0, targetNode = "40", targetSide = SGT.ESide.Left )
         self.assertEqual ( test_nodes_route, nodes_route )
 
-        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, startNode = "83", targetNode = "40", agentAngle = 180.0, targetSide = SGT.ESide.Right )
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("83", "90"), agentAngle = 180.0, targetNode = "40", targetSide = SGT.ESide.Right )
         self.assertEqual ( test_nodes_route, nodes_route )
+
+        #################### Стартовая и конечная нода на узком рельсе ####################
+        nodes_route = ["29", "20", "21", "22", "23", "25", "26" ]
+
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "26", targetSide = SGT.ESide.Left )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 0.0, targetNode = "26", targetSide = SGT.ESide.Right )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        nodes_route = ['29', '20', '19', '18', '17', '16', '24', '25', '26']
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 0.0, targetNode = "26", targetSide = SGT.ESide.Left )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "26", targetSide = SGT.ESide.Right )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
 
 
 class TestStrFuncs(unittest.TestCase):

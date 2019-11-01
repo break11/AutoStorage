@@ -157,7 +157,7 @@ class CAM_MainWindow(QMainWindow):
 
         if targetNode is None:
             if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
-                route_weight, nodes_route = routeToServiceStation( nxGraph, startNode, agentNO.angle )
+                route_weight, nodes_route = routeToServiceStation( nxGraph, tKey, agentNO.angle )
                 if len(nodes_route) == 0:
                     agentNO.status = ADT.EAgent_Status.NoRouteToCharge
                     print(f"{SC.sError} Cant find any route to service station.")

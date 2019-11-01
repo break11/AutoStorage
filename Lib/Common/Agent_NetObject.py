@@ -175,9 +175,8 @@ class CAgent_NO( CNetObj ):
     def goToCharge(self):
         tEdgeKey = self.isOnTrack()
         if tEdgeKey is None: return
-        startNode = tEdgeKey[0]
 
-        route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, startNode, self.angle )
+        route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, tEdgeKey, self.angle )
         if len(nodes_route) == 0:
             self.status = ADT.EAgent_Status.NoRouteToCharge
             print(f"{SC.sError} Cant find any route to service station.")
