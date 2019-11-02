@@ -57,8 +57,13 @@ class CAgentLink( CAgentServer_Link ):
 
         self.main_Timer = QTimer()
         self.main_Timer.setInterval(1000)
-        self.main_Timer.timeout.connect( self.tick )
+        self.main_Timer.timeout.connect( self.mainTick )
         self.main_Timer.start()
+
+        self.task_Timer = QTimer()
+        self.task_Timer.setInterval(500)
+        self.task_Timer.timeout.connect( self.processTaskList )
+        self.task_Timer.start()
 
     def __del__(self):
         self.main_Timer.stop()
@@ -84,12 +89,9 @@ class CAgentLink( CAgentServer_Link ):
         elif cmd.sPropName == SAP.route:
             self.processRoute()
 
-        # elif cmd.sPropName == SAP.task_list:
-        #     self.processTaskList()
-
     ##################
 
-    def tick(self):
+    def mainTick(self):
         agentNO = self.agentNO()
 
         if agentNO.RTele:
@@ -101,8 +103,6 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.connectedTime += 1
         else:
             agentNO.connectedTime = 0
-
-        self.processTaskList()
 
     ####################
     def calcAgentAngle( self, agentNO ):
