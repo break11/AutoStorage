@@ -84,9 +84,6 @@ class CNetObj_Button_Linker( CNetObj_Control_Linker ):
 ##############################################
 
 class CNetObj_EditLine_Linker( CNetObj_Control_Linker ):
-    def __init__( self ):
-        super().__init__()
-
     def addEditLine_for_Class( self, control, customClass ):
         self.addControl( control, valToControlFunc   = lambda data : data.toString(),
                                   valFromControlFunc = lambda data : customClass.fromString( data ) )
@@ -111,3 +108,22 @@ class CNetObj_EditLine_Linker( CNetObj_Control_Linker ):
         # обратное присваение нужно, т.к. если тип не принял значение из строки ( например "Idle1111" ) а в значении уже было Idle - то обновление поля не пройдет
         # и в строке ввода останется неверное значение "Idle1111"
         self._updateControlState( editLine, value )
+
+##############################################
+
+class CNetObj_SpinBox_Linker( CNetObj_Control_Linker ):
+    def addControl( self, control, valToControlFunc=None, valFromControlFunc=None ):
+        super().addControl( control, valToControlFunc, valFromControlFunc )
+        control.valueChanged.connect( self.valueChanged )
+
+    def updateControlState( self, control, value ):
+        control.setValue( value )
+
+    def valueChanged( self, val ):
+        spinBox = self.sender()
+        propRef = self.controlPropRef( spinBox )
+
+        valueFunc = self.valFromControlFunc_by_Control[ spinBox ]
+        value = spinBox.value()
+        value = value if valueFunc is None else valueFunc( value )
+        self.netObj[ propRef ] = value

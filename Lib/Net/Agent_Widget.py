@@ -13,7 +13,7 @@ from Lib.StorageViewer.Node_SGItem import CNode_SGItem
 from Lib.Common.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker, CNetObj_ProgressBar_Linker
+from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker, CNetObj_ProgressBar_Linker, CNetObj_SpinBox_Linker
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.SerializedList import CStrList
@@ -41,6 +41,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnLinker = CNetObj_Button_Linker()
         self.elLinker  = CNetObj_EditLine_Linker()
         self.pbLinker  = CNetObj_ProgressBar_Linker()
+        self.sbLinker  = CNetObj_SpinBox_Linker()
 
         l = self.fmAgentCommands.layout()
         for i in range( l.count() ):
@@ -54,7 +55,9 @@ class CAgent_Widget( CNetObj_Widget ):
         self.elLinker.addEditLine_for_Class( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
         self.elLinker.addEditLine_for_Class( self.edStatusVal, customClass = ADT.EAgent_Status )
 
+        # edge, position
         self.elLinker.addEditLine_for_Class( self.edEdge, customClass = CStrList )
+        self.sbLinker.addControl( self.sbPosition )
 
         # route, route_idx
         self.elLinker.addEditLine_for_Class( self.edRoute, customClass = CStrList )
@@ -78,6 +81,9 @@ class CAgent_Widget( CNetObj_Widget ):
 
         # charge
         self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
+
+        # angle
+        self.sbLinker.addControl( self.sbAngle )
 
         self.updateControls_Timer = QTimer()
         self.updateControls_Timer.setInterval(1000)
@@ -117,26 +123,26 @@ class CAgent_Widget( CNetObj_Widget ):
     def init( self, netObj ):
         assert isinstance( netObj, CAgent_NO )
         super().init( netObj )
-        self.sbAngle.setValue( netObj.angle )
         self.btnAutoControl.setChecked( netObj.auto_control )
 
         self.btnLinker.init( self.netObj )
         self.elLinker.init( self.netObj )
         self.pbLinker.init( self.netObj )
+        self.sbLinker.init( self.netObj )
 
         self.lbNameVal.setText( netObj.name )
 
     def done( self ):
         super().done()
-        self.sbAngle.setValue( 0 )
         self.btnSelectPutTo.setChecked( False )
         self.btnSelectGoTo.setChecked( False )
-        self.btnAutoControl.setChecked( False )
+        self.btnAutoControl.setChecked( False )        
         self.selectTargetMode = SelectionTarget.null
 
         self.btnLinker.clear()
         self.elLinker.clear()
         self.pbLinker.clear()
+        self.sbLinker.clear()
 
         self.lbNameVal.clear()
 
@@ -161,9 +167,6 @@ class CAgent_Widget( CNetObj_Widget ):
     def on_btnAngleDown_released( self ):
         self.netObj.angle -= 2
 
-    def on_sbAngle_editingFinished( self ):
-        self.netObj.angle = self.sbAngle.value()
-
     def on_lePutTo_returnPressed( self ):
         self.agentNO.putToNode( self.lePutTo.text() )
 
@@ -182,13 +185,10 @@ class CAgent_Widget( CNetObj_Widget ):
     
     #######################################################
 
-    def onObjPropUpdated( self, cmd ):
-        if self.netObj is None: return
-        if cmd.Obj_UID != self.netObj.UID:
-            return
-
-        if cmd.sPropName == SAP.angle:
-            self.sbAngle.setValue( cmd.value )
+    # def onObjPropUpdated( self, cmd ):
+    #     if self.netObj is None: return
+    #     if cmd.Obj_UID != self.netObj.UID:
+    #         return
     
     #######################################################
 
