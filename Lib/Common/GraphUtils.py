@@ -192,14 +192,14 @@ def vecsPair_withMaxAngle(vecs):
 
 def rotateToRightSector(vec):
     angle = vec.selfAngle()
-    if angle > math.pi/4 and angle < math.pi * (5/4):
+    if angle > math.pi/4 and angle <= math.pi * (5/4):
         vec = vec.rotate( math.pi )
 
     return vec
 
 def rotateToLeftSector(vec):
     angle = vec.selfAngle()
-    if angle < math.pi/4 or angle > math.pi * (5/4):
+    if angle <= math.pi/4 or angle > math.pi * (5/4):
         vec = vec.rotate( math.pi )
 
     return vec

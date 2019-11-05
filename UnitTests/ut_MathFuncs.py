@@ -206,7 +206,7 @@ class TestMathFuncs(unittest.TestCase):
         self.assertEqual( vec, u_vec_0 )
 
         vec = gu.rotateToRightSector( u_vec_225 )
-        self.assertEqual( vec, u_vec_225 )
+        self.assertEqual( vec, u_vec_45 )
         
         vec = gu.rotateToRightSector( u_vec_270 )
         self.assertEqual( vec, u_vec_270 )
@@ -220,7 +220,7 @@ class TestMathFuncs(unittest.TestCase):
         self.assertEqual( vec, u_vec_180 )
 
         vec = gu.rotateToLeftSector( u_vec_45 )
-        self.assertEqual( vec, u_vec_45 )
+        self.assertEqual( vec, u_vec_225 )
         
         vec = gu.rotateToLeftSector( u_vec_90 )
         self.assertEqual( vec, u_vec_90 )
