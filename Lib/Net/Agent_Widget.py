@@ -36,7 +36,7 @@ class CAgent_Widget( CNetObj_Widget ):
         uic.loadUi( os.path.dirname( __file__ ) + '/Agent_Widget.ui', self )
         self.selectTargetMode = SelectionTarget.null
         self.setSGM(  None )
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+        ##remove##CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
         self.btnLinker = CNetObj_Button_Linker()
         self.elLinker  = CNetObj_EditLine_Linker()
@@ -184,7 +184,7 @@ class CAgent_Widget( CNetObj_Widget ):
             self.agentNO[ cmdProp ] = ADT.EAgent_CMD_State.Done
     
     #######################################################
-
+    ##remove##
     # def onObjPropUpdated( self, cmd ):
     #     if self.netObj is None: return
     #     if cmd.Obj_UID != self.netObj.UID:

@@ -94,6 +94,7 @@ class CBaseApplication( QApplication ):
             if not CNetObj_Manager.connect(): return False
 
         self.AgentsNode = CNetObj_Manager.rootObj.queryObj( "Agents", CNetObj )
+        self.BoxesNode = CNetObj_Manager.rootObj.queryObj( "Boxes", CNetObj )
 
         if self.bNetworkMode:
             self.tickTimer.timeout.connect( CNetObj_Manager.onTick )

@@ -15,7 +15,7 @@ import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 import Lib.Common.GraphUtils as GU
 import Lib.Common.StrConsts as SC
-
+##remove## all file
 CStoragePlace = namedtuple('CStoragePlace', 'UID label img nodeID side')
 CConveyor     = namedtuple('CConveyor',     'UID label img nodeID side')
 
