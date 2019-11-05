@@ -256,6 +256,9 @@ class TestMathFuncs(unittest.TestCase):
         angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 30.0)
         self.assertEqual(    (angle, bReverse), (0.0, False)    )
 
+        angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 390.0)
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
+
         angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 330.0)
         self.assertEqual(    (angle, bReverse), (0.0, False)    )
 
@@ -266,7 +269,7 @@ class TestMathFuncs(unittest.TestCase):
         self.assertEqual(    (angle, bReverse), (180.0, True)    )
 
         angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 45.0)
-        self.assertEqual(    (angle, bReverse), (45.0, None)    )
+        self.assertEqual(    (angle, bReverse), (0.0, False)    )
 
         angle, bReverse = gu.getAgentAngle(nxGraph = nxGraph_mag_ext, tEdgeKey = tEdgeKey, agent_angle = 315.0)
         self.assertEqual(    (angle, bReverse), (315.0, None)    )

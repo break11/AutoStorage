@@ -108,9 +108,9 @@ def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
     
     AgentEdgeAngle = agent_vec.angle( r_vec )
 
-    if AgentEdgeAngle < math.pi/4 :
+    if AgentEdgeAngle <= math.pi/4 :
         return math.degrees( r_vec.selfAngle() ), False
-    elif AgentEdgeAngle > math.pi * 3/4:
+    elif AgentEdgeAngle >= math.pi * 3/4:
         return math.degrees( r_vec.rotate( math.pi ).selfAngle() ), True
     else:
         return agent_angle, None
