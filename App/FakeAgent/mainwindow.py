@@ -16,7 +16,7 @@ from PyQt5.QtNetwork import QAbstractSocket, QNetworkInterface
 
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common import FileUtils
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 import Lib.Common.Utils as UT
 from .FakeAgentsList_Model import CFakeAgentsList_Model
@@ -25,7 +25,7 @@ from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 class CFA_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
+        uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
         load_Window_State_And_Geometry( self )
 
         for ipAddress in QNetworkInterface.allAddresses():

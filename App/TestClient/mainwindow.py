@@ -7,14 +7,14 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5 import uic
 
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.Common.BaseApplication import EAppStartPhase
 
 # Storage Map Designer Main Window
 class CTC_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
+        uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
         
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.AfterRedisConnect:

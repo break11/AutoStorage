@@ -14,9 +14,11 @@ import Lib.AgentProtocol.AgentDataTypes as ADT
 import Lib.AgentProtocol.AgentTaskData as ATD
 import Lib.AgentProtocol.AgentTaskData as ATD
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Utils import СStrProps_Meta
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrProps_Meta import СStrProps_Meta
+from Lib.Common.StrConsts import SC
 from Lib.Common.SerializedList import CStrList
+
+s_Agents = "Agents"
 
 class SAgentProps( metaclass = СStrProps_Meta ):
     edge            = None
@@ -94,7 +96,7 @@ def_props = { SAP.status: ADT.EAgent_Status.Idle,
               SAP.RTele : 1 }
 
 def agentsNodeCache():
-    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = "Agents" )
+    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Agents )
 
 def queryAgentNetObj( name ):
     props = deepcopy( def_props )

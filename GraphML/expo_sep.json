@@ -1,125 +1,100 @@
 {
-    "storage_places": [
+    "Boxes": [
         {
             "UID": 1,
             "label": "15 RIGHT",
-            "img" : "02_ZO_E_3.png",
             "nodeID": "15",
             "side": "Right"
         },
         {
             "UID": 2,
             "label": "17 RIGHT",
-            "img" : "01_34923.png",
             "nodeID": "17",
             "side": "Right"
         },
         {
             "UID": 3,
             "label": "18 RIGHT",
-            "img" : "03_USHM_P125_1000.png",
             "nodeID": "18",
             "side": "Right"
         },
         {
             "UID": 4,
             "label": "19 RIGHT",
-            "img" : "04_DL_20-A5.png",
             "nodeID": "19",
             "side": "Right"
         },
         {
             "UID": 5,
             "label": "20 RIGHT",
-            "img" : "05_34926.png",
             "nodeID": "20",
             "side": "Right"
         },
         {
             "UID": 6,
             "label": "21 RIGHT",
-            "img" : "06_LP_500.png",
             "nodeID": "21",
             "side": "Right"
         },
         {
             "UID": 7,
             "label": "22 RIGHT",
-            "img" : "07_59375_2.png",
             "nodeID": "22",
             "side": "Right"
         },
         {
             "UID": 8,
             "label": "23 RIGHT",
-            "img" : "08_DL_12-A5.png",
             "nodeID": "23",
             "side": "Right"
         },
         {
             "UID": 9,
             "label": "15 LEFT",
-            "img" : "09_45721_650.png",
             "nodeID": "15",
             "side": "Left"
         },
         {
             "UID": 10,
             "label": "17 LEFT",
-            "img" : "10_PBTS_450-40P.png",
             "nodeID": "17",
             "side": "Left"
         },
         {
             "UID": 11,
             "label": "18 LEFT",
-            "img" : "11_29626_H19_M.png",
             "nodeID": "18",
             "side": "Left"
         },
         {
             "UID": 12,
             "label": "19 LEFT",
-            "img" : "12_34916-anons.png",
             "nodeID": "19",
             "side": "Left"
         },
         {
             "UID": 13,
             "label": "20 LEFT",
-            "img" : "13_25240-anons.png",
             "nodeID": "20",
             "side": "Left"
         },
         {
             "UID": 14,
             "label": "21 LEFT",
-            "img" : "14_23130_L-anons.png",
             "nodeID": "21",
             "side": "Left"
         },
         {
             "UID": 15,
             "label": "22 LEFT",
-            "img" : "15_45352-anons.png",
             "nodeID": "22",
             "side": "Left"
         },
         {
             "UID": 16,
             "label": "23 LEFT",
-            "img" : "16_ZD_P421-ER-prev.png",
             "nodeID": "23",
             "side": "Left"
-        }
-    ],
-    "conveyors": [
-        {
-            "UID": 999,
-            "label": "Conveyor",
-            "img" : "",
-            "nodeID": "24",
-            "side": "Right"
         }
     ]
 }

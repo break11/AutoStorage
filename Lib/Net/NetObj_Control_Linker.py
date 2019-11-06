@@ -2,7 +2,7 @@ import weakref
 
 from PyQt5.Qt import pyqtSlot, QObject
 
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 

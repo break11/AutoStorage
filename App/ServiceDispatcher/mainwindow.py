@@ -4,7 +4,7 @@ from PyQt5 import uic
 
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 
 from Lib.AppWidgets.GraphLoad_Widget import CGraphLoad_Widget
 from Lib.AppWidgets.SystemTests_Widget import CSystemTests_Widget
@@ -19,7 +19,7 @@ class CSSD_MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
+        uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
 
         self.GraphLoad_Widget = CGraphLoad_Widget( self )
         self.centralWidget().layout().addWidget( self.GraphLoad_Widget )

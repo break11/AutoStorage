@@ -2,7 +2,7 @@ import sys
 
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
 from  Lib.Common.StrTypeConverter import CStrTypeConverter
-from Lib.Common import StrConsts as SC
+from Lib.Common.StrConsts import SC
 from .Net_Events import ENet_Event as EV
 from .NetCmd import CNetCmd
 import weakref

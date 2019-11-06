@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QCheckBox
 from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
 
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
 import Lib.AgentProtocol.AgentDataTypes as ADT

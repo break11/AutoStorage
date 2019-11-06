@@ -10,7 +10,8 @@ from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
-from Lib.Common.Agent_NetObject import CAgent_NO
+from Lib.Common.Agent_NetObject import CAgent_NO, s_Agents
+from Lib.Common.Box_NetObject import CBox_NO, s_Boxes
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 from Lib.Common.SerializedList import CStrList
@@ -25,6 +26,7 @@ def registerNetObjTypes():
     reg( CGraphNode_NO )
     reg( CGraphEdge_NO )
     reg( CAgent_NO )
+    reg( CBox_NO )
 
 def registerNetObj_Props_UserTypes():
     reg = CStrTypeConverter.registerUserType
@@ -49,6 +51,7 @@ class CBaseApplication( QApplication ):
         reg( CGraphNode_NO, CDictProps_Widget )
         reg( CGraphEdge_NO, CDictProps_Widget )
         reg( CAgent_NO,     CDictProps_Widget )
+        reg( CBox_NO,       CDictProps_Widget )
 
     def __init__(self, argv, bNetworkMode ):
         super().__init__( argv )
@@ -93,8 +96,8 @@ class CBaseApplication( QApplication ):
         if self.bNetworkMode:
             if not CNetObj_Manager.connect(): return False
 
-        self.AgentsNode = CNetObj_Manager.rootObj.queryObj( "Agents", CNetObj )
-        self.BoxesNode = CNetObj_Manager.rootObj.queryObj( "Boxes", CNetObj )
+        CNetObj_Manager.rootObj.queryObj( s_Agents, CNetObj )
+        CNetObj_Manager.rootObj.queryObj( s_Boxes, CNetObj )
 
         if self.bNetworkMode:
             self.tickTimer.timeout.connect( CNetObj_Manager.onTick )

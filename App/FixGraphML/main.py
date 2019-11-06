@@ -2,7 +2,7 @@ import sys
 import os
 import networkx as nx
 
-from Lib.Common import StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.Common.Utils import mergeDicts
 import Lib.Common.StorageGraphTypes as SGT
 from Lib.Common.Graph_NetObjects import prepareGraphProps

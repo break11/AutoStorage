@@ -7,7 +7,7 @@ import re
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 
 def edgesListFromNodes( nodesList ):
     edgesList = []

@@ -9,7 +9,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtNetwork import QHostAddress, QTcpServer
 
 from .AgentLink import CAgentLink
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.Common.NetUtils import socketErrorToString
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV

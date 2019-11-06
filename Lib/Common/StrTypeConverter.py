@@ -1,5 +1,5 @@
 
-from . import StrConsts as SC
+from .StrConsts import SC
 
 class CStrTypeConverter:
     __TypeLetters = {

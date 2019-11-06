@@ -1,5 +1,5 @@
 from enum import Enum
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 
 class BaseEnum( Enum ):
     @classmethod

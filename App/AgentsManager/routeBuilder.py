@@ -7,7 +7,7 @@ from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFr
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV

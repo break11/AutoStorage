@@ -18,7 +18,7 @@ from Lib.Common.GuiUtils import gvFitToPage
 from Lib.Common.Utils import time_func
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
-from Lib.Common import StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, prepareGraphProps

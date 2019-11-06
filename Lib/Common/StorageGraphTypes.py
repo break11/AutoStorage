@@ -4,7 +4,7 @@ import math
 from PyQt5.QtCore import Qt
 
 from .BaseEnum import BaseEnum
-from .Utils import СStrProps_Meta
+from .StrProps_Meta import СStrProps_Meta
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
     widthType        = None

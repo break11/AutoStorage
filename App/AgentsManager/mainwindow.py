@@ -14,7 +14,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
 from Lib.Net.Agent_Widget import CAgent_Widget
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
@@ -36,7 +36,7 @@ class CAM_MainWindow(QMainWindow):
         
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + SC.s_mainwindow_ui, self )
+        uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
         self.ACL_Form = CAgent_Cmd_Log_Form()
@@ -51,7 +51,7 @@ class CAM_MainWindow(QMainWindow):
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
-
+        
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
         self.registerObjects_Widgets()
                

@@ -12,7 +12,7 @@ from   Lib.Common.GridGraphicsScene import CGridGraphicsScene
 from   Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
 from   Lib.Common.SettingsManager import CSettingsManager as CSM
 from   Lib.Common.BaseApplication import EAppStartPhase
-import Lib.Common.StrConsts as SC
+from   Lib.Common.StrConsts import SC
 
 from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
 from  Lib.Common.GuiUtils import gvFitToPage, load_Window_State_And_Geometry, save_Window_State_And_Geometry
@@ -51,7 +51,7 @@ sceneDefSettings = {
                     s_snap_to_grid        : False, # type: ignore
                     s_draw_bbox           : False, # type: ignore
                     s_draw_special_lines  : False, # type: ignore
-                   }
+                    }
 ###########################################
 
 
@@ -87,7 +87,7 @@ class CViewerWindow(QMainWindow):
         self.bFullScreen = False
         self.DocWidgetsHiddenStates = {}
 
-        self.graphML_fname = SC.s_storage_graph_file__default
+        self.graphML_fname = SC.storage_graph_file__default
 
         self.objPropsModel = CNetObj_Props_Model( self )
         self.tvObjProps.setModel( self.objPropsModel )
@@ -142,7 +142,7 @@ class CViewerWindow(QMainWindow):
 
         elif initPhase == EAppStartPhase.AfterRedisConnect:
             if self.workMode == EWorkMode.MapDesignerMode:
-                self.loadGraphML( CSM.rootOpt( SC.s_last_opened_file, default=SC.s_storage_graph_file__default ) )
+                self.loadGraphML( CSM.rootOpt( SC.last_opened_file, default=SC.storage_graph_file__default ) )
                 
     #############################################################################
     def loadSettings( self ):
@@ -254,7 +254,7 @@ class CViewerWindow(QMainWindow):
         if self.SGM.load( sFName ):
             self.graphML_fname = sFName
             self.setWindowTitle( self.__sWindowTitle + sFName )
-            CSM.options[ SC.s_last_opened_file ] = sFName
+            CSM.options[ SC.last_opened_file ] = sFName
 
     def saveGraphML( self, sFName ):
         sFName = correctFNameToProjectDir( sFName )
@@ -265,7 +265,7 @@ class CViewerWindow(QMainWindow):
         
         self.graphML_fname = sFName
         self.setWindowTitle( self.__sWindowTitle + sFName )
-        CSM.options[ SC.s_last_opened_file ] = sFName
+        CSM.options[ SC.last_opened_file ] = sFName
         self.SGM.bHasChanges = False
 
     # событие изменения выделения на сцене
@@ -377,9 +377,9 @@ class CViewerWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_acNewGraphML_triggered(self, bChecked):
         self.unsavedChangesDialog()
-        self.graphML_fname = SC.s_storage_graph_file__default
+        self.graphML_fname = SC.storage_graph_file__default
         self.SGM.new()
-        self.setWindowTitle( self.__sWindowTitle + SC.s_storage_graph_file__default )
+        self.setWindowTitle( self.__sWindowTitle + SC.storage_graph_file__default )
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
@@ -395,7 +395,7 @@ class CViewerWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acSaveGraphML_triggered(self, bChecked):
-        if self.graphML_fname == SC.s_storage_graph_file__default:
+        if self.graphML_fname == SC.storage_graph_file__default:
             self.on_acSaveGraphMLAs_triggered(True)
         else:
             self.saveGraphML( self.graphML_fname )

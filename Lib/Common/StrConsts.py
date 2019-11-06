@@ -1,22 +1,19 @@
 
-sWarning = "[Warning]:"
-sError   = "[Error]:"
-sAssert  = "[Assert]:"
+from Lib.Common.StrProps_Meta import СStrProps_Meta
 
-_strList = [
-            "last_opened_file",
-            "storage_graph_file",
-            "main_window",
-            "geometry",
-            "state",
-            "propRef"
-          ]
-          
-# Экспортируем "короткие" алиасы строковых констант
-for str_item in _strList:
-    locals()[ "s_" + str_item ] = str_item
+class SC( metaclass = СStrProps_Meta ):
+    last_opened_file    = None
+    storage_graph_file  = None
+    main_window         = None
+    geometry            = None
+    state               = None
+    propRef             = None
+    name                = None
+    UID                 = None
+    sWarning            = "[Warning]:"
+    sError              = "[Error]:"
+    sAssert             = "[Assert]:"
 
-s_storage_graph_file__default = "GraphML/test.graphml"
-s_mainwindow_ui = "/mainwindow.ui"
-
-s_No_Graph_loaded = f"{sWarning} No Graph loaded."
+    storage_graph_file__default = "GraphML/test.graphml"
+    mainwindow_ui               = "/mainwindow.ui"
+    No_Graph_loaded             = f"{sWarning} No Graph loaded."

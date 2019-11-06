@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QGraphicsView, QProxyStyle, QStyle
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt, QRectF, QByteArray
 
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
 
 # Блокировка перехода в меню по нажатию Alt - т.к. это уводит фокус от QGraphicsView
@@ -16,23 +16,23 @@ class CNoAltMenu_Style( QProxyStyle ):
         return QProxyStyle.styleHint( self, stylehint, opt, widget, returnData)
 
 windowDefSettings = {
-                        SC.s_geometry: "", # type: ignore
-                        SC.s_state: ""     # type: ignore
+                        SC.geometry: "", # type: ignore
+                        SC.state: ""     # type: ignore
                     }
 def load_Window_State_And_Geometry( window ):
     #load settings
-    winSettings   = CSM.rootOpt( SC.s_main_window, default=windowDefSettings )
+    winSettings   = CSM.rootOpt( SC.main_window, default=windowDefSettings )
 
     #if winSettings:
-    geometry = CSM.dictOpt( winSettings, SC.s_geometry, default="" ).encode()
+    geometry = CSM.dictOpt( winSettings, SC.geometry, default="" ).encode()
     window.restoreGeometry( QByteArray.fromHex( QByteArray.fromRawData( geometry ) ) )
 
-    state = CSM.dictOpt( winSettings, SC.s_state, default="" ).encode()
+    state = CSM.dictOpt( winSettings, SC.state, default="" ).encode()
     window.restoreState   ( QByteArray.fromHex( QByteArray.fromRawData( state ) ) )
     
 def save_Window_State_And_Geometry( window ):
-    CSM.options[ SC.s_main_window ]  = { SC.s_geometry : window.saveGeometry().toHex().data().decode(),
-                                         SC.s_state    : window.saveState().toHex().data().decode() }
+    CSM.options[ SC.main_window ]  = { SC.geometry : window.saveGeometry().toHex().data().decode(),
+                                         SC.state    : window.saveState().toHex().data().decode() }
 
 # хелперная функция создание итема стандартной модели с дополнительными параметрами
 def Std_Model_Item( val, bReadOnly = False, userData = None ):

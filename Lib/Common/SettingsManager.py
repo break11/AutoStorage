@@ -4,7 +4,7 @@ import sys
 import json
 
 from .FileUtils import mainAppBaseName, projectDir
-from . import StrConsts as SC
+from .StrConsts import SC
 
 def settingsDir():
     return projectDir() + "Settings/"

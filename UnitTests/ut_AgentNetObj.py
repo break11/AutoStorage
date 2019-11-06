@@ -18,7 +18,7 @@ sDir = "./GraphML/"
 
 CNetObj_Manager.initRoot()
 loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
-CNetObj_Manager.rootObj.queryObj( "Agents", CNetObj ) #type:ignore
+CNetObj_Manager.rootObj.queryObj( ANO.s_Agents, CNetObj ) #type:ignore
 graphRootNode = graphNodeCache()
 
 

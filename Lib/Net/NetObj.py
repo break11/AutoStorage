@@ -4,7 +4,7 @@ from  Lib.Common.SettingsManager import CSettingsManager as CSM
 from  Lib.Common.StrTypeConverter import CStrTypeConverter
 from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
-import  Lib.Common.StrConsts as SC
+from  Lib.Common.StrConsts import SC
 from  Lib.Common.TreeNode import CTreeNode
 import weakref
 

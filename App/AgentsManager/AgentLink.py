@@ -13,7 +13,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.FileUtils as FileUtils
-import Lib.Common.StrConsts as SC
+from Lib.Common.StrConsts import SC
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StorageGraphTypes import ENodeTypes
@@ -149,7 +149,7 @@ class CAgentLink( CAgentServer_Link ):
 
         elif cmd.event in OD_OP_events:
             if self.graphRootNode() is None:
-                print( SC.s_No_Graph_loaded )
+                print( SC.No_Graph_loaded )
                 return
 
             agentNO = self.agentNO()
@@ -274,7 +274,7 @@ class CAgentLink( CAgentServer_Link ):
         self.SII = []
 
         if self.graphRootNode() is None:
-            print( SC.s_No_Graph_loaded )
+            print( SC.No_Graph_loaded )
             agentNO.status = ADT.EAgent_Status.RouteError
             return
 
