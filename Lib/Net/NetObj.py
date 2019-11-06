@@ -8,8 +8,8 @@ from  Lib.Common.StrConsts import SC
 from  Lib.Common.TreeNode import CTreeNode
 import weakref
 
-s_name       = "name"
-s_UID        = "UID"
+s_name       = "name" ##remove##
+s_UID        = "UID"  ##remove##
 
 class CNetObj( CTreeNode ):
     __s_Name       = "name"
