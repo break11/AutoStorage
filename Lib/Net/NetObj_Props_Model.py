@@ -128,6 +128,9 @@ class CNetObj_Props_Model( QAbstractTableModel ):
             if val is not None and type(val) not in CStrTypeConverter.std_types:
                 val = str(val)
             return val
+        elif role == Qt.ToolTipRole:
+            val = netObj.get( propName )
+            return str( type( val ) )
 
     def setData( self, index, value, role = Qt.EditRole ):
         if not index.isValid(): return None

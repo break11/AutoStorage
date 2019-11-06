@@ -38,10 +38,10 @@ deg_315 = 315.0
 deg_360 = 360.0
 deg_540 = 540.0
 
-nxGraph         = gu.loadGraphML_File( "./GraphML/math_unit_tests.graphml" )
+nxGraph         = gu.loadGraphML_File( "./UnitTests/math_unit_tests.graphml" )
 SGT.prepareGraphProps( nxGraph )
 
-nxGraph_mag_ext = gu.loadGraphML_File( "./GraphML/magadanskaya_ext_unit_tests.graphml" )
+nxGraph_mag_ext = gu.loadGraphML_File( "./UnitTests/magadanskaya_ext_unit_tests.graphml" )
 SGT.prepareGraphProps( nxGraph_mag_ext )
 
 tEdgeKey12 = ("1", "2")
@@ -607,10 +607,18 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 494, allowOffset=5 ), None )
 
     def test_isOnNode(self):
-        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.DummyNode, tEdgeKey12, 0 ), True )
-        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.ServiceStation, tEdgeKey12, 0 ), False )
-        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.DummyNode, tEdgeKey12, 500 ), True )
-        self.assertEqual( gu.isOnNode( nxGraph, SGT.ENodeTypes.ServiceStation, tEdgeKey12, 500 ), False )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0, _nodeType=SGT.ENodeTypes.DummyNode ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0, _nodeType=SGT.ENodeTypes.ServiceStation ), False )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeType=SGT.ENodeTypes.DummyNode ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeType=SGT.ENodeTypes.ServiceStation ), False )
+
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0, _nodeID="1", _nodeType=SGT.ENodeTypes.DummyNode ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0, _nodeID="1", _nodeType=SGT.ENodeTypes.ServiceStation ), False )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="2", _nodeType=SGT.ENodeTypes.DummyNode ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="2", _nodeType=SGT.ENodeTypes.ServiceStation ), False )
+
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="1", _nodeType=SGT.ENodeTypes.ServiceStation ), False )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0, _nodeID="2", _nodeType=SGT.ENodeTypes.ServiceStation ), False )
 
 if __name__ == "__main__":
     unittest.main()

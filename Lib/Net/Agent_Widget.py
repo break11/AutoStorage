@@ -13,10 +13,12 @@ from Lib.StorageViewer.Node_SGItem import CNode_SGItem
 from Lib.Common.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker, CNetObj_ProgressBar_Linker
+from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker, CNetObj_ProgressBar_Linker, CNetObj_SpinBox_Linker
 import Lib.Common.GraphUtils as GU
 from Lib.Common import StorageGraphTypes as SGT
+from Lib.Common.SerializedList import CStrList
 import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.AgentProtocol.AgentTaskData as ATD
 
 from PyQt5.QtCore import QTimer
 
@@ -34,11 +36,12 @@ class CAgent_Widget( CNetObj_Widget ):
         uic.loadUi( os.path.dirname( __file__ ) + '/Agent_Widget.ui', self )
         self.selectTargetMode = SelectionTarget.null
         self.setSGM(  None )
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+        ##remove##CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
         self.btnLinker = CNetObj_Button_Linker()
         self.elLinker  = CNetObj_EditLine_Linker()
         self.pbLinker  = CNetObj_ProgressBar_Linker()
+        self.sbLinker  = CNetObj_SpinBox_Linker()
 
         l = self.fmAgentCommands.layout()
         for i in range( l.count() ):
@@ -47,26 +50,47 @@ class CAgent_Widget( CNetObj_Widget ):
         self.btnLinker.addButton( self.btnRTele, 1, 0 )
         self.btnLinker.addButton( self.btnAutoControl, 1, 0 )
 
-        self.elLinker.addEditLine( self.leBS, customClass = ADT.SBS_Data )
-        self.elLinker.addEditLine( self.leTS, customClass = ADT.STS_Data )
-        self.elLinker.addEditLine( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
-        self.elLinker.addEditLine( self.edStatusVal, customClass = ADT.EAgent_Status )
-        self.elLinker.addControl( self.edRoute )
+        self.elLinker.addEditLine_for_Class( self.leBS, customClass = ADT.SBS_Data )
+        self.elLinker.addEditLine_for_Class( self.leTS, customClass = ADT.STS_Data )
+        self.elLinker.addEditLine_for_Class( self.edConnectedStatusVal, customClass = ADT.EConnectedStatus )
+        self.elLinker.addEditLine_for_Class( self.edStatusVal, customClass = ADT.EAgent_Status )
+
+        # edge, position
+        self.elLinker.addEditLine_for_Class( self.edEdge, customClass = CStrList )
+        self.sbLinker.addControl( self.sbPosition )
+
+        # route, route_idx
+        self.elLinker.addEditLine_for_Class( self.edRoute, customClass = CStrList )
         self.elLinker.addControl( self.edRouteIDX, valToControlFunc = lambda data: str(data), valFromControlFunc = lambda data: int(data) )
 
-        self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
-
         def routeIdx_to_Percent( idx ):
-           l = self.agentNO.route.split(",")
-           return idx / len( l ) * 100
+            nCount = self.agentNO.route.count()
+            return (idx+1) / (nCount-1) * 100 if nCount > 1 else 0
 
         self.pbLinker.addControl( self.pbRoute,  valToControlFunc = routeIdx_to_Percent  )
+
+        # task_list, task_idx
+        self.elLinker.addEditLine_for_Class( self.edTaskList, customClass = ATD.CTaskList )
+        self.elLinker.addControl( self.edTaskIDX, valToControlFunc = lambda data: str(data), valFromControlFunc = lambda data: int(data) )
+
+        def taskIdx_to_Percent( idx ):
+            nCount = self.agentNO.task_list.count()
+            return idx / nCount * 100 if nCount > 0 else 0
+
+        self.pbLinker.addControl( self.pbTask,  valToControlFunc = taskIdx_to_Percent  )
+
+        # charge
+        self.pbLinker.addControl( self.pbCharge, valToControlFunc = lambda data: data.supercapPercentCharge() )
+
+        # angle
+        self.sbLinker.addControl( self.sbAngle )
 
         self.updateControls_Timer = QTimer()
         self.updateControls_Timer.setInterval(1000)
         self.updateControls_Timer.timeout.connect( self.updateControls )
         self.updateControls_Timer.start()
 
+    s_color_red = "color: red"
     def updateControls( self ):
         if self.agentNO is None: return
 
@@ -76,10 +100,19 @@ class CAgent_Widget( CNetObj_Widget ):
             self.pbCharge.setStyleSheet( "" )
 
         if self.agentNO.BS.PowerType == ADT.EAgentBattery_Type.N:
-            self.leBS.setStyleSheet( "color: red" )
+            self.leBS.setStyleSheet( self.s_color_red )
         else:
             self.leBS.setStyleSheet( "" )
 
+        if self.agentNO.connectedStatus == ADT.EConnectedStatus.connected:
+            self.edConnectedStatusVal.setStyleSheet( "" )
+        else:
+            self.edConnectedStatusVal.setStyleSheet( self.s_color_red )
+
+        if self.agentNO.status in ADT.errorStatuses:
+            self.edStatusVal.setStyleSheet( self.s_color_red )
+        else:
+            self.edStatusVal.setStyleSheet( "" )
 
     def setSGM( self, SGM ):
         self.SGM = SGM
@@ -90,26 +123,26 @@ class CAgent_Widget( CNetObj_Widget ):
     def init( self, netObj ):
         assert isinstance( netObj, CAgent_NO )
         super().init( netObj )
-        self.sbAngle.setValue( netObj.angle )
         self.btnAutoControl.setChecked( netObj.auto_control )
 
         self.btnLinker.init( self.netObj )
         self.elLinker.init( self.netObj )
         self.pbLinker.init( self.netObj )
+        self.sbLinker.init( self.netObj )
 
         self.lbNameVal.setText( netObj.name )
 
     def done( self ):
         super().done()
-        self.sbAngle.setValue( 0 )
         self.btnSelectPutTo.setChecked( False )
         self.btnSelectGoTo.setChecked( False )
-        self.btnAutoControl.setChecked( False )
+        self.btnAutoControl.setChecked( False )        
         self.selectTargetMode = SelectionTarget.null
 
         self.btnLinker.clear()
         self.elLinker.clear()
         self.pbLinker.clear()
+        self.sbLinker.clear()
 
         self.lbNameVal.clear()
 
@@ -134,31 +167,28 @@ class CAgent_Widget( CNetObj_Widget ):
     def on_btnAngleDown_released( self ):
         self.netObj.angle -= 2
 
-    def on_sbAngle_editingFinished( self ):
-        self.netObj.angle = self.sbAngle.value()
-
     def on_lePutTo_returnPressed( self ):
         self.agentNO.putToNode( self.lePutTo.text() )
 
     def on_leGoTo_returnPressed( self ):
         self.agentNO.goToNode( self.leGoTo.text() )
 
+    def on_btnDoCharge_released( self ):
+        self.agentNO.task_list = ATD.CTaskList( elementList=[ ATD.CTask( taskType=ATD.ETaskType.DoCharge, taskData=97 ) ] )
+
     @pyqtSlot("bool")
     def on_btnReset_clicked( self, bVal ):
-        self.agentNO.route  = ""
+        self.agentNO.route = CStrList()
         self.agentNO.status = ADT.EAgent_Status.Idle
         for cmdProp in cmdProps_keys:
             self.agentNO[ cmdProp ] = ADT.EAgent_CMD_State.Done
     
     #######################################################
-
-    def onObjPropUpdated( self, cmd ):
-        if self.netObj is None: return
-        if cmd.Obj_UID != self.netObj.UID:
-            return
-
-        if cmd.sPropName == SAP.angle:
-            self.sbAngle.setValue( cmd.value )
+    ##remove##
+    # def onObjPropUpdated( self, cmd ):
+    #     if self.netObj is None: return
+    #     if cmd.Obj_UID != self.netObj.UID:
+    #         return
     
     #######################################################
 

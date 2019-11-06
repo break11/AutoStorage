@@ -1,7 +1,6 @@
 
 from PyQt5.QtCore import QTimer
 
-import networkx as nx
 from copy import deepcopy
 from collections import namedtuple
 
@@ -10,11 +9,14 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import graphNodeCache
-import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
+import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.AgentProtocol.AgentTaskData as ATD
+import Lib.AgentProtocol.AgentTaskData as ATD
 from Lib.Common import StorageGraphTypes as SGT
 from Lib.Common.Utils import СStrProps_Meta
 import Lib.Common.StrConsts as SC
+from Lib.Common.SerializedList import CStrList
 
 class SAgentProps( metaclass = СStrProps_Meta ):
     edge            = None
@@ -27,7 +29,8 @@ class SAgentProps( metaclass = СStrProps_Meta ):
     auto_control    = None
     connectedTime   = None
     connectedStatus = None
-    task            = None
+    task_list       = None
+    task_idx        = None
     cmd_PE          = None
     cmd_PD          = None
     cmd_BR          = None
@@ -64,14 +67,20 @@ for k, v in cmdProps.items():
 
 cmdProps_keys = cmdProps.keys()
 
-def_props = { SAP.status: ADT.EAgent_Status.Idle, SAP.edge: "", SAP.position: 0, SAP.route: "", SAP.route_idx: 0,
-              SAP.angle : 0.0, SAP.odometer : 0,
-              
+def_props = { SAP.status: ADT.EAgent_Status.Idle,
               SAP.connectedTime : 0,
               SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
-              
               SAP.auto_control : 1,
-              SAP.task : "",
+
+              SAP.edge: CStrList(),
+              SAP.position: 0,
+              SAP.angle : 0.0,
+              SAP.odometer : 0,              
+
+              SAP.route: CStrList(),
+              SAP.route_idx: 0,
+              SAP.task_list : ATD.CTaskList(),
+              SAP.task_idx  : 0,
 
               SAP.cmd_PE   : ADT.EAgent_CMD_State.Done, SAP.cmd_PD   : ADT.EAgent_CMD_State.Done,
               SAP.cmd_BR   : ADT.EAgent_CMD_State.Done, SAP.cmd_ES   : ADT.EAgent_CMD_State.Done,
@@ -117,15 +126,14 @@ class CAgent_NO( CNetObj ):
 
     def ObjPropUpdated( self, netCmd ):
         if netCmd.sPropName == SAP.status:
-            if netCmd.value in ADT.blockAutoControlStatuses:
+            if netCmd.value in ADT.errorStatuses:
                 self.auto_control = 0
 
-    # def propsDict(self): return self.nxGraph.graph if self.nxGraph else {}
     def isOnTrack( self ):
         if ( not self.edge ) or ( not self.graphRootNode() ):
             return
 
-        tEdgeKey = GU.tEdgeKeyFromStr(self.edge)
+        tEdgeKey = self.edge.toTuple()
 
         if len(tEdgeKey) < 2 :
             return
@@ -138,13 +146,12 @@ class CAgent_NO( CNetObj ):
         
         return tEdgeKey
 
-    def isOnNode( self, nodeType = None ):
-        tEdgeKey = self.isOnTrack
+    def isOnNode( self, nodeID = None, nodeType = None ):
+        tEdgeKey = self.isOnTrack()
         if not tEdgeKey: return False
 
-        return True if (nodeType is None) else GU.isOnNode( self.nxGraph, nodeType, tEdgeKey, self.position )
+        return GU.isOnNode( self.nxGraph, tEdgeKey, self.position, _nodeID=nodeID, _nodeType=nodeType )
 
-    
     def putToNode( self, nodeID ):        
         if not self.nxGraph.has_node( nodeID ): return
 
@@ -154,7 +161,7 @@ class CAgent_NO( CNetObj ):
         if len( edges ) == 0: return
 
         tEdgeKey = edges[ 0 ]
-        self.edge = GU.tEdgeKeyToStr( tEdgeKey )
+        self.edge = CStrList.fromTuple( tEdgeKey )
         self.position = 0 if tEdgeKey[ 0 ] == nodeID else GU.edgeSize( self.nxGraph, tEdgeKey )
 
     def goToNode( self, targetNode ):
@@ -169,29 +176,7 @@ class CAgent_NO( CNetObj ):
 
         if GU.nodeType( self.nxGraph, targetNode ) == SGT.ENodeTypes.Terminal: return
 
-        nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
-        self.applyRoute( nodes_route )
-
-    def goToCharge(self):
-        tEdgeKey = self.isOnTrack()
-        if tEdgeKey is None: return
-
-        route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, tEdgeKey, self.angle )
-        if len(nodes_route) == 0:
-            self.status = ADT.EAgent_Status.NoRouteToCharge
-            print(f"{SC.sError} Cant find any route to service station.")
-        else:
-            self.status = ADT.EAgent_Status.GoToCharge
-
-        self.applyRoute( nodes_route )
-
-    def prepareCharging(self):
-        tKey = GU.tEdgeKeyFromStr( self.edge )
-        if not GU.isOnNode( self.nxGraph, SGT.ENodeTypes.ServiceStation, tKey, self.position ):
-            self.status = ADT.EAgent_Status.CantCharge
-            return
-
-        self.cmd_CM = ADT.EAgent_CMD_State.Init
+        self.task_list = ATD.CTaskList( elementList=[ ATD.CTask( taskType=ATD.ETaskType.GoToNode, taskData=targetNode ) ] )
 
     def applyRoute( self, nodes_route ):
         route_size = len(nodes_route)
@@ -209,14 +194,14 @@ class CAgent_NO( CNetObj ):
             else:
                 nodes_route = list( tKey )
         else:
-            # выполнится только одно уловие, тк одна из нод tKey присутствует в маршруте ( см. assert выше )
+            # выполнится только одно условие, тк одна из нод tKey присутствует в маршруте ( см. assert выше )
             if tKey[0] not in nodes_route: nodes_route.insert( 0, tKey[0] )
             if tKey[1] not in nodes_route: nodes_route.insert( 0, tKey[1] )
 
         # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
         if ( nodes_route[1], nodes_route[0] ) == tKey:
             tKey = tuple( reversed(tKey) )
-            self.edge = GU.tEdgeKeyToStr( tKey )
+            self.edge = CStrList.fromTuple( tKey )
             curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
             self.position = curEdgeSize - self.position
         
@@ -225,11 +210,11 @@ class CAgent_NO( CNetObj ):
             if len( nodes_route ) > 2:
                 nodes_route = nodes_route[1:]
                 tKey = ( nodes_route[0], nodes_route[1] )
-                self.edge = GU.tEdgeKeyToStr( tKey )
+                self.edge = CStrList.fromTuple( tKey )
                 self.position = 0
             else:
                 return
 
-        self.route = ",".join( nodes_route )
+        self.route = CStrList( elementList = nodes_route )
 
         return nodes_route

@@ -6,14 +6,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>621</height>
+    <width>568</width>
+    <height>759</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
@@ -111,10 +126,108 @@
      <item>
       <widget class="QLineEdit" name="leGoTo"/>
      </item>
+     <item>
+      <widget class="QPushButton" name="btnDoCharge">
+       <property name="text">
+        <string>DoCharge</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="spacing">
+      <number>3</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="lbEdge">
+       <property name="text">
+        <string>Edge:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edEdge">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>edge</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbPos">
+       <property name="text">
+        <string>Pos:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="sbPosition">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>-999999999</number>
+       </property>
+       <property name="maximum">
+        <number>999999999</number>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>position</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QPushButton" name="btnAngleUp">
        <property name="toolTip">
@@ -130,6 +243,24 @@
      </item>
      <item>
       <widget class="QDoubleSpinBox" name="sbAngle">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="minimum">
         <double>-100000000.000000000000000</double>
        </property>
@@ -138,6 +269,9 @@
        </property>
        <property name="value">
         <double>0.000000000000000</double>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>angle</string>
        </property>
       </widget>
      </item>
@@ -319,34 +453,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QProgressBar" name="pbCharge">
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="value">
-      <number>50</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="textVisible">
-      <bool>true</bool>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="textDirection">
-      <enum>QProgressBar::TopToBottom</enum>
-     </property>
-     <property name="format">
-      <string>Charge %p%</string>
-     </property>
-     <property name="propRef" stdset="0">
-      <string>BS</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="lbBS">
@@ -359,6 +465,40 @@
       <widget class="QLineEdit" name="leBS">
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>BS</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QProgressBar" name="pbCharge">
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="textVisible">
+        <bool>true</bool>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="textDirection">
+        <enum>QProgressBar::TopToBottom</enum>
+       </property>
+       <property name="format">
+        <string>Charge %p%</string>
        </property>
        <property name="propRef" stdset="0">
         <string>BS</string>
@@ -407,10 +547,6 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
       <widget class="QLabel" name="lbStatus">
        <property name="text">
@@ -421,9 +557,6 @@
      <item>
       <widget class="QLineEdit" name="edStatusVal">
        <property name="readOnly">
-        <bool>false</bool>
-       </property>
-       <property name="clearButtonEnabled">
         <bool>false</bool>
        </property>
        <property name="propRef" stdset="0">
@@ -474,9 +607,6 @@
        <property name="readOnly">
         <bool>false</bool>
        </property>
-       <property name="clearButtonEnabled">
-        <bool>false</bool>
-       </property>
        <property name="propRef" stdset="0">
         <string>route</string>
        </property>
@@ -493,7 +623,7 @@
       <widget class="QLineEdit" name="edRouteIDX">
        <property name="maximumSize">
         <size>
-         <width>80</width>
+         <width>40</width>
          <height>16777215</height>
         </size>
        </property>
@@ -508,23 +638,98 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QProgressBar" name="pbRoute">
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="value">
+        <number>24</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="textVisible">
+        <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>route_idx</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="QProgressBar" name="pbRoute">
-     <property name="value">
-      <number>24</number>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="textVisible">
-      <bool>true</bool>
-     </property>
-     <property name="propRef" stdset="0">
-      <string>route_idx</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_10">
+     <item>
+      <widget class="QLabel" name="lbTaskList">
+       <property name="text">
+        <string>Task List:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edTaskList">
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>task_list</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbTaskIDX">
+       <property name="text">
+        <string>TaskIDX:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edTaskIDX">
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="readOnly">
+        <bool>false</bool>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>task_idx</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QProgressBar" name="pbTask">
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="value">
+        <number>24</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="textVisible">
+        <bool>true</bool>
+       </property>
+       <property name="propRef" stdset="0">
+        <string>task_idx</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">

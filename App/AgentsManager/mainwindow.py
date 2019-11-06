@@ -21,12 +21,13 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
-from Lib.Common.GraphUtils import tEdgeKeyFromStr, nodeType, routeToServiceStation
+from Lib.Common.GraphUtils import nodeType, routeToServiceStation
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
 from Lib.AgentProtocol.AgentLogManager import ALM
 import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.AgentProtocol.AgentTaskData as ATD
 
 class CAM_MainWindow(QMainWindow):
     def registerObjects_Widgets(self):
@@ -137,54 +138,27 @@ class CAM_MainWindow(QMainWindow):
                            SGT.ENodeTypes.PickStation,
                            SGT.ENodeTypes.PickStationIn,
                            SGT.ENodeTypes.PickStationOut ]
-                           
-    blockAutoTestStatuses = [ ADT.EAgent_Status.Charging, ADT.EAgent_Status.CantCharge ]
-
-    def AgentTestMoving(self, agentNO, targetNode = None):
-        if self.AgentsConnectionServer is None: return
-        agentLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name), bWarning = False )
-
-        if agentNO.isOnTrack() is None: return
-        if agentNO.route != "": return
-        if agentNO.status in self.blockAutoTestStatuses: return
-        if agentNO.status == ADT.EAgent_Status.GoToCharge: # здесь agentNO.route == ""
-            agentNO.prepareCharging()
-            return
-
-        nxGraph = self.graphRootNode().nxGraph
-        tKey = tEdgeKeyFromStr( agentNO.edge )
-        startNode = tKey[0]
-
-        if targetNode is None:
-            if agentNO.BS.supercapPercentCharge() < ADT.minChargeValue:
-                route_weight, nodes_route = routeToServiceStation( nxGraph, tKey, agentNO.angle )
-                if len(nodes_route) == 0:
-                    agentNO.status = ADT.EAgent_Status.NoRouteToCharge
-                    print(f"{SC.sError} Cant find any route to service station.")
-                else:
-                    agentNO.status = ADT.EAgent_Status.GoToCharge
-            else:
-                nodes = list( nxGraph.nodes )
-                while True:
-                    targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
-                    if startNode == targetNode: continue
-                    nType = nodeType(nxGraph, targetNode)
-                    if nType in self.enabledTargetNodes:
-                        break
-                
-                nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
-        else:
-            nodes_route = nx.algorithms.dijkstra_path(nxGraph, startNode, targetNode)
-
-        agentNO.applyRoute( nodes_route )
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
         if self.agentsNode().childCount() == 0: return
 
         for agentNO in self.agentsNode().children:
-            if agentNO.auto_control:
-                self.AgentTestMoving( agentNO )
+            if not agentNO.auto_control: continue
+            if agentNO.isOnTrack() is None: continue
+            if not agentNO.task_list.isEmpty(): continue
+
+            # поиск таргет ноды
+            nxGraph = self.graphRootNode().nxGraph
+            nodes = list( nxGraph.nodes )
+            while True:
+                targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
+                nType = nodeType(nxGraph, targetNode)
+                if nType in self.enabledTargetNodes:
+                    break
+            
+            # выдача задания
+            agentNO.task_list = ATD.CTaskList( [ ATD.CTask( ATD.ETaskType.DoCharge, 30 ), ATD.CTask( ATD.ETaskType.GoToNode, targetNode ) ] )
     
     # ******************************************************
     @pyqtSlot("bool")

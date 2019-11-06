@@ -3,6 +3,7 @@ import weakref
 import math
 import os
 import subprocess
+import networkx as nx
 
 from PyQt5.QtCore import QTimer
 
@@ -17,6 +18,7 @@ from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StorageGraphTypes import ENodeTypes
 import Lib.Common.ChargeUtils as CU
+from Lib.Common.SerializedList import CStrList
 
 from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
@@ -24,6 +26,7 @@ from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
 import Lib.AgentProtocol.AgentDataTypes as ADT
 from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentProtocol.AgentLogManager import ALM
+import Lib.AgentProtocol.AgentTaskData as ATD
 
 from .routeBuilder import CRouteBuilder
 
@@ -50,13 +53,17 @@ class CAgentLink( CAgentServer_Link ):
         self.SII = []
         self.DE_IDX = 0
         self.segOD = 0
-        self.nodes_route = []
         self.edges_route = []
 
         self.main_Timer = QTimer()
         self.main_Timer.setInterval(1000)
-        self.main_Timer.timeout.connect( self.tick )
+        self.main_Timer.timeout.connect( self.mainTick )
         self.main_Timer.start()
+
+        self.task_Timer = QTimer()
+        self.task_Timer.setInterval(500)
+        self.task_Timer.timeout.connect( self.processTaskList )
+        self.task_Timer.start()
 
     def __del__(self):
         self.main_Timer.stop()
@@ -80,31 +87,11 @@ class CAgentLink( CAgentServer_Link ):
                 agentNO[ cmd.sPropName ] = ADT.EAgent_CMD_State.Done
 
         elif cmd.sPropName == SAP.route:
-            if agentNO.status != ADT.EAgent_Status.GoToCharge:
-                if agentNO.route == "":
-                    if agentNO.status == ADT.EAgent_Status.OnRoute:
-                        agentNO.status = ADT.EAgent_Status.Idle
-                else:
-                    agentNO.status = ADT.EAgent_Status.OnRoute
-
-            agentNO.route_idx = 0
-            self.nodes_route = GU.nodesList_FromStr( cmd.value )
-            self.edges_route = GU.edgesListFromNodes( self.nodes_route )
-            self.DE_IDX = 0
-            self.segOD = 0
-            self.SII = []
-
-            if not cmd.value: return
-
-            seqList, self.SII = self.routeBuilder.buildRoute( nodeList = self.nodes_route, agent_angle = self.agentNO().angle )
-
-            for seq in seqList:
-                for cmd in seq:
-                    self.pushCmd( cmd )
+            self.processRoute()
 
     ##################
 
-    def tick(self):
+    def mainTick(self):
         agentNO = self.agentNO()
 
         if agentNO.RTele:
@@ -156,14 +143,13 @@ class CAgentLink( CAgentServer_Link ):
             self.setPos_by_DE()
 
             if self.DE_IDX == len(self.SII)-1:
-                agentNO.route = ""
-
+                agentNO.route = CStrList()
             else:
                 self.DE_IDX += 1
 
         elif cmd.event in OD_OP_events:
             if self.graphRootNode() is None:
-                print( f"{SC.sWarning} No Graph loaded." )
+                print( SC.s_No_Graph_loaded )
                 return
 
             agentNO = self.agentNO()
@@ -171,7 +157,8 @@ class CAgentLink( CAgentServer_Link ):
             tKey = agentNO.isOnTrack()
 
             if tKey is None: return
-            if len(self.nodes_route) == 0: return
+            if agentNO.route.count() == 0: return
+            if self.currSII() is None: return
         
             OD_OP_Data = cmd.data
             new_od = OD_OP_Data.getDistance()
@@ -188,11 +175,11 @@ class CAgentLink( CAgentServer_Link ):
                 new_pos = distance + agentNO.position
 
                 # переход через грань
-                if new_pos > edgeS and agentNO.route_idx < len( self.nodes_route )-2:
+                if new_pos > edgeS and agentNO.route_idx < agentNO.route.count()-2:
                     newIDX = agentNO.route_idx + 1
                     agentNO.position = new_pos % edgeS
-                    tEdgeKey = ( self.nodes_route[ newIDX ], self.nodes_route[ newIDX + 1 ] )
-                    agentNO.edge = GU.tEdgeKeyToStr( tEdgeKey )
+                    tEdgeKey = ( agentNO.route[ newIDX ], agentNO.route[ newIDX + 1 ] )
+                    agentNO.edge = CStrList.fromTuple( tEdgeKey )
                     agentNO.route_idx = newIDX
                 else:
                     agentNO.position = new_pos
@@ -232,7 +219,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.position  = self.currSII().pos
             agentNO.angle     = self.currSII().angle
             tKey              = self.currSII().edge
-            agentNO.edge      = GU.tEdgeKeyToStr( tKey )
+            agentNO.edge      = CStrList.fromTuple( tKey )
             try:
                 agentNO.route_idx = self.edges_route.index( tKey, agentNO.route_idx )
             except ValueError:
@@ -240,25 +227,177 @@ class CAgentLink( CAgentServer_Link ):
     
     def push_ES_and_ErrorStatus(self):
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
-            self.pushCmd( ES_cmd )
+            self.pushCmd( ES_cmd, bExpressPacket=True )
             self.agentNO().status = ADT.EAgent_Status.PosSyncError
 
     def prepareCharging( self ):
         agentNO = self.agentNO()
-        tKey = GU.tEdgeKeyFromStr( agentNO.edge )
-        if not GU.isOnNode( self.nxGraph, ENodeTypes.ServiceStation, tKey, agentNO.position ):
+        tKey = agentNO.edge.toTuple()
+        if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeType=ENodeTypes.ServiceStation ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
-        self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
-
-    def doChargeCMD( self, chargeCMD ):
-        tKey = GU.tEdgeKeyFromStr( self.agentNO().edge )
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
-
         port = GU.nodeChargePort( self.nxGraph, nodeID )
         if port is None:
             self.agentNO().status = ADT.EAgent_Status.CantCharge
             return
 
+        self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
+
+    def doChargeCMD( self, chargeCMD ):
+        tKey = self.agentNO().edge.toTuple()
+        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
+
+        port = GU.nodeChargePort( self.nxGraph, nodeID )
+        # проверка на наличие порта выполнена в prepareCharging, предполагаем, что с момента prepareCharging челнок не перемещался по нодам
+
         CU.controlCharge( chargeCMD, port )
+
+    #########################################################
+
+    def processRoute( self ):
+        agentNO = self.agentNO()
+
+        if agentNO.status in ADT.errorStatuses:
+            return
+
+        if agentNO.route.isEmpty():
+            agentNO.status = ADT.EAgent_Status.Idle
+        else:
+            if agentNO.status == ADT.EAgent_Status.Idle:
+                agentNO.status = ADT.EAgent_Status.OnRoute
+
+        agentNO.route_idx = 0
+        self.DE_IDX = 0
+        self.segOD = 0
+        self.SII = []
+
+        if self.graphRootNode() is None:
+            print( SC.s_No_Graph_loaded )
+            agentNO.status = ADT.EAgent_Status.RouteError
+            return
+
+        edges = GU.edgesListFromNodes( agentNO.route() )
+
+        if not all( [ self.nxGraph.has_edge(*e) for e in edges ] ):
+            agentNO.status = ADT.EAgent_Status.RouteError
+            return
+
+        self.edges_route = edges
+
+        if agentNO.route.isEmpty(): return
+
+        seqList, self.SII = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
+
+        for seq in seqList:
+            for cmd in seq:
+                self.pushCmd( cmd )
+
+    #######################
+
+    def processTaskList( self ):
+        agentNO = self.agentNO()
+
+        tl = agentNO.task_list
+
+        if tl.isEmpty():
+            agentNO.task_idx = 0
+            return
+
+        try:
+            currentTask = agentNO.task_list[ agentNO.task_idx ]
+        except:
+            agentNO.status = ADT.EAgent_Status.TaskError
+            return
+
+        if not self.taskValid( currentTask ):
+            agentNO.status = ADT.EAgent_Status.TaskError
+            return
+
+        if self.taskComplete( currentTask ):
+            if agentNO.task_idx+1 < agentNO.task_list.count():
+                agentNO.task_idx += 1
+            else:
+                agentNO.task_list = ATD.CTaskList()
+                agentNO.task_idx = 0
+            return
+
+        if not self.readyForTask( currentTask ): return
+
+        self.processTask( currentTask )
+
+    #######################
+
+    def taskValid( self, task ):
+        agentNO = self.agentNO()
+
+        if task.type == ATD.ETaskType.Undefined:
+            return False
+        elif task.type == ATD.ETaskType.GoToNode:
+            return self.nxGraph.has_node( task.data )
+        elif task.type == ATD.ETaskType.DoCharge:
+            return task.data > 0 and task.data <= 100
+        elif task.type == ATD.ETaskType.JmpToTask:
+            return task.data < agentNO.task_list.count()
+
+        return False
+
+    def taskComplete( self, task ):
+        agentNO = self.agentNO()
+
+        if task.type == ATD.ETaskType.Undefined:
+            return False
+        elif task.type == ATD.ETaskType.GoToNode:
+            return agentNO.isOnNode( nodeID = task.data )
+        elif task.type == ATD.ETaskType.DoCharge:
+            return agentNO.BS.supercapPercentCharge() >= task.data
+        elif task.type == ATD.ETaskType.JmpToTask:
+            return agentNO.task_idx == task.data
+
+        return False
+
+    def readyForTask( self, task ):
+        agentNO = self.agentNO()
+
+        if task.type == ATD.ETaskType.Undefined:
+            return True
+        elif task.type == ATD.ETaskType.GoToNode:    
+            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+        elif task.type == ATD.ETaskType.DoCharge:
+            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+        elif task.type == ATD.ETaskType.JmpToTask:
+            return agentNO.status == ADT.EAgent_Status.Idle
+
+        return False
+
+    def processTask( self, task ):
+        agentNO = self.agentNO()
+
+        if task.type == ATD.ETaskType.GoToNode:
+            tKey = agentNO.isOnTrack()
+            startNode = tKey[0]
+            targetNode = task.data
+            nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+            agentNO.status = ADT.EAgent_Status.OnRoute
+            agentNO.applyRoute( nodes_route )
+
+        elif task.type == ATD.ETaskType.DoCharge:
+            if not agentNO.isOnNode( nodeType = ENodeTypes.ServiceStation ):
+                tKey = agentNO.isOnTrack()
+                startNode = tKey[0]
+
+                route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, startNode, agentNO.angle )
+                if len(nodes_route) == 0:
+                    agentNO.status = ADT.EAgent_Status.NoRouteToCharge
+                else:
+                    agentNO.status = ADT.EAgent_Status.GoToCharge
+                    agentNO.applyRoute( nodes_route )
+            else:
+                if agentNO.status == ADT.EAgent_Status.Idle:
+                    self.prepareCharging()
+
+        elif task.type == ATD.ETaskType.JmpToTask:
+            agentNO.task_idx = task.data
+
+        print( "processTask=", task )

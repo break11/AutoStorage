@@ -107,6 +107,15 @@ class CAgent_Cmd_Log_Form(QWidget):
         self.main_Timer.timeout.connect( self.logTick )
         self.main_Timer.start()
 
+    ##remove## поиск ошибки при закрытии программы
+    # def __done__(self):
+    #     self.setAgentLink( None )
+    #     self.main_Timer.stop()
+    # Traceback (most recent call last):
+    #   File "/home/rtuser/Data/Projects/chelnoksklad/Lib/AppWidgets/Agent_Cmd_Log_Form.py", line 216, in logTick
+    #     q = self.agentLink().TX_Packets
+    # AttributeError: 'NoneType' object has no attribute 'TX_Packets'
+
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки
         ALC_Form_set = CSM.options[ s_agent_log_cmd_form ]
@@ -119,7 +128,6 @@ class CAgent_Cmd_Log_Form(QWidget):
             filterSet[ sFilterSign ] = cb.isChecked()
 
     def setAgentLink( self, agentLink ):
-        self.agentLink = agentLink
         if agentLink is None:
             self.clear()
             return
@@ -134,6 +142,7 @@ class CAgent_Cmd_Log_Form(QWidget):
         if self.agentLink:
             self.agentLink().log.clear()
         self.buffLogRows.clear()
+
 
     def filter_LogRow( self, logRow ):
         # filter by TX, RX
@@ -195,7 +204,7 @@ class CAgent_Cmd_Log_Form(QWidget):
         # self.limitLogLength()
 
     def logTick( self ):
-        if self.agentLink is None: return
+        if self.agentLink is None or self.agentLink() is None: return
 
         # отправка лога по таймеру с задержкой для снижения нагрузки CPU
         for logRow in self.buffLogRows:

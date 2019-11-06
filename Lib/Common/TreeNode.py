@@ -59,6 +59,7 @@ class CTreeNode:
 
     @classmethod
     def resolvePath( cls, obj, path ):
+        if obj is None: return None
         l = path.split("/")
         l = [ item for item in l if item != "" ]
         dest = obj

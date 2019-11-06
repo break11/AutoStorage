@@ -121,6 +121,9 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.gScene.addItem( self.GraphRoot_ParentGItem )
         self.updateDecorateOnScene()
 
+        self.initAgents_ParentGItem()
+    
+    def initAgents_ParentGItem( self ):
         if self.Agents_ParentGItem.scene() is None:
             self.gScene.addItem( self.Agents_ParentGItem )
 
@@ -131,6 +134,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         self.gScene.removeItem( self.Agents_ParentGItem )
         self.gScene.clear()
+        self.initAgents_ParentGItem()
 
         self.GraphRoot_ParentGItem     = None
         self.EdgeDecorates_ParentGItem = None
@@ -351,13 +355,16 @@ class CStorageGraph_GScene_Manager( QObject ):
     
     # удаление NetObj объектов определяющих грань
     def deleteEdge_NetObj(self, edgeNetObj):
-        # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
         tKey = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
         fsEdgeKey = frozenset( tKey )
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
+
+
         if edgeGItem is None: return
 
-        if edgeGItem.edgesNetObj_by_TKey[ tuple(reversed( tKey )) ]() is None:
+        # если удаляется последняя из кратных граней, то удаляем graphicsItem который их рисовал, иначе вызываем его перерисовку
+        reversedEdgeNO = edgeGItem.edgesNetObj_by_TKey[ tuple(reversed( tKey )) ]()
+        if (reversedEdgeNO is None) or (reversedEdgeNO.bMarkDeleted):
             # в процессе операции разворачивания граней - не нужно удалять "графикc итем" грани
             if not self.bEdgeReversing:
                 self.deleteEdge( fsEdgeKey )

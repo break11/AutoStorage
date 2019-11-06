@@ -26,13 +26,12 @@ bgColorsByConnectedStatus = { ADT.EConnectedStatus.connected    : Qt.darkGreen,
 colorsByStatus = { ADT.EAgent_Status.Idle            : Qt.green,
                    ADT.EAgent_Status.GoToCharge      : Qt.blue,
                    ADT.EAgent_Status.Charging        : Qt.gray,
-                   ADT.EAgent_Status.PosSyncError    : Qt.darkRed,
-                   ADT.EAgent_Status.NoRouteToCharge : Qt.darkRed,
                    ADT.EAgent_Status.OnRoute         : Qt.blue,
-                   ADT.EAgent_Status.CantCharge      : Qt.darkRed,
-                   ADT.EAgent_Status.AgentError      : Qt.darkRed,
                  }
 
+# всем ошибочным статусам задаем один цвет
+for status in ADT.errorStatuses:
+    colorsByStatus[ status ] = Qt.darkRed
 
 class CAgent_SGItem(QGraphicsItem):
     __R = 25
