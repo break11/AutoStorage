@@ -7,7 +7,7 @@ import os
 sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
-from App.AgentsManager.routeBuilder import CRouteBuilder, edgesListFromNodes, SI_Item
+from App.AgentsManager.routeBuilder import CRouteBuilder, edgesListFromNodes, SI_Item, ERouteStatus
 
 sDir = "./UnitTests/RouteBuilder/"
 
@@ -40,8 +40,9 @@ class CTestDE(unittest.TestCase):
                        SI_Item (length=342, K=1, edge=('g', 'i'), pos=300),
                      ]
 
-        route, SII_Narrow_test = routeBuilder.buildRoute( nodeList = narrowNodesList, agent_angle = 0 )
+        route, SII_Narrow_test, routeStatus = routeBuilder.buildRoute( nodeList = narrowNodesList, agent_angle = 0 )
         self.assertEqual( SII_Narrow, SII_Narrow_test )
+        self.assertEqual( routeStatus, ERouteStatus.Normal )
 
         ###############################################################################################
 
@@ -54,8 +55,9 @@ class CTestDE(unittest.TestCase):
                      SI_Item (length=200, K=-1, edge=('m', 'n'), pos=600),
                     ]
 
-        route, SII_Wide_1_test = routeBuilder.buildRoute( nodeList = wideNodesList_1, agent_angle = 0 )
+        route, SII_Wide_1_test, routeStatus = routeBuilder.buildRoute( nodeList = wideNodesList_1, agent_angle = 0 )
         self.assertEqual( SII_Wide_1, SII_Wide_1_test )
+        self.assertEqual( routeStatus, ERouteStatus.Normal )
 
         ###############################################################################################
 
@@ -64,8 +66,9 @@ class CTestDE(unittest.TestCase):
                      ]
 
 
-        route, SII_Wide2_test = routeBuilder.buildRoute( nodeList = wideNodesList_2, agent_angle = 0 )
+        route, SII_Wide2_test, routeStatus = routeBuilder.buildRoute( nodeList = wideNodesList_2, agent_angle = 0 )
         self.assertEqual( SII_Wide_2, SII_Wide2_test )
+        self.assertEqual( routeStatus, ERouteStatus.Normal )
 
         ##############################################################################################
 
@@ -76,8 +79,9 @@ class CTestDE(unittest.TestCase):
                       SI_Item(length=200, K=-1, edge=('k', 'l'), pos=560),
                     ]
 
-        route, SII_Mix1_test = routeBuilder.buildRoute( nodeList = mixNodesList_1, agent_angle = 0 )
+        route, SII_Mix1_test, routeStatus = routeBuilder.buildRoute( nodeList = mixNodesList_1, agent_angle = 0 )
         self.assertEqual( SII_Mix_1, SII_Mix1_test )
+        self.assertEqual( routeStatus, ERouteStatus.Normal )
 
         #############################################################################################
 
@@ -89,8 +93,9 @@ class CTestDE(unittest.TestCase):
                       SI_Item (length=800, K=1, edge=('s', 'q'), pos=600),
                     ]
 
-        route, SII_Mix2_test = routeBuilder.buildRoute( nodeList = mixNodesList_2, agent_angle = 0 )
+        route, SII_Mix2_test, routeStatus = routeBuilder.buildRoute( nodeList = mixNodesList_2, agent_angle = 0 )
         self.assertEqual( SII_Mix_2, SII_Mix2_test )
+        self.assertEqual( routeStatus, ERouteStatus.Normal )
 
         #############################################################################################
 
@@ -109,8 +114,9 @@ class CTestDE(unittest.TestCase):
                       SI_Item (length=342, K=1, edge=('b', 'a'), pos=300),
                     ]
 
-        route, SII_Mix3_test = routeBuilder.buildRoute( nodeList = mixNodesList_3, agent_angle = 180 )
+        route, SII_Mix3_test, routeStatus = routeBuilder.buildRoute( nodeList = mixNodesList_3, agent_angle = 180 )
         self.assertEqual( SII_Mix_3, SII_Mix3_test )
+        self.assertEqual( routeStatus, ERouteStatus.Normal )
 
     def test_shiftPos(self):
         narrowEdgesList = edgesListFromNodes(narrowNodesList)

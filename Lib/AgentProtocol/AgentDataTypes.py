@@ -50,6 +50,8 @@ class EAgent_Status( BaseEnum ):
     AgentError      = auto() # пришла ошибка с тележки
     RouteError      = auto() # не загружен граф, в маршруте указаны несуществующие точки, грани
     TaskError       = auto() # задан некорректный таск в списке тасков
+    # ошибки из routeBuilder - enum ERouteStatus, который возвращается из функции buildRoute
+    AngleError      = auto() # ошибка при построении маршрута при некорретном угле челнока ( отклонение от оси рельса более 45 градусов )
 
     Default         = Idle
 
@@ -58,7 +60,8 @@ errorStatuses = [ EAgent_Status.NoRouteToCharge,
                   EAgent_Status.CantCharge,
                   EAgent_Status.AgentError,
                   EAgent_Status.RouteError,
-                  EAgent_Status.TaskError ]
+                  EAgent_Status.TaskError,
+                  EAgent_Status.AngleError ]
 
 BL_BU_Agent_Status = { (AEV.BoxLoad,   SGT.ESide.Left)  : EAgent_Status.BoxLoad_Left,
                        (AEV.BoxLoad,   SGT.ESide.Right) : EAgent_Status.BoxLoad_Right,
