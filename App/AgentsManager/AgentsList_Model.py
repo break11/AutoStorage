@@ -3,12 +3,12 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
 
 from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Common.Agent_NetObject import SAP
-from Lib.Net.NetObj import CNetObj, s_name, s_UID
+from Lib.Common.StrConsts import SC
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 
 class CAgentsList_Model( QAbstractTableModel ):
-    propList = [ s_name, s_UID, SAP.angle, SAP.edge, SAP.position, SAP.route, SAP.route_idx, SAP.odometer ]
+    propList = [ SC.name, SC.UID, SAP.angle, SAP.edge, SAP.position, SAP.route, SAP.route_idx, SAP.odometer ]
 
     def __init__( self, parent ):
         super().__init__( parent=parent)
@@ -62,7 +62,7 @@ class CAgentsList_Model( QAbstractTableModel ):
     def flags( self, index ):
         flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled 
         sPropName = self.propList[ index.column() ]
-        if sPropName not in [ s_name, s_UID ]:
+        if sPropName not in [ SC.name, SC.UID ]:
             flags = flags | Qt.ItemIsEditable
         return flags
 

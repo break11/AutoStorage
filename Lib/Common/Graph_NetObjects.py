@@ -3,6 +3,7 @@ import networkx as nx
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
+from Lib.Net.NetObj_Utils import destroy_If_Reload
 from .GraphUtils import EdgeDisplayName, loadGraphML_File
 from .StorageGraphTypes import prepareGraphProps
 
@@ -124,16 +125,9 @@ def createNetObjectsForGraph( nxGraph ):
         edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges, props=nxGraph.edges()[ edgeID ] )
 
     CNetObj(name="Graph_End_Obj", parent=Graph)
-    
-def loadGraphML_to_NetObj( sFName, bReload ):
-    graphObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, s_Graph)
-    if graphObj:
-        if bReload:
-            graphObj.destroy()
-        else:
-            return False
 
-    del graphObj
+def loadGraphML_to_NetObj( sFName, bReload ):
+    if not destroy_If_Reload( s_Graph, bReload ): return False
 
     nxGraph = loadGraphML_File( sFName )
     if not nxGraph:

@@ -30,7 +30,7 @@ def registerNetObjTypes():
 
 def registerNetObj_Props_UserTypes():
     reg = CStrTypeConverter.registerUserType
-    reg( "a", ADT.EAgent_Status )
+    reg( "a", ADT.EAgent_Status ) aAgent_Error i10
     reg( "b", SGT.ENodeTypes )
     reg( "c", SGT.ESensorSide )
     reg( "d", SGT.EWidthType )

@@ -3,6 +3,7 @@ import os
 
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
@@ -27,20 +28,13 @@ class CBox_NO( CNetObj ):
     # @property
     # def nxGraph( self ): return self.graphRootNode().nxGraph
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=def_props, ext_fields=None ):
         # self.boxRootNode = boxesNodeCache()
         print( boxesNodeCache()(), parent )
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
 def loadBoxes_to_NetObj( sFName, bReload ):
-    boxesObj = CTreeNode.resolvePath( CNetObj_Manager.rootObj, s_Boxes)
-    if boxesObj:
-        if bReload:
-            boxesObj.destroy()
-        else:
-            return False
-
-    del boxesObj
+    if not destroy_If_Reload( s_Boxes, bReload ): return False
 
     if not os.path.exists( sFName ):
         print( f"{SC.sWarning} Boxes file not found '{sFName}'!" )

@@ -8,19 +8,16 @@ from  Lib.Common.StrConsts import SC
 from  Lib.Common.TreeNode import CTreeNode
 import weakref
 
-s_name       = "name" ##remove##
-s_UID        = "UID"  ##remove##
-
 class CNetObj( CTreeNode ):
-    __s_Name       = "name"
-    __s_ChildCount = "ChildCount"
-    __s_UID        = "UID"
-    __s_TypeUID    = "typeUID"
+    __s_Name          = "name"
+    __s_ChildCount    = "ChildCount"
+    __s_UID           = "UID"
+    __s_TypeUID       = "typeUID"
     __modelHeaderData = [ __s_Name, __s_ChildCount, __s_UID, __s_TypeUID, ]
-    __s_Parent   = "parent"
-    __s_obj      = "obj"
-    __s_props    = "props"
-    __s_ext_fields = "ext_fields"
+    __s_Parent        = "parent"
+    __s_obj           = "obj"
+    __s_props         = "props"
+    __s_ext_fields    = "ext_fields"
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
