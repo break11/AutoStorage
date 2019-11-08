@@ -114,12 +114,12 @@ class CNetObj_EditLine_Linker( CNetObj_Control_Linker ):
 class CNetObj_SpinBox_Linker( CNetObj_Control_Linker ):
     def addControl( self, control, valToControlFunc=None, valFromControlFunc=None ):
         super().addControl( control, valToControlFunc, valFromControlFunc )
-        control.valueChanged.connect( self.valueChanged )
+        control.editingFinished.connect( self.valueChanged )
 
     def updateControlState( self, control, value ):
         control.setValue( value )
 
-    def valueChanged( self, val ):
+    def valueChanged( self ):
         spinBox = self.sender()
         propRef = self.controlPropRef( spinBox )
 
