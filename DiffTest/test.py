@@ -1,14 +1,31 @@
 
 
-class A:
-    test = [1, 2 ,3]
-    def __eq__( self, other ):
-        return self.test == other.test
+# v = 1
 
-a = A()
-b = A()
+# print( v.__class__.__name__ )
 
-print( a == b )
+class CTest:
+    a = 1
+    print( a )
+
+v = CTest()
+# print( v.__class__.__name__ )
+
+CTest(  )
+
+(CTest)(1)
+a = eval( "a = CTest();a=" )()
+
+
+# class A:
+#     test = [1, 2 ,3]
+#     def __eq__( self, other ):
+#         return self.test == other.test
+
+# a = A()
+# b = A()
+
+# print( a == b )
 
 # from enum import Enum, IntEnum
 

@@ -1,8 +1,9 @@
-import json
 import os
+import json
 
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+import Lib.Net.NetObj_JSON as nJSON
 from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
@@ -29,7 +30,6 @@ class CBox_NO( CNetObj ):
     # def nxGraph( self ): return self.graphRootNode().nxGraph
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=def_props, ext_fields=None ):
-        # self.boxRootNode = boxesNodeCache()
         print( boxesNodeCache()(), parent )
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
@@ -40,12 +40,14 @@ def loadBoxes_to_NetObj( sFName, bReload ):
         print( f"{SC.sWarning} Boxes file not found '{sFName}'!" )
         return False
 
+    Boxes_NetObj = CNetObj(name=s_Boxes, parent=CNetObj_Manager.rootObj)
     with open( sFName, "r" ) as read_file:
         Boxes = json.load( read_file )
+        nJSON.load_Obj_Children( jData=Boxes, obj=Boxes_NetObj )
 
-    CNetObj(name=s_Boxes, parent=CNetObj_Manager.rootObj)
-    for boxProps in Boxes[ s_Boxes ]:
-        CBox_NO( parent = boxesNodeCache()(), name = boxProps[ SC.UID ] )
+    # CNetObj(name=s_Boxes, parent=CNetObj_Manager.rootObj)
+    # for boxProps in Boxes[ s_Boxes ]:
+    #     CBox_NO( parent = boxesNodeCache()(), name = boxProps[  ] )
 
     return True
 

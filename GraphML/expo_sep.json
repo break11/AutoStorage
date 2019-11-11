@@ -1,100 +1,128 @@
-{
-    "Boxes": [
-        {
-            "UID": 1,
-            "label": "15 RIGHT",
-            "nodeID": "15",
-            "side": "Right"
-        },
-        {
-            "UID": 2,
-            "label": "17 RIGHT",
-            "nodeID": "17",
-            "side": "Right"
-        },
-        {
-            "UID": 3,
-            "label": "18 RIGHT",
-            "nodeID": "18",
-            "side": "Right"
-        },
-        {
-            "UID": 4,
-            "label": "19 RIGHT",
-            "nodeID": "19",
-            "side": "Right"
-        },
-        {
-            "UID": 5,
-            "label": "20 RIGHT",
-            "nodeID": "20",
-            "side": "Right"
-        },
-        {
-            "UID": 6,
-            "label": "21 RIGHT",
-            "nodeID": "21",
-            "side": "Right"
-        },
-        {
-            "UID": 7,
-            "label": "22 RIGHT",
-            "nodeID": "22",
-            "side": "Right"
-        },
-        {
-            "UID": 8,
-            "label": "23 RIGHT",
-            "nodeID": "23",
-            "side": "Right"
-        },
-        {
-            "UID": 9,
-            "label": "15 LEFT",
-            "nodeID": "15",
-            "side": "Left"
-        },
-        {
-            "UID": 10,
-            "label": "17 LEFT",
-            "nodeID": "17",
-            "side": "Left"
-        },
-        {
-            "UID": 11,
-            "label": "18 LEFT",
-            "nodeID": "18",
-            "side": "Left"
-        },
-        {
-            "UID": 12,
-            "label": "19 LEFT",
-            "nodeID": "19",
-            "side": "Left"
-        },
-        {
-            "UID": 13,
-            "label": "20 LEFT",
-            "nodeID": "20",
-            "side": "Left"
-        },
-        {
-            "UID": 14,
-            "label": "21 LEFT",
-            "nodeID": "21",
-            "side": "Left"
-        },
-        {
-            "UID": 15,
-            "label": "22 LEFT",
-            "nodeID": "22",
-            "side": "Left"
-        },
-        {
-            "UID": 16,
-            "label": "23 LEFT",
-            "nodeID": "23",
-            "side": "Left"
+[
+    {
+        "type": "CBox_NO",
+        "name": 1,
+        "props":{
+            "address": "sTEST",
+            "label"  : "EAgentStatus|15 RIGHT",
+            "nodeID" : "s15",
+            "side"   : "sRight"
         }
-    ]
-}
+    },
+    {
+        "name": 2,
+        "props":{
+            "label": "s17 RIGHT",
+            "nodeID": "s17",
+            "side": "sRight"
+        }
+    },
+    {
+        "name": 3,
+        "props":{
+            "label": "s18 RIGHT",
+            "nodeID": "s18",
+            "side": "sRight"
+        }
+    },
+    {
+        "name": 4,
+        "props":{
+            "label": "s19 RIGHT",
+            "nodeID": "s19",
+            "side": "sRight"
+        }
+    },
+    {
+        "name": 5,
+        "label": "s20 RIGHT",
+        "nodeID": "s20",
+        "side": "sRight"
+    },
+    {
+        "name": 6,
+        "props":{
+            "label": "s21 RIGHT",
+            "nodeID": "s21",
+            "side": "sRight"
+        }
+    },
+    {
+        "name": 7,
+        "label": "s22 RIGHT",
+        "nodeID": "s22",
+        "side": "sRight"
+    },
+    {
+        "name": 8,
+        "props":{
+            "label": "s23 RIGHT",
+            "nodeID": "s23",
+            "side": "sRight"
+        }
+    },
+    {
+        "name": 9,
+        "props":{
+            "label": "s15 LEFT",
+            "nodeID": "s15",
+            "side": "sLeft"
+        }
+    },
+    {
+        "name": 10,
+        "props":{
+            "label": "s17 LEFT",
+            "nodeID": "s17",
+            "side": "sLeft"
+        }
+    },
+    {
+        "name": 11,
+        "props":{
+            "label": "s18 LEFT",
+            "nodeID": "s18",
+            "side": "sLeft"
+        }
+    },
+    {
+        "name": 12,
+        "props":{
+            "label": "s19 LEFT",
+            "nodeID": "s19",
+            "side": "sLeft"
+        }
+    },
+    {
+        "name": 13,
+        "props":{
+            "label": "s20 LEFT",
+            "nodeID": "s20",
+            "side": "sLeft"
+        }
+    },
+    {
+        "name": 14,
+        "props":{
+            "label": "s21 LEFT",
+            "nodeID": "s21",
+            "side": "sLeft"
+        }
+    },
+    {
+        "name": 15,
+        "props":{
+            "label": "s22 LEFT",
+            "nodeID": "s22",
+            "side": "sLeft"
+        }
+    },
+    {
+        "name": 16,
+        "props":{
+            "label": "s23 LEFT",
+            "nodeID": "s23",
+            "side": "sLeft"
+        }
+    }
+]

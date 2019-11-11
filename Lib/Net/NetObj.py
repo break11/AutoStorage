@@ -6,18 +6,24 @@ from .NetCmd import CNetCmd
 from .Net_Events import ENet_Event as EV
 from  Lib.Common.StrConsts import SC
 from  Lib.Common.TreeNode import CTreeNode
+from  Lib.Common.StrProps_Meta import СStrProps_Meta
 import weakref
 
+class SNetObjProps( metaclass = СStrProps_Meta ):
+    name          = None
+    ChildCount    = None
+    UID           = None
+    TypeName      = "type"
+    parent        = None
+    obj           = None
+    props         = None
+    ext_fields    = None
+
+SNOP = SNetObjProps
+
+
 class CNetObj( CTreeNode ):
-    __s_Name          = "name"
-    __s_ChildCount    = "ChildCount"
-    __s_UID           = "UID"
-    __s_TypeUID       = "typeUID"
-    __modelHeaderData = [ __s_Name, __s_ChildCount, __s_UID, __s_TypeUID, ]
-    __s_Parent        = "parent"
-    __s_obj           = "obj"
-    __s_props         = "props"
-    __s_ext_fields    = "ext_fields"
+    __modelHeaderData = [ SNOP.name, SNOP.ChildCount, SNOP.UID, SNOP.TypeName, ]
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
 
@@ -41,10 +47,10 @@ class CNetObj( CTreeNode ):
         weakSelf = weakref.ref(self)
         
         self.__modelData = {
-                            hd.index( self.__s_Name     )   : lambda: weakSelf().name,
-                            hd.index( self.__s_ChildCount ) : lambda: weakSelf().childCount(),
-                            hd.index( self.__s_UID      )   : lambda: weakSelf().UID,
-                            hd.index( self.__s_TypeUID  )   : lambda: weakSelf().typeUID,
+                            hd.index( SNOP.name       ) : lambda: weakSelf().name,
+                            hd.index( SNOP.ChildCount ) : lambda: weakSelf().childCount(),
+                            hd.index( SNOP.UID        ) : lambda: weakSelf().UID,
+                            hd.index( SNOP.TypeName   ) : lambda: weakSelf().typeUID,
                             }
 
         if hasattr( self, "_CNetObj__beforeObjCreatedCallback" ):
@@ -166,27 +172,27 @@ class CNetObj( CTreeNode ):
 
 ###################################################################################
     @classmethod    
-    def redisBase_Name_C(cls, UID) : return f"{cls.__s_obj}:{UID}" 
-    def redisBase_Name(self) : return self.redisBase_Name_C( self.UID ) 
+    def redisBase_Name_C(cls, UID) : return f"{SNOP.obj}:{UID}" 
+    def redisBase_Name(self)       : return self.redisBase_Name_C( self.UID ) 
 
     @classmethod    
-    def redisKey_Name_C(cls, UID) : return f"{cls.__s_obj}:{UID}:{cls.__s_Name}"
+    def redisKey_Name_C(cls, UID) : return f"{SNOP.obj}:{UID}:{SNOP.name}"
     def redisKey_Name(self)       : return self.redisKey_Name_C( self.UID )
 
     @classmethod
-    def redisKey_TypeUID_C(cls, UID) : return f"{cls.__s_obj}:{UID}:{cls.__s_TypeUID}"
+    def redisKey_TypeUID_C(cls, UID) : return f"{SNOP.obj}:{UID}:{SNOP.TypeName}"
     def redisKey_TypeUID(self)       : return self.redisKey_TypeUID_C( self.UID )
 
     @classmethod        
-    def redisKey_Parent_C(cls, UID) : return f"{cls.__s_obj}:{UID}:{cls.__s_Parent}"
+    def redisKey_Parent_C(cls, UID) : return f"{SNOP.obj}:{UID}:{SNOP.parent}"
     def redisKey_Parent(self)       : return self.redisKey_Parent_C( self.UID )
 
     @classmethod        
-    def redisKey_Props_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_props }"
+    def redisKey_Props_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ SNOP.props }"
     def redisKey_Props(self)       : return self.redisKey_Props_C( self.UID )
 
     @classmethod        
-    def redisKey_ExtFields_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ cls.__s_ext_fields }"
+    def redisKey_ExtFields_C(cls, UID) : return f"{cls.redisBase_Name_C( UID )}:{ SNOP.ext_fields }"
     def redisKey_ExtFields(self)       : return self.redisKey_ExtFields_C( self.UID )
 ###################################################################################
     def saveToRedis( self, pipe ):
@@ -195,8 +201,8 @@ class CNetObj( CTreeNode ):
         hd = self.__modelHeaderData
 
         # сохранение стандартного набора полей
-        pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( self.__s_Name    ) ]() )
-        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( self.__s_TypeUID ) ]() )
+        pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( SNOP.name    ) ]() )
+        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( SNOP.TypeName ) ]() )
         parent = self.parent.UID if self.parent else None
         pipe.set( self.redisKey_Parent(),  parent )
 
@@ -239,8 +245,8 @@ class CNetObj( CTreeNode ):
         pProps    = values[ valIDX + 3 ]
         extFields = values[ valIDX + 4 ]
 
-        name     = nameField.decode()
-        objClass = CNetObj_Manager.netObj_Type( typeUID )
+        name       = nameField.decode()
+        objClass   = CNetObj_Manager.netObj_Type( typeUID )
         props      = CStrTypeConverter.DictFromBytes( pProps )
         ext_fields = CStrTypeConverter.DictFromBytes( extFields )
 

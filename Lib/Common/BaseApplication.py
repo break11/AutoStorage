@@ -30,7 +30,7 @@ def registerNetObjTypes():
 
 def registerNetObj_Props_UserTypes():
     reg = CStrTypeConverter.registerUserType
-    reg( "a", ADT.EAgent_Status ) aAgent_Error i10
+    reg( "a", ADT.EAgent_Status )
     reg( "b", SGT.ENodeTypes )
     reg( "c", SGT.ESensorSide )
     reg( "d", SGT.EWidthType )
@@ -46,7 +46,8 @@ def registerNetObj_Props_UserTypes():
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):
         reg = self.objMonitor.WidgetManager.registerWidget
-        reg( CNetObj,       CNetObj_Widget    )
+        ##remove## reg( CNetObj,       CNetObj_Widget    )
+        reg( CNetObj,       CDictProps_Widget )
         reg( CGraphRoot_NO, CDictProps_Widget )
         reg( CGraphNode_NO, CDictProps_Widget )
         reg( CGraphEdge_NO, CDictProps_Widget )
