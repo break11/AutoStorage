@@ -1,6 +1,7 @@
 import math
 from copy import deepcopy
 import networkx as nx
+from enum import Enum
 
 from Lib.Common.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles, pathWeight
@@ -67,6 +68,10 @@ class CRailSegment:
     def __repr__(self):
         return f"length:{self.length} railHeight:{self.railHeight} sensorSide:{self.sensorSide} widthType:{self.widthType.name} curvature:{self.curvature}\n"
 
+class ERouteStatus(Enum):
+    Normal      = True
+    AngleError  = False
+
 class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
     def __init__(self):
@@ -102,7 +107,7 @@ class CRouteBuilder():
             
             if direction == SGT.EDirection.Error:
                 print( f"{SC.sError} invalid agent rotation. Build route failed." )
-                return [], []
+                return [], [], ERouteStatus.AngleError
             
             """
             path part is a node sequence with constans rail width and direction of movement. 
@@ -161,7 +166,7 @@ class CRouteBuilder():
             angle = self.calc_DE_Pos( SegmentsInfoItems_Sequence, single_sequence, ledgeNodes, ledgeSize, angle )
             SegmentsInfoItems += SegmentsInfoItems_Sequence
         
-        return commands, SegmentsInfoItems
+        return commands, SegmentsInfoItems, ERouteStatus.Normal
 
     def calc_DE_Pos(self, SII_Sequince, single_sequence, ledgeNodes,  ledgeSize, angle):
         # выявление позиций для DE

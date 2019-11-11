@@ -9,7 +9,7 @@ from networkx import shortest_path
 sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
-from App.AgentsManager.routeBuilder import CRouteBuilder
+from App.AgentsManager.routeBuilder import CRouteBuilder, ERouteStatus
 from Lib.Common import StorageGraphTypes as SGT
 import Lib.Common.GraphUtils as gu
 from Lib.AgentProtocol.AgentDataTypes import MS
@@ -66,7 +66,7 @@ class CTestRouteBuilder(unittest.TestCase):
 
             shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
 
-            route, SII = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
+            route, SII, routeStatus = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
 
             CommandsList = []
             for sequence in route:
@@ -81,9 +81,10 @@ class CTestRouteBuilder(unittest.TestCase):
             route_str = ",".join( CommandsList )
 
             self.assertEqual( route_str, case.sCommands )
-            rString = { True : "OK", False : "FAILED" }
+            self.assertEqual( routeStatus, ERouteStatus.Normal )        
 
-            status = route_str == case.sCommands
+            # rString = { True : "OK", False : "FAILED" }
+            # status = route_str == case.sCommands
             # if status:
             #     n += 1
                 # f.write( case.toString() )

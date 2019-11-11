@@ -288,7 +288,11 @@ class CAgentLink( CAgentServer_Link ):
 
         if agentNO.route.isEmpty(): return
 
-        seqList, self.SII = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
+        seqList, self.SII, routeStatus = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
+
+        if not routeStatus.value:
+            agentNO.status = ADT.EAgent_Status.fromString( routeStatus.name )
+            return
 
         for seq in seqList:
             for cmd in seq:
@@ -398,5 +402,3 @@ class CAgentLink( CAgentServer_Link ):
 
         elif task.type == ATD.ETaskType.JmpToTask:
             agentNO.task_idx = task.data
-
-        print( "processTask=", task )
