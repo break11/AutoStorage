@@ -17,77 +17,104 @@ class ECustomEnum( BaseEnum ):
 
     Default = One
 
+class CTestType:
+    def __init__( self, bVal ):
+        self.bVal = bVal
+
+    def __str__( self ): return self.toString()
+
+    @classmethod
+    def fromString( cls, sValue ): return CTestType( True ) if sValue == "True" else CTestType( False )
+
+    def toString( self ): return str( self.bVal )
+
+
 class Test_StrTypeConverter(unittest.TestCase):
     def testStdTypes( self ):
+        CStrTypeConverter.registerType( int )
+        CStrTypeConverter.registerType( str )
+        CStrTypeConverter.registerType( float )
+
         a = 0
         s = CStrTypeConverter.ValToStr( a )
-        self.assertEqual( s, "i0" )
+        self.assertEqual( s, "0" )
 
-        b = CStrTypeConverter.ValFromStr( s )
+        b = CStrTypeConverter.ValFromStr( int, s )
         self.assertEqual( a, b )
 
         ######
 
         a = -4
         s = CStrTypeConverter.ValToStr( a )
-        self.assertEqual( s, "i-4" )
+        self.assertEqual( s, "-4" )
 
-        b = CStrTypeConverter.ValFromStr( s )
+        b = CStrTypeConverter.ValFromStr( int, s )
         self.assertEqual( a, b )
 
         ######
 
         a = 10
         s = CStrTypeConverter.ValToStr( a )
-        self.assertEqual( s, "i10" )
+        self.assertEqual( s, "10" )
 
-        b = CStrTypeConverter.ValFromStr( s )
+        b = CStrTypeConverter.ValFromStr( int, s )
         self.assertEqual( a, b )
 
         #################
 
         a = 3.5
         s = CStrTypeConverter.ValToStr( a )
-        self.assertEqual( s, "f3.5" )
+        self.assertEqual( s, "3.5" )
 
-        b = CStrTypeConverter.ValFromStr( s )
+        b = CStrTypeConverter.ValFromStr( float, s )
         self.assertEqual( a, b )
 
         #################
 
         a = "test"
         s = CStrTypeConverter.ValToStr( a )
-        self.assertEqual( s, "stest" )
+        self.assertEqual( s, "test" )
 
-        b = CStrTypeConverter.ValFromStr( s )
+        b = CStrTypeConverter.ValFromStr( str, s )
         self.assertEqual( a, b )
 
-        s = "xtest"
-        b = CStrTypeConverter.ValFromStr( s )
+        s = "test"
+        b = CStrTypeConverter.ValFromStr( dict, s )
         self.assertEqual( b, None )
 
     def testUserTypes( self ):
-        CStrTypeConverter.registerUserType( "a", ECustomEnum )
+        CStrTypeConverter.registerType( ECustomEnum )
 
         with self.assertRaises( AssertionError ):
-            CStrTypeConverter.registerUserType( "a", ECustomEnum )
+            CStrTypeConverter.registerType( ECustomEnum )
 
         a = ECustomEnum.Two
         s = CStrTypeConverter.ValToStr( a )
-        self.assertEqual( s, "aTwo" )
+        self.assertEqual( s, "Two" )
 
-        b = CStrTypeConverter.ValFromStr( s )
+        b = CStrTypeConverter.ValFromStr( ECustomEnum, s )
         self.assertEqual( a, b )
 
-        s = "xTwo"
-        b = CStrTypeConverter.ValFromStr( s )
-        self.assertEqual( b, None )
+        s = "NotEnumValue"
+        b = CStrTypeConverter.ValFromStr( ECustomEnum, s )
+        self.assertEqual( b, ECustomEnum.One )
 
         #################
 
-        s = "aNotEnumValue"
-        b = CStrTypeConverter.ValFromStr( s )
-        self.assertEqual( b, ECustomEnum.One )
+        CStrTypeConverter.registerType( CTestType )
+        a = CTestType( True )
+        s = CStrTypeConverter.ValToStr( a )
+        self.assertEqual( s, "True" )
+
+        b = CStrTypeConverter.ValFromStr( CTestType, s )
+        self.assertEqual( b.bVal, a.bVal )
+
+        a = CTestType( False )
+        s = CStrTypeConverter.ValToStr( a )
+        self.assertEqual( s, "False" )
+
+        b = CStrTypeConverter.ValFromStr( CTestType, s )
+        self.assertEqual( b.bVal, a.bVal )
 
 if __name__ == "__main__":
     unittest.main()

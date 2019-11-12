@@ -2,67 +2,38 @@
 from .StrConsts import SC
 
 class CStrTypeConverter:
-    __TypeLetters = {
-                    int: "i",
-                    str: "s",
-                    float: "f",
-                    }
-    __LettersType = {}
-    for k,v in __TypeLetters.items():
-        __LettersType[ v ] = k
-
-    std_types        = __TypeLetters.keys()
-    std_type_letters = __TypeLetters.values()
-
-    __TypeLettersU = {}    #type:ignore
-    __LettersTypeU = {}    #type:ignore
-    user_types = []        #type:ignore
-    user_type_letters = [] #type:ignore
+    s_fromString = 'fromString'
+    from_str_funcs = {} #type:ignore
 
     @classmethod
-    def registerUserType( cls, typeChar, typeClass ):
-        assert typeChar not in cls.std_type_letters
-        assert typeClass not in cls.std_types
-        assert typeChar not in cls.user_type_letters
-        assert typeClass not in cls.user_types
-        assert hasattr( typeClass, "fromString" )
-        assert hasattr( typeClass, "toString" )
-
-        cls.__TypeLettersU[ typeClass ] = typeChar
-        cls.__LettersTypeU[ typeChar  ] = typeClass
-        cls.user_types.append( typeClass )
-        cls.user_type_letters.append( typeChar )
+    def isStdType( cls, val ): return hasattr( val, cls.s_fromString)
 
     @classmethod
-    def ValFromStr( cls, s ):
-        typeSign = s[0]
-        val = s[1::]
+    def registerType( cls, typeClass ):
+        assert typeClass not in cls.from_str_funcs
 
-        if typeSign in cls.std_type_letters:
-            t = cls.__LettersType.get( typeSign )
-            return (t)(val)
-
-        elif typeSign in cls.user_type_letters:
-            t = cls.__LettersTypeU.get( typeSign )
-            return t.fromString( val )
-
+        if hasattr( typeClass, cls.s_fromString ):
+            cls.from_str_funcs[ typeClass ] = typeClass.fromString
         else:
-            print( f"{SC.sWarning} Unsupport type = {typeSign} value = {val} for converting from String!" )
+            cls.from_str_funcs[ typeClass ] = typeClass
+
+    ###################
+
+    @classmethod
+    def ValFromStr( cls, typeClass, s ):
+        if typeClass in cls.from_str_funcs:
+            obj = cls.from_str_funcs[ typeClass ]( s )
+            return obj
+        else:
+            print( f"{SC.sWarning} Unsupport type = {typeClass.__name__} value = {s} for converting from String!" )
             
     @classmethod
     def ValToStr( cls, val ):
-        t = type( val )
-
-        if t in cls.std_types:
-            typeSign = cls.__TypeLetters.get( t )
-            return typeSign + str( val )
-
-        elif t in cls.user_types:
-            typeSign = cls.__TypeLettersU.get( t )
-            return typeSign + val.toString()
-
+        typeClass = type( val )
+        if typeClass in cls.from_str_funcs:
+            return str( val )
         else:
-            print( f"{SC.sWarning} Unsupport type = {t} value = {val} for converting to String!" )
+            print( f"{SC.sWarning} Unsupport type = {typeClass.__name__} value = {val} for converting to String!" )
         
     ###################
 

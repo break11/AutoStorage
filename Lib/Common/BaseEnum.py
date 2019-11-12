@@ -5,7 +5,6 @@ class BaseEnum( Enum ):
     @classmethod
     def fromString( cls, sValue ): return EnumFromString( cls, sValue, cls.Default )
 
-    # def toString( self ): return EnumToString( self )
     def toString( self, bShortForm = False ):
         if not bShortForm:
             return EnumToString( self )
