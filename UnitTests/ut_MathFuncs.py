@@ -572,6 +572,18 @@ class TestMathFuncs(unittest.TestCase):
         test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "26", targetSide = SGT.ESide.Right )
         self.assertEqual ( test_nodes_route, nodes_route )
 
+        ##################### Стартовая и конечная нода на узком рельсе, конечной нода на кривой ######################
+
+        nodes_route = ["29", "20", "19", "18", "17"]
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "17", targetSide = None )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "17", targetSide = SGT.ESide.Right )
+        self.assertEqual ( test_nodes_route, nodes_route )
+
+        nodes_route = ['29', '20', '21', '22', '23', '25', '24', '16', '17']
+        test_wight, test_nodes_route = gu.shortestNodesRoute( nxGraph_mag_ext, agentEdge = ("29", "20"), agentAngle = 180.0, targetNode = "17", targetSide = SGT.ESide.Left )
+        self.assertEqual ( test_nodes_route, nodes_route )
 
 
 class TestStrFuncs(unittest.TestCase):
