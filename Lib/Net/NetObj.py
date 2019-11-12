@@ -240,15 +240,15 @@ class CNetObj( CTreeNode ):
             print( f"{SC.sWarning} Trying to create object what not found in redis! UID = {UID}" )
             return None, nextIDX
 
-        parentID  = int( values[ valIDX + 1 ].decode() )
-        typeUID   = values[ valIDX + 2 ].decode()
+        parentID  = int( values[ valIDX + 1 ] )
+        typeUID   = values[ valIDX + 2 ]
         pProps    = values[ valIDX + 3 ]
         extFields = values[ valIDX + 4 ]
 
-        name       = nameField.decode()
+        name       = nameField
         objClass   = CNetObj_Manager.netObj_Type( typeUID )
-        props      = CStrTypeConverter.DictFromBytes( pProps )
-        ext_fields = CStrTypeConverter.DictFromBytes( extFields )
+        props      = CStrTypeConverter.DictFromStr( pProps )
+        ext_fields = CStrTypeConverter.DictFromStr( extFields )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False, props=props, ext_fields=ext_fields )
 

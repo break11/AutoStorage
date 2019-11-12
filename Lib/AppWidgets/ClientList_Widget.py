@@ -37,7 +37,7 @@ class CClientList_Widget(QWidget):
         clientIDList = []
         for key in net.keys( "client:*" ):
             if net.pttl( key ) == -1: net.delete( key )
-            clientIDList.append( key.decode().split(":")[1] )
+            clientIDList.append( key.split(":")[1] )
 
         # проход по найденным ключам клиентов в редис - обнаружение подключенных клиентов
         for sClientID in clientIDList:
@@ -57,9 +57,9 @@ class CClientList_Widget(QWidget):
             if not ( ClientID and ClientIPAddress ):
                 continue
 
-            rowItems = [ Std_Model_Item( ClientID, bReadOnly = True ),
-                         Std_Model_Item( ClientName.decode(), bReadOnly = True ),
-                         Std_Model_Item( ClientIPAddress.decode(), bReadOnly = True ) ]
+            rowItems = [ Std_Model_Item( ClientID,        bReadOnly = True ),
+                         Std_Model_Item( ClientName,      bReadOnly = True ),
+                         Std_Model_Item( ClientIPAddress, bReadOnly = True ) ]
             m.appendRow( rowItems )
         
         # проход по модели - сравнение с найденными ключами в редис - обнаружение отключенных клиентов

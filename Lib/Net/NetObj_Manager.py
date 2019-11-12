@@ -1,7 +1,6 @@
 import sys
 
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
-from  Lib.Common.StrTypeConverter import CStrTypeConverter
 from Lib.Common.StrConsts import SC
 from .Net_Events import ENet_Event as EV
 from .NetCmd import CNetCmd
@@ -132,8 +131,8 @@ class CNetObj_Manager( object ):
         msg = cls.receiver.get_message( ignore_subscribe_messages=False )
 
         # i = 0
-        if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ].decode() == s_Redis_NetObj_Channel ):
-            msgData = msg[ s_Redis_data ].decode()
+        if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ] == s_Redis_NetObj_Channel ):
+            msgData = msg[ s_Redis_data ]
 
             cmdList = msgData.split("|")
             packetClientID = int( cmdList[0] )
@@ -277,12 +276,12 @@ class CNetObj_Manager( object ):
                 for e in EV:
                     cls.addCallback( e, cls.eventLogCallBack )
 
-            cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0)
+            cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0, decode_responses=True)
             cls.pipe = cls.redisConn.pipeline()
             cls.pipeCreatedObjects = cls.redisConn.pipeline()
 
             cls.redisConn.info() # for genering exception if no connection
-            cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1)
+            cls.serviceConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=1, decode_responses=True)
 
             cls.receiver = cls.redisConn.pubsub()
             cls.receiver.subscribe( s_Redis_NetObj_Channel )
@@ -308,16 +307,16 @@ class CNetObj_Manager( object ):
     def loadAllObj_From_Redis( cls ):
         objects = cls.redisConn.smembers( s_ObjectsSet )
         if ( objects ):
-            objects = sorted( objects, key = lambda x: int(x.decode()) )
+            objects = sorted( objects, key = lambda x: int(x) )
 
             pipe = cls.redisConn.pipeline()
-            for it in objects:
-                CNetObj.load_PipeData_FromRedis( pipe, int(it.decode()) )
+            for item in objects:
+                CNetObj.load_PipeData_FromRedis( pipe, int(item) )
             values = pipe.execute()
 
             valIDX = 0
-            for it in objects:
-                obj, valIDX = CNetObj.createObj_From_PipeData( values, int(it.decode()), valIDX )
+            for item in objects:
+                obj, valIDX = CNetObj.createObj_From_PipeData( values, int(item), valIDX )
 
     @classmethod
     def disconnect( cls ):

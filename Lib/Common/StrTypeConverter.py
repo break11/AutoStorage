@@ -64,6 +64,8 @@ class CStrTypeConverter:
         else:
             print( f"{SC.sWarning} Unsupport type = {t} value = {val} for converting to String!" )
         
+    ###################
+
     @classmethod
     def DictToStr( cls, d ):
         d1 = {}
@@ -78,9 +80,13 @@ class CStrTypeConverter:
             d1[ k ] = cls.ValFromStr( v )
         return d1
 
-    @classmethod
-    def DictFromBytes( cls, d ):
-        d1 = {}
-        for k, v in d.items():
-            d1[ k.decode() ] = cls.ValFromStr( v.decode() )
-        return d1
+
+    ##remove##
+    # ###################
+
+    # @classmethod
+    # def DictFromBytes( cls, d ):
+    #     d1 = {}
+    #     for k, v in d.items():
+    #         d1[ k.decode() ] = cls.ValFromStr( v.decode() )
+    #     return d1

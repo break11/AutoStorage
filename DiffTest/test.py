@@ -4,17 +4,17 @@
 
 # print( v.__class__.__name__ )
 
-class CTest:
-    a = 1
-    print( a )
+# class CTest:
+#     a = 1
+#     print( a )
 
-v = CTest()
-# print( v.__class__.__name__ )
+# v = CTest()
+# # print( v.__class__.__name__ )
 
-CTest(  )
+# CTest(  )
 
-(CTest)(1)
-a = eval( "a = CTest();a=" )()
+# (CTest)(1)
+# a = eval( "a = CTest();a=" )()
 
 
 # class A:
