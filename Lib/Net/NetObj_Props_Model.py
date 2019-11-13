@@ -6,6 +6,7 @@ from .Net_Events import ENet_Event as EV
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 
 class CNetObj_Props_Model( QAbstractTableModel ):
+    delegateTypes = [int, str, float]
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.propList = []
@@ -125,7 +126,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
             val = netObj.get( propName ) if netObj else None
-            if val is not None and type(val) not in CStrTypeConverter.std_types:
+            if val is not None and type(val) not in self.delegateTypes:
                 val = str(val)
             return val
         elif role == Qt.ToolTipRole:
@@ -143,8 +144,8 @@ class CNetObj_Props_Model( QAbstractTableModel ):
 
         if role == Qt.EditRole:
             oldVal = netObj[ propName ]
-            t = type(oldVal )
-            if t in CStrTypeConverter.std_types:
+            t = type( oldVal )
+            if t in self.delegateTypes:
                 netObj[ propName ] = value
             else:
                 netObj[ propName ] = t.fromString( value )

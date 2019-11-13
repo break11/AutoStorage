@@ -32,7 +32,9 @@ class CNetCmd:
                 return CNetCmd( Event=ev, Obj_UID=Obj_UID )
             elif ev <= EV.ObjPropUpdated:
                 propName  = l[2]
-                value     = CStrTypeConverter.ValFromStr(l[3])
+                obj    = CNetObj_Manager.accessObj( Obj_UID, genAssert=True )
+                typeClass = type( obj[ propName ] )
+                value  = CStrTypeConverter.ValFromStr( typeClass, l[3] )
                 return CNetCmd( Event=ev, Obj_UID=Obj_UID, PropName=propName, value=value )
 
             elif ev > EV.ObjPropUpdated:
@@ -40,3 +42,5 @@ class CNetCmd:
                 return CNetCmd( Event=ev, Obj_UID=Obj_UID, ExtCmdData=extCmdData )
 
     def __repr__(self): return self.toString( bDebug = True )
+
+from .NetObj_Manager import CNetObj_Manager

@@ -21,7 +21,7 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         assert edgeNetObj is not None
 
         self.setRotation( -self.parentEdge.rotateAngle() )
-        self.width = SGT.railWidth[ edgeNetObj.widthType ] if edgeNetObj else 0
+        self.width = SGT.railWidth[ edgeNetObj.widthType ] if ( edgeNetObj and SGA.widthType in edgeNetObj.props) else 0
 
         w = self.width
         self.__BBoxRect = QRectF( -w/2, -w/2, self.parentEdge.baseLine.length() + w, w )
@@ -51,11 +51,12 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
             self.paintInfoLineForEdge( painter, self.parentEdge.edge2_1(), reverse_edge = True )
 
         ## draw BBOX for debug
-        # pen = QPen()
-        # pen.setWidth( 8 )
-        # pen.setColor( Qt.blue )
-        # painter.setPen( pen )
-        # painter.drawRect( self.__BBoxRect_Adj )
+        if self.parentEdge.SGM.bDrawBBox == True:
+            pen = QPen()
+            pen.setWidth( 8 )
+            pen.setColor( Qt.darkGray )
+            painter.setPen( pen )
+            painter.drawRect( self.__BBoxRect_Adj )
 
     def paintInfoLineForEdge( self, painter, edgeNetObj, reverse_edge = False ):
         if not edgeNetObj: return

@@ -16,16 +16,17 @@ class SBoxProps( metaclass = СStrProps_Meta ):
 
 SBP = SBoxProps
 
-def_props = { SBP.address: "" }
 
 def boxesNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Boxes )
 
 def queryBoxNetObj( name ):
-    props = deepcopy( def_props )
+    props = deepcopy( CBox_NO.def_props )
     return boxesNodeCache()().queryObj( sName=name, ObjClass=CBox_NO, props=props )
 
 class CBox_NO( CNetObj ):
+    def_props = { SBP.address: "" }
+
     # @property
     # def nxGraph( self ): return self.graphRootNode().nxGraph
 

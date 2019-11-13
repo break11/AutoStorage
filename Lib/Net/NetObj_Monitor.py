@@ -6,11 +6,11 @@ from PyQt5.QtWidgets import ( QWidget )
 from PyQt5.QtCore import (Qt, QByteArray, QModelIndex, QItemSelectionModel)
 from PyQt5.Qt import QInputDialog
 
+from .NetObj_Manager import CNetObj_Manager
 from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Model import CNetObj_Model
-from .NetObj_Manager import CNetObj_Manager
 from .NetObj_Widgets import CNetObj_WidgetsManager
 from .NetCmd import CNetCmd
 

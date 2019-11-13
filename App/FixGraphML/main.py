@@ -5,7 +5,7 @@ import networkx as nx
 from Lib.Common.StrConsts import SC
 from Lib.Common.Utils import mergeDicts
 import Lib.Common.StorageGraphTypes as SGT
-from Lib.Common.Graph_NetObjects import prepareGraphProps
+from Lib.Common.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 
 graphAttr = {
                 "widthType"        : str,
@@ -87,7 +87,7 @@ def converToPython( nxGraph ):
                 print( f"Del attr {attrName} from node '{k}' props." )
                 del nxGraph.nodes()[k][ attrName ]
 
-        mergeDicts( source = v, default = SGT.default_Node_Props )
+        mergeDicts( source = v, default = CGraphNode_NO.def_props )
 
     #***********************************
 
@@ -101,7 +101,7 @@ def converToPython( nxGraph ):
                 print( f"Del attr {attrName} from edge '{k}' props." )
                 del nxGraph.edges()[k][ attrName ]
 
-        mergeDicts( source = v, default = SGT.default_Edge_Props )
+        mergeDicts( source = v, default = CGraphEdge_NO.def_props )
 
 def load_and_fix_GraphML_File( sFName="", bConvertToHaskelFormat=False ):
     # загрузка графа и создание его объектов для сетевой синхронизации
@@ -118,7 +118,7 @@ def load_and_fix_GraphML_File( sFName="", bConvertToHaskelFormat=False ):
     else:
         converToPython( nxGraph )
 
-    prepareGraphProps( nxGraph, bToEnum = False )
+    SGT.prepareGraphProps( nxGraph, bToEnum = False )
     nx.write_graphml( nxGraph, sFName )
 
 def main():

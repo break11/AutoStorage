@@ -20,8 +20,7 @@ from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Br
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StrConsts import SC
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.StorageGraphTypes import SGA
-from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, prepareGraphProps
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.Common.Agent_NetObject import CAgent_NO, SAP, agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
@@ -158,7 +157,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         last_node = None
         for x in range(0, nodes_side_count * step, step):
             for y in range(0, nodes_side_count * 400, 400):
-                props = {"x": x, "y": y, "nodeType":"StorageSingle"}
+                props = { SGT.SGA.x: x, SGT.SGA.y: y, SGT.SGA.nodeType : SGT.ENodeTypes.StorageSingle }
                 cur_node = CGraphNode_NO( name = self.genStrNodeID(), parent = self.graphRootNode().nodesNode(),
                         saveToRedis = True, props = props, ext_fields = {} )
                 if last_node:
@@ -194,7 +193,7 @@ class CStorageGraph_GScene_Manager( QObject ):
     def save( self, sFName ):
         try:
             prepared_graph = deepcopy( self.nxGraph )
-            prepareGraphProps( prepared_graph, bToEnum = False )
+            SGT.prepareGraphProps( prepared_graph, bToEnum = False )
             nx.write_graphml(prepared_graph, sFName)
             return True
         except Exception as e:
@@ -339,10 +338,10 @@ class CStorageGraph_GScene_Manager( QObject ):
             nodeID_1 = nodeGItems[i].nodeID
             nodeID_2 = nodeGItems[i+1].nodeID
             if direct: #создание граней в прямом направлении
-                CGraphEdge_NO.createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=SGT.default_Edge_Props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=CGraphEdge_NO.def_props )
 
             if reverse: #создание граней в обратном направлении
-                CGraphEdge_NO.createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=SGT.default_Edge_Props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=CGraphEdge_NO.def_props )
 
             if direct == False and reverse == False: continue
 
@@ -430,12 +429,12 @@ class CStorageGraph_GScene_Manager( QObject ):
     def alignNodesVertical(self):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
         for nodeGItem in nodeGItems:
-            nodeGItem.netObj()[SGA.x] = nodeGItems[0].netObj()[SGA.x]
+            nodeGItem.netObj()[SGT.SGA.x] = nodeGItems[0].netObj()[SGT.SGA.x]
 
     def alignNodesHorisontal(self):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
         for nodeGItem in nodeGItems:
-            nodeGItem.netObj()[SGA.y] = nodeGItems[0].netObj()[SGA.y]
+            nodeGItem.netObj()[SGT.SGA.y] = nodeGItems[0].netObj()[SGT.SGA.y]
 
     #############################################################
     
@@ -469,9 +468,9 @@ class CStorageGraph_GScene_Manager( QObject ):
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
-                attr = deepcopy (SGT.default_Node_Props)
-                attr[ SGA.x ] = round (self.gView.mapToScene(event.pos()).x())
-                attr[ SGA.y ] = round (self.gView.mapToScene(event.pos()).y())
+                attr = deepcopy ( CGraphNode_NO.def_props )
+                attr[ SGT.SGA.x ] = round (self.gView.mapToScene(event.pos()).x())
+                attr[ SGT.SGA.y ] = round (self.gView.mapToScene(event.pos()).y())
 
                 CGraphNode_NO( name=self.genStrNodeID(), parent=self.graphRootNode().nodesNode(), props=attr )
 

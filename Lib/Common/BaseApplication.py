@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget
 from PyQt5.QtCore import QTimer, Qt
 
 from .SettingsManager import CSettingsManager as CSM
-from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
@@ -30,23 +30,25 @@ def registerNetObjTypes():
 
 def registerNetObj_Props_UserTypes():
     reg = CStrTypeConverter.registerType
-    reg( "a", ADT.EAgent_Status )
-    reg( "b", SGT.ENodeTypes )
-    reg( "c", SGT.ESensorSide )
-    reg( "d", SGT.EWidthType )
-    reg( "e", SGT.ECurvature )
-    reg( "g", SGT.ESide )
-    reg( "h", ADT.EAgent_CMD_State )
-    reg( "j", ADT.SBS_Data )
-    reg( "k", ADT.EConnectedStatus )
-    reg( "l", ADT.STS_Data )
-    reg( "m", ATD.CTaskList )
-    reg( "n", CStrList )
+    reg( int )
+    reg( str )
+    reg( float )
+    reg( ADT.EAgent_Status )
+    reg( SGT.ENodeTypes )
+    reg( SGT.ESensorSide )
+    reg( SGT.EWidthType )
+    reg( SGT.ECurvature )
+    reg( SGT.ESide )
+    reg( ADT.EAgent_CMD_State )
+    reg( ADT.SBS_Data )
+    reg( ADT.EConnectedStatus )
+    reg( ADT.STS_Data )
+    reg( ATD.CTaskList )
+    reg( CStrList )
 
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):
         reg = self.objMonitor.WidgetManager.registerWidget
-        ##remove## reg( CNetObj,       CNetObj_Widget    )
         reg( CNetObj,       CDictProps_Widget )
         reg( CGraphRoot_NO, CDictProps_Widget )
         reg( CGraphNode_NO, CDictProps_Widget )

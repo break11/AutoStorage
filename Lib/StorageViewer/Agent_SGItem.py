@@ -8,9 +8,8 @@ from PyQt5.QtGui import QPen, QBrush, QColor, QFont, QPainterPath, QPolygon
 from PyQt5.QtCore import Qt, QPoint, QRectF, QPointF, QLineF
 
 from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.StorageGraphTypes import SGA
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
-from Lib.Common.GraphUtils import getEdgeCoords
+from Lib.Common.GraphUtils import getEdgeCoords, edgeSize
 from Lib.Common.Vectors import Vector2
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -131,11 +130,11 @@ class CAgent_SGItem(QGraphicsItem):
         edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
 
         rAngle = edge_vec.selfAngle()
-        edgeSize = self.SGM.graphRootNode().nxGraph.edges[ tEdgeKey ][ SGA.edgeSize ]
+        eSize = edgeSize( self.SGM.graphRootNode().nxGraph, tEdgeKey )
 
         pos = self.__agentNetObj().position
 
-        k = edge_vec.magnitude() * pos / edgeSize
+        k = edge_vec.magnitude() * pos / eSize
         d_x = k * math.cos( rAngle )
         d_y = k * math.sin( rAngle )
 
@@ -157,11 +156,12 @@ class CAgent_SGItem(QGraphicsItem):
         bgColor = bgColorsByConnectedStatus[ self.__agentNetObj().connectedStatus ]
 
         ## BBox
-        # pen = QPen( Qt.blue )
-        # pen.setWidth( 4 )
-        # painter.setBrush( QBrush() )
-        # painter.setPen(pen)
-        # painter.drawRect( self.boundingRect() )
+        if self.SGM.bDrawBBox == True:
+            pen = QPen( Qt.blue )
+            pen.setWidth( 4 )
+            painter.setBrush( QBrush() )
+            painter.setPen(pen)
+            painter.drawRect( self.boundingRect() )
 
         if lod < 0.03:
             bgColor = selection_color if self.isSelected() else bgColor

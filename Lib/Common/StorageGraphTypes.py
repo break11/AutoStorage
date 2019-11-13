@@ -162,18 +162,3 @@ def prepareGraphProps( nxGraph, bToEnum = True ):
 
     for edgeProps in nxGraph.edges().values():
         prepareDict( edgeProps, bToEnum )
-
-default_Edge_Props = {
-                        SGA.edgeSize:         500,               
-                        SGA.highRailSizeFrom: 0,                 
-                        SGA.highRailSizeTo:   0,                 
-                        SGA.sensorSide:       ESensorSide.SBoth, 
-                        SGA.widthType:        EWidthType.Narrow, 
-                        SGA.curvature:        ECurvature.Straight
-                    }
-
-default_Node_Props = {  
-                        SGA.x: 0,                          
-                        SGA.y: 0,                          
-                        SGA.nodeType: ENodeTypes.DummyNode,
-                    }

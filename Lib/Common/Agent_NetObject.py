@@ -69,40 +69,42 @@ for k, v in cmdProps.items():
 
 cmdProps_keys = cmdProps.keys()
 
-def_props = { SAP.status: ADT.EAgent_Status.Idle,
-              SAP.connectedTime : 0,
-              SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
-              SAP.auto_control : 1,
-
-              SAP.edge: CStrList(),
-              SAP.position: 0,
-              SAP.angle : 0.0,
-              SAP.odometer : 0,              
-
-              SAP.route: CStrList(),
-              SAP.route_idx: 0,
-              SAP.task_list : ATD.CTaskList(),
-              SAP.task_idx  : 0,
-
-              SAP.cmd_PE   : ADT.EAgent_CMD_State.Done, SAP.cmd_PD   : ADT.EAgent_CMD_State.Done,
-              SAP.cmd_BR   : ADT.EAgent_CMD_State.Done, SAP.cmd_ES   : ADT.EAgent_CMD_State.Done,
-              SAP.cmd_BL_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BL_R : ADT.EAgent_CMD_State.Done,
-              SAP.cmd_BU_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BU_R : ADT.EAgent_CMD_State.Done,
-              SAP.cmd_BA   : ADT.EAgent_CMD_State.Done, SAP.cmd_CM   : ADT.EAgent_CMD_State.Done,
-
-              SAP.BS : ADT.SBS_Data.defVal(),
-              SAP.TS : ADT.STS_Data.defVal(),
-
-              SAP.RTele : 1 }
-
 def agentsNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Agents )
 
 def queryAgentNetObj( name ):
-    props = deepcopy( def_props )
+    props = deepcopy( CAgent_NO.def_props )
     return agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
 
 class CAgent_NO( CNetObj ):
+    def_props = {
+                SAP.status: ADT.EAgent_Status.Idle,
+                SAP.connectedTime : 0,
+                SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
+                SAP.auto_control : 1,
+
+                SAP.edge: CStrList(),
+                SAP.position: 0,
+                SAP.angle : 0.0,
+                SAP.odometer : 0,              
+
+                SAP.route: CStrList(),
+                SAP.route_idx: 0,
+                SAP.task_list : ATD.CTaskList(),
+                SAP.task_idx  : 0,
+
+                SAP.cmd_PE   : ADT.EAgent_CMD_State.Done, SAP.cmd_PD   : ADT.EAgent_CMD_State.Done,
+                SAP.cmd_BR   : ADT.EAgent_CMD_State.Done, SAP.cmd_ES   : ADT.EAgent_CMD_State.Done,
+                SAP.cmd_BL_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BL_R : ADT.EAgent_CMD_State.Done,
+                SAP.cmd_BU_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BU_R : ADT.EAgent_CMD_State.Done,
+                SAP.cmd_BA   : ADT.EAgent_CMD_State.Done, SAP.cmd_CM   : ADT.EAgent_CMD_State.Done,
+
+                SAP.BS : ADT.SBS_Data.defVal(),
+                SAP.TS : ADT.STS_Data.defVal(),
+
+                SAP.RTele : 1
+                }
+              
     @property
     def nxGraph( self ): return self.graphRootNode().nxGraph
 

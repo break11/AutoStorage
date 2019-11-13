@@ -4,8 +4,8 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Utils import destroy_If_Reload
-from .GraphUtils import EdgeDisplayName, loadGraphML_File
-from .StorageGraphTypes import prepareGraphProps
+from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
+import Lib.Common.StorageGraphTypes as SGT
 
 s_Graph = "Graph"
 s_Nodes = "Nodes"
@@ -32,6 +32,13 @@ class CGraphRoot_NO( CNetObj ):
 ###################################################################################
 
 class CGraphNode_NO( CNetObj ):
+    def_props = {
+                    SGT.SGA.x: 0,                          
+                    SGT.SGA.y: 0,                          
+                    SGT.SGA.nodeType: SGT.ENodeTypes.DummyNode,
+                    SGT.SGA.chargePort: "",
+                    SGT.SGA.chargeSide: SGT.ESide.Default,
+                }
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
@@ -71,6 +78,15 @@ class CGraphNode_NO( CNetObj ):
 ###################################################################################
 
 class CGraphEdge_NO( CNetObj ):
+    def_props = {
+                    SGT.SGA.edgeSize:         500,               
+                    SGT.SGA.highRailSizeFrom: 0,                 
+                    SGT.SGA.highRailSizeTo:   0,                 
+                    SGT.SGA.sensorSide:       SGT.ESensorSide.SBoth, 
+                    SGT.SGA.widthType:        SGT.EWidthType.Narrow, 
+                    SGT.SGA.curvature:        SGT.ECurvature.Straight
+                }
+
     s_NodeID_1  = "NodeID_1"
     s_NodeID_2  = "NodeID_2"
 
@@ -133,7 +149,7 @@ def loadGraphML_to_NetObj( sFName, bReload ):
     if not nxGraph:
         return False
 
-    prepareGraphProps( nxGraph )
+    SGT.prepareGraphProps( nxGraph )
     createNetObjectsForGraph( nxGraph )
     return True
 

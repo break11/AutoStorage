@@ -4,10 +4,7 @@ from .StrConsts import SC
 class CStrTypeConverter:
     s_fromString = 'fromString'
     from_str_funcs = {} #type:ignore
-
-    @classmethod
-    def isStdType( cls, val ): return hasattr( val, cls.s_fromString)
-
+    
     @classmethod
     def registerType( cls, typeClass ):
         assert typeClass not in cls.from_str_funcs
@@ -34,19 +31,3 @@ class CStrTypeConverter:
             return str( val )
         else:
             print( f"{SC.sWarning} Unsupport type = {typeClass.__name__} value = {val} for converting to String!" )
-        
-    ###################
-
-    @classmethod
-    def DictToStr( cls, d ):
-        d1 = {}
-        for k, v in d.items():
-            d1[ k ] = cls.ValToStr( v )
-        return d1
-
-    @classmethod
-    def DictFromStr( cls, d ):
-        d1 = {}
-        for k, v in d.items():
-            d1[ k ] = cls.ValFromStr( v )
-        return d1
