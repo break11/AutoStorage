@@ -7,7 +7,7 @@ from enum import Flag, auto, Enum
 from copy import deepcopy
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, pyqtSignal
+from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem, QGraphicsScene
 
 from .Node_SGItem import CNode_SGItem
@@ -98,6 +98,12 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.disabledTouchTypes = [type(None), CEdge_SGItem, CEdgeDecorate_SGItem, CAgent_SGItem]
         self.selectionMode = EGSceneSelectionMode.Select
 
+        self.objReloadTimer = QTimer()
+        self.objReloadTimer.setInterval(500)
+        self.objReloadTimer.setSingleShot( True )
+        self.objReloadTimer.timeout.connect( self.updateRelationObjects )
+        self.objReloadTimer.start()
+
     def setModeFlags(self, flags):
         self.Mode = flags
         if not (self.Mode & EGManagerMode.EditScene):
@@ -182,7 +188,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         for nodeID, nodeGItem in self.nodeGItems.items():
             self.updateNodeMiddleLine( nodeGItem )
         
-        ## gvFitToPage( self.gView ) - здесь не нужно т.к. выполоняется как реакция на GraphNet_Obj
+        gvFitToPage( self.gView )
         self.bHasChanges = False  # сбрасываем признак изменения сцены после загрузки
 
         self.bGraphLoading = False
@@ -441,10 +447,6 @@ class CStorageGraph_GScene_Manager( QObject ):
     clickEvents = [ QEvent.GraphicsSceneMousePress, QEvent.GraphicsSceneMouseRelease, QEvent.GraphicsSceneMouseDoubleClick ]
     def eventFilter(self, watched, event):
         if event.type() in self.clickEvents:
-            # if event.modifiers() & Qt.AltModifier:
-            #     event.ignore()
-            #     return True
-    
             # блокирование снятия выделения с итема (челнока), когда активирован режим "Touch" при клике на пустом месте
             # или при клике по элементам сцены для которых не определена возможность "Touch"
             if self.selectionMode == EGSceneSelectionMode.Touch:
@@ -491,6 +493,10 @@ class CStorageGraph_GScene_Manager( QObject ):
         event.ignore()
         return False
 
+    def updateRelationObjects( self ):
+        for agentGItem in self.agentGItems.values():
+            agentGItem.updatePos()
+
     #############################################################
 
     @time_func( sMsg="Create scene items time", threshold=10 )
@@ -499,26 +505,34 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         if isinstance( netObj, CGraphRoot_NO ):
             self.init()
+            self.objReloadTimer.start()
+
         elif isinstance( netObj, CGraphNode_NO ):
             self.addNode( nodeNetObj = netObj )
+            self.objReloadTimer.start()
+
         elif isinstance( netObj, CGraphEdge_NO ):
             self.addEdge( edgeNetObj = netObj )
+            self.objReloadTimer.start()
+
         elif isinstance( netObj, CAgent_NO ):
             self.addAgent( agentNetObj = netObj )
-        elif isinstance( netObj, CNetObj ) and netObj.name == "Graph_End_Obj":
-            gvFitToPage( self.gView )
-            for agentGItem in self.agentGItems.values():
-                agentGItem.updatePos()
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
         if isinstance( netObj, CGraphRoot_NO ):
             self.clear()
+            self.objReloadTimer.start()
+
         elif isinstance( netObj, CGraphNode_NO ):
             self.deleteNode( nodeNetObj = netObj )
+            self.objReloadTimer.start()
+
         elif isinstance( netObj, CGraphEdge_NO ):
             self.deleteEdge_NetObj( edgeNetObj = netObj )
+            self.objReloadTimer.start()
+
         elif isinstance( netObj, CAgent_NO ):
             self.deleteAgent( agentNetObj = netObj )
     

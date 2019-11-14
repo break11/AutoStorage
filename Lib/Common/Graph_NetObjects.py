@@ -140,8 +140,6 @@ def createNetObjectsForGraph( nxGraph ):
     for edgeID in nxGraph.edges():
         edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges, props=nxGraph.edges()[ edgeID ] )
 
-    CNetObj(name="Graph_End_Obj", parent=Graph)
-
 def loadGraphML_to_NetObj( sFName, bReload ):
     if not destroy_If_Reload( s_Graph, bReload ): return False
 
