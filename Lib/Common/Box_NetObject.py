@@ -1,5 +1,6 @@
 import os
 import json
+from enum import auto
 
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -8,6 +9,79 @@ from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
+from Lib.Common.BaseEnum import BaseEnum
+
+MDS = "="
+TDS = ","
+
+# Undefined = 25,Left,555
+# BoxOnNode = 25,Left
+# BoxOnAgent = 555
+
+class EBoxAddressType( BaseEnum ):
+    Undefined  = auto()
+    BoxOnNode  = auto()
+    BoxOnAgent = auto()
+
+    Default = Undefined
+
+class CBoxAddress:
+    dataFromStrFunc = {
+                        EBoxAddressType.Undefined : lambda sData : sData.split( TDS )[:3:]
+                        # EBoxAddressType.BoxOnNode  : lambda sData : sData,
+                        EBoxAddressType.BoxOnAgent  : lambda sData : float(sData),
+                      }
+    dataToStrFunc   = {
+                        EBoxAddressType.Undefined  : lambda boxAddress : f"{boxAddress.nodeID}{ TDS }{boxAddress.placeSide}{ TDS }{boxAddress.agentN}",
+                        EBoxAddressType.BoxOnNode  : lambda boxAddress : f"{boxAddress.nodeID}{ TDS }{boxAddress.placeSide}",
+                        EBoxAddressType.BoxOnAgent : lambda boxAddress : f"{boxAddress.agentN}",
+                      }
+
+    def __init__( self, addressType, nodeID = None, placeSide = None, agentN = None ):
+        self.addressType = addressType
+
+        self.nodeID    = nodeID
+        self.placeSide = placeSide
+        self.agentN    = agentN
+
+    def __str__( self ): return self.toString()
+
+    @classmethod
+    def fromString( cls, data ):
+        l = data.split( MDS )
+        addressType = ETaskType.fromString( l[0] )
+        if len( l ) > 1:
+            nodeID, placeSide, agentN = cls.dataFromString( addressType, l[1] )
+        else:
+            nodeID, placeSide, agentN = None, None, None
+        return CBoxAddress( addressType, nodeID=nodeID, placeSide=placeSide, agentN=agentN )
+
+    def toString( self ):
+        sR = f"{self.addressType}"
+        if any( self.nodeID, self.placeSide, self.agentN ):
+            sR = f"{sR}{MDS}{self.dataToString()}"
+        return sR
+
+    @classmethod
+    def dataFromString( cls, addressType, sData ):
+        if addressType in cls.dataFromStrFunc.keys():
+            try:
+                return cls.dataFromStrFunc[ addressType ]( sData )
+            except:
+                return None
+        else:
+            return None
+
+    def dataToString( self ):
+        if self.type in self.dataToStrFunc.keys():
+            return self.dataToStrFunc[ self.addressType ]( self )
+        else:
+            return None
+###############
+
+    
+
+###############
 
 s_Boxes = "Boxes"
 
