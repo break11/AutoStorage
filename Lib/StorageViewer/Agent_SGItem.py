@@ -114,7 +114,6 @@ class CAgent_SGItem(QGraphicsItem):
         xPos = (self.__agentNetObj().UID % 10) * ( SGT.wide_Rail_Width + SGT.wide_Rail_Width / 2)
         yPos = (self.__agentNetObj().UID % 100) // 10 * ( - SGT.narrow_Rail_Width - 100)
         self.setPos( xPos, yPos )
-        self.setRotation( 0 )
 
     def updateRotation(self):
         self.setRotation( - self.__agentNetObj().angle )
