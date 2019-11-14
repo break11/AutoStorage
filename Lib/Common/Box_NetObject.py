@@ -41,7 +41,7 @@ def loadBoxes_to_NetObj( sFName, bReload ):
         print( f"{SC.sWarning} Boxes file not found '{sFName}'!" )
         return False
 
-    Boxes_NetObj = CNetObj(name=s_Boxes, parent=CNetObj_Manager.rootObj)
+    Boxes_NetObj = CNetObj_Manager.rootObj.queryObj( s_Boxes,  CNetObj )
     with open( sFName, "r" ) as read_file:
         Boxes = json.load( read_file )
         nJSON.load_Obj_Children( jData=Boxes, obj=Boxes_NetObj )

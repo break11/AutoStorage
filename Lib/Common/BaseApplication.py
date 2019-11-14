@@ -9,7 +9,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
-from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
+from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, s_Graph
 from Lib.Common.Agent_NetObject import CAgent_NO, s_Agents
 from Lib.Common.Box_NetObject import CBox_NO, s_Boxes
 from Lib.Common.GuiUtils import CNoAltMenu_Style
@@ -100,7 +100,7 @@ class CBaseApplication( QApplication ):
             if not CNetObj_Manager.connect(): return False
 
         CNetObj_Manager.rootObj.queryObj( s_Agents, CNetObj )
-        CNetObj_Manager.rootObj.queryObj( s_Boxes, CNetObj )
+        CNetObj_Manager.rootObj.queryObj( s_Boxes,  CNetObj )
 
         if self.bNetworkMode:
             self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
