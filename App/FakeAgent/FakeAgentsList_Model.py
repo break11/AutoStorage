@@ -2,9 +2,9 @@ import sys
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSlot, pyqtSignal
 
-from Lib.Common.Agent_NetObject import agentsNodeCache
-from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj import CNetObj
+from Lib.Common.Agent_NetObject import agentsNodeCache
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
