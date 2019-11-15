@@ -10,6 +10,8 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem, QGraphicsScene
 
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj import CNetObj
 from .Node_SGItem import CNode_SGItem
 from .Edge_SGItem import CEdge_SGItem
 from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
@@ -25,9 +27,7 @@ from Lib.Common.Agent_NetObject import CAgent_NO, SAP, agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
                                     rotateToRightSector, rotateToLeftSector, calcNodeMiddleLine)
-from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Common.Vectors import Vector2
 
 class EGManagerMode (Flag):

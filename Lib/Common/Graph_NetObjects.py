@@ -1,7 +1,7 @@
 
 import networkx as nx
-from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File

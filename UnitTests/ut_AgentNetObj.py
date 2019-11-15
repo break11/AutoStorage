@@ -7,10 +7,10 @@ from copy import deepcopy
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj import CNetObj
 import Lib.Common.GraphUtils as GU
 from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
-from Lib.Net.NetObj import CNetObj
-from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.Agent_NetObject as ANO
 from Lib.Common.SerializedList import CStrList
 
