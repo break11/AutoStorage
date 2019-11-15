@@ -1,9 +1,12 @@
 
 from enum import auto
+import re
+import math
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.SerializedList import CSerializedList
 
 TDS = "=" # Task Data Splitter
+TDS_split_pattern = f" {TDS} | {TDS}|{TDS} |{TDS}"
 
 class ETaskType( BaseEnum ):
     Undefined = auto()
@@ -35,11 +38,11 @@ class CTask:
 
     def __str__( self ): return self.toString()
 
-    def __eq__( self, other ): return self.type == other.type and self.data == other.data
+    def __eq__( self, other ): return self.type == other.type and math.isclose( self.data, other.data)
 
     @classmethod
     def fromString( cls, data ):
-        l = data.split( TDS )
+        l = re.split( TDS_split_pattern, data )
         taskType = ETaskType.fromString( l[0] )
         if len( l ) > 1:
             taskData = cls.dataFromString( taskType, l[1] )
