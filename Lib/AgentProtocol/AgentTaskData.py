@@ -55,19 +55,13 @@ class CTask:
     
     @classmethod
     def dataFromString( cls, taskType, sData ):
-        if taskType in cls.dataFromStrFunc.keys():
-            try:
-                return cls.dataFromStrFunc[ taskType ]( sData )
-            except:
-                return None
-        else:
+        try:
+            return cls.dataFromStrFunc[ taskType ]( sData )
+        except:
             return None
 
     def dataToString( self ):
-        if self.type in self.dataToStrFunc.keys():
-            return self.dataToStrFunc[ self.type ]( self.data )
-        else:
-            return None
+        return self.dataToStrFunc[ self.type ]( self.data )
             
 ######################
 

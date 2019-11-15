@@ -10,6 +10,7 @@ from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
 from Lib.Common.BaseEnum import BaseEnum
+import Lib.Common.StorageGraphTypes as SGT
 
 MDS = "="
 TDS = ","
@@ -27,9 +28,9 @@ class EBoxAddressType( BaseEnum ):
 
 class CBoxAddress:
     dataFromStrFunc = {
-                        EBoxAddressType.Undefined : lambda sData : sData.split( TDS )[:3:]
-                        # EBoxAddressType.BoxOnNode  : lambda sData : sData,
-                        EBoxAddressType.BoxOnAgent  : lambda sData : float(sData),
+                        EBoxAddressType.Undefined   : lambda sData : sData.split( TDS )[:3:],
+                        EBoxAddressType.BoxOnNode   : CBoxAddress.BoxOnNode_fromString,
+                        EBoxAddressType.BoxOnAgent  : CBoxAddress.BoxOnAgent_fromString,
                       }
     dataToStrFunc   = {
                         EBoxAddressType.Undefined  : lambda boxAddress : f"{boxAddress.nodeID}{ TDS }{boxAddress.placeSide}{ TDS }{boxAddress.agentN}",
@@ -64,23 +65,34 @@ class CBoxAddress:
 
     @classmethod
     def dataFromString( cls, addressType, sData ):
-        if addressType in cls.dataFromStrFunc.keys():
-            try:
-                return cls.dataFromStrFunc[ addressType ]( sData )
-            except:
-                return None
-        else:
-            return None
+        try:
+            return cls.dataFromStrFunc[ addressType ]( sData )
+        except:
+            return None, None, None
 
     def dataToString( self ):
-        if self.type in self.dataToStrFunc.keys():
-            return self.dataToStrFunc[ self.addressType ]( self )
-        else:
-            return None
+        return self.dataToStrFunc[ self.addressType ]( self )
+
 ###############
 
-    
+    @classmethod
+    def BoxOnNode_fromString(cls, sData):
+        l = sData.split( TDS )
+        nodeID = l[0]
+        placeSide = SGT.ESide.fromString(l[1])
+        agentN = None
 
+        return nodeID, placeSide, agentN
+    
+    @classmethod
+    def BoxOnAgent_fromString(cls, sData):
+        l = sData.split( TDS )
+        nodeID = None
+        placeSide = None
+        agentN = int(l[0])
+
+        return nodeID, placeSide, agentN
+    
 ###############
 
 s_Boxes = "Boxes"
