@@ -1,8 +1,6 @@
 import weakref
 import math
 
-from enum import Enum, auto
-
 from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem
 from PyQt5.QtGui import QPen, QBrush, QColor, QFont, QPainterPath, QPolygon
 from PyQt5.QtCore import Qt, QPoint, QRectF, QPointF, QLineF

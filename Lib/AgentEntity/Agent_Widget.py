@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QGraphicsItem
 
 from Lib.Net.NetObj_Widgets import CNetObj_Widget
 from Lib.StorageViewer.StorageGraph_GScene_Manager import EGSceneSelectionMode
-from Lib.StorageViewer.Node_SGItem import CNode_SGItem
+from Lib.GraphEntity.Node_SGItem import CNode_SGItem
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV

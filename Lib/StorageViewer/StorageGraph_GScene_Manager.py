@@ -12,10 +12,9 @@ from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem, QGraphicsScene
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
-from .Node_SGItem import CNode_SGItem
-from .Edge_SGItem import CEdge_SGItem
-from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
-from .Agent_SGItem import CAgent_SGItem
+from Lib.GraphEntity.Node_SGItem import CNode_SGItem
+from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
+from Lib.GraphEntity.EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 from Lib.Common.GuiUtils import gvFitToPage
 from Lib.Common.Utils import time_func
 from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache
@@ -23,6 +22,7 @@ from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StrConsts import SC
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
+from Lib.AgentEntity.Agent_SGItem import CAgent_SGItem
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO, SAP, agentsNodeCache
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,

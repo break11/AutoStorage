@@ -9,7 +9,7 @@ from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import EdgeDisplayName
 from Lib.Common.TreeNode import CTreeNodeCache
 
-from .EdgeDecorate_SGItem import CEdgeDecorate_SGItem
+from Lib.GraphEntity.EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения

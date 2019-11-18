@@ -21,8 +21,8 @@ from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 from  Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
 from  Lib.Net.NetObj_Manager import CNetObj_Manager
-from .Edge_SGItem import CEdge_SGItem
-from .Node_SGItem import CNode_SGItem
+from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
+from Lib.GraphEntity.Node_SGItem import CNode_SGItem
 
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.AgentEntity.Agent_Widget import CAgent_Widget
