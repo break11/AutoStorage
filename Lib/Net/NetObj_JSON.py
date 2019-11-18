@@ -19,3 +19,12 @@ def load_Obj( jData, parent ):
 def load_Obj_Children( jData, obj ):
     for item in jData:
         load_Obj( item, parent = obj )
+
+def saveObj( netObj, bSaveUID=False ):
+    jData = {}
+    if bSaveUID: jData[ SNOP.UID ] = netObj.UID
+    jData[ SNOP.name ] = netObj.name
+    jData[ SNOP.TypeName ] = netObj.__class__.__name__
+    jData[ SNOP.props ] = netObj.props
+    jData[ SNOP.ext_fields ] = netObj.ext_fields
+    return jData

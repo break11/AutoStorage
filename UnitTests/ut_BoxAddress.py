@@ -22,8 +22,8 @@ class Test_CBoxAddress(unittest.TestCase):
         self.assertEqual( addr_test.toString(), sData )
 
         ##################################################################################################
-        sData = "BoxOnNode=25,Left"
-        addr = CBoxAddress( EBoxAddressType.BoxOnNode, nodeID = "25", placeSide = SGT.ESide.Left )
+        sData = "OnNode=25,Left"
+        addr = CBoxAddress( EBoxAddressType.OnNode, nodeID = "25", placeSide = SGT.ESide.Left )
         addr_test = CBoxAddress.fromString( sData )
 
         self.assertEqual( addr, addr_test )
@@ -32,8 +32,8 @@ class Test_CBoxAddress(unittest.TestCase):
 
         self.assertEqual( type(addr_test.placeSide), SGT.ESide )
         ##################################################################################################
-        sData = "BoxOnAgent=555"
-        addr = CBoxAddress( EBoxAddressType.BoxOnAgent, agentN=555 )
+        sData = "OnAgent=555"
+        addr = CBoxAddress( EBoxAddressType.OnAgent, agentN=555 )
         addr_test = CBoxAddress.fromString( sData )
 
         self.assertEqual( addr, addr_test )

@@ -12,13 +12,13 @@ TDS_split_pattern = f" {TDS} | {TDS}|{TDS} |{TDS}"
 
 class EBoxAddressType( BaseEnum ):
     Undefined  = auto()
-    BoxOnNode  = auto()
-    BoxOnAgent = auto()
+    OnNode  = auto()
+    OnAgent = auto()
 
     Default = Undefined
 
 
-def BoxOnNode_fromString(sData):
+def OnNode_fromString(sData):
     l = re.split( TDS_split_pattern, sData )
     nodeID = l[0]
     placeSide = SGT.ESide.fromString(l[1])
@@ -26,7 +26,7 @@ def BoxOnNode_fromString(sData):
 
     return nodeID, placeSide, agentN
 
-def BoxOnAgent_fromString(sData):
+def OnAgent_fromString(sData):
     l = re.split( TDS_split_pattern, sData )
     nodeID = None
     placeSide = None
@@ -37,14 +37,14 @@ def BoxOnAgent_fromString(sData):
 
 class CBoxAddress:
     dataFromStrFunc = {
-                        EBoxAddressType.Undefined   : lambda sData : sData.split( TDS )[:3:],
-                        EBoxAddressType.BoxOnNode   : BoxOnNode_fromString,
-                        EBoxAddressType.BoxOnAgent  : BoxOnAgent_fromString,
+                        EBoxAddressType.Undefined : lambda sData : sData.split( TDS )[:3:],
+                        EBoxAddressType.OnNode    : OnNode_fromString,
+                        EBoxAddressType.OnAgent   : OnAgent_fromString,
                       }
     dataToStrFunc   = {
-                        EBoxAddressType.Undefined  : lambda boxAddress : f"{boxAddress.nodeID}{ TDS }{boxAddress.placeSide}{ TDS }{boxAddress.agentN}",
-                        EBoxAddressType.BoxOnNode  : lambda boxAddress : f"{boxAddress.nodeID}{ TDS }{boxAddress.placeSide}",
-                        EBoxAddressType.BoxOnAgent : lambda boxAddress : f"{boxAddress.agentN}",
+                        EBoxAddressType.Undefined : lambda boxAddress : f"{boxAddress.nodeID}{ TDS }{boxAddress.placeSide}{ TDS }{boxAddress.agentN}",
+                        EBoxAddressType.OnNode    : lambda boxAddress : f"{boxAddress.nodeID}{ TDS }{boxAddress.placeSide}",
+                        EBoxAddressType.OnAgent   : lambda boxAddress : f"{boxAddress.agentN}",
                       }
 
     def __init__( self, addressType, nodeID = None, placeSide = None, agentN = None ):

@@ -2,8 +2,8 @@
 import os
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import ( QWidget )
-from PyQt5.QtCore import (Qt, QByteArray, QModelIndex, QItemSelectionModel)
+from PyQt5.QtWidgets import QWidget, QFileDialog
+from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel
 from PyQt5.Qt import QInputDialog
 
 from .NetObj_Manager import CNetObj_Manager
@@ -13,9 +13,11 @@ from .NetObj_Model import CNetObj_Model
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Widgets import CNetObj_WidgetsManager
 from .NetCmd import CNetCmd
+from .NetObj_JSON import load_Obj
 
 from  Lib.Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
+from  Lib.Common.FileUtils import projectDir
 
 from __main__ import __file__ as baseFName
 
@@ -122,3 +124,12 @@ class CNetObj_Monitor(QWidget):
 
         netObj = self.netObjModel.netObj_From_Index( ci )
         netObj.destroy()
+
+    def on_btnLoad_JSON_released( self ):
+        path, extension = QFileDialog.getOpenFileName(self, "Open JSON NetObj file", projectDir(), "*.json","", QFileDialog.DontUseNativeDialog)
+        # if path: self.loadGraphML( path )
+
+        # ci = self.tvNetObj.selectionModel().currentIndex()
+        # if not ci.isValid(): return
+
+

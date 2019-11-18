@@ -8,6 +8,7 @@ from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
+from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
 
 s_Boxes = "Boxes"
 
@@ -25,14 +26,14 @@ def queryBoxNetObj( name ):
     return boxesNodeCache()().queryObj( sName=name, ObjClass=CBox_NO, props=props )
 
 class CBox_NO( CNetObj ):
-    def_props = { SBP.address: "" }
+    def_props = { SBP.address: CBoxAddress( addressType=EBoxAddressType.Undefined ) }
 
     # @property
     # def nxGraph( self ): return self.graphRootNode().nxGraph
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=def_props, ext_fields=None ):
-        print( boxesNodeCache()(), parent )
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
 
 def loadBoxes_to_NetObj( sFName, bReload ):
     if not destroy_If_Reload( s_Boxes, bReload ): return False

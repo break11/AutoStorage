@@ -7,50 +7,52 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
-from   Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode, EGSceneSelectionMode
-from   Lib.Common.GridGraphicsScene import CGridGraphicsScene
-from   Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
-from   Lib.Common.SettingsManager import CSettingsManager as CSM
-from   Lib.Common.BaseApplication import EAppStartPhase
-from   Lib.Common.StrConsts import SC
+from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode, EGSceneSelectionMode
+from Lib.Common.GridGraphicsScene import CGridGraphicsScene
+from Lib.Common.GV_Wheel_Zoom_EventFilter import CGV_Wheel_Zoom_EF
+from Lib.Common.SettingsManager import CSettingsManager as CSM
+from Lib.Common.BaseApplication import EAppStartPhase
+from Lib.Common.StrConsts import SC
 
-from  Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
-from  Lib.Common.GuiUtils import gvFitToPage, load_Window_State_And_Geometry, save_Window_State_And_Geometry
-from  Lib.Common.Utils import time_func
-from  Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
-from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
-from  Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
-from  Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
+from Lib.Common.GuiUtils import gvFitToPage, load_Window_State_And_Geometry, save_Window_State_And_Geometry
+from Lib.Common.Utils import time_func
+from Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
+from Lib.Common.StrProps_Meta import СStrProps_Meta
+from Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
+from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
 from Lib.GraphEntity.Node_SGItem import CNode_SGItem
-
-from Lib.Net.DictProps_Widget import CDictProps_Widget
+from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_Widget import CAgent_Widget
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO
-from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 
 from .images_rc import *
 from enum import Enum, auto
 
-s_scene              = "scene"
-s_grid_size          = "grid_size"
-s_draw_grid          = "draw_grid"
-s_draw_info_rails    = "draw_info_rails"
-s_draw_main_rail     = "draw_main_rail"
-s_snap_to_grid       = "snap_to_grid"
-s_draw_bbox          = "draw_bbox"
-s_draw_special_lines = "draw_special_lines"
+class SSceneOptions( СStrProps_Meta ):
+    scene              = None
+    grid_size          = None
+    draw_grid          = None
+    draw_info_rails    = None
+    draw_main_rail     = None
+    snap_to_grid       = None
+    draw_bbox          = None
+    draw_special_lines = None
 
+SSO = SSceneOptions
 
 ###########################################
 sceneDefSettings = {
-                    s_grid_size           : 400,   # type: ignore
-                    s_draw_grid           : False, # type: ignore
-                    s_draw_info_rails     : False, # type: ignore
-                    s_draw_main_rail      : False, # type: ignore
-                    s_snap_to_grid        : False, # type: ignore
-                    s_draw_bbox           : False, # type: ignore
-                    s_draw_special_lines  : False, # type: ignore
+                    SSO.grid_size           : 400,   # type: ignore
+                    SSO.draw_grid           : False, # type: ignore
+                    SSO.draw_info_rails     : False, # type: ignore
+                    SSO.draw_main_rail      : False, # type: ignore
+                    SSO.snap_to_grid        : False, # type: ignore
+                    SSO.draw_bbox           : False, # type: ignore
+                    SSO.draw_special_lines  : False, # type: ignore
                     }
 ###########################################
 
@@ -148,7 +150,7 @@ class CViewerWindow(QMainWindow):
     def loadSettings( self ):
         load_Window_State_And_Geometry( self )
 
-        sceneSettings = CSM.rootOpt( s_scene, default=sceneDefSettings )
+        sceneSettings = CSM.rootOpt( SSO.scene, default=sceneDefSettings )
 
         self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, s_grid_size,    default = self.StorageMap_Scene.gridSize )
         self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, s_draw_grid,    default = self.StorageMap_Scene.bDrawGrid )
@@ -170,15 +172,15 @@ class CViewerWindow(QMainWindow):
     def saveSettings( self ):
         save_Window_State_And_Geometry( self )
 
-        CSM.options[ s_scene ] =   {
-                                    s_grid_size           : self.StorageMap_Scene.gridSize,
-                                    s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
-                                    s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
-                                    s_draw_info_rails     : self.SGM.bDrawInfoRails,
-                                    s_draw_main_rail      : self.SGM.bDrawMainRail,
-                                    s_draw_bbox           : self.SGM.bDrawBBox,
-                                    s_draw_special_lines  : self.SGM.bDrawSpecialLines,
-                                   }
+        CSM.options[ SSO.scene ] =   {
+                                        s_grid_size           : self.StorageMap_Scene.gridSize,
+                                        s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
+                                        s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
+                                        s_draw_info_rails     : self.SGM.bDrawInfoRails,
+                                        s_draw_main_rail      : self.SGM.bDrawMainRail,
+                                        s_draw_bbox           : self.SGM.bDrawBBox,
+                                        s_draw_special_lines  : self.SGM.bDrawSpecialLines,
+                                     }
     #############################################################################
 
     def viewPortAreaChanged(self, value):

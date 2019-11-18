@@ -3,126 +3,97 @@
         "type": "CBox_NO",
         "name": 1,
         "props":{
-            "address": "sTEST",
-            "label"  : "sEAgentStatus|15 RIGHT",
-            "nodeID" : "s15",
-            "side"   : "sRight"
+            "address": "OnNode=15,Right"
         }
     },
     {
         "name": 2,
         "props":{
-            "label": "s17 RIGHT",
-            "nodeID": "s17",
-            "side": "sRight"
+            "address": "OnNode=17,Right"
         }
     },
     {
         "name": 3,
         "props":{
-            "label": "s18 RIGHT",
-            "nodeID": "s18",
-            "side": "sRight"
+            "address": "OnNode=18,Right"
         }
     },
     {
         "name": 4,
         "props":{
-            "label": "s19 RIGHT",
-            "nodeID": "s19",
-            "side": "sRight"
+            "address": "OnNode=19,Right"
         }
     },
     {
         "name": 5,
-        "label": "s20 RIGHT",
-        "nodeID": "s20",
-        "side": "sRight"
+        "props":{
+            "address": "OnNode=20,Right"
+        }
     },
     {
         "name": 6,
         "props":{
-            "label": "s21 RIGHT",
-            "nodeID": "s21",
-            "side": "sRight"
+            "address": "OnNode=21,Right"
         }
     },
     {
         "name": 7,
-        "label": "s22 RIGHT",
-        "nodeID": "s22",
-        "side": "sRight"
+        "props":{
+            "address": "OnNode=22,Right"
+        }
     },
     {
         "name": 8,
         "props":{
-            "label": "s23 RIGHT",
-            "nodeID": "s23",
-            "side": "sRight"
+            "address": "OnNode=23,Right"
         }
     },
     {
         "name": 9,
         "props":{
-            "label": "s15 LEFT",
-            "nodeID": "s15",
-            "side": "sLeft"
+            "address": "OnNode=15,Left"
         }
     },
     {
         "name": 10,
         "props":{
-            "label": "s17 LEFT",
-            "nodeID": "s17",
-            "side": "sLeft"
+            "address": "OnNode=17,Left"
         }
     },
     {
         "name": 11,
         "props":{
-            "label": "s18 LEFT",
-            "nodeID": "s18",
-            "side": "sLeft"
+            "address": "OnNode=18,Left"
         }
     },
     {
         "name": 12,
         "props":{
-            "label": "s19 LEFT",
-            "nodeID": "s19",
-            "side": "sLeft"
+            "address": "OnNode=19,Left"
         }
     },
     {
         "name": 13,
         "props":{
-            "label": "s20 LEFT",
-            "nodeID": "s20",
-            "side": "sLeft"
+            "address": "OnNode=20,Left"
         }
     },
     {
         "name": 14,
         "props":{
-            "label": "s21 LEFT",
-            "nodeID": "s21",
-            "side": "sLeft"
+            "address": "OnNode=21,Left"
         }
     },
     {
         "name": 15,
         "props":{
-            "label": "s22 LEFT",
-            "nodeID": "s22",
-            "side": "sLeft"
+            "address": "OnNode=22,Left"
         }
     },
     {
         "name": 16,
         "props":{
-            "label": "s23 LEFT",
-            "nodeID": "s23",
-            "side": "sLeft"
+            "address": "OnNode=23,Left"
         }
     }
 ]

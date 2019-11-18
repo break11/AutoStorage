@@ -18,6 +18,7 @@ from Lib.Common.SerializedList import CStrList
 import Lib.GraphEntity.StorageGraphTypes as SGT
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
+from Lib.BoxEntity.BoxAddress import CBoxAddress
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -28,7 +29,7 @@ def registerNetObjTypes():
     reg( CAgent_NO )
     reg( CBox_NO )
 
-def registerNetObj_Props_UserTypes():
+def registerNetObj_Props_Types():
     reg = CStrTypeConverter.registerType
     reg( int )
     reg( str )
@@ -44,6 +45,7 @@ def registerNetObj_Props_UserTypes():
     reg( ADT.EConnectedStatus )
     reg( ADT.STS_Data )
     reg( ATD.CTaskList )
+    reg( CBoxAddress )
     reg( CStrList )
 
 class CBaseApplication( QApplication ):
@@ -64,7 +66,7 @@ class CBaseApplication( QApplication ):
         self.setStyle( CNoAltMenu_Style() )
 
         registerNetObjTypes()
-        registerNetObj_Props_UserTypes()
+        registerNetObj_Props_Types()
 
         if self.bNetworkMode:
             self.tickTimer = QTimer()
