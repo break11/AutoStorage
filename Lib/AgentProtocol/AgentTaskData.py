@@ -38,7 +38,13 @@ class CTask:
 
     def __str__( self ): return self.toString()
 
-    def __eq__( self, other ): return self.type == other.type and math.isclose( self.data, other.data)
+    def dataEqual_by_type( self, other ):
+        if type( other.data ) == float:
+            return math.isclose( self.data, other.data)
+        else:
+            return self.data == other.data
+
+    def __eq__( self, other ): return self.type == other.type and self.dataEqual_by_type( other )
 
     @classmethod
     def fromString( cls, data ):

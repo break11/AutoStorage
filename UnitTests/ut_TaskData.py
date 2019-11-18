@@ -46,5 +46,17 @@ class Test_CBoxAddress(unittest.TestCase):
         self.assertEqual( task_test.toString(), sData )
         self.assertEqual( type(task_test.data), float )
 
+        #################
+
+        sData = "JmpToTask=1"
+
+        task = CTask( taskType=ETaskType.JmpToTask, taskData=1 )
+        task_test = CTask.fromString( sData )
+
+        self.assertEqual( task, task_test )
+        self.assertEqual( task.toString(), sData )
+        self.assertEqual( task_test.toString(), sData )
+        self.assertEqual( type(task_test.data), int )
+
 if __name__ == "__main__":
     unittest.main()
