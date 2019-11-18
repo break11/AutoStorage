@@ -7,90 +7,105 @@
         }
     },
     {
+        "type": "CBox_NO",
         "name": 2,
         "props":{
             "address": "OnNode=17,Right"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 3,
         "props":{
             "address": "OnNode=18,Right"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 4,
         "props":{
             "address": "OnNode=19,Right"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 5,
         "props":{
             "address": "OnNode=20,Right"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 6,
         "props":{
             "address": "OnNode=21,Right"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 7,
         "props":{
             "address": "OnNode=22,Right"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 8,
         "props":{
             "address": "OnNode=23,Right"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 9,
         "props":{
             "address": "OnNode=15,Left"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 10,
         "props":{
             "address": "OnNode=17,Left"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 11,
         "props":{
             "address": "OnNode=18,Left"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 12,
         "props":{
             "address": "OnNode=19,Left"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 13,
         "props":{
             "address": "OnNode=20,Left"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 14,
         "props":{
             "address": "OnNode=21,Left"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 15,
         "props":{
             "address": "OnNode=22,Left"
         }
     },
     {
+        "type": "CBox_NO",
         "name": 16,
         "props":{
             "address": "OnNode=23,Left"
