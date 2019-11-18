@@ -4,11 +4,11 @@ from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSlot, pyqtSig
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
-from Lib.Common.Agent_NetObject import agentsNodeCache
+from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.SettingsManager import CSettingsManager as CSM
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
 
 from .FakeAgentThread import CFakeAgentThread
 from .FakeAgentLink import CFakeAgentLink

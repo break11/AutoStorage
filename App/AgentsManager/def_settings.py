@@ -3,7 +3,7 @@ import Lib.Net.NetObj_Manager as mgr
 import Lib.Net.NetObj_Monitor as mon
 from  Lib.Common.StrConsts import SC
 from    Lib.Common.GuiUtils import windowDefSettings
-from    Lib.AppWidgets import Agent_Cmd_Log_Form as ACL_Form
+from    Lib.AgentEntity import Agent_Cmd_Log_Form as ACL_Form
 
 AM_DefSet = {
                 SC.main_window  : windowDefSettings,     # type: ignore

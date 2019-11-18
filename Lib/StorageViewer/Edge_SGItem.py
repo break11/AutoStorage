@@ -4,7 +4,7 @@ from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform, QColor, QPa
 from PyQt5.QtCore import ( Qt, QPoint, QRect, QLineF, QRectF )
 import math
 
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import EdgeDisplayName
 from Lib.Common.TreeNode import CTreeNodeCache

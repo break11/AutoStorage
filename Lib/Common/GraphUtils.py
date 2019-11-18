@@ -4,8 +4,8 @@ import networkx as nx
 import os
 import re
 
-from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.StorageGraphTypes import SGA
+from Lib.GraphEntity import StorageGraphTypes as SGT
+from Lib.GraphEntity.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
 from Lib.Common.StrConsts import SC
 

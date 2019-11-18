@@ -7,27 +7,27 @@ from PyQt5.QtCore import pyqtSlot, QTimer, QTime
 from PyQt5.QtWidgets import QMainWindow, QLayout
 from PyQt5 import uic
 
-from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj, agentsNodeCache, SAP
-import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.GraphEntity import StorageGraphTypes as SGT
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO, queryAgentNetObj, agentsNodeCache, SAP
+import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
-from Lib.Net.Agent_Widget import CAgent_Widget
+from Lib.AgentEntity.Agent_Widget import CAgent_Widget
 from Lib.Common.StrConsts import SC
 import Lib.Common.Utils as UT
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
-from Lib.Common.Graph_NetObjects import graphNodeCache
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
-from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
+from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from Lib.Common.GraphUtils import nodeType, routeToServiceStation
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
-from Lib.AgentProtocol.AgentLogManager import ALM
-import Lib.AgentProtocol.AgentDataTypes as ADT
-import Lib.AgentProtocol.AgentTaskData as ATD
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
+from Lib.AgentEntity.AgentLogManager import ALM
+import Lib.AgentEntity.AgentDataTypes as ADT
+import Lib.AgentEntity.AgentTaskData as ATD
 
 class CAM_MainWindow(QMainWindow):
     def registerObjects_Widgets(self):

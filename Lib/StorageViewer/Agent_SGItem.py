@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem
 from PyQt5.QtGui import QPen, QBrush, QColor, QFont, QPainterPath, QPolygon
 from PyQt5.QtCore import Qt, QPoint, QRectF, QPointF, QLineF
 
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import getEdgeCoords, edgeSize
 from Lib.Common.Vectors import Vector2
@@ -15,8 +15,8 @@ from Lib.Common.Vectors import Vector2
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 
-import Lib.AgentProtocol.AgentDataTypes as ADT
-from Lib.Common.Agent_NetObject import SAP
+import Lib.AgentEntity.AgentDataTypes as ADT
+from Lib.AgentEntity.Agent_NetObject import SAP
 
 bgColorsByConnectedStatus = { ADT.EConnectedStatus.connected    : Qt.darkGreen, 
                               ADT.EConnectedStatus.disconnected : Qt.darkGray,

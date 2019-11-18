@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QWidget, QFileDialog
 from PyQt5 import uic
 
 from Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
-from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj
-from Lib.Common.Box_NetObject import loadBoxes_to_NetObj
+from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj
+from Lib.BoxEntity.Box_NetObject import loadBoxes_to_NetObj
 from Lib.Common.GraphUtils import sGraphML_file_filters
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.BaseApplication import EAppStartPhase

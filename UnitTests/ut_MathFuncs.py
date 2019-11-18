@@ -11,8 +11,8 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 import Lib.Common.GraphUtils as gu
 from Lib.Common.Vectors import Vector2
-from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.StorageGraphTypes import SGA
+from Lib.GraphEntity import StorageGraphTypes as SGT
+from Lib.GraphEntity.StorageGraphTypes import SGA
 
 #доверенные значения
 cos_45 = math.sqrt(2)/2

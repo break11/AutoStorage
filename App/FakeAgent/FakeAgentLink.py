@@ -1,8 +1,8 @@
 from collections import deque
 
-import Lib.Common.StorageGraphTypes as SGT
-from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
-import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.GraphEntity.StorageGraphTypes as SGT
+from Lib.AgentEntity.AgentServer_Link import CAgentServer_Link
+import Lib.AgentEntity.AgentDataTypes as ADT
 
 class CFakeAgentLink( CAgentServer_Link ):
     def __init__( self, agentN ):

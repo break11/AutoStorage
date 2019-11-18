@@ -7,10 +7,10 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-import Lib.Common.StorageGraphTypes as SGT
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
-import Lib.AgentProtocol.AgentDataTypes as ADT
+import Lib.GraphEntity.StorageGraphTypes as SGT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
+import Lib.AgentEntity.AgentDataTypes as ADT
 
 class TestASP_DataParser(unittest.TestCase):
     def test_HW(self):

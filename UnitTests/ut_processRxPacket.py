@@ -11,11 +11,11 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 from PyQt5.QtNetwork import QTcpSocket
 
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
-from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, calcNextPacketN
-from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
-from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket, EPacket_Status
+from Lib.AgentEntity.AgentProtocolUtils import _processRxPacket, calcNextPacketN
+from Lib.AgentEntity.AgentServer_Link import CAgentServer_Link
+from Lib.AgentEntity.AgentServer_Net_Thread import CAgentServer_Net_Thread
 
 class CDummyAgentLink( CAgentServer_Link ):
     pass

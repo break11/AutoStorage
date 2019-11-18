@@ -5,11 +5,11 @@ import time
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtNetwork import QTcpSocket
 
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import _processRxPacket, calcNextPacketN
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
-from Lib.AgentProtocol.AgentLogManager import ALM
-import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentProtocolUtils import _processRxPacket, calcNextPacketN
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket, EPacket_Status
+from Lib.AgentEntity.AgentLogManager import ALM
+import Lib.AgentEntity.AgentDataTypes as ADT
 
 s_Off_5S = "Thread will closed with no activity for 5 secs."
 

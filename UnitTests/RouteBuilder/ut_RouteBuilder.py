@@ -8,12 +8,12 @@ from networkx import shortest_path
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
+from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from App.AgentsManager.routeBuilder import CRouteBuilder, ERouteStatus
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity import StorageGraphTypes as SGT
 import Lib.Common.GraphUtils as gu
-from Lib.AgentProtocol.AgentDataTypes import MS
+from Lib.AgentEntity.AgentDataTypes import MS
 
 
 sDir = "./UnitTests/RouteBuilder/"

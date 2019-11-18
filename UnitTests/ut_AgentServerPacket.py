@@ -7,11 +7,11 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-import Lib.Common.StorageGraphTypes as SGT
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentDataTypes import MS, DS
-import Lib.AgentProtocol.AgentDataTypes as ADT
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket
+import Lib.GraphEntity.StorageGraphTypes as SGT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentDataTypes import MS, DS
+import Lib.AgentEntity.AgentDataTypes as ADT
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
 
 class TestAgentServerPacket(unittest.TestCase):
 

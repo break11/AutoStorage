@@ -25,9 +25,9 @@ from .Edge_SGItem import CEdge_SGItem
 from .Node_SGItem import CNode_SGItem
 
 from Lib.Net.DictProps_Widget import CDictProps_Widget
-from Lib.Net.Agent_Widget import CAgent_Widget
-from Lib.Common.Agent_NetObject import CAgent_NO
-from Lib.Common.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
+from Lib.AgentEntity.Agent_Widget import CAgent_Widget
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO
+from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 
 from .images_rc import *
 from enum import Enum, auto

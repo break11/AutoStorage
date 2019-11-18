@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
 from PyQt5.QtGui import ( QPen, QBrush, QColor, QFont )
 from PyQt5.QtCore import ( Qt, QRectF, QPointF, QLineF )
 
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 
 from Lib.Net.NetObj import CNetObj

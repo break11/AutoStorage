@@ -5,7 +5,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
-import Lib.Common.StorageGraphTypes as SGT
+import Lib.GraphEntity.StorageGraphTypes as SGT
 
 s_Graph = "Graph"
 s_Nodes = "Nodes"

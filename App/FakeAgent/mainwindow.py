@@ -20,7 +20,7 @@ from Lib.Common.StrConsts import SC
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 import Lib.Common.Utils as UT
 from .FakeAgentsList_Model import CFakeAgentsList_Model
-from Lib.AppWidgets.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
+from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 
 class CFA_MainWindow(QMainWindow):
     def __init__(self):

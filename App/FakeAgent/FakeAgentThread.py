@@ -6,12 +6,12 @@ import sys, time
 from PyQt5.QtNetwork import QAbstractSocket, QTcpSocket
 from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
 
-import Lib.Common.StorageGraphTypes as SGT
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
-from Lib.AgentProtocol.AgentLogManager import ALM
-from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
-import Lib.AgentProtocol.AgentDataTypes as ADT
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
+import Lib.GraphEntity.StorageGraphTypes as SGT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as AEV
+from Lib.AgentEntity.AgentLogManager import ALM
+from Lib.AgentEntity.AgentServer_Net_Thread import CAgentServer_Net_Thread
+import Lib.AgentEntity.AgentDataTypes as ADT
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
 
 DP_DELTA_PER_CYCLE   = 50 # send to server a message each fake 5cm passed
 DP_TICKS_PER_CYCLE   = 7  # pass DP_DELTA_PER_CYCLE millimeters each DP_TICKS_PER_CYCLE milliseconds

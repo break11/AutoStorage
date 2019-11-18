@@ -2,7 +2,7 @@ from enum import auto
 import re
 
 from Lib.Common.BaseEnum import BaseEnum
-import Lib.Common.StorageGraphTypes as SGT
+import Lib.GraphEntity.StorageGraphTypes as SGT
 
 MDS = "="
 MDS_split_pattern = f" {MDS} | {MDS}|{MDS} |{MDS}"

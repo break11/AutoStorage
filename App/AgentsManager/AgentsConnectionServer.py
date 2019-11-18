@@ -13,7 +13,7 @@ from Lib.Common.StrConsts import SC
 from Lib.Common.NetUtils import socketErrorToString
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Common.Agent_NetObject import CAgent_NO, queryAgentNetObj
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO, queryAgentNetObj
 from .AgentThread import CAgentThread
 
 class CAgentsConnectionServer(QTcpServer):

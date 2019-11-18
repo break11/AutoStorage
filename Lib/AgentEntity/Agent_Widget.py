@@ -2,23 +2,22 @@
 import os
 import networkx as nx
 from enum import Enum, auto
-from .images_rc import * # for icons on Add and Del props button
 from PyQt5 import uic
 from PyQt5.Qt import pyqtSlot
 from PyQt5.QtWidgets import QGraphicsItem
 
-from .NetObj_Widgets import CNetObj_Widget
+from Lib.Net.NetObj_Widgets import CNetObj_Widget
 from Lib.StorageViewer.StorageGraph_GScene_Manager import EGSceneSelectionMode
 from Lib.StorageViewer.Node_SGItem import CNode_SGItem
-from Lib.Common.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO, SAP, cmdProps_keys
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLine_Linker, CNetObj_ProgressBar_Linker, CNetObj_SpinBox_Linker
 import Lib.Common.GraphUtils as GU
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.SerializedList import CStrList
-import Lib.AgentProtocol.AgentDataTypes as ADT
-import Lib.AgentProtocol.AgentTaskData as ATD
+import Lib.AgentEntity.AgentDataTypes as ADT
+import Lib.AgentEntity.AgentTaskData as ATD
 
 from PyQt5.QtCore import QTimer
 

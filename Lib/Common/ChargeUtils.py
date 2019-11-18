@@ -3,7 +3,7 @@ import subprocess
 import Lib.Common.FileUtils as FU
 
 from enum import auto
-from .BaseEnum import BaseEnum
+from Lib.Common.BaseEnum import BaseEnum
 
 class EChargeCMD( BaseEnum ):
     on      = auto()

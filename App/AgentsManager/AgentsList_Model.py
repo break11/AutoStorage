@@ -1,8 +1,8 @@
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
 
-from Lib.Common.Agent_NetObject import agentsNodeCache
-from Lib.Common.Agent_NetObject import SAP
+from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
+from Lib.AgentEntity.Agent_NetObject import SAP
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import SNOP
 from Lib.Net.Net_Events import ENet_Event as EV

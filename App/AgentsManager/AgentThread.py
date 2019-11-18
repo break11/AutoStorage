@@ -3,11 +3,11 @@ import weakref
 
 from PyQt5.QtCore import pyqtSignal
 
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
-from Lib.AgentProtocol.AgentServer_Net_Thread import CAgentServer_Net_Thread
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentProtocol.AgentLogManager import ALM
-# from Lib.AgentProtocol.AgentDataTypes import SHW_Data
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as AEV
+from Lib.AgentEntity.AgentServer_Net_Thread import CAgentServer_Net_Thread
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
+from Lib.AgentEntity.AgentLogManager import ALM
+# from Lib.AgentEntity.AgentDataTypes import SHW_Data
 
 class CAgentThread( CAgentServer_Net_Thread ):
     processRxPacket_signal   = pyqtSignal( ASP )

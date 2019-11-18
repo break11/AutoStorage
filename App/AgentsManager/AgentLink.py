@@ -8,25 +8,25 @@ import networkx as nx
 from PyQt5.QtCore import QTimer
 
 import Lib.Common.GraphUtils as GU
-from Lib.Common.Agent_NetObject import SAP, cmdProps_keys, cmdProps
+from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Common.Graph_NetObjects import graphNodeCache
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 import Lib.Common.FileUtils as FileUtils
 from Lib.Common.StrConsts import SC
-from Lib.Common.Agent_NetObject import agentsNodeCache
+from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
-from Lib.Common.StorageGraphTypes import ENodeTypes
+from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
 import Lib.Common.ChargeUtils as CU
 from Lib.Common.SerializedList import CStrList
 
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event, OD_OP_events
-from Lib.AgentProtocol.AgentServer_Link import CAgentServer_Link
-import Lib.AgentProtocol.AgentDataTypes as ADT
-from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
-from Lib.AgentProtocol.AgentLogManager import ALM
-import Lib.AgentProtocol.AgentTaskData as ATD
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event, OD_OP_events
+from Lib.AgentEntity.AgentServer_Link import CAgentServer_Link
+import Lib.AgentEntity.AgentDataTypes as ADT
+from Lib.AgentEntity.AgentProtocolUtils import calcNextPacketN
+from Lib.AgentEntity.AgentLogManager import ALM
+import Lib.AgentEntity.AgentTaskData as ATD
 
 from .routeBuilder import CRouteBuilder
 

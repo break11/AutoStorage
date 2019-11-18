@@ -9,15 +9,15 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.Net.NetObj_Widgets import ( CNetObj_WidgetsManager, CNetObj_Widget )
-from Lib.Common.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, s_Graph
-from Lib.Common.Agent_NetObject import CAgent_NO, s_Agents
-from Lib.Common.Box_NetObject import CBox_NO, s_Boxes
+from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, s_Graph
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO, s_Agents
+from Lib.BoxEntity.Box_NetObject import CBox_NO, s_Boxes
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 from Lib.Common.SerializedList import CStrList
-import Lib.Common.StorageGraphTypes as SGT
-import Lib.AgentProtocol.AgentDataTypes as ADT
-import Lib.AgentProtocol.AgentTaskData as ATD
+import Lib.GraphEntity.StorageGraphTypes as SGT
+import Lib.AgentEntity.AgentDataTypes as ADT
+import Lib.AgentEntity.AgentTaskData as ATD
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType

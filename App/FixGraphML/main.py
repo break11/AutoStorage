@@ -4,8 +4,8 @@ import networkx as nx
 
 from Lib.Common.StrConsts import SC
 from Lib.Common.Utils import mergeDicts
-import Lib.Common.StorageGraphTypes as SGT
-from Lib.Common.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
+import Lib.GraphEntity.StorageGraphTypes as SGT
+from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 
 graphAttr = {
                 "widthType"        : str,

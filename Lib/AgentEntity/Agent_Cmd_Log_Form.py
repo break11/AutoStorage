@@ -9,10 +9,10 @@ from PyQt5 import uic
 
 from Lib.Common.StrConsts import SC
 
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket, EPacket_Status
-import Lib.AgentProtocol.AgentDataTypes as ADT
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor, TX_color, RX_color, Duplicate_color
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket, EPacket_Status
+import Lib.AgentEntity.AgentDataTypes as ADT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor, TX_color, RX_color, Duplicate_color
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 import Lib.Common.GuiUtils as GU
 

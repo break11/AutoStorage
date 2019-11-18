@@ -1,7 +1,7 @@
 
-from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentLogManager import ALM
+from Lib.AgentEntity.AgentServerPacket import EPacket_Status
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentLogManager import ALM
 
 def calcNextPacketN( n ): return ( 1 if n == 999 else n+1 )
 

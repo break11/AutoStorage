@@ -7,7 +7,7 @@ import os
 sys.path.append( os.path.abspath(os.curdir)  )
 
 from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
-import Lib.Common.StorageGraphTypes as SGT
+import Lib.GraphEntity.StorageGraphTypes as SGT
 
 class Test_CBoxAddress(unittest.TestCase):
 

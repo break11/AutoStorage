@@ -1,7 +1,7 @@
 from    Lib.Common.StrConsts import SC
 from    Lib.Common.GuiUtils import windowDefSettings
 from    .FakeAgentsList_Model import s_agents_list, def_agent_list
-from    Lib.AppWidgets import Agent_Cmd_Log_Form as ACL_Form
+from    Lib.AgentEntity import Agent_Cmd_Log_Form as ACL_Form
 
 FA_DefSet = {
                 SC.main_window  : windowDefSettings,     # type: ignore

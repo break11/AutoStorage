@@ -11,8 +11,8 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager
-from Lib.Common.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
+from Lib.GraphEntity import StorageGraphTypes as SGT
 sDir = "./GraphML/"
 
 # Dummy-классы для имитиции окружения StorageGraph_GScene_Manager

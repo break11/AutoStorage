@@ -8,12 +8,12 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
-from Lib.Common.Graph_NetObjects import graphNodeCache
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
-import Lib.AgentProtocol.AgentDataTypes as ADT
-import Lib.AgentProtocol.AgentTaskData as ATD
-import Lib.AgentProtocol.AgentTaskData as ATD
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
+import Lib.AgentEntity.AgentDataTypes as ADT
+import Lib.AgentEntity.AgentTaskData as ATD
+import Lib.AgentEntity.AgentTaskData as ATD
+from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
 from Lib.Common.SerializedList import CStrList

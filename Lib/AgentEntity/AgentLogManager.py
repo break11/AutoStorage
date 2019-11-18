@@ -7,8 +7,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 from Lib.Common.Utils import wrapSpan, wrapDiv
 from Lib.Common.FileUtils import appLogPath
-from Lib.AgentProtocol.AgentServerPacket import EPacket_Status
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentServerPacket import EPacket_Status
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
 
 s_TX = "TX"
 s_RX = "RX"

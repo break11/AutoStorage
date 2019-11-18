@@ -1,6 +1,6 @@
 
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-import Lib.AgentProtocol.AgentDataTypes as ADT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+import Lib.AgentEntity.AgentDataTypes as ADT
 
 from enum import Enum, IntEnum, auto
 

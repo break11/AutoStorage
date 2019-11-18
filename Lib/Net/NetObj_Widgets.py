@@ -8,7 +8,7 @@ from .NetObj import CNetObj
 from .NetObj_Manager import CNetObj_Manager
 from .Net_Events import ENet_Event as EV
 
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.GraphEntity import StorageGraphTypes as SGT
 
 class CNetObj_WidgetsManager:
     def __init__( self, widgetContainer ):

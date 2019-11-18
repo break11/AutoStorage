@@ -1,8 +1,8 @@
 
 from enum import auto
 from Lib.Common.BaseEnum import BaseEnum
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as AEV
-from Lib.Common import StorageGraphTypes as SGT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as AEV
+from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.StrConsts import SC
 
 MS = "~" # Main Splitter

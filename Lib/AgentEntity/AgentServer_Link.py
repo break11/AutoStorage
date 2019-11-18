@@ -1,9 +1,9 @@
 from collections import deque
 
-from Lib.AgentProtocol.AgentLogManager import ALM, LogCount
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event
-from Lib.AgentProtocol.AgentProtocolUtils import calcNextPacketN
+from Lib.AgentEntity.AgentLogManager import ALM, LogCount
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
+from Lib.AgentEntity.AgentProtocolUtils import calcNextPacketN
 
 class CAgentServer_Link:
     @property

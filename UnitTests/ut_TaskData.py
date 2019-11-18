@@ -6,8 +6,8 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-from Lib.AgentProtocol.AgentTaskData import CTask, ETaskType
-# import Lib.Common.StorageGraphTypes as SGT
+from Lib.AgentEntity.AgentTaskData import CTask, ETaskType
+# import Lib.GraphEntity.StorageGraphTypes as SGT
 
 class Test_CBoxAddress(unittest.TestCase):
 

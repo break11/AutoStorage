@@ -3,15 +3,15 @@ from copy import deepcopy
 import networkx as nx
 from enum import Enum
 
-from Lib.Common.Graph_NetObjects import graphNodeCache
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles, pathWeight
-from Lib.Common import StorageGraphTypes as SGT
-from Lib.Common.StorageGraphTypes import SGA
+from Lib.GraphEntity import StorageGraphTypes as SGT
+from Lib.GraphEntity.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
 from Lib.Common.StrConsts import SC
-from Lib.AgentProtocol.AgentServerPacket import CAgentServerPacket as ASP
-import Lib.AgentProtocol.AgentDataTypes as ADT
-from Lib.AgentProtocol.AgentServer_Event import EAgentServer_Event as EV
+from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
+import Lib.AgentEntity.AgentDataTypes as ADT
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
 
 hysteresis = 30
 shiftFract = 10.0
