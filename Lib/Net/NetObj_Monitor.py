@@ -1,5 +1,6 @@
 
 import os
+import json
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QFileDialog
@@ -14,10 +15,11 @@ from .NetObj_Model import CNetObj_Model
 from .NetObj_Widgets import CNetObj_WidgetsManager
 from .NetCmd import CNetCmd
 from .NetObj_JSON import load_Obj
+import Lib.Net.NetObj_JSON as nJSON
 
 from  Lib.Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
-from  Lib.Common.FileUtils import projectDir
+import Lib.Common.FileUtils as FU
 
 from __main__ import __file__ as baseFName
 
@@ -125,11 +127,45 @@ class CNetObj_Monitor(QWidget):
         netObj = self.netObjModel.netObj_From_Index( ci )
         netObj.destroy()
 
-    def on_btnLoad_JSON_released( self ):
-        path, extension = QFileDialog.getOpenFileName(self, "Open JSON NetObj file", projectDir(), "*.json","", QFileDialog.DontUseNativeDialog)
-        # if path: self.loadGraphML( path )
+    ###################
 
-        # ci = self.tvNetObj.selectionModel().currentIndex()
-        # if not ci.isValid(): return
+    def loadObj( self, parent=None ):
+        path, extension = QFileDialog.getOpenFileName(self, "Open JSON NetObj file", FU.projectDir(), "*.json", "", QFileDialog.DontUseNativeDialog)
+        if path:
+            path = FU.correctFNameToProjectDir( path )
+            with open( path, "r" ) as read_file:
+                jData = json.load( read_file )
 
+                if parent is None:
+                    nJSON.load_Obj_Children( jData=jData, parent=CNetObj_Manager.rootObj )
+                else:
+                    nJSON.load_Obj( jData=jData, parent=parent )
 
+    def saveObj( self, netObj ):
+        path, extension = QFileDialog.getSaveFileName(self, "Save JSON NetObj file", FU.projectDir(), "*.json", "", QFileDialog.DontUseNativeDialog)
+        if path:
+            path = path if path.endswith( ".json" ) else ( path + ".json" )
+            
+            with open( path, "w" ) as f:
+                json.dump( nJSON.saveObj( netObj ), f, indent=4 )
+                
+
+    def on_btnLoad_Obj_released( self ):
+        ci = self.tvNetObj.selectionModel().currentIndex()
+        if not ci.isValid(): return
+        netObj = self.netObjModel.netObj_From_Index( ci )
+
+        self.loadObj( netObj )
+
+    def on_btnSave_Obj_released( self ):
+        ci = self.tvNetObj.selectionModel().currentIndex()
+        if not ci.isValid(): return
+        netObj = self.netObjModel.netObj_From_Index( ci )
+
+        self.saveObj( netObj )
+
+    def on_btnSave_Root_released( self ):
+        self.saveObj( CNetObj_Manager.rootObj )
+
+    def on_btnLoad_Root_released( self ):
+        self.loadObj( parent=None )

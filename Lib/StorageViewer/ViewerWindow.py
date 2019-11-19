@@ -152,13 +152,13 @@ class CViewerWindow(QMainWindow):
 
         sceneSettings = CSM.rootOpt( SSO.scene, default=sceneDefSettings )
 
-        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, s_grid_size,    default = self.StorageMap_Scene.gridSize )
-        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, s_draw_grid,    default = self.StorageMap_Scene.bDrawGrid )
-        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, s_snap_to_grid, default = self.StorageMap_Scene.bSnapToGrid)
-        self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, s_draw_main_rail,     default = self.SGM.bDrawMainRail ) )
-        self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, s_draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
-        self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, s_draw_bbox,          default = self.SGM.bDrawBBox ) )
-        self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, s_draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
+        self.StorageMap_Scene.gridSize     = CSM.dictOpt( sceneSettings, SSO.grid_size,    default = self.StorageMap_Scene.gridSize )
+        self.StorageMap_Scene.bDrawGrid    = CSM.dictOpt( sceneSettings, SSO.draw_grid,    default = self.StorageMap_Scene.bDrawGrid )
+        self.StorageMap_Scene.bSnapToGrid  = CSM.dictOpt( sceneSettings, SSO.snap_to_grid, default = self.StorageMap_Scene.bSnapToGrid)
+        self.SGM.setDrawMainRail     ( CSM.dictOpt( sceneSettings, SSO.draw_main_rail,     default = self.SGM.bDrawMainRail ) )
+        self.SGM.setDrawInfoRails    ( CSM.dictOpt( sceneSettings, SSO.draw_info_rails,    default = self.SGM.bDrawInfoRails ) )
+        self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, SSO.draw_bbox,          default = self.SGM.bDrawBBox ) )
+        self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SSO.draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
 
         #setup ui
         self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )

@@ -45,7 +45,7 @@ def loadBoxes_to_NetObj( sFName, bReload ):
     Boxes_NetObj = CNetObj_Manager.rootObj.queryObj( s_Boxes,  CNetObj )
     with open( sFName, "r" ) as read_file:
         Boxes = json.load( read_file )
-        nJSON.load_Obj_Children( jData=Boxes, obj=Boxes_NetObj )
+        nJSON.load_Obj_Children( jData=Boxes, parent=Boxes_NetObj, bLoadUID=False )
 
     # CNetObj(name=s_Boxes, parent=CNetObj_Manager.rootObj)
     # for boxProps in Boxes[ s_Boxes ]:

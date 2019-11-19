@@ -18,6 +18,7 @@ class SNetObjProps( metaclass = СStrProps_Meta ):
     obj           = None
     props         = None
     ext_fields    = None
+    children      = None
 
 SNOP = SNetObjProps
 
