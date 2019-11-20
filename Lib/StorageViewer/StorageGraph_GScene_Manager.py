@@ -24,6 +24,8 @@ from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_SGItem import CAgent_SGItem
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO, SAP, agentsNodeCache
+from Lib.BoxEntity.Box_NetObject import CBox_NO
+from Lib.BoxEntity.Box_SGItem import CBox_SGItem
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
                                     rotateToRightSector, rotateToLeftSector, calcNodeMiddleLine)
@@ -56,6 +58,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bEdgeReversing = False
         self.bGraphLoading = False
         self.agentGItems    = {}
+        self.boxGItems      = {}
         self.nodeGItems     = {}
         self.edgeGItems     = {}
 
@@ -92,10 +95,14 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.Agents_ParentGItem.setZValue( 40 )
         self.gScene.addItem( self.Agents_ParentGItem )
 
+        self.Boxes_ParentGItem = CDummy_GItem()
+        self.Boxes_ParentGItem.setZValue( 50 )
+        self.gScene.addItem( self.Boxes_ParentGItem )
+
         self.GraphRoot_ParentGItem     = None
         self.EdgeDecorates_ParentGItem = None
 
-        self.disabledTouchTypes = [type(None), CEdge_SGItem, CEdgeDecorate_SGItem, CAgent_SGItem]
+        self.disabledTouchTypes = [type(None), CEdge_SGItem, CEdgeDecorate_SGItem, CAgent_SGItem, CBox_SGItem]
         self.selectionMode = EGSceneSelectionMode.Select
 
         self.objReloadTimer = QTimer()
@@ -127,10 +134,15 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.updateDecorateOnScene()
 
         self.initAgents_ParentGItem()
+        self.initBoxes_ParentGItem()
     
     def initAgents_ParentGItem( self ):
         if self.Agents_ParentGItem.scene() is None:
             self.gScene.addItem( self.Agents_ParentGItem )
+
+    def initBoxes_ParentGItem( self ):
+        if self.Boxes_ParentGItem.scene() is None:
+            self.gScene.addItem( self.Boxes_ParentGItem )
 
     @time_func( sMsg="Scene clear time =" )
     def clear(self):
@@ -138,8 +150,10 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.edgeGItems = {}
 
         self.gScene.removeItem( self.Agents_ParentGItem )
+        self.gScene.removeItem( self.Boxes_ParentGItem )
         self.gScene.clear()
         self.initAgents_ParentGItem()
+        self.initBoxes_ParentGItem()
 
         self.GraphRoot_ParentGItem     = None
         self.EdgeDecorates_ParentGItem = None
@@ -281,22 +295,38 @@ class CStorageGraph_GScene_Manager( QObject ):
     def genStrNodeID(self):
         self.__maxNodeID += 1
         return str(self.__maxNodeID)
-        
+    
+    #################
+
+    def addBox( self, boxNetObj ):
+        if self.boxGItems.get ( boxNetObj.name ): return
+
+        boxGItem = CBox_SGItem( SGM = self, boxNetObj = boxNetObj, parent = self.Boxes_ParentGItem )
+        self.boxGItems[ boxNetObj.name ] = boxGItem
+        boxGItem.init()
+
+        return boxGItem
+
+    def deleteBox( self, boxNetObj ):
+        self.gScene.removeItem ( self.boxGItems[ boxNetObj.name ] )
+        del self.boxGItems[ boxNetObj.name ]
+
+    #################
+
     def addAgent( self, agentNetObj ):
         if self.agentGItems.get ( agentNetObj.name ): return
 
         agentGItem = CAgent_SGItem ( SGM=self, agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
-        
         self.agentGItems[ agentNetObj.name ] = agentGItem
-
         agentGItem.init()
-        agentGItem.SGM = self
 
         return agentGItem
 
     def deleteAgent(self, agentNetObj):
         self.gScene.removeItem ( self.agentGItems[ agentNetObj.name ] )
         del self.agentGItems[ agentNetObj.name ]
+
+    #################
 
     def addNode( self, nodeNetObj ):
         nodeID = nodeNetObj.name
@@ -318,6 +348,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
         del self.nodeGItems[ nodeID ]
         self.bHasChanges = True
+
+    #################
 
     def addEdge( self, edgeNetObj ):
         fsEdgeKey = frozenset( ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() ) )
@@ -356,14 +388,12 @@ class CStorageGraph_GScene_Manager( QObject ):
 
             edgeGItem.update()
             edgeGItem.decorateSGItem.update()
-
     
     # удаление NetObj объектов определяющих грань
-    def deleteEdge_NetObj(self, edgeNetObj):
+    def queryDeleteEdge(self, edgeNetObj):
         tKey = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
         fsEdgeKey = frozenset( tKey )
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
-
 
         if edgeGItem is None: return
 
@@ -432,6 +462,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
 
+    #################
+
     def alignNodesVertical(self):
         nodeGItems = [ n for n in self.gScene.orderedSelection if isinstance(n, CNode_SGItem) ]
         for nodeGItem in nodeGItems:
@@ -493,9 +525,12 @@ class CStorageGraph_GScene_Manager( QObject ):
         event.ignore()
         return False
 
+    relationObjects = [ CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, CAgent_NO, CBox_NO ]
     def updateRelationObjects( self ):
         for agentGItem in self.agentGItems.values():
             agentGItem.updatePos()
+        for boxGItem in self.boxGItems.values():
+            boxGItem.updatePos()
 
     #############################################################
 
@@ -503,41 +538,51 @@ class CStorageGraph_GScene_Manager( QObject ):
     def ObjCreated(self, netCmd=None):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
+        if type(netObj) in self.relationObjects:
+            self.objReloadTimer.start()
+
         if isinstance( netObj, CGraphRoot_NO ):
             self.init()
-            self.objReloadTimer.start()
 
         elif isinstance( netObj, CGraphNode_NO ):
             self.addNode( nodeNetObj = netObj )
-            self.objReloadTimer.start()
 
         elif isinstance( netObj, CGraphEdge_NO ):
             self.addEdge( edgeNetObj = netObj )
-            self.objReloadTimer.start()
 
         elif isinstance( netObj, CAgent_NO ):
             self.addAgent( agentNetObj = netObj )
 
+        elif isinstance( netObj, CBox_NO ):
+            self.addBox( boxNetObj = netObj )
+
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
+        if type(netObj) in self.relationObjects:
+            self.objReloadTimer.start()
+
         if isinstance( netObj, CGraphRoot_NO ):
             self.clear()
-            self.objReloadTimer.start()
 
         elif isinstance( netObj, CGraphNode_NO ):
             self.deleteNode( nodeNetObj = netObj )
-            self.objReloadTimer.start()
 
         elif isinstance( netObj, CGraphEdge_NO ):
-            self.deleteEdge_NetObj( edgeNetObj = netObj )
-            self.objReloadTimer.start()
+            self.queryDeleteEdge( edgeNetObj = netObj )
 
         elif isinstance( netObj, CAgent_NO ):
             self.deleteAgent( agentNetObj = netObj )
-    
+
+        elif isinstance( netObj, CBox_NO ):
+            self.deleteBox( boxNetObj = netObj )
+
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
+
+        if type(netObj) in self.relationObjects:
+            self.objReloadTimer.start()
+
         # propName  = netCmd.sPropName
         # propValue = netObj[ netCmd.sPropName ]
         gItem = None
@@ -566,3 +611,7 @@ class CStorageGraph_GScene_Manager( QObject ):
                 gItem.updatePos()
             elif netCmd.sPropName in [ SAP.BS, SAP.status ]:
                 gItem.update()
+
+        elif isinstance( netObj, CBox_NO ):
+            gItem = self.boxGItems[ netObj.name ]
+            gItem.updatePos()

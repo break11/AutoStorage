@@ -9,6 +9,8 @@ from Lib.Common.TreeNode import CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
 from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 
 s_Boxes = "Boxes"
 
@@ -25,15 +27,29 @@ def queryBoxNetObj( name ):
     props = deepcopy( CBox_NO.def_props )
     return boxesNodeCache()().queryObj( sName=name, ObjClass=CBox_NO, props=props )
 
+####################
+
 class CBox_NO( CNetObj ):
     def_props = { SBP.address: CBoxAddress( addressType=EBoxAddressType.Undefined ) }
 
-    # @property
-    # def nxGraph( self ): return self.graphRootNode().nxGraph
+    @property
+    def nxGraph( self ): return self.graphRootNode().nxGraph
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=def_props, ext_fields=None ):
+        self.graphRootNode = graphNodeCache()
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
+    def isValidAddress( self ):
+        if self.address.addressType == EBoxAddressType.Undefined:
+            return False
+        
+        if self.address.addressType == EBoxAddressType.OnNode:
+            return self.nxGraph.has_node( self.address.nodeID )
+
+        if self.address.addressType == EBoxAddressType.OnAgent:
+            return agentsNodeCache()().childByName( str(self.address.agentN) ) is not None
+
+####################
 
 def loadBoxes_to_NetObj( sFName, bReload ):
     if not destroy_If_Reload( s_Boxes, bReload ): return False
