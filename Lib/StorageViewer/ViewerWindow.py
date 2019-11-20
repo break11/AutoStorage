@@ -32,7 +32,7 @@ from Lib.AgentEntity.Agent_NetObject import CAgent_NO
 from .images_rc import *
 from enum import Enum, auto
 
-class SSceneOptions( СStrProps_Meta ):
+class SSceneOptions( metaclass = СStrProps_Meta ):
     scene              = None
     grid_size          = None
     draw_grid          = None
@@ -173,13 +173,13 @@ class CViewerWindow(QMainWindow):
         save_Window_State_And_Geometry( self )
 
         CSM.options[ SSO.scene ] =   {
-                                        s_grid_size           : self.StorageMap_Scene.gridSize,
-                                        s_draw_grid           : self.StorageMap_Scene.bDrawGrid,
-                                        s_snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
-                                        s_draw_info_rails     : self.SGM.bDrawInfoRails,
-                                        s_draw_main_rail      : self.SGM.bDrawMainRail,
-                                        s_draw_bbox           : self.SGM.bDrawBBox,
-                                        s_draw_special_lines  : self.SGM.bDrawSpecialLines,
+                                        SSO.grid_size           : self.StorageMap_Scene.gridSize,
+                                        SSO.draw_grid           : self.StorageMap_Scene.bDrawGrid,
+                                        SSO.snap_to_grid        : self.StorageMap_Scene.bSnapToGrid,
+                                        SSO.draw_info_rails     : self.SGM.bDrawInfoRails,
+                                        SSO.draw_main_rail      : self.SGM.bDrawMainRail,
+                                        SSO.draw_bbox           : self.SGM.bDrawBBox,
+                                        SSO.draw_special_lines  : self.SGM.bDrawSpecialLines,
                                      }
     #############################################################################
 
