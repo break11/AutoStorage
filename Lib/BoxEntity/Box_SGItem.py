@@ -1,14 +1,15 @@
 
 import weakref
 
-from PyQt5.QtGui import QPen, QBrush
+from PyQt5.QtGui import QPen, QBrush, QColor, QFont
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtWidgets import QGraphicsItem
 
 from Lib.BoxEntity.BoxAddress import EBoxAddressType
+import Lib.GraphEntity.StorageGraphTypes as SGT
 
 class CBox_SGItem(QGraphicsItem):
-    __boxW = 100
+    __boxW = 200
     __fBBoxD  = 20 # расширение BBox для удобства выделения
 
     def __init__(self, SGM, boxNetObj, parent ):
@@ -46,11 +47,18 @@ class CBox_SGItem(QGraphicsItem):
 
         if a.addressType == EBoxAddressType.OnNode:
             nodeSGItem = self.SGM.nodeGItems[ a.nodeID ]
-            self.setPos( nodeSGItem.x(), nodeSGItem.y() )
+            self.setParentItem( nodeSGItem )
+            if a.placeSide == SGT.ESide.Left:
+                kX = -1
+            else:
+                kX = 1
+
+            self.setPos( kX * 700, 0 )
 
         elif a.addressType == EBoxAddressType.OnAgent:
             agentSGItem = self.SGM.agentGItems[ str(a.agentN) ]
-            self.setPos( agentSGItem.x(), agentSGItem.y() )
+            self.setParentItem( agentSGItem )
+            self.setPos( 0, 0 )
 
 
     def boundingRect(self):
@@ -59,7 +67,7 @@ class CBox_SGItem(QGraphicsItem):
     def paint(self, painter, option, widget):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
         selection_color = Qt.darkRed
-        bgColor = Qt.darkCyan
+        bgColor = QColor(205, 145, 40)
 
         ## BBox
         if self.SGM.bDrawBBox == True:
@@ -69,36 +77,24 @@ class CBox_SGItem(QGraphicsItem):
             painter.setPen(pen)
             painter.drawRect( self.boundingRect() )
 
-        bgColor = selection_color if self.isSelected() else bgColor
-        painter.fillRect ( self.__BBoxRect, bgColor )
+        if lod < 0.03:
+            bgColor = selection_color if self.isSelected() else bgColor
+            painter.fillRect ( self.__BBoxRect, bgColor )
+        else:
+            pen = QPen()
 
-        # if lod < 0.03:
-        #     bgColor = selection_color if self.isSelected() else bgColor
-        #     painter.fillRect ( self.__BBoxRect, bgColor )
-        # else:
-        #     pen = QPen()
-        #     pen.setColor( Qt.black )
-        #     pen.setWidth( 10 )
+            if self.isSelected():
+                pen.setColor( selection_color )
+            else:
+                pen.setColor( Qt.black )
 
-        #     fillColor = QColor( bgColor )
-        #     fillColor.setAlpha( 200 )
+            pen.setWidth( 10 )
 
-        #     painter.setPen( pen )
-        #     painter.setBrush( QBrush( fillColor, Qt.SolidPattern ) )
+            painter.setPen( pen )
+            painter.setBrush( QBrush( bgColor, Qt.SolidPattern ) )
+            painter.drawRect( self.__BBoxRect )
 
-        #     painter.drawPolygon( self.polygon )
-
-        #     painter.fillRect(self.sx + 5, -150, 20, 300, Qt.darkBlue)
-        #     painter.fillRect(-self.sx - 25, -150, 20, 300, Qt.darkRed)
-        #     painter.fillRect(-10, -10, 20, 20, Qt.darkGray)
-            
-        #     painter.drawLines( self.lines )
-
-        #     if self.isSelected():
-        #         pen = QPen( selection_color )
-        #         pen.setWidth( 20 )
-
-        #         painter.setPen( pen )
-        #         painter.setBrush( QBrush() )
-        #         painter.drawPolygon( self.polygon )
-
+            font = QFont()
+            font.setPointSize(32)
+            painter.setFont( font )
+            painter.drawText( self.boundingRect(), Qt.AlignCenter, self.__boxNetObj().name )

@@ -24,7 +24,7 @@ from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_SGItem import CAgent_SGItem
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO, SAP, agentsNodeCache
-from Lib.BoxEntity.Box_NetObject import CBox_NO
+from Lib.BoxEntity.Box_NetObject import CBox_NO, SBP
 from Lib.BoxEntity.Box_SGItem import CBox_SGItem
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
@@ -146,6 +146,9 @@ class CStorageGraph_GScene_Manager( QObject ):
 
     @time_func( sMsg="Scene clear time =" )
     def clear(self):
+        for box in self.boxGItems.values():
+            box.setParentItem( self.Boxes_ParentGItem )
+
         self.nodeGItems = {}
         self.edgeGItems = {}
 
@@ -323,8 +326,12 @@ class CStorageGraph_GScene_Manager( QObject ):
         return agentGItem
 
     def deleteAgent(self, agentNetObj):
-        self.gScene.removeItem ( self.agentGItems[ agentNetObj.name ] )
+        agentGItem = self.agentGItems[ agentNetObj.name ]
+        [ child.setParentItem( self.Boxes_ParentGItem ) for child in agentGItem.childItems() if isinstance(child, CBox_SGItem) ]
+
+        self.gScene.removeItem ( agentGItem )
         del self.agentGItems[ agentNetObj.name ]
+        del agentGItem
 
     #################
 
@@ -343,10 +350,14 @@ class CStorageGraph_GScene_Manager( QObject ):
 
     def deleteNode(self, nodeNetObj):
         nodeID = nodeNetObj.name
-        if self.nodeGItems.get ( nodeID ) is None: return
+        nodeSGItem = self.nodeGItems.get ( nodeID )
+        if nodeSGItem is None: return
 
-        self.gScene.removeItem ( self.nodeGItems[ nodeID ] )
+        [ child.setParentItem( self.Boxes_ParentGItem ) for child in nodeSGItem.childItems() if isinstance(child, CBox_SGItem) ]
+
+        self.gScene.removeItem ( nodeSGItem )
         del self.nodeGItems[ nodeID ]
+        del nodeSGItem
         self.bHasChanges = True
 
     #################
@@ -526,6 +537,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         return False
 
     relationObjects = [ CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, CAgent_NO, CBox_NO ]
+
     def updateRelationObjects( self ):
         for agentGItem in self.agentGItems.values():
             agentGItem.updatePos()
@@ -580,8 +592,9 @@ class CStorageGraph_GScene_Manager( QObject ):
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
-        if type(netObj) in self.relationObjects:
-            self.objReloadTimer.start()
+        ##remove##
+        # if type(netObj) in self.relationObjects:
+        #     self.objReloadTimer.start()
 
         # propName  = netCmd.sPropName
         # propValue = netObj[ netCmd.sPropName ]
@@ -600,8 +613,9 @@ class CStorageGraph_GScene_Manager( QObject ):
             gItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
-            if netCmd.sPropName == SAP.route:
-                return
+            ##remove##
+            # if netCmd.sPropName == SAP.route:
+            #     return
 
             gItem = self.agentGItems[ netObj.name ]
             
@@ -614,4 +628,5 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         elif isinstance( netObj, CBox_NO ):
             gItem = self.boxGItems[ netObj.name ]
-            gItem.updatePos()
+            if netCmd.sPropName == SBP.address:
+                gItem.updatePos()

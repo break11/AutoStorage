@@ -70,7 +70,10 @@ class CBoxAddress:
         l = re.split( MDS_split_pattern, data )
         addressType = EBoxAddressType.fromString( l[0] )
         if len( l ) > 1:
-            nodeID, placeSide, agentN = cls.dataFromString( addressType, l[1] )
+            rL = cls.dataFromString( addressType, l[1] )
+            while len(rL) < 3:
+                rL.append(None)
+            nodeID, placeSide, agentN = rL
         else:
             nodeID, placeSide, agentN = None, None, None
         return CBoxAddress( addressType, nodeID=nodeID, placeSide=placeSide, agentN=agentN )

@@ -141,8 +141,7 @@ class CAgent_SGItem(QGraphicsItem):
         super().setPos(x, y)
 
     def onObjPropUpdated( self, cmd ):
-        if cmd.Obj_UID != self.__agentNetObj().UID:
-            return
+        if cmd.Obj_UID != self.__agentNetObj().UID: return
 
         if cmd.sPropName == SAP.connectedStatus:
             self.update()

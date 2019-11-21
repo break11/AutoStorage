@@ -106,7 +106,7 @@ class CAgent_NO( CNetObj ):
                 }
               
     @property
-    def nxGraph( self ): return self.graphRootNode().nxGraph
+    def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphRootNode = graphNodeCache()

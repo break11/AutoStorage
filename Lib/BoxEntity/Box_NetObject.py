@@ -33,7 +33,7 @@ class CBox_NO( CNetObj ):
     def_props = { SBP.address: CBoxAddress( addressType=EBoxAddressType.Undefined ) }
 
     @property
-    def nxGraph( self ): return self.graphRootNode().nxGraph
+    def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=def_props, ext_fields=None ):
         self.graphRootNode = graphNodeCache()
@@ -44,7 +44,7 @@ class CBox_NO( CNetObj ):
             return False
         
         if self.address.addressType == EBoxAddressType.OnNode:
-            return self.nxGraph.has_node( self.address.nodeID )
+            return self.nxGraph.has_node( self.address.nodeID ) if self.nxGraph is not None else False
 
         if self.address.addressType == EBoxAddressType.OnAgent:
             return agentsNodeCache()().childByName( str(self.address.agentN) ) is not None
