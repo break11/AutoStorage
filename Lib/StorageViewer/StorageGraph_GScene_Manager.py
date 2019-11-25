@@ -116,10 +116,10 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         self.relationSGItems = {
                                 CGraphRoot_NO : SGItemDesc(create_func=lambda x: self.init(), delete_func=lambda x: self.clear()),
-                                CGraphNode_NO : SGItemDesc(create_func=self.addNode,  delete_func=self.clear),
-                                CGraphEdge_NO : SGItemDesc(create_func=self.addEdge,  delete_func=self.clear),
-                                CAgent_NO     : SGItemDesc(create_func=self.addAgent, delete_func=self.clear),
-                                CBox_NO       : SGItemDesc(create_func=self.addBox,   delete_func=self.clear),
+                                CGraphNode_NO : SGItemDesc(create_func=self.addNode,  delete_func=self.deleteNode),
+                                CGraphEdge_NO : SGItemDesc(create_func=self.addEdge,  delete_func=self.queryDeleteEdge),
+                                CAgent_NO     : SGItemDesc(create_func=self.addAgent, delete_func=self.deleteAgent),
+                                CBox_NO       : SGItemDesc(create_func=self.addBox,   delete_func=self.deleteBox),
                                }
 
     def setModeFlags(self, flags):
@@ -561,51 +561,17 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         if type(netObj) in self.relationSGItems:
             self.objReloadTimer.start()
-
             self.relationSGItems[ type(netObj) ].create_func( netObj )
-
-        # if isinstance( netObj, CGraphRoot_NO ):
-        #     self.init()
-
-        # elif isinstance( netObj, CGraphNode_NO ):
-        #     self.addNode( netObj )
-
-        # elif isinstance( netObj, CGraphEdge_NO ):
-        #     self.addEdge( netObj )
-
-        # elif isinstance( netObj, CAgent_NO ):
-        #     self.addAgent( netObj )
-
-        # elif isinstance( netObj, CBox_NO ):
-        #     self.addBox( netObj )
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
         if type(netObj) in self.relationSGItems:
             self.objReloadTimer.start()
-
-        if isinstance( netObj, CGraphRoot_NO ):
-            self.clear()
-
-        elif isinstance( netObj, CGraphNode_NO ):
-            self.deleteNode( netObj )
-
-        elif isinstance( netObj, CGraphEdge_NO ):
-            self.queryDeleteEdge( netObj )
-
-        elif isinstance( netObj, CAgent_NO ):
-            self.deleteAgent( netObj )
-
-        elif isinstance( netObj, CBox_NO ):
-            self.deleteBox( netObj )
+            self.relationSGItems[ type(netObj) ].delete_func( netObj )
 
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-
-        ##remove##
-        # if type(netObj) in self.relationSGItems:
-        #     self.objReloadTimer.start()
 
         # propName  = netCmd.sPropName
         # propValue = netObj[ netCmd.sPropName ]
@@ -624,10 +590,6 @@ class CStorageGraph_GScene_Manager( QObject ):
             gItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
-            ##remove##
-            # if netCmd.sPropName == SAP.route:
-            #     return
-
             gItem = self.agentGItems[ netObj.name ]
             
             if netCmd.sPropName == SAP.angle:
