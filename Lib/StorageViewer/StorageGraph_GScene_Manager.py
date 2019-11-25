@@ -5,6 +5,7 @@ import weakref
 import math
 from enum import Flag, auto, Enum
 from copy import deepcopy
+from collections import namedtuple
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import pyqtSlot, QObject, QLineF, QPointF, QEvent, Qt, pyqtSignal, QTimer
@@ -44,7 +45,9 @@ class EGManagerEditMode (Flag):
 class EGSceneSelectionMode( Enum ):
     Select = auto()
     Touch  = auto()
-    
+
+SGItemDesc = namedtuple( "SGItemDesc", "create_func delete_func" )
+
 class CStorageGraph_GScene_Manager( QObject ):
     itemTouched = pyqtSignal( QGraphicsItem )
     nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StorageSingle, SGT.ENodeTypes.ServiceStation]
@@ -110,6 +113,14 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.objReloadTimer.setSingleShot( True )
         self.objReloadTimer.timeout.connect( self.updateRelationObjects )
         self.objReloadTimer.start()
+
+        self.relationSGItems = {
+                                CGraphRoot_NO : SGItemDesc(create_func=lambda x: self.init(), delete_func=lambda x: self.clear()),
+                                CGraphNode_NO : SGItemDesc(create_func=self.addNode,  delete_func=self.clear),
+                                CGraphEdge_NO : SGItemDesc(create_func=self.addEdge,  delete_func=self.clear),
+                                CAgent_NO     : SGItemDesc(create_func=self.addAgent, delete_func=self.clear),
+                                CBox_NO       : SGItemDesc(create_func=self.addBox,   delete_func=self.clear),
+                               }
 
     def setModeFlags(self, flags):
         self.Mode = flags
@@ -301,45 +312,45 @@ class CStorageGraph_GScene_Manager( QObject ):
     
     #################
 
-    def addBox( self, boxNetObj ):
-        if self.boxGItems.get ( boxNetObj.name ): return
+    def addBox( self, netObj ):
+        if self.boxGItems.get ( netObj.name ): return
 
-        boxGItem = CBox_SGItem( SGM = self, boxNetObj = boxNetObj, parent = self.Boxes_ParentGItem )
-        self.boxGItems[ boxNetObj.name ] = boxGItem
+        boxGItem = CBox_SGItem( SGM = self, boxNetObj = netObj, parent = self.Boxes_ParentGItem )
+        self.boxGItems[ netObj.name ] = boxGItem
         boxGItem.init()
 
         return boxGItem
 
-    def deleteBox( self, boxNetObj ):
-        self.gScene.removeItem ( self.boxGItems[ boxNetObj.name ] )
-        del self.boxGItems[ boxNetObj.name ]
+    def deleteBox( self, netObj ):
+        self.gScene.removeItem ( self.boxGItems[ netObj.name ] )
+        del self.boxGItems[ netObj.name ]
 
     #################
 
-    def addAgent( self, agentNetObj ):
-        if self.agentGItems.get ( agentNetObj.name ): return
+    def addAgent( self, netObj ):
+        if self.agentGItems.get ( netObj.name ): return
 
-        agentGItem = CAgent_SGItem ( SGM=self, agentNetObj = agentNetObj, parent=self.Agents_ParentGItem )
-        self.agentGItems[ agentNetObj.name ] = agentGItem
+        agentGItem = CAgent_SGItem ( SGM=self, agentNetObj = netObj, parent=self.Agents_ParentGItem )
+        self.agentGItems[ netObj.name ] = agentGItem
         agentGItem.init()
 
         return agentGItem
 
-    def deleteAgent(self, agentNetObj):
-        agentGItem = self.agentGItems[ agentNetObj.name ]
+    def deleteAgent(self, netObj):
+        agentGItem = self.agentGItems[ netObj.name ]
         [ child.setParentItem( self.Boxes_ParentGItem ) for child in agentGItem.childItems() if isinstance(child, CBox_SGItem) ]
 
         self.gScene.removeItem ( agentGItem )
-        del self.agentGItems[ agentNetObj.name ]
+        del self.agentGItems[ netObj.name ]
         del agentGItem
 
     #################
 
-    def addNode( self, nodeNetObj ):
-        nodeID = nodeNetObj.name
+    def addNode( self, netObj ):
+        nodeID = netObj.name
         if self.nodeGItems.get ( nodeID ): return
 
-        nodeGItem = CNode_SGItem ( self, nodeNetObj = nodeNetObj, parent=self.GraphRoot_ParentGItem )
+        nodeGItem = CNode_SGItem ( self, nodeNetObj = netObj, parent=self.GraphRoot_ParentGItem )
         self.nodeGItems[ nodeID ] = nodeGItem
 
         nodeGItem.init()
@@ -348,8 +359,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bHasChanges = True
         return nodeGItem
 
-    def deleteNode(self, nodeNetObj):
-        nodeID = nodeNetObj.name
+    def deleteNode(self, netObj):
+        nodeID = netObj.name
         nodeSGItem = self.nodeGItems.get ( nodeID )
         if nodeSGItem is None: return
 
@@ -362,8 +373,8 @@ class CStorageGraph_GScene_Manager( QObject ):
 
     #################
 
-    def addEdge( self, edgeNetObj ):
-        fsEdgeKey = frozenset( ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() ) )
+    def addEdge( self, netObj ):
+        fsEdgeKey = frozenset( ( netObj.nxNodeID_1(), netObj.nxNodeID_2() ) )
         if self.edgeGItems.get( fsEdgeKey ) : return False
 
         edgeGItem = CEdge_SGItem( self, fsEdgeKey=fsEdgeKey, graphRootNode=self.graphRootNode, parent=self.GraphRoot_ParentGItem )
@@ -374,8 +385,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         self.bHasChanges = True
 
         if not self.bGraphLoading:
-            self.updateNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_1() ] )
-            self.updateNodeMiddleLine( self.nodeGItems[ edgeNetObj.nxNodeID_2() ] )
+            self.updateNodeMiddleLine( self.nodeGItems[ netObj.nxNodeID_1() ] )
+            self.updateNodeMiddleLine( self.nodeGItems[ netObj.nxNodeID_2() ] )
 
         return True
     
@@ -401,8 +412,8 @@ class CStorageGraph_GScene_Manager( QObject ):
             edgeGItem.decorateSGItem.update()
     
     # удаление NetObj объектов определяющих грань
-    def queryDeleteEdge(self, edgeNetObj):
-        tKey = ( edgeNetObj.nxNodeID_1(), edgeNetObj.nxNodeID_2() )
+    def queryDeleteEdge(self, netObj):
+        tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
         fsEdgeKey = frozenset( tKey )
         edgeGItem = self.edgeGItems.get( fsEdgeKey )
 
@@ -536,8 +547,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         event.ignore()
         return False
 
-    relationObjects = [ CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, CAgent_NO, CBox_NO ]
-
     def updateRelationObjects( self ):
         for agentGItem in self.agentGItems.values():
             agentGItem.updatePos()
@@ -550,50 +559,52 @@ class CStorageGraph_GScene_Manager( QObject ):
     def ObjCreated(self, netCmd=None):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
-        if type(netObj) in self.relationObjects:
+        if type(netObj) in self.relationSGItems:
             self.objReloadTimer.start()
 
-        if isinstance( netObj, CGraphRoot_NO ):
-            self.init()
+            self.relationSGItems[ type(netObj) ].create_func( netObj )
 
-        elif isinstance( netObj, CGraphNode_NO ):
-            self.addNode( nodeNetObj = netObj )
+        # if isinstance( netObj, CGraphRoot_NO ):
+        #     self.init()
 
-        elif isinstance( netObj, CGraphEdge_NO ):
-            self.addEdge( edgeNetObj = netObj )
+        # elif isinstance( netObj, CGraphNode_NO ):
+        #     self.addNode( netObj )
 
-        elif isinstance( netObj, CAgent_NO ):
-            self.addAgent( agentNetObj = netObj )
+        # elif isinstance( netObj, CGraphEdge_NO ):
+        #     self.addEdge( netObj )
 
-        elif isinstance( netObj, CBox_NO ):
-            self.addBox( boxNetObj = netObj )
+        # elif isinstance( netObj, CAgent_NO ):
+        #     self.addAgent( netObj )
+
+        # elif isinstance( netObj, CBox_NO ):
+        #     self.addBox( netObj )
 
     def ObjPrepareDelete(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
-        if type(netObj) in self.relationObjects:
+        if type(netObj) in self.relationSGItems:
             self.objReloadTimer.start()
 
         if isinstance( netObj, CGraphRoot_NO ):
             self.clear()
 
         elif isinstance( netObj, CGraphNode_NO ):
-            self.deleteNode( nodeNetObj = netObj )
+            self.deleteNode( netObj )
 
         elif isinstance( netObj, CGraphEdge_NO ):
-            self.queryDeleteEdge( edgeNetObj = netObj )
+            self.queryDeleteEdge( netObj )
 
         elif isinstance( netObj, CAgent_NO ):
-            self.deleteAgent( agentNetObj = netObj )
+            self.deleteAgent( netObj )
 
         elif isinstance( netObj, CBox_NO ):
-            self.deleteBox( boxNetObj = netObj )
+            self.deleteBox( netObj )
 
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
 
         ##remove##
-        # if type(netObj) in self.relationObjects:
+        # if type(netObj) in self.relationSGItems:
         #     self.objReloadTimer.start()
 
         # propName  = netCmd.sPropName
