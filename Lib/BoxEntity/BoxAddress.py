@@ -17,7 +17,6 @@ class EBoxAddressType( BaseEnum ):
 
     Default = Undefined
 
-
 def OnNode_fromString(sData):
     l = re.split( TDS_split_pattern, sData )
     nodeID = l[0]

@@ -80,8 +80,8 @@ class CAgentLogManager( QObject ):
         sLogFName = cls.genAgentLogFName( agentLink.agentN )
         if not os.path.exists( sLogFName ):
             with open( sLogFName, 'a' ) as file:
-                file.write( "<script src=\"../Common/jquery-3.4.1.min.js\"></script>" )
-                file.write( "<script src=\"../Common/filter-find.js\"></script>" )
+                file.write( "<script src=\"../Common/jquery-3.4.1.min.js\"></script>\n" )
+                file.write( "<script src=\"../Common/filter-find.js\"></script>\n" )
 
         with open( sLogFName, 'a' ) as file:
             file.write( logRow.data )
@@ -104,7 +104,7 @@ class CAgentLogManager( QObject ):
     def decorateLogString( cls, agentLink, thread_UID, data, color ):
         data = "AL " + data
         data = wrapSpan( data, color )
-        data = f"{cls.sTime()} T:{ thread_UID } {data}"
+        data = f"{cls.sTime()} T:{ thread_UID } {data}\n"
 
         return wrapDiv( data )
 
@@ -136,7 +136,7 @@ class CAgentLogManager( QObject ):
         elif packet.status == EPacket_Status.Duplicate:
             colorData = Duplicate_color
 
-        data = f"{wrapSpan( sTX_or_RX, colorTX_or_RX, 400 )} {wrapSpan( data, colorData )}"
+        data = f"{wrapSpan( sTX_or_RX, colorTX_or_RX, 400 )} {wrapSpan( data, colorData )}\n"
 
         data = f"{cls.sTime()} T:{ thread_UID } {data}"
         data = wrapDiv( data )
