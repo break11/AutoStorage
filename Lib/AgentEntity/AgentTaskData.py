@@ -4,15 +4,19 @@ import re
 import math
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.SerializedList import CSerializedList
+import Lib.GraphEntity.StorageGraphTypes as SGT
 
 TDS = "=" # Task Data Splitter
 TDS_split_pattern = f" {TDS} | {TDS}|{TDS} |{TDS}"
 
 class ETaskType( BaseEnum ):
-    Undefined = auto()
-    GoToNode  = auto()
-    DoCharge  = auto()
-    JmpToTask = auto()
+    Undefined     = auto()
+    GoToNode      = auto()
+    LoadBoxByName = auto()
+    LoadBox       = auto()
+    UnloadBox     = auto()
+    DoCharge      = auto()
+    JmpToTask     = auto()
 
     Default = Undefined
 
@@ -20,16 +24,22 @@ class ETaskType( BaseEnum ):
 
 class CTask:
     dataFromStrFunc = {
-                        ETaskType.Undefined : lambda sData : sData,
-                        ETaskType.GoToNode  : lambda sData : sData,
-                        ETaskType.DoCharge  : lambda sData : float(sData),
-                        ETaskType.JmpToTask : lambda sData : int(sData),
+                        ETaskType.Undefined     : lambda sData : sData,
+                        ETaskType.GoToNode      : lambda sData : sData,
+                        ETaskType.DoCharge      : lambda sData : float(sData),
+                        ETaskType.JmpToTask     : lambda sData : int(sData),
+                        ETaskType.LoadBoxByName : lambda sData : sData,
+                        ETaskType.LoadBox       : SGT.SNodePlace.fromString,
+                        ETaskType.UnloadBox     : SGT.SNodePlace.fromString,
                       }
     dataToStrFunc   = {
-                        ETaskType.Undefined : lambda data  : data,
-                        ETaskType.GoToNode  : lambda data  : data,
-                        ETaskType.DoCharge  : lambda sData : str(sData),
-                        ETaskType.JmpToTask : lambda data  : str(data),
+                        ETaskType.Undefined     : lambda data  : data,
+                        ETaskType.GoToNode      : lambda data  : data,
+                        ETaskType.DoCharge      : lambda data  : str(data),
+                        ETaskType.JmpToTask     : lambda data  : str(data),
+                        ETaskType.LoadBoxByName : lambda data  : data,
+                        ETaskType.LoadBox       : SGT.SNodePlace.toString,
+                        ETaskType.UnloadBox     : SGT.SNodePlace.toString,
                       }
 
     def __init__( self, taskType=ETaskType.Undefined, taskData=None ):

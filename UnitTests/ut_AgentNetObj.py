@@ -331,7 +331,5 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
         agentNO.destroy()
 
-
-
 if __name__ == "__main__":
     unittest.main()

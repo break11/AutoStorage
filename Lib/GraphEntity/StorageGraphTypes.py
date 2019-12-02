@@ -137,6 +137,40 @@ class ESide( BaseEnum ):
 
 ###########################################################
 
+class SNodePlace:
+    DS = "|"
+    def __init__( self, nodeID, side ):
+        self.nodeID = nodeID
+        self.side = side
+
+    def __str__( self ): return self.toString()
+
+    def isValid( self ): return self.nodeID and ( self.side is not None )
+
+    def __eq__( self, other ):
+        eq = True
+        eq = eq and self.nodeID == other.nodeID
+        eq = eq and self.side == other.side
+        return eq
+
+    @classmethod
+    def fromString( cls, data ):
+        l = data.split( cls.DS )
+
+        try:
+            nodeID = l[0]
+            side   = ESide.fromString( l[1] )
+        except:
+            nodeID = None
+            side   = None
+
+        return SNodePlace( nodeID = nodeID, side = side )
+
+    def toString( self ):
+        return f"{self.nodeID}{ self.DS }{self.side}"
+
+###########################################################
+
 graphEnums = { SGA.nodeType   : ENodeTypes, 
                SGA.sensorSide : ESensorSide,
                SGA.widthType  : EWidthType, 
