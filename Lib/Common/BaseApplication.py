@@ -103,6 +103,7 @@ class CBaseApplication( QApplication ):
 
         CNetObj_Manager.rootObj.queryObj( s_Agents, CNetObj )
         CNetObj_Manager.rootObj.queryObj( s_Boxes,  CNetObj )
+        CNetObj_Manager.rootObj.queryObj( s_Graph,  CGraphRoot_NO )
 
         if self.bNetworkMode:
             self.tickTimer.timeout.connect( CNetObj_Manager.onTick )

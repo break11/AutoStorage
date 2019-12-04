@@ -20,6 +20,7 @@ class CGraphRoot_NO( CNetObj ):
         if nxGraph is not None:
             self.nxGraph = nxGraph
         else:
+            if props is None: props = {} # приходится дублировать поведение предка здесь, т.к. в предок передается указатель на свойства графа - self.nxGraph.graph
             self.nxGraph = nx.DiGraph( **props )
 
         props = self.nxGraph.graph

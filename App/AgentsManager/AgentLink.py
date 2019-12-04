@@ -11,6 +11,7 @@ import Lib.Common.GraphUtils as GU
 from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
+from Lib.Net.NetObj_Utils import isNone_or_Empty
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 import Lib.Common.FileUtils as FileUtils
 from Lib.Common.StrConsts import SC
@@ -148,7 +149,7 @@ class CAgentLink( CAgentServer_Link ):
                 self.DE_IDX += 1
 
         elif cmd.event in OD_OP_events:
-            if self.graphRootNode() is None:
+            if isNone_or_Empty( self.graphRootNode() ):
                 print( SC.No_Graph_loaded )
                 return
 
@@ -273,7 +274,7 @@ class CAgentLink( CAgentServer_Link ):
         self.segOD = 0
         self.SII = []
 
-        if self.graphRootNode() is None:
+        if isNone_or_Empty( self.graphRootNode() ):
             print( SC.No_Graph_loaded )
             agentNO.status = ADT.EAgent_Status.RouteError
             return
