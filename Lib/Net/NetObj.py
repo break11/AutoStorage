@@ -22,9 +22,9 @@ class SNetObjProps( metaclass = СStrProps_Meta ):
 
 SNOP = SNetObjProps
 
-
 class CNetObj( CTreeNode ):
     def_props = {} #type:ignore
+    local_props = [] #type:ignore
     __modelHeaderData = [ SNOP.name, SNOP.ChildCount, SNOP.UID, SNOP.TypeName, ]
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
@@ -116,7 +116,6 @@ class CNetObj( CTreeNode ):
 
     def __setitem__( self, key, value ):
         bPropExist = self.propsDict().get( key ) is not None
-        # bSynced = key not in self.NetIgnoredProps
 
         if bPropExist and self.propsDict()[ key ] == value:
             return
@@ -133,7 +132,8 @@ class CNetObj( CTreeNode ):
             assert PropType is ValueType, f"Prop type {PropType} don't equal with value type {ValueType} for prop '{cmd.sPropName}'!"
 
         self.propsDict()[ cmd.sPropName ] = value
-        CNetObj_Manager.sendNetCMD( cmd )
+        if not key in self.local_props:
+            CNetObj_Manager.sendNetCMD( cmd )
         CNetObj_Manager.doCallbacks( cmd )
 
     def __delitem__( self, key ):
@@ -143,7 +143,8 @@ class CNetObj( CTreeNode ):
         del self.propsDict()[ key ]
         cmd = CNetCmd( Event=EV.ObjPropDeleted, Obj_UID = self.UID, PropName=key, value=value )
         CNetObj_Manager.doCallbacks( cmd )
-        CNetObj_Manager.sendNetCMD( cmd )
+        if not key in self.local_props:
+            CNetObj_Manager.sendNetCMD( cmd )
 
 ###################################################################################
 
