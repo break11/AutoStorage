@@ -16,9 +16,9 @@ from Lib.Net.Net_Events import ENet_Event as EV
 import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.AgentEntity.Agent_NetObject import SAP
 
-bgColorsByConnectedStatus = { ADT.EConnectedStatus.connected    : Qt.darkGreen, 
+bgColorsByConnectedStatus = { ADT.EConnectedStatus.connected    : Qt.darkGreen,
                               ADT.EConnectedStatus.disconnected : Qt.darkGray,
-                              ADT.EConnectedStatus.freeze       : Qt.gray }
+                              ADT.EConnectedStatus.freeze       : Qt.darkCyan }
 
 colorsByStatus = { ADT.EAgent_Status.Idle            : Qt.green,
                    ADT.EAgent_Status.GoToCharge      : Qt.blue,
