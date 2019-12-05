@@ -211,10 +211,10 @@ class CNetObj( CTreeNode ):
 
         # сохранение справочника свойств
         if len( self.propsDict() ):
-            pipe.hmset( self.redisKey_Props(), self.PropsToStr( self.propsDict() ) )
+            pipe.hmset( self.redisKey_Props(), CStrTypeConverter.DictToStr( self.propsDict() ) )
 
         if len( self.ext_fields ):
-            pipe.hmset( self.redisKey_ExtFields(), self.PropsToStr( self.ext_fields ) )
+            pipe.hmset( self.redisKey_ExtFields(), CStrTypeConverter.DictToStr( self.ext_fields ) )
 
     @classmethod
     def load_PipeData_FromRedis( cls, pipe, UID ):
@@ -250,8 +250,8 @@ class CNetObj( CTreeNode ):
 
         name       = nameField
         objClass   = CNetObj_Manager.netObj_Type( typeUID )
-        props      = objClass.PropsFromStr( pProps )
-        ext_fields = objClass.PropsFromStr( extFields )
+        props      = CStrTypeConverter.DictFromStr( pProps, def_props = objClass.def_props )
+        ext_fields = CStrTypeConverter.DictFromStr( extFields )
 
         netObj = objClass( name = name, parent = CNetObj_Manager.accessObj( parentID ), id = UID, saveToRedis=False, props=props, ext_fields=ext_fields )
 
@@ -265,21 +265,5 @@ class CNetObj( CTreeNode ):
     def doSelfCallBack( self, netCmd ):
         c = getattr( self, netCmd.Event.name, None )
         if c: c( netCmd )
-
-    @classmethod
-    def PropsToStr( cls, d ):
-        d1 = {}
-        for k, v in d.items():
-            d1[ k ] = CStrTypeConverter.ValToStr( v )
-        return d1
-
-    @classmethod
-    def PropsFromStr( cls, d ):
-        d1 = {}
-        for k, v in d.items():
-            typeClass = type(cls.def_props[k]) if k in cls.def_props else str
-            d1[ k ] = CStrTypeConverter.ValFromStr( typeClass, v )
-        return d1
-
 
 from .NetObj_Manager import CNetObj_Manager

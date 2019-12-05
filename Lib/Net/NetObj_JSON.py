@@ -9,8 +9,8 @@ def load_Obj( jData, parent, bLoadUID=False ):
     UID        = ( jData[ SNOP.UID  ] if SNOP.UID in jData.keys() else None ) if bLoadUID else None
     name       = jData[ SNOP.name ] if SNOP.name in jData.keys() else None
     objClass   = CNetObj_Manager.netObj_Type( jData[ SNOP.TypeName ] ) if SNOP.TypeName in jData.keys() else CNetObj
-    props      = objClass.PropsFromStr( jData[ SNOP.props ] ) if SNOP.props in jData.keys() else None
-    ext_fields = objClass.PropsFromStr( jData[ SNOP.ext_fields ] ) if SNOP.ext_fields in jData.keys() else None
+    props      = CStrTypeConverter.DictFromStr( jData[ SNOP.props ], def_props = objClass.def_props ) if SNOP.props in jData.keys() else None
+    ext_fields = CStrTypeConverter.DictFromStr( jData[ SNOP.ext_fields ] ) if SNOP.ext_fields in jData.keys() else None
 
     netObj = objClass( name = name, parent = parent, id = UID, saveToRedis=True, props=props, ext_fields=ext_fields )
 
@@ -29,8 +29,8 @@ def saveObj( netObj, bSaveUID=True ):
     if bSaveUID: jData[ SNOP.UID ] = netObj.UID
     jData[ SNOP.name ]       = netObj.name
     jData[ SNOP.TypeName ]   = netObj.__class__.__name__
-    jData[ SNOP.props ]      = netObj.PropsToStr( netObj.props )
-    jData[ SNOP.ext_fields ] = netObj.PropsToStr( netObj.ext_fields )
+    jData[ SNOP.props ]      = CStrTypeConverter.DictToStr( netObj.props )
+    jData[ SNOP.ext_fields ] = CStrTypeConverter.DictToStr( netObj.ext_fields )
     jData[ SNOP.children ]   = save_Obj_Children( netObj, bSaveUID )
     return jData
 
