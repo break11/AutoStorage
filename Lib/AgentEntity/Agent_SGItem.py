@@ -177,7 +177,9 @@ class CAgent_SGItem(QGraphicsItem):
 
             painter.fillRect(self.sx + 5, -150, 20, 300, Qt.darkBlue)
             painter.fillRect(-self.sx - 25, -150, 20, 300, Qt.darkRed)
-            painter.fillRect(-10, -10, 20, 20, Qt.darkGray)
+            centreRectColor = QColor( Qt.darkGray )
+            centreRectColor.setAlpha( 130 )
+            painter.fillRect(-10, -10, 20, 20, centreRectColor)
             
             painter.drawLines( self.lines )
 
