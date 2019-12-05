@@ -152,8 +152,10 @@ class CNetObj_Monitor(QWidget):
 
     def on_btnLoad_Obj_released( self ):
         ci = self.tvNetObj.selectionModel().currentIndex()
-        if not ci.isValid(): return
-        netObj = self.netObjModel.netObj_From_Index( ci )
+        if ci.isValid():
+            netObj = self.netObjModel.netObj_From_Index( ci )
+        else:
+            netObj = CNetObj_Manager.rootObj
 
         self.loadObj( netObj )
 
