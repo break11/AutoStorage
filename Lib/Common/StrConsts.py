@@ -17,3 +17,12 @@ class SC( metaclass = СStrProps_Meta ):
     storage_graph_file__default = "GraphML/test.graphml"
     mainwindow_ui               = "/mainwindow.ui"
     No_Graph_loaded             = f"{sWarning} No Graph loaded."
+
+def genSplitPattern( *DS_List ):
+    l = []
+    for DS in DS_List:
+        pattern = f" {DS} | {DS}|{DS} |{DS}"
+        l.append( pattern )
+
+    return "|".join( l )
+

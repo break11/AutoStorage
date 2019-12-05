@@ -1,8 +1,10 @@
 
 import re
 
+from Lib.Common.StrConsts import genSplitPattern
+
 TS  = "," # Task Splitter
-split_pattern = " , | ,|, |,| |:|-"
+split_pattern = genSplitPattern( ",", " ", ":", "-" )
 
 class CSerializedList:
     element_type = type(None)

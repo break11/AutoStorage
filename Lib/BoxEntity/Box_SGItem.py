@@ -46,9 +46,9 @@ class CBox_SGItem(QGraphicsItem):
         a = self.__boxNetObj().address
 
         if a.addressType == EBoxAddressType.OnNode:
-            nodeSGItem = self.SGM.nodeGItems[ a.nodeID ]
+            nodeSGItem = self.SGM.nodeGItems[ a.data.nodeID ]
             self.setParentItem( nodeSGItem )
-            if a.placeSide == SGT.ESide.Left:
+            if a.data.side == SGT.ESide.Left:
                 kX = -1
             else:
                 kX = 1
@@ -56,7 +56,7 @@ class CBox_SGItem(QGraphicsItem):
             self.setPos( kX * 700, 0 )
 
         elif a.addressType == EBoxAddressType.OnAgent:
-            agentSGItem = self.SGM.agentGItems[ str(a.agentN) ]
+            agentSGItem = self.SGM.agentGItems[ str(a.data) ]
             self.setParentItem( agentSGItem )
             self.setPos( 0, 0 )
 

@@ -8,7 +8,6 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 import Lib.GraphEntity.StorageGraphTypes as SGT
 
-
 class Test_SGM_Funcs(unittest.TestCase):
     def test_SNodePlace(self):
         sData = "ChargeNode01|Right"
@@ -25,6 +24,18 @@ class Test_SGM_Funcs(unittest.TestCase):
         self.assertEqual( nodePlace.nodeID, "14" )
         self.assertEqual( nodePlace.side, SGT.ESide.Left )
         self.assertTrue( nodePlace.isValid() )
+
+        sData2 = "14 |L"
+        nodePlace2 = SGT.SNodePlace.fromString( sData2 )
+        self.assertEqual( nodePlace, nodePlace2 )
+
+        sData2 = "14| L"
+        nodePlace2 = SGT.SNodePlace.fromString( sData2 )
+        self.assertEqual( nodePlace, nodePlace2 )
+
+        sData2 = "14 | L"
+        nodePlace2 = SGT.SNodePlace.fromString( sData2 )
+        self.assertEqual( nodePlace, nodePlace2 )
 
         sData = "ErrorNodePlace"
         nodePlace = SGT.SNodePlace.fromString( sData )

@@ -5,9 +5,10 @@ import math
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.SerializedList import CSerializedList
 import Lib.GraphEntity.StorageGraphTypes as SGT
+from Lib.Common.StrConsts import genSplitPattern
 
 TDS = "=" # Task Data Splitter
-TDS_split_pattern = f" {TDS} | {TDS}|{TDS} |{TDS}"
+TDS_split_pattern = genSplitPattern( TDS )
 
 class ETaskType( BaseEnum ):
     Undefined     = auto()

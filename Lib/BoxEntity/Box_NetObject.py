@@ -44,10 +44,10 @@ class CBox_NO( CNetObj ):
             return False
         
         if self.address.addressType == EBoxAddressType.OnNode:
-            return self.nxGraph.has_node( self.address.nodeID ) if self.nxGraph is not None else False
+            return self.nxGraph.has_node( self.address.data.nodeID ) if self.nxGraph is not None else False
 
         if self.address.addressType == EBoxAddressType.OnAgent:
-            return agentsNodeCache()().childByName( str(self.address.agentN) ) is not None
+            return agentsNodeCache()().childByName( str(self.address.data) ) is not None
 
 ####################
 

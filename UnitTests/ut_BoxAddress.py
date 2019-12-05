@@ -12,9 +12,9 @@ import Lib.GraphEntity.StorageGraphTypes as SGT
 class Test_CBoxAddress(unittest.TestCase):
 
     def test(self):
-        sData = "Undefined=25,Left,555"
+        sData = "Undefined=25|Left|555"
 
-        addr = CBoxAddress( EBoxAddressType.Undefined, nodeID = "25", placeSide = "Left", agentN = "555" )
+        addr = CBoxAddress( EBoxAddressType.Undefined, data = "25|Left|555" )
         addr_test = CBoxAddress.fromString( sData )
 
         self.assertEqual( addr, addr_test )
@@ -22,18 +22,20 @@ class Test_CBoxAddress(unittest.TestCase):
         self.assertEqual( addr_test.toString(), sData )
 
         ##################################################################################################
-        sData = "OnNode=25,Left"
-        addr = CBoxAddress( EBoxAddressType.OnNode, nodeID = "25", placeSide = SGT.ESide.Left )
+        sData = "OnNode=25|Left"
+        addr  = CBoxAddress( EBoxAddressType.OnNode, data = SGT.SNodePlace( "25", SGT.ESide.Left ) )
+        addr1 = CBoxAddress( EBoxAddressType.OnNode, data = SGT.SNodePlace.fromString( "25|Left" ) )
         addr_test = CBoxAddress.fromString( sData )
 
+        self.assertEqual( addr, addr1 )
         self.assertEqual( addr, addr_test )
         self.assertEqual( addr.toString(), sData )
         self.assertEqual( addr_test.toString(), sData )
 
-        self.assertEqual( type(addr_test.placeSide), SGT.ESide )
+        self.assertEqual( type(addr_test.data), SGT.SNodePlace )
         ##################################################################################################
         sData = "OnAgent=555"
-        addr = CBoxAddress( EBoxAddressType.OnAgent, agentN=555 )
+        addr = CBoxAddress( EBoxAddressType.OnAgent, data=555 )
         addr_test = CBoxAddress.fromString( sData )
 
         self.assertEqual( addr, addr_test )

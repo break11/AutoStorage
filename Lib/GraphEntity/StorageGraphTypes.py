@@ -1,10 +1,12 @@
 
 from enum import auto
 import math
+import re
 from PyQt5.QtCore import Qt
 
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.StrProps_Meta import СStrProps_Meta
+from Lib.Common.StrConsts import genSplitPattern
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
     widthType        = None
@@ -139,6 +141,8 @@ class ESide( BaseEnum ):
 
 class SNodePlace:
     DS = "|"
+    DS_split_pattern = genSplitPattern( f"\{DS}" )
+
     def __init__( self, nodeID, side ):
         self.nodeID = nodeID
         self.side = side
@@ -155,14 +159,14 @@ class SNodePlace:
 
     @classmethod
     def fromString( cls, data ):
-        l = data.split( cls.DS )
+        l = re.split( cls.DS_split_pattern, data )
 
         try:
             nodeID = l[0]
             side   = ESide.fromString( l[1] )
         except:
-            nodeID = None
-            side   = None
+            nodeID = ""
+            side   = ESide.Default
 
         return SNodePlace( nodeID = nodeID, side = side )
 

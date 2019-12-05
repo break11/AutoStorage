@@ -22,6 +22,19 @@ class Test_SList(unittest.TestCase):
         self.assertEqual( sList.toString(), s )
         self.assertEqual( sList.toTuple(), t )
 
+    def testSpace(self):
+        sRes = "1,2,3"
+
+        s = "1 2 3"
+        sList = CStrList.fromString( s )
+        self.assertEqual( sList.count(), 3 )
+        self.assertEqual( sList.toString(), sRes )
+        
+        s = "1  2   3"
+        sList = CStrList.fromString( s )
+        self.assertEqual( sList.count(), 3 )
+        self.assertEqual( sList.toString(), sRes )
+
     def test(self):
         sList = CStrList()
 

@@ -10,7 +10,7 @@
             "name": "1",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=15,Right"
+                "address": "OnNode=15|Right"
             },
             "ext_fields": {},
             "children": []
@@ -20,7 +20,7 @@
             "name": "2",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=17,Right"
+                "address": "OnNode=17|Right"
             },
             "ext_fields": {},
             "children": []
@@ -30,7 +30,7 @@
             "name": "3",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=18,Right"
+                "address": "OnNode=18|Right"
             },
             "ext_fields": {},
             "children": []
@@ -40,7 +40,7 @@
             "name": "4",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=19,Right"
+                "address": "OnNode=19|Right"
             },
             "ext_fields": {},
             "children": []
@@ -50,7 +50,7 @@
             "name": "5",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=20,Right"
+                "address": "OnNode=20|Right"
             },
             "ext_fields": {},
             "children": []
@@ -60,7 +60,7 @@
             "name": "6",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=21,Right"
+                "address": "OnNode=21|Right"
             },
             "ext_fields": {},
             "children": []
@@ -70,7 +70,7 @@
             "name": "7",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=22,Right"
+                "address": "OnNode=22|Right"
             },
             "ext_fields": {},
             "children": []
@@ -80,7 +80,7 @@
             "name": "8",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=23,Right"
+                "address": "OnNode=23|Right"
             },
             "ext_fields": {},
             "children": []
@@ -90,7 +90,7 @@
             "name": "9",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=15,Left"
+                "address": "OnNode=15|Left"
             },
             "ext_fields": {},
             "children": []
@@ -100,7 +100,7 @@
             "name": "10",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=17,Left"
+                "address": "OnNode=17|Left"
             },
             "ext_fields": {},
             "children": []
@@ -110,7 +110,7 @@
             "name": "11",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=18,Left"
+                "address": "OnNode=18|Left"
             },
             "ext_fields": {},
             "children": []
@@ -120,7 +120,7 @@
             "name": "12",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=19,Left"
+                "address": "OnNode=19|Left"
             },
             "ext_fields": {},
             "children": []
@@ -130,7 +130,7 @@
             "name": "13",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=20,Left"
+                "address": "OnNode=20|Left"
             },
             "ext_fields": {},
             "children": []
@@ -140,7 +140,7 @@
             "name": "14",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=21,Left"
+                "address": "OnNode=21|Left"
             },
             "ext_fields": {},
             "children": []
@@ -150,7 +150,7 @@
             "name": "15",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=22,Left"
+                "address": "OnNode=22|Left"
             },
             "ext_fields": {},
             "children": []
@@ -160,7 +160,7 @@
             "name": "16",
             "type": "CBox_NO",
             "props": {
-                "address": "OnNode=23,Left"
+                "address": "OnNode=23|Left"
             },
             "ext_fields": {},
             "children": []
