@@ -1,169 +1,162 @@
-{
-    "UID": 27446,
-    "name": "Boxes",
-    "type": "CNetObj",
-    "props": {},
-    "ext_fields": {},
-    "children": [
-        {
-            "UID": 27447,
-            "name": "1",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=15|Right"
-            },
-            "ext_fields": {},
-            "children": []
+[
+    {
+        "UID": 27447,
+        "name": "1",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=15|Right"
         },
-        {
-            "UID": 27448,
-            "name": "2",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=17|Right"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27448,
+        "name": "2",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=17|Right"
         },
-        {
-            "UID": 27449,
-            "name": "3",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=18|Right"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27449,
+        "name": "3",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=18|Right"
         },
-        {
-            "UID": 27450,
-            "name": "4",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=19|Right"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27450,
+        "name": "4",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=19|Right"
         },
-        {
-            "UID": 27451,
-            "name": "5",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=20|Right"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27451,
+        "name": "5",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=20|Right"
         },
-        {
-            "UID": 27452,
-            "name": "6",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=21|Right"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27452,
+        "name": "6",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=21|Right"
         },
-        {
-            "UID": 27453,
-            "name": "7",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=22|Right"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27453,
+        "name": "7",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=22|Right"
         },
-        {
-            "UID": 27454,
-            "name": "8",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=23|Right"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27454,
+        "name": "8",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=23|Right"
         },
-        {
-            "UID": 27455,
-            "name": "9",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=15|Left"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27455,
+        "name": "9",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=15|Left"
         },
-        {
-            "UID": 27456,
-            "name": "10",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=17|Left"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27456,
+        "name": "10",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=17|Left"
         },
-        {
-            "UID": 27457,
-            "name": "11",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=18|Left"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27457,
+        "name": "11",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=18|Left"
         },
-        {
-            "UID": 27458,
-            "name": "12",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=19|Left"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27458,
+        "name": "12",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=19|Left"
         },
-        {
-            "UID": 27459,
-            "name": "13",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=20|Left"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27459,
+        "name": "13",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=20|Left"
         },
-        {
-            "UID": 27460,
-            "name": "14",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=21|Left"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27460,
+        "name": "14",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=21|Left"
         },
-        {
-            "UID": 27461,
-            "name": "15",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=22|Left"
-            },
-            "ext_fields": {},
-            "children": []
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27461,
+        "name": "15",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=22|Left"
         },
-        {
-            "UID": 27462,
-            "name": "16",
-            "type": "CBox_NO",
-            "props": {
-                "address": "OnNode=23|Left"
-            },
-            "ext_fields": {},
-            "children": []
-        }
-    ]
-}
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "UID": 27462,
+        "name": "16",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=23|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    }
+]

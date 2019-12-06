@@ -4,7 +4,7 @@ import json
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QFileDialog
-from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel
+from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel, pyqtSlot
 from PyQt5.Qt import QInputDialog
 
 from .NetObj_Manager import CNetObj_Manager
@@ -14,7 +14,6 @@ from .NetObj_Model import CNetObj_Model
 from .NetObj_Model import CNetObj_Model
 from .NetObj_Widgets import CNetObj_WidgetsManager
 from .NetCmd import CNetCmd
-from .NetObj_JSON import load_Obj
 import Lib.Net.NetObj_JSON as nJSON
 
 from  Lib.Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
@@ -135,22 +134,26 @@ class CNetObj_Monitor(QWidget):
             path = FU.correctFNameToProjectDir( path )
             with open( path, "r" ) as read_file:
                 jData = json.load( read_file )
+                nJSON.load_Data( jData=jData, parent=parent )
 
-                if parent is None:
-                    nJSON.load_Obj_Children( jData=jData, parent=CNetObj_Manager.rootObj )
-                else:
-                    nJSON.load_Obj( jData=jData, parent=parent )
-
-    def saveObj( self, netObj ):
+    def saveObj( self, netObj, bOnlyChild = False ):
         path, extension = QFileDialog.getSaveFileName(self, "Save JSON NetObj file", FU.projectDir(), "*.json", "", QFileDialog.DontUseNativeDialog)
         if path:
             path = path if path.endswith( ".json" ) else ( path + ".json" )
             
             with open( path, "w" ) as f:
-                json.dump( nJSON.saveObj( netObj ), f, indent=4 )
-                
+                if bOnlyChild:
+                    l = []
+                    for child in netObj.children:
+                        l.append( nJSON.saveObj( child ) )
+                    json.dump( l, f, indent=4 )
+                else:
+                    json.dump( nJSON.saveObj( netObj ), f, indent=4 )                
+    
+    ###################
 
-    def on_btnLoad_Obj_released( self ):
+    @pyqtSlot("bool")
+    def on_btnLoad_Obj_clicked( self, bVal ):
         ci = self.tvNetObj.selectionModel().currentIndex()
         if ci.isValid():
             netObj = self.netObjModel.netObj_From_Index( ci )
@@ -159,15 +162,18 @@ class CNetObj_Monitor(QWidget):
 
         self.loadObj( netObj )
 
-    def on_btnSave_Obj_released( self ):
+    @pyqtSlot("bool")
+    def on_btnSave_Obj_clicked( self, bVal ):
         ci = self.tvNetObj.selectionModel().currentIndex()
         if not ci.isValid(): return
         netObj = self.netObjModel.netObj_From_Index( ci )
 
         self.saveObj( netObj )
 
-    def on_btnSave_Root_released( self ):
-        self.saveObj( CNetObj_Manager.rootObj )
+    @pyqtSlot("bool")
+    def on_btnSave_Root_clicked( self, bVal ):
+        self.saveObj( CNetObj_Manager.rootObj, bOnlyChild = True )
 
-    def on_btnLoad_Root_released( self ):
-        self.loadObj( parent=None )
+    @pyqtSlot("bool")
+    def on_btnLoad_Root_clicked( self, bVal ):
+        self.loadObj( parent=CNetObj_Manager.rootObj )

@@ -4,6 +4,16 @@ import json
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj, SNOP
 from Lib.Common.StrTypeConverter import CStrTypeConverter
+from Lib.Common.StrConsts import SC
+
+def load_Data( jData, parent, bLoadUID=False ):
+    if type(jData) is list:
+        for item in jData:
+            load_Obj( jData=item, parent=parent, bLoadUID = bLoadUID )
+    elif type(jData) is dict:
+        load_Obj( jData=jData, parent=parent, bLoadUID = bLoadUID )
+    else:
+        print( f"{SC.sError} Can't load NetObj from JSON! Unsupported JSON data type ={type(jData)}!" )
 
 def load_Obj( jData, parent, bLoadUID=False ):
     UID        = ( jData[ SNOP.UID  ] if SNOP.UID in jData.keys() else None ) if bLoadUID else None
