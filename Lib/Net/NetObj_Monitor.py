@@ -73,7 +73,7 @@ class CNetObj_Monitor(QWidget):
 
     def on_btnSendNetCmd_released( self ):
         cmd = CNetCmd( Event=self.cbEvent.currentData(), Obj_UID=self.sbObj_UID.value(),
-                       PropName=self.lePropName.text(), ExtCmdData=self.leExtCmdData.text() )
+                       PropName=self.lePropName.text() )
         CNetObj_Manager.sendNetCMD( cmd )
 
     def treeView_SelectionChanged( self, selected, deselected ):
