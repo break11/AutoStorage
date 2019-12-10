@@ -59,6 +59,8 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj is None: return
 
+        if UID in self.objList: return
+
         for propName in sorted( netObj.propsDict().keys() ):
             if propName not in self.propList:
                 self.appendProp( propName )
@@ -86,6 +88,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.clearNotUsedProps()
 
     def appendProp( self, propName ):
+        if propName in self.propList: return
         i = len( self.propList )
         self.beginInsertRows( QModelIndex(), i, i )
         self.propList.append( propName )

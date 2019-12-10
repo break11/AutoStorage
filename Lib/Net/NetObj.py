@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
 from  Lib.Common.StrTypeConverter import CStrTypeConverter
@@ -39,7 +40,7 @@ class CNetObj( CTreeNode ):
 
         # В связи с тем, что в параметрах по умолчанию нельзя использовать дикты, здесь инициализируем данные переменные пустыми дикстами
         # В случае указания пустого дикта в заголовке ф-ции, все объекты будут ссылаться на один дикт и редактировать его
-        if self.props is None: self.props = {}
+        if self.props is None: self.props = deepcopy( self.def_props )
         if self.ext_fields is None: self.ext_fields = {}
 
         name = name if name else str(self.UID)

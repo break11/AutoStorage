@@ -18,9 +18,12 @@ CNetObj_Manager.initRoot()
 CNetObj( id=121, parent=CNetObj_Manager.rootObj, props={ "Test" : "Yes" } ) # type:ignore
 
 class Test_NetCmd(unittest.TestCase):
-    def test_(self):
+    @classmethod
+    def tearDownClass(cls):
+        CStrTypeConverter.clear()
 
-        sCMD = f"{EV.ClientConnected}{ CNetCmd.DS }{ CNetCmd.DS }{ CNetCmd.DS }"
+    def testNetCmd(self):
+        sCMD = f"{EV.ClientConnected}{ CNetCmd.DS }{ CNetCmd.DS }{ CNetCmd.DS }{ CNetCmd.DS }"
         cmd = CNetCmd( Event = EV.ClientConnected )
         cmd1 = CNetCmd.fromString( sCMD )
 
@@ -31,7 +34,7 @@ class Test_NetCmd(unittest.TestCase):
 
         #############
 
-        sCMD = f"{EV.ObjCreated}{ CNetCmd.DS }{121}{ CNetCmd.DS }{ CNetCmd.DS }"
+        sCMD = f"{EV.ObjCreated}{ CNetCmd.DS }{121}{ CNetCmd.DS }{ CNetCmd.DS }{ CNetCmd.DS }"
         cmd = CNetCmd( Event = EV.ObjCreated, Obj_UID=121 )
         cmd1 = CNetCmd.fromString( sCMD )
 
@@ -43,7 +46,7 @@ class Test_NetCmd(unittest.TestCase):
 
         #############
 
-        sCMD = f"{EV.ObjPropUpdated}{ CNetCmd.DS }{121}{ CNetCmd.DS }Test{ CNetCmd.DS }Yes"
+        sCMD = f"{EV.ObjPropUpdated}{ CNetCmd.DS }{121}{ CNetCmd.DS }Test{ CNetCmd.DS }Yes{ CNetCmd.DS }"
         cmd = CNetCmd( Event = EV.ObjPropUpdated, Obj_UID=121, PropName="Test", value="Yes" )
         cmd1 = CNetCmd.fromString( sCMD )
 
@@ -52,6 +55,19 @@ class Test_NetCmd(unittest.TestCase):
         self.assertEqual( cmd, cmd1 )
         self.assertEqual( cmd1.Event, EV.ObjPropUpdated )
         self.assertEqual( cmd1.Obj_UID, 121 )
+
+        #############
+
+        sCMD = f"{EV.ObjPropCreated}{ CNetCmd.DS }{121}{ CNetCmd.DS }Test_New{ CNetCmd.DS }Yes{ CNetCmd.DS }str"
+        cmd = CNetCmd( Event = EV.ObjPropCreated, Obj_UID=121, PropName="Test_New", value="Yes" )
+        cmd1 = CNetCmd.fromString( sCMD )
+
+        self.assertEqual( cmd.toString(), sCMD )
+
+        self.assertEqual( cmd, cmd1 )
+        self.assertEqual( cmd1.Event, EV.ObjPropCreated )
+        self.assertEqual( cmd1.Obj_UID, 121 )
+        self.assertEqual( type( cmd1.value ), str )
 
 if __name__ == "__main__":
     unittest.main()

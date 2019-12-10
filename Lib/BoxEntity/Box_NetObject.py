@@ -35,16 +35,29 @@ class CBox_NO( CNetObj ):
     @property
     def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=def_props, ext_fields=None ):
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphRootNode = graphNodeCache()
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
         # parent[ self.name ] = self[ SBP.address ]
         # parent.ignoreProps.append( self.name )
 
+    def ObjPropCreated( self, netCmd ):
+        if netCmd.sPropName == SBP.address:
+            self.updateAddressCache()
+
     def ObjPropUpdated( self, netCmd ):
         if netCmd.sPropName == SBP.address:
-            self.parent[ self[ SBP.address ].data.toString() ] = self.name
+            self.updateAddressCache()
+    
+    def ObjPropDeleted( self, netCmd ):
+        if netCmd.sPropName == SBP.address:
+            self.updateAddressCache()
+
+    #############
+
+    def updateAddressCache( self ):
+        self.parent[ self[ SBP.address ].data.toString() ] = self.name
 
     def isValidAddress( self ):
         if self.address.addressType == EBoxAddressType.Undefined:

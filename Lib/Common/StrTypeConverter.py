@@ -14,6 +14,9 @@ class CStrTypeConverter:
         else:
             cls.from_str_funcs[ typeClass ] = typeClass
 
+    @classmethod
+    def clear( cls): cls.from_str_funcs.clear()
+
     ###################
 
     @classmethod

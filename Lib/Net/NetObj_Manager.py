@@ -46,6 +46,7 @@ s_ObjectsSet = "objects_set"
 from time import sleep
 
 class CNetObj_Manager( object ):
+    PS = "~" # Packet Splitter
     redisConn = None
     serviceConn = None
     ClientID  = -1
@@ -134,7 +135,7 @@ class CNetObj_Manager( object ):
         if msg and ( msg[ s_Redis_type ] == s_Redis_message ) and ( msg[ s_Redis_channel ] == s_Redis_NetObj_Channel ):
             msgData = msg[ s_Redis_data ]
 
-            cmdList = msgData.split("|")
+            cmdList = msgData.split( cls.PS )
             packetClientID = int( cmdList[0] )
 
             # принимаем сообщения от всех клиентов кроме себя самого
@@ -166,7 +167,7 @@ class CNetObj_Manager( object ):
                     netCmd = item[1]
 
                     # i += 1
-                    if cls.bNetCmd_Log: print( f"[NetLog RX]:{netCmd} ClientID={packetClientID}" )
+                    if cls.bNetCmd_Log: print( f"[NetLog RX]:ClientID={packetClientID} {netCmd}" )
 
                     if netCmd.Event <= EV.ClientDisconnected:
                         cls.doCallbacks( netCmd )
@@ -185,7 +186,7 @@ class CNetObj_Manager( object ):
                         propExist = netObj().propsDict().get( netCmd.sPropName )
                         if propExist is not None:
                             cls.doCallbacks( netCmd )
-                            del netObj.propsDict()[ netCmd.sPropName ]
+                            del netObj().propsDict()[ netCmd.sPropName ]
                 ###################################################################################################
 
         # выполнение общего пакета редис команд (в том числе удаление объектов)
@@ -341,13 +342,15 @@ class CNetObj_Manager( object ):
     @classmethod
     def sendNetCMD( cls, cmd ):
         if not cls.isConnected(): return
-        cls.NetCmd_Buff.append( cmd.toString() )
+        cls.NetCmd_Buff.append( cmd )
     
     @classmethod
     def send_NetCmd_Buffer( cls ):
         if cls.isConnected() and len( cls.NetCmd_Buff ):
-            sNetCmdBuf =  f"{cls.ClientID}|" + "|".join( cls.NetCmd_Buff )
-            if cls.bNetCmd_Log: print( f"[NetLog TX]: sNetCmdBuf={sNetCmdBuf}" )
+            sNetCmdBuf =  f"{cls.ClientID}{ cls.PS }" + cls.PS.join( [ x.toString() for x in cls.NetCmd_Buff ] )
+
+            if cls.bNetCmd_Log:
+                print( f"[NetLog TX]:ClientID={cls.ClientID} buffCount={len( cls.NetCmd_Buff )} buffCMDs={ [ x.toString( bDebug=True ) for x in cls.NetCmd_Buff ] }" )
 
             cls.redisConn.publish( s_Redis_NetObj_Channel, sNetCmdBuf )
 

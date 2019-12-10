@@ -30,6 +30,10 @@ class CTestType:
 
 
 class Test_StrTypeConverter(unittest.TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        CStrTypeConverter.clear()
+        
     def testStdTypes( self ):
         CStrTypeConverter.registerType( int )
         CStrTypeConverter.registerType( str )
