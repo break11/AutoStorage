@@ -25,7 +25,7 @@ SNOP = SNetObjProps
 
 class CNetObj( CTreeNode ):
     def_props = {} #type:ignore
-    local_props = [] #type:ignore
+    local_props = set() #type:ignore
     __modelHeaderData = [ SNOP.name, SNOP.ChildCount, SNOP.UID, SNOP.TypeName, ]
 
     typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()

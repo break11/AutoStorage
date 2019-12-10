@@ -39,9 +39,6 @@ class CBox_NO( CNetObj ):
         self.graphRootNode = graphNodeCache()
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-        # parent[ self.name ] = self[ SBP.address ]
-        # parent.ignoreProps.append( self.name )
-
     def ObjPropCreated( self, netCmd ):
         if netCmd.sPropName == SBP.address:
             self.updateAddressCache()
@@ -52,12 +49,28 @@ class CBox_NO( CNetObj ):
     
     def ObjPropDeleted( self, netCmd ):
         if netCmd.sPropName == SBP.address:
-            self.updateAddressCache()
+            sPropName = netCmd.value.data.toString()
+            if self.parent.get( sPropName ):
+                del self.parent[ sPropName ]
+
+    def ObjCreated( self, netCmd ):
+        self.updateAddressCache()
+
+    def ObjPrepareDelete( self, netCmd ):
+        propAddress = self.get( SBP.address )
+        if propAddress:
+            sPropName = propAddress.data.toString()
+            if self.parent.get( sPropName ):
+                del self.parent[ sPropName ]
 
     #############
 
     def updateAddressCache( self ):
-        self.parent[ self[ SBP.address ].data.toString() ] = self.name
+        propAddress = self.get( SBP.address )
+        if propAddress:
+            sPropName = propAddress.data.toString()
+            self.parent.local_props.add( sPropName )
+            self.parent[ sPropName ] = self.name
 
     def isValidAddress( self ):
         if self.address.addressType == EBoxAddressType.Undefined:

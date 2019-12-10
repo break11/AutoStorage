@@ -104,7 +104,7 @@ class CAgent_NO( CNetObj ):
 
                 SAP.RTele : 1
                 }
-    local_props = [ SAP.connectedStatus ]
+    local_props = { SAP.connectedStatus }
               
     @property
     def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None

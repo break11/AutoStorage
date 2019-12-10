@@ -61,9 +61,9 @@ class CNetObj_Widget( QWidget ):
     def __init__( self, parent = None ):
         super().__init__( parent = parent )
         self.__netObj = None
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
 
-    def ObjPrepareDelete( self, netCmd ):
+    def onObjPrepareDelete( self, netCmd ):
         if ( not self.netObj ) or ( self.netObj.UID != netCmd.Obj_UID ): return
         self.done()
 
