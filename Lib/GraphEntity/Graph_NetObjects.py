@@ -103,7 +103,7 @@ class CGraphEdge_NO( CNetObj ):
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     def beforeRegister( self ):
-        # перед отправкой в редим подмена указателя на props
+        # перед отправкой в редис подмена указателя на props
         if not self.__has_nxEdge():
             tKey = ( self.nxNodeID_1(), self.nxNodeID_2() )
             self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
