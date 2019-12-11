@@ -16,7 +16,6 @@ def graphNodeCache():
 
 class CGraphRoot_NO( CNetObj ):    
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None, nxGraph=None ):
-
         if nxGraph is not None:
             self.nxGraph = nxGraph
         else:
@@ -44,15 +43,13 @@ class CGraphNode_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
-        # функция для вызова в конструкторе предка, так как нода nx-графа должна быть заполнена до ObjCreated
-        def addNxNode(netObj):
-            if not netObj.__has_nxNode():
-                netObj.nxGraph().add_node( netObj.name, **netObj.props )
-                netObj.props = netObj.nxGraph().nodes[netObj.name]
-
-        self._CNetObj__beforeObjCreatedCallback = addNxNode
-
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
+    def beforeRegister( self ):
+        # перед отправкой в редим подмена указателя на props
+        if not self.__has_nxNode():
+            self.nxGraph().add_node( self.name, **self.props )
+            self.props = self.nxGraph().nodes[ self.name ]
 
     def ObjDeleted( self, netCmd ):
         incEdges = []
@@ -103,15 +100,14 @@ class CGraphEdge_NO( CNetObj ):
 
         self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
 
-        def addNxEdge(netObj):
-            if not netObj.__has_nxEdge():
-                tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
-                netObj.nxGraph().add_edge( netObj.nxNodeID_1(), netObj.nxNodeID_2(), **netObj.props )
-                netObj.props = netObj.nxGraph().edges[ tKey ]
-
-        self._CNetObj__beforeObjCreatedCallback = addNxEdge
-
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
+    def beforeRegister( self ):
+        # перед отправкой в редим подмена указателя на props
+        if not self.__has_nxEdge():
+            tKey = ( self.nxNodeID_1(), self.nxNodeID_2() )
+            self.nxGraph().add_edge( self.nxNodeID_1(), self.nxNodeID_2(), **self.props )
+            self.props = self.nxGraph().edges[ tKey ]
 
     def ObjDeleted( self, netCmd ):
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа

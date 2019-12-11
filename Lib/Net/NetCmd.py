@@ -24,6 +24,7 @@ class CNetCmd:
         self.Obj_UID = Obj_UID
         self.sPropName = PropName
         self.value = value
+        self.oldValue = None
 
     def toString( self, bDebug = False ):
         cmd = self.Event.name if bDebug else self.Event

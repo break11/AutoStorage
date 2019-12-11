@@ -179,6 +179,7 @@ class CNetObj_Manager( object ):
                         netObj().localDestroy()
 
                     elif netCmd.Event == EV.ObjPropUpdated or netCmd.Event == EV.ObjPropCreated:
+                        netCmd.oldValue = netObj().propsDict()[ netCmd.sPropName ] if netCmd.Event == EV.ObjPropUpdated else None
                         netObj().propsDict()[ netCmd.sPropName ] = netCmd.value
                         cls.doCallbacks( netCmd )
     

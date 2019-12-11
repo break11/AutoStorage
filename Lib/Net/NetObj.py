@@ -56,17 +56,18 @@ class CNetObj( CTreeNode ):
                             hd.index( SNOP.TypeName   ) : lambda: weakSelf().typeUID,
                             }
 
-        if hasattr( self, "_CNetObj__beforeObjCreatedCallback" ):
-            self.__beforeObjCreatedCallback(self)
+        ## завершающая стадия конструирования объекта, когда основной __init__ уже прошел, но до отправки в редис через registerObj
+        self.beforeRegister()
 
         CNetObj_Manager.registerObj( self, saveToRedis=saveToRedis )
-
         CNetObj_Manager.doCallbacks( CNetCmd( Event = EV.ObjCreated, Obj_UID = self.UID ) )
+
+    def beforeRegister(self):
+        pass
 
     def __del__(self):
         # print("CNetObj destructor", self)
-        CNetObj_Manager.unregisterObj( self )
-        
+        CNetObj_Manager.unregisterObj( self )        
         CNetObj_Manager.doCallbacks( CNetCmd( Event=EV.ObjDeleted, Obj_UID = self.UID ) )
         # CNetObj_Manager.sendNetCMD( CNetCmd( Event = EV.ObjDeleted, Obj_UID = netObj.UID ) )
         # Команда сигнал "объект удален" в деструкторе объекта не нужна (посылка по сети), т.к. при локальном удалении объектов на всех клиентах
@@ -128,6 +129,7 @@ class CNetObj( CTreeNode ):
         if not bPropExist:
             cmd.Event = EV.ObjPropCreated
         else:
+            cmd.oldValue = self.propsDict()[ cmd.sPropName ]
             PropType = type( self.propsDict()[ cmd.sPropName ] )
             ValueType = type( value )
             assert PropType is ValueType, f"Prop type {PropType} don't equal with value type {ValueType} for prop '{cmd.sPropName}'!"
