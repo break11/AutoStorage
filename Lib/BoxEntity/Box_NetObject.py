@@ -19,6 +19,13 @@ class SBoxProps( metaclass = СStrProps_Meta ):
 
 SBP = SBoxProps
 
+def getBox_from_NodePlace( nodePlace ):
+    if boxesNodeCache()() is None: return None
+    return boxesNodeCache()().get( str( nodePlace ) )
+
+def getBox_by_BoxAddress( boxAddress ):
+    if boxesNodeCache()() is None: return None
+    return boxesNodeCache()().get( str( boxAddress.data ) )
 
 def boxesNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Boxes )
@@ -38,6 +45,8 @@ class CBox_NO( CNetObj ):
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.graphRootNode = graphNodeCache()
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+
+    #############
 
     def ObjPropCreated( self, netCmd ):
         if netCmd.sPropName == SBP.address:

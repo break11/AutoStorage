@@ -12,15 +12,16 @@ from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Utils import isNone_or_Empty
-from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 import Lib.Common.FileUtils as FileUtils
 from Lib.Common.StrConsts import SC
-from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 from Lib.Common.TreeNode import CTreeNodeCache
-from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
 import Lib.Common.ChargeUtils as CU
 from Lib.Common.SerializedList import CStrList
-
+from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+from Lib.BoxEntity.Box_NetObject import getBox_from_NodePlace, getBox_by_BoxAddress
+from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
+from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event, OD_OP_events
 from Lib.AgentEntity.AgentServer_Link import CAgentServer_Link
@@ -345,6 +346,8 @@ class CAgentLink( CAgentServer_Link ):
             return task.data > 0 and task.data <= 100
         elif task.type == ATD.ETaskType.JmpToTask:
             return task.data < agentNO.task_list.count()
+        elif task.type == ATD.ETaskType.LoadBox:
+            return getBox_from_NodePlace( task.data )
 
         return False
 
@@ -359,6 +362,11 @@ class CAgentLink( CAgentServer_Link ):
             return agentNO.BS.supercapPercentCharge() >= task.data
         elif task.type == ATD.ETaskType.JmpToTask:
             return agentNO.task_idx == task.data
+        elif task.type == ATD.ETaskType.LoadBox:
+            b = getBox_from_NodePlace( task.data ) is None
+            b = b and getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=agentNO.name ) ) is not None
+            print( b )
+            return b
 
         return False
 
