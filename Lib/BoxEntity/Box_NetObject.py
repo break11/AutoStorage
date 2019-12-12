@@ -41,36 +41,38 @@ class CBox_NO( CNetObj ):
 
     def ObjPropCreated( self, netCmd ):
         if netCmd.sPropName == SBP.address:
-            self.updateAddressCache()
+            self.addCacheItem()
 
     def ObjPropUpdated( self, netCmd ):
         if netCmd.sPropName == SBP.address:
-            self.updateAddressCache()
+            self.delCacheItem( str(netCmd.oldValue.data) )
+            self.addCacheItem()
     
     def ObjPropDeleted( self, netCmd ):
         if netCmd.sPropName == SBP.address:
-            sPropName = netCmd.value.data.toString()
-            if self.parent.get( sPropName ):
-                del self.parent[ sPropName ]
+            self.delCacheItem( str(netCmd.value.data) )
 
     def ObjCreated( self, netCmd ):
-        self.updateAddressCache()
+        self.addCacheItem()
 
     def ObjPrepareDelete( self, netCmd ):
         propAddress = self.get( SBP.address )
         if propAddress:
-            sPropName = propAddress.data.toString()
-            if self.parent.get( sPropName ):
-                del self.parent[ sPropName ]
+            self.delCacheItem( str(propAddress.data) )
 
-    #############
+    def delCacheItem( self, sPropName ):
+        boxName = self.parent.get( sPropName )
+        if ( boxName is not None ) and ( boxName == self.name ):
+            del self.parent[ sPropName ]
 
-    def updateAddressCache( self ):
+    def addCacheItem( self ):
         propAddress = self.get( SBP.address )
         if propAddress:
-            sPropName = propAddress.data.toString()
+            sPropName = str(propAddress.data)
             self.parent.local_props.add( sPropName )
             self.parent[ sPropName ] = self.name
+
+    #############
 
     def isValidAddress( self ):
         if self.address.addressType == EBoxAddressType.Undefined:
