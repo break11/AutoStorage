@@ -11,8 +11,15 @@ import Lib.GraphEntity.StorageGraphTypes as SGT
 from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
 import Lib.AgentEntity.AgentDataTypes as ADT
+from Lib.AgentEntity.routeBuilder import ERouteStatus
 
 class TestASP_DataParser(unittest.TestCase):
+    def test_ERouteStatus(self):
+        # проверка того, что каждому статусу со значением False из энама ERouteStatus соответствует статус из энама EAgent_Status
+        for routeStatus in [ x for x in ERouteStatus if x is not ERouteStatus.Normal ]:
+            agentStatus = ADT.EAgent_Status.fromString( routeStatus.name )
+            self.assertNotEqual( agentStatus, ADT.EAgent_Status.Default )
+
     def test_HW(self):
         sData = "cartV1^555"
         packet = CAgentServerPacket( event = EV.HelloWorld, data = ADT.SHW_Data.fromString( sData ) )

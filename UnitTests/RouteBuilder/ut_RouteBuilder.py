@@ -10,7 +10,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
-from App.AgentsManager.routeBuilder import CRouteBuilder, ERouteStatus
+from Lib.AgentEntity.routeBuilder import CRouteBuilder, ERouteStatus
 from Lib.GraphEntity import StorageGraphTypes as SGT
 import Lib.Common.GraphUtils as gu
 from Lib.AgentEntity.AgentDataTypes import MS

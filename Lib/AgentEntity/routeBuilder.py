@@ -1,7 +1,7 @@
 import math
 from copy import deepcopy
 import networkx as nx
-from enum import Enum
+from enum import Enum, auto
 
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles, pathWeight
@@ -69,8 +69,8 @@ class CRailSegment:
         return f"length:{self.length} railHeight:{self.railHeight} sensorSide:{self.sensorSide} widthType:{self.widthType.name} curvature:{self.curvature}\n"
 
 class ERouteStatus(Enum):
-    Normal      = True
-    AngleError  = False
+    Normal      = auto()
+    AngleError  = auto()
 
 class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""

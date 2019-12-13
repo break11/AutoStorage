@@ -30,7 +30,7 @@ from Lib.AgentEntity.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentEntity.AgentLogManager import ALM
 import Lib.AgentEntity.AgentTaskData as ATD
 
-from .routeBuilder import CRouteBuilder
+from Lib.AgentEntity.routeBuilder import CRouteBuilder, ERouteStatus
 
 class CAgentLink( CAgentServer_Link ):
     @property
@@ -292,7 +292,7 @@ class CAgentLink( CAgentServer_Link ):
 
         seqList, self.SII, routeStatus = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
 
-        if not routeStatus.value:
+        if routeStatus is not ERouteStatus.Normal:
             agentNO.status = ADT.EAgent_Status.fromString( routeStatus.name )
             return
 
@@ -317,16 +317,16 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.status = ADT.EAgent_Status.TaskError
             return
 
-        if not self.taskValid( currentTask ):
-            agentNO.status = ADT.EAgent_Status.TaskError
-            return
-
         if self.taskComplete( currentTask ):
             if agentNO.task_idx+1 < agentNO.task_list.count():
                 agentNO.task_idx += 1
             else:
                 agentNO.task_list = ATD.CTaskList()
                 agentNO.task_idx = 0
+            return
+
+        if not self.taskValid( currentTask ):
+            agentNO.status = ADT.EAgent_Status.TaskError
             return
 
         if not self.readyForTask( currentTask ): return
@@ -347,7 +347,10 @@ class CAgentLink( CAgentServer_Link ):
         elif task.type == ATD.ETaskType.JmpToTask:
             return task.data < agentNO.task_list.count()
         elif task.type == ATD.ETaskType.LoadBox:
-            return getBox_from_NodePlace( task.data )
+            b = getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=agentNO.name ) ) is None
+            b = b and getBox_from_NodePlace( task.data ) is not None
+
+            return b
 
         return False
 
@@ -365,7 +368,6 @@ class CAgentLink( CAgentServer_Link ):
         elif task.type == ATD.ETaskType.LoadBox:
             b = getBox_from_NodePlace( task.data ) is None
             b = b and getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=agentNO.name ) ) is not None
-            print( b )
             return b
 
         return False
@@ -381,6 +383,8 @@ class CAgentLink( CAgentServer_Link ):
             return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
         elif task.type == ATD.ETaskType.JmpToTask:
             return agentNO.status == ADT.EAgent_Status.Idle
+        elif task.type == ATD.ETaskType.LoadBox:
+            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
 
         return False
 
@@ -412,3 +416,16 @@ class CAgentLink( CAgentServer_Link ):
 
         elif task.type == ATD.ETaskType.JmpToTask:
             agentNO.task_idx = task.data
+
+        elif task.type == ATD.ETaskType.LoadBox:
+            if not agentNO.isOnNode( nodeID = task.data.nodeID, nodeType = ENodeTypes.StorageSingle ):
+                tKey = agentNO.isOnTrack()
+                startNode = tKey[0]
+                targetNode = task.data.nodeID
+                nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+                agentNO.status = ADT.EAgent_Status.OnRoute
+                ##TODO agentNO.finalkRouteSide = task.data.
+                agentNO.applyRoute( nodes_route )
+            else:
+                if agentNO.status == ADT.EAgent_Status.Idle:
+                    self.pushCmd( ASP( event = EAgentServer_Event.BoxLoad, data=task.data.side ) )
