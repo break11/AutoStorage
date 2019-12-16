@@ -46,6 +46,7 @@ class SAgentProps( metaclass = СStrProps_Meta ):
     RTele           = None
     BS              = None
     TS              = None
+    target_LU_side  = None
 
 SAP = SAgentProps
 
@@ -102,7 +103,8 @@ class CAgent_NO( CNetObj ):
                 SAP.BS : ADT.SBS_Data.defVal(),
                 SAP.TS : ADT.STS_Data.defVal(),
 
-                SAP.RTele : 1
+                SAP.RTele : 1,
+                SAP.target_LU_side : SGT.ESide.Default
                 }
     local_props = { SAP.connectedStatus }
               

@@ -143,7 +143,7 @@ class CRouteBuilder():
             SegmentsWithHystShift = self.shiftSegmentsByHyst( SegmentsWithLedgeCuttedFromBegin )
 
             sourceSegments =  self.mergeSameSegments(SegmentsWithHystShift)
-            SegmentsInfoItems_Sequence = [ SI_Item( length = segment.length, K = dirToK[ direction ], edge="", pos=0, angle=0 ) for segment in sourceSegments ]
+            SegmentsInfoItems_Sequence = [ SI_Item( length = segment.length, K = dirToK[ direction ], edge=(), pos=0, angle=0 ) for segment in sourceSegments ]
            
             # 5) adjust the curvature at the beggining of the path
             SegmentsWithAdjustedCurvature = SegmentsWithHystShift

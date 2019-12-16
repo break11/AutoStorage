@@ -29,6 +29,7 @@ import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.AgentEntity.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentEntity.AgentLogManager import ALM
 import Lib.AgentEntity.AgentTaskData as ATD
+from Lib.GraphEntity import StorageGraphTypes as SGT
 
 from Lib.AgentEntity.routeBuilder import CRouteBuilder, ERouteStatus
 
@@ -202,10 +203,13 @@ class CAgentLink( CAgentServer_Link ):
             if NT_Data:
                 if NT_Data.event == EAgentServer_Event.Idle:
                     if self.agentNO().status in ADT.BL_BU_Agent_Status_vals:
-                        #TODO пока ставим статус idle только если предыдущий статус был в ADT.BL_BU_Agent_Status_vals,
-                        # так как в некоторых местах мы ориентируемся на предыдущий статус (например, GoToCharge)
-                        # и не можем после завершения маршрута сбросить в Idle
-                        self.agentNO().status = ADT.EAgent_Status.Idle
+                        tKey = self.agentNO().isOnTrack()
+                        if tKey is None:
+                            self.agentNO().status = ADT.EAgent_Status.LoadUnloadError
+                            return
+                        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
+
+                    self.agentNO().status = ADT.EAgent_Status.Idle
 
                 elif NT_Data.event in ADT.BL_BU_Events:
                     self.agentNO().status = ADT.BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
@@ -296,8 +300,19 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.status = ADT.EAgent_Status.fromString( routeStatus.name )
             return
 
+        # расчет правильной стороны прижима челнока к рельсам
+        finalAgentAngle, final_tKey = self.SII[-1].angle, self.SII[-1].edge
+        final_agentSide = GU.getAgentSide( self.nxGraph, final_tKey, finalAgentAngle )
+        side = final_agentSide if final_agentSide == SGT.ESide.Right else final_agentSide.invert()
+        sensor_side = SGT.ESensorSide[ "S" + side.name ]
+
         for seq in seqList:
             for cmd in seq:
+                # замена всех SBoth на правильное значение прижима челнока к рельсам
+                if cmd.event == EAgentServer_Event.DistancePassed:
+                    if cmd.data.sensorSide == SGT.ESensorSide.SBoth:
+                        cmd.data.sensorSide = sensor_side
+
                 self.pushCmd( cmd )
 
     #######################
@@ -375,16 +390,18 @@ class CAgentLink( CAgentServer_Link ):
     def readyForTask( self, task ):
         agentNO = self.agentNO()
 
+        bOnTrack_Idle_Connected = agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+
         if task.type == ATD.ETaskType.Undefined:
             return True
         elif task.type == ATD.ETaskType.GoToNode:    
-            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+            return bOnTrack_Idle_Connected
         elif task.type == ATD.ETaskType.DoCharge:
-            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+            return bOnTrack_Idle_Connected
         elif task.type == ATD.ETaskType.JmpToTask:
             return agentNO.status == ADT.EAgent_Status.Idle
         elif task.type == ATD.ETaskType.LoadBox:
-            return agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
+            return bOnTrack_Idle_Connected
 
         return False
 
@@ -417,14 +434,19 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.task_idx = task.data
 
         elif task.type == ATD.ETaskType.LoadBox:
+
             if not agentNO.isOnNode( nodeID = task.data.nodeID, nodeType = ENodeTypes.StorageSingle ):
                 tKey = agentNO.isOnTrack()
                 startNode = tKey[0]
                 targetNode = task.data.nodeID
                 nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
                 agentNO.status = ADT.EAgent_Status.OnRoute
-                ##TODO agentNO.finalkRouteSide = task.data.
+                agentNO.target_LU_side = task.data.side
                 agentNO.applyRoute( nodes_route )
             else:
                 if agentNO.status == ADT.EAgent_Status.Idle:
-                    self.pushCmd( ASP( event = EAgentServer_Event.BoxLoad, data=task.data.side ) )
+                    agentSide = GU.getAgentSide( self.nxGraph, self.agentNO().edge.toTuple(), self.agentNO().angle )
+                    side = agentNO.target_LU_side
+                    LU_side = side if agentSide == SGT.ESide.Right else side.invert()
+
+                    self.pushCmd( ASP( event = EAgentServer_Event.BoxLoad, data = LU_side ) )
