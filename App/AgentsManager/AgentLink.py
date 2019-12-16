@@ -202,17 +202,19 @@ class CAgentLink( CAgentServer_Link ):
 
             if NT_Data:
                 if NT_Data.event == EAgentServer_Event.Idle:
-                    if self.agentNO().status in ADT.BL_BU_Agent_Status_vals:
+                    if self.agentNO().status in ADT.BL_BU_Statuses:
                         tKey = self.agentNO().isOnTrack()
                         if tKey is None:
                             self.agentNO().status = ADT.EAgent_Status.LoadUnloadError
                             return
                         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
+                        ##TODO
 
                     self.agentNO().status = ADT.EAgent_Status.Idle
 
                 elif NT_Data.event in ADT.BL_BU_Events:
-                    self.agentNO().status = ADT.BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
+                    ##remove##self.agentNO().status = ADT.BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
+                    self.agentNO().status = ADT.EAgent_Status[ NT_Data.event.name ]
 
     def setPos_by_DE( self ):
         agentNO = self.agentNO()
@@ -445,6 +447,7 @@ class CAgentLink( CAgentServer_Link ):
                 agentNO.applyRoute( nodes_route )
             else:
                 if agentNO.status == ADT.EAgent_Status.Idle:
+                    #TODO: tofunc
                     agentSide = GU.getAgentSide( self.nxGraph, self.agentNO().edge.toTuple(), self.agentNO().angle )
                     side = agentNO.target_LU_side
                     LU_side = side if agentSide == SGT.ESide.Right else side.invert()

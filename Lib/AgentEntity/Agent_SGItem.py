@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt, QPoint, QRectF, QPointF, QLineF
 
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
-from Lib.Common.GraphUtils import getEdgeCoords, edgeSize
+from Lib.Common.GraphUtils import getEdgeCoords, edgeSize, getAgentSide
 from Lib.Common.Vectors import Vector2
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -253,9 +253,19 @@ class CAgent_SGItem(QGraphicsItem):
 
     def draw_BL_BU(self, painter):
         status = self.__agentNetObj().status
+        if status not in ADT.BL_BU_Statuses: return
+
+        ##TODO: tofunc
+        nxGraph = self.__agentNetObj().nxGraph
+        edge = self.__agentNetObj().edge.toTuple()
+        angle = self.__agentNetObj().angle
+        agentSide = getAgentSide( nxGraph, edge, angle )
+
+        side   = self.__agentNetObj().target_LU_side if agentSide == SGT.ESide.Right else self.__agentNetObj().target_LU_side.invert()
+
         painter.setPen( self.BL_BU_pen )
 
-        if status in [ADT.EAgent_Status.BoxLoad_Right, ADT.EAgent_Status.BoxUnload_Right]:
+        if side == SGT.ESide.Right:
             painter.drawLine( 0, 250, 0, 340 )
-        elif status in [ADT.EAgent_Status.BoxLoad_Left, ADT.EAgent_Status.BoxUnload_Left]:
+        elif side == SGT.ESide.Left:
             painter.drawLine( 0, -250, 0, -340 )

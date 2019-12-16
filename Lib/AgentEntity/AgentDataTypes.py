@@ -39,10 +39,13 @@ class EAgent_Status( BaseEnum ):
     Charging        = auto()
     OnRoute         = auto()
 
-    BoxLoad_Right   = auto()
-    BoxLoad_Left    = auto()
-    BoxUnload_Right = auto()
-    BoxUnload_Left  = auto()
+    ##remove##
+    # BoxLoad_Right   = auto()
+    # BoxLoad_Left    = auto()
+    # BoxUnload_Right = auto()
+    # BoxUnload_Left  = auto()
+    BoxLoad         = auto()
+    BoxUnload       = auto()
 
     NoRouteToCharge = auto() # не найден маршрут к зарядке - зарядки нет на графе или неправильный угол челнока 
     PosSyncError    = auto() # ошибка синхронизации по графу - несоответствие реального положения челнока и положения в программе
@@ -56,6 +59,8 @@ class EAgent_Status( BaseEnum ):
 
     Default         = Idle
 
+BL_BU_Statuses = { EAgent_Status.BoxLoad, EAgent_Status.BoxUnload }
+
 errorStatuses = [ EAgent_Status.NoRouteToCharge,
                   EAgent_Status.PosSyncError,
                   EAgent_Status.CantCharge,
@@ -65,13 +70,14 @@ errorStatuses = [ EAgent_Status.NoRouteToCharge,
                   EAgent_Status.LoadUnloadError,
                   EAgent_Status.AngleError ]
 
-BL_BU_Agent_Status = { (AEV.BoxLoad,   SGT.ESide.Left)  : EAgent_Status.BoxLoad_Left,
-                       (AEV.BoxLoad,   SGT.ESide.Right) : EAgent_Status.BoxLoad_Right,
-                       (AEV.BoxUnload, SGT.ESide.Left)  : EAgent_Status.BoxUnload_Left,
-                       (AEV.BoxUnload, SGT.ESide.Right) : EAgent_Status.BoxUnload_Right,
-                    }
+##remove##
+# BL_BU_Agent_Status = { (AEV.BoxLoad,   SGT.ESide.Left)  : EAgent_Status.BoxLoad_Left,
+#                        (AEV.BoxLoad,   SGT.ESide.Right) : EAgent_Status.BoxLoad_Right,
+#                        (AEV.BoxUnload, SGT.ESide.Left)  : EAgent_Status.BoxUnload_Left,
+#                        (AEV.BoxUnload, SGT.ESide.Right) : EAgent_Status.BoxUnload_Right,
+#                     }
 
-BL_BU_Agent_Status_vals = BL_BU_Agent_Status.values()
+# BL_BU_Agent_Status_vals = BL_BU_Agent_Status.values()
 
 #########################################################
 
