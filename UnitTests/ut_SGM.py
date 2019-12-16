@@ -37,7 +37,7 @@ class CSGM_Dummy:
         self.edgeGItems = {}
 
         CNetObj_Manager.initRoot()
-        loadGraphML_to_NetObj( sFName = sFName, bReload = False)
+        loadGraphML_to_NetObj( sFName = sFName, bReload = False )
         self.graphRootNode = graphNodeCache()
 
         for nodeNetObj in self.graphRootNode().nodesNode().children:
@@ -74,7 +74,7 @@ class Test_SGM_Funcs(unittest.TestCase):
             SGM.updateNodeMiddleLine( dummyNodeItem )
 
         # StorageSingle
-        self.assertTrue(    math.isclose( SGM.nodeGItems["n0"].middleLineAngle, 225.0, abs_tol=1e-9 )    )
+        self.assertTrue(    math.isclose( SGM.nodeGItems["n0"].middleLineAngle, 45.0,  abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["2"].middleLineAngle,  360.0, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["5"].middleLineAngle,  270.0, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["8"].middleLineAngle,  315.0, abs_tol=1e-9 )    )

@@ -90,7 +90,6 @@ def getNodeCoords (nxGraph, nodeID):
     return x, y
 
 def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
-
     edgeCoords = getEdgeCoords( nxGraph, tEdgeKey )
     if edgeCoords is None: return agent_angle, False
 
@@ -113,18 +112,35 @@ def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
     
     AgentEdgeAngle = agent_vec.angle( r_vec )
 
-    if AgentEdgeAngle < math.pi/4 :
+    if AgentEdgeAngle <= math.pi/4 :
         return math.degrees( r_vec.selfAngle() ), False
-    elif AgentEdgeAngle > math.pi * 3/4:
+    elif AgentEdgeAngle >= math.pi * 3/4:
         return math.degrees( r_vec.rotate( math.pi ).selfAngle() ), True
     else:
         return agent_angle, None
 
-def getFinalAgentAngle(nxGraph, agent_angle, nodes_route):
+def getAgentSide(nxGraph, tEdgeKey, agent_angle):
+    railType = nxGraph.edges()[ tEdgeKey ][ SGA.widthType ]
+    agent_vec = Vector2.fromAngle( math.radians( agent_angle ) )
+
+    # Определяем вектор "право"
+    # Для узкого рельса - это вектор, указывающий вправо от вектора челнока.
+    # Так как направление "вперёд" для челнока на широком рельсе это вектор челнока, повернутый на +90 градусов,
+    # то вектор "право" совпадает с вектором челнока
+    if railType == SGT.EWidthType.Narrow:
+        r_vec = agent_vec.rotate( -math.pi/2 )
+    elif railType == SGT.EWidthType.Wide:
+        r_vec = agent_vec
+
+    deg_angle = math.degrees( r_vec.selfAngle() )
+
+    return SGT.ESide.fromAngle( deg_angle )
+
+def getFinalAgentAngle(nxGraph, agent_angle, agent_edge, nodes_route):
     for i in range( len(nodes_route) - 1  ):
-        tKey = (nodes_route[i], nodes_route[i+1])
-        agent_angle, direction = getAgentAngle( nxGraph, tKey, agent_angle )
-    return agent_angle
+        agent_edge = (nodes_route[i], nodes_route[i+1])
+        agent_angle, direction = getAgentAngle( nxGraph = nxGraph, tEdgeKey = agent_edge, agent_angle = agent_angle )
+    return agent_angle, agent_edge
 
 def EdgeDisplayName( nodeID_1, nodeID_2 ): return nodeID_1 +" --> "+ nodeID_2
 
@@ -150,24 +166,18 @@ def loadGraphML_File( sFName ):
 
     return nxGraph
 
-def vecsFromNodes( nxGraph, baseNodeID, NeighborsIDs):
-        
-    Neighbors_count = len(NeighborsIDs)
+def vecsFromNodes( nxGraph, baseNodeID, NeighborsIDs):        
     x1, y1 = getNodeCoords( nxGraph, baseNodeID )
-
     vecList = []
 
     for ID in NeighborsIDs:
         x2, y2 = getNodeCoords( nxGraph, ID )
         vec = Vector2 ( x2 - x1, - (y2 - y1) ).unit() #для координаты "y" берем отрицательное значение, тк в сцене ось "y" направлена вниз
-
         vecList.append(vec)
 
     return vecList
 
-
 def vecsPair_withMaxAngle(vecs):
-
     vecs_Pairs = []
     c = len( vecs )
 
@@ -186,20 +196,19 @@ def vecsPair_withMaxAngle(vecs):
 
 def rotateToRightSector(vec):
     angle = vec.selfAngle()
-    if angle > math.pi/4 and angle < math.pi * (5/4):
+    if angle > math.pi/4 and angle <= math.pi * (5/4):
         vec = vec.rotate( math.pi )
 
     return vec
 
 def rotateToLeftSector(vec):
     angle = vec.selfAngle()
-    if angle < math.pi/4 or angle > math.pi * (5/4):
+    if angle <= math.pi/4 or angle > math.pi * (5/4):
         vec = vec.rotate( math.pi )
 
     return vec
 
 def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
-
     nodeVecs = vecsFromNodes( nxGraph = nxGraph, baseNodeID = nodeID, NeighborsIDs = NeighborsIDs )
     vecs_count = len(nodeVecs)
 
@@ -240,16 +249,15 @@ def pathsIntersections( path_1, path_2 ):
     if len(i_path): intersections.append( i_path )
     return intersections
 
-def closestCycleNode( nxGraph, nodeID, cycle ):
+def closestCycleNode( nxGraph, nodeID, cycle ): #поиск ближайшей ноды в цикле cycle для ноды nodeID
     if nodeID in cycle: return nodeID
     
     path = nx.dijkstra_path( nxGraph, nodeID, cycle[0] )
-
     i = pathsIntersections( path, cycle )
     
-    if len(i): return i[0][0]
+    return i[0][0]
 
-def remapCycle( targetStartNodeID, cycle ):
+def remapCycle( targetStartNodeID, cycle ): # remapCycle(targetStartNodeID = '3', cycle = [ '1', '2', '3', '4' ]) == [ '3', '4', '1', '2' ]
     start_idx = cycle.index( targetStartNodeID )
     cycle = cycle[start_idx:] + cycle[:start_idx]
     return cycle
@@ -284,7 +292,6 @@ def mergeCycleWithPath( cycle, simple_path ):
     return merged
 
 def pathWithTargetCycle(nxGraph, startNodeID, targetNodeID, cycle):
-    
     enterNode = closestCycleNode( nxGraph, startNodeID, cycle )
 
     pathToCycle   = nx.dijkstra_path( nxGraph, startNodeID, enterNode )
@@ -296,7 +303,6 @@ def pathWithTargetCycle(nxGraph, startNodeID, targetNodeID, cycle):
     return finalPath
 
 def pathsThroughCycles( nxGraph, simple_path ):
-    
     it_cycles = nx.simple_cycles( nxGraph )
     cycles = [ c for c in it_cycles if len(c) > 3 ] #циклы с кратными гранями (a->b->a) отбрасываем
 
@@ -314,7 +320,6 @@ def pathsThroughCycles( nxGraph, simple_path ):
     return paths_through_cycles
 
 def pathWeight( nxGraph, path, weight = SGA.edgeSize):
-
     if weight is None:
         return( len(path) - 1 )
     
@@ -329,15 +334,15 @@ def pathWeight( nxGraph, path, weight = SGA.edgeSize):
 def findNodes( nxGraph, prop, value ):
     return [ node[0] for node in nxGraph.nodes( data = prop ) if node[1] == value ]
 
-def makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
-    
-    dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, startNode, targetNode)
+def makeNodesRoutes( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None ):
+    dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, agentEdge[0], targetNode)
 
     if targetSide is None:
         return [dijkstra_path]
-    
-    final_agentAngle = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle, nodes_route = dijkstra_path )
-    eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
+
+    final_agentAngle, final_agentEdge = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle,
+                                                            agent_edge = agentEdge, nodes_route = dijkstra_path )
+    eAgentSide = getAgentSide( nxGraph, final_agentEdge, final_agentAngle )
 
     if targetSide == eAgentSide:
         return [dijkstra_path]
@@ -346,17 +351,17 @@ def makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = No
     paths_correct_side = []
 
     for path in paths_through_cycles:
-        final_agentAngle = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle, nodes_route = path )
-        eAgentSide = SGT.ESide.fromAngle( final_agentAngle )
+        final_agentAngle, final_agentEdge = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle,
+                                                                agent_edge = agentEdge, nodes_route = path )
+        eAgentSide = getAgentSide( nxGraph, final_agentEdge, final_agentAngle )
 
         if targetSide == eAgentSide:
             paths_correct_side.append( path )
 
     return paths_correct_side
 
-def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = None ):
-
-    nodes_routes = makeNodesRoutes( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
+def shortestNodesRoute( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None ):
+    nodes_routes = makeNodesRoutes( nxGraph, agentEdge, agentAngle, targetNode, targetSide = targetSide )
     nodes_routes_weighted = [ (pathWeight(nxGraph, route), route) for route in nodes_routes ]
     
     if len( nodes_routes_weighted ) > 0:
@@ -364,14 +369,13 @@ def shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide =
     
     return 0, []
 
-def routeToServiceStation( nxGraph, startNode, agentAngle ):
-
+def routeToServiceStation( nxGraph, agentEdge, agentAngle ):
     charge_nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.ServiceStation )
     nodes_routes_weighted = []
 
     for targetNode in charge_nodes:
         targetSide = nxGraph.nodes()[ targetNode ][ SGA.chargeSide ]
-        weighted_route = shortestNodesRoute( nxGraph, startNode, targetNode, agentAngle, targetSide = targetSide )
+        weighted_route = shortestNodesRoute( nxGraph, agentEdge, agentAngle, targetNode, targetSide = targetSide )
 
         nodes_routes_weighted.append( weighted_route )
     

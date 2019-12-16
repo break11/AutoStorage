@@ -129,7 +129,7 @@ class ESide( BaseEnum ):
     def fromAngle( angle ):
         angle = angle % 360
 
-        if angle > 45 and angle < 225:
+        if angle > 45 and angle <= 225:
             return ESide.Left
         else:
             return ESide.Right

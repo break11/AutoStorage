@@ -402,9 +402,8 @@ class CAgentLink( CAgentServer_Link ):
         elif task.type == ATD.ETaskType.DoCharge:
             if not agentNO.isOnNode( nodeType = ENodeTypes.ServiceStation ):
                 tKey = agentNO.isOnTrack()
-                startNode = tKey[0]
 
-                route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, startNode, agentNO.angle )
+                route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, tKey, agentNO.angle )
                 if len(nodes_route) == 0:
                     agentNO.status = ADT.EAgent_Status.NoRouteToCharge
                 else:
