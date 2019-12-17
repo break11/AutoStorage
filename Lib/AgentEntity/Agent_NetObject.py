@@ -154,11 +154,11 @@ class CAgent_NO( CNetObj ):
         
         return tEdgeKey
 
-    def isOnNode( self, nodeID = None, nodeType = None ):
+    def isOnNode( self, nodeID = None, nodeTypes = None ):
         tEdgeKey = self.isOnTrack()
         if not tEdgeKey: return False
 
-        return GU.isOnNode( self.nxGraph, tEdgeKey, self.position, _nodeID=nodeID, _nodeType=nodeType )
+        return GU.isOnNode( self.nxGraph, tEdgeKey, self.position, _nodeID=nodeID, _nodeTypes = nodeTypes )
     
     def getTransformedSide( self, angle = None, edge = None ):
         angle = angle if angle is not None else self.angle

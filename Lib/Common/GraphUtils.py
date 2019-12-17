@@ -48,14 +48,14 @@ def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
 
     return nodeID
 
-def isOnNode( nxGraph, tKey, pos, allowOffset=50, _nodeID=None, _nodeType=None ):
+def isOnNode( nxGraph, tKey, pos, allowOffset=50, _nodeID=None, _nodeTypes=None ):
     nodeID = nodeByPos( nxGraph, tKey, pos, allowOffset )
 
     if nodeID is None: return False
 
     bR = True if _nodeID is None else nodeID==_nodeID
 
-    bR = bR and ( True if _nodeType is None else nodeType( nxGraph, nodeID ) == _nodeType )
+    bR = bR and ( True if _nodeTypes is None else nodeType( nxGraph, nodeID ) in _nodeTypes )
 
     return bR
 

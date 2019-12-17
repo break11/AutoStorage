@@ -21,11 +21,13 @@ SBP = SBoxProps
 
 def getBox_from_NodePlace( nodePlace ):
     if boxesNodeCache()() is None: return None
-    return boxesNodeCache()().get( str( nodePlace ) )
+    boxName = boxesNodeCache()().get( str( nodePlace ) )
+    return boxesNodeCache()().childByName( boxName )
 
 def getBox_by_BoxAddress( boxAddress ):
     if boxesNodeCache()() is None: return None
-    return boxesNodeCache()().get( str( boxAddress.data ) )
+    boxName =  boxesNodeCache()().get( str( boxAddress.data ) )
+    return boxesNodeCache()().childByName( boxName )
 
 def boxesNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Boxes )

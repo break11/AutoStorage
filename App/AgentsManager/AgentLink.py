@@ -33,6 +33,11 @@ from Lib.GraphEntity import StorageGraphTypes as SGT
 
 from Lib.AgentEntity.routeBuilder import CRouteBuilder, ERouteStatus
 
+agentCmd_by_BoxTaskType = {
+    ATD.ETaskType.LoadBox   : EAgentServer_Event.BoxLoad,
+    ATD.ETaskType.UnloadBox : EAgentServer_Event.BoxUnload
+}
+
 class CAgentLink( CAgentServer_Link ):
     @property
     def nxGraph( self ):
@@ -208,12 +213,17 @@ class CAgentLink( CAgentServer_Link ):
                             self.agentNO().status = ADT.EAgent_Status.LoadUnloadError
                             return
                         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
-                        ##TODO
+
+                        if self.agentNO().status == ADT.EAgent_Status.BoxLoad:
+                            boxNO = getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnNode, data=SGT.SNodePlace( nodeID, self.agentNO().target_LU_side ) ) )
+                            boxNO.address = CBoxAddress( EBoxAddressType.OnAgent, data=self.agentNO().name )
+                        elif self.agentNO().status == ADT.EAgent_Status.BoxUnload:
+                            boxNO = getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=self.agentNO().name ) )
+                            boxNO.address = CBoxAddress( EBoxAddressType.OnNode, data=SGT.SNodePlace( nodeID, self.agentNO().target_LU_side ) )
 
                     self.agentNO().status = ADT.EAgent_Status.Idle
 
                 elif NT_Data.event in ADT.BL_BU_Events:
-                    ##remove##self.agentNO().status = ADT.BL_BU_Agent_Status[ (NT_Data.event, NT_Data.data) ]
                     self.agentNO().status = ADT.EAgent_Status[ NT_Data.event.name ]
 
     def setPos_by_DE( self ):
@@ -241,7 +251,7 @@ class CAgentLink( CAgentServer_Link ):
     def prepareCharging( self ):
         agentNO = self.agentNO()
         tKey = agentNO.edge.toTuple()
-        if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeType=ENodeTypes.ServiceStation ):
+        if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeTypes = { ENodeTypes.ServiceStation } ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
@@ -305,10 +315,6 @@ class CAgentLink( CAgentServer_Link ):
         # расчет правильной стороны прижима челнока к рельсам
         finalAgentAngle, final_tKey = self.SII[-1].angle, self.SII[-1].edge
         side = agentNO.getTransformedSide( angle = finalAgentAngle, edge = final_tKey )
-        ##remove##
-        # final_agentSide = GU.getAgentSide( self.nxGraph, final_tKey, finalAgentAngle )
-        # side = agentNO.target_LU_side
-        # side = side if final_agentSide == SGT.ESide.Right else side.invert()
         sensor_side = SGT.ESensorSide[ "S" + side.name ]
 
         for seq in seqList:
@@ -369,7 +375,10 @@ class CAgentLink( CAgentServer_Link ):
         elif task.type == ATD.ETaskType.LoadBox:
             b = getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=agentNO.name ) ) is None
             b = b and getBox_from_NodePlace( task.data ) is not None
-
+            return b
+        elif task.type == ATD.ETaskType.UnloadBox:
+            b = getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=agentNO.name ) ) is not None
+            b = b and getBox_from_NodePlace( task.data ) is None
             return b
 
         return False
@@ -389,6 +398,10 @@ class CAgentLink( CAgentServer_Link ):
             b = getBox_from_NodePlace( task.data ) is None
             b = b and getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=agentNO.name ) ) is not None
             return b
+        elif task.type == ATD.ETaskType.UnloadBox:
+            b = getBox_from_NodePlace( task.data ) is not None
+            b = b and getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=agentNO.name ) ) is None
+            return b
 
         return False
 
@@ -407,6 +420,8 @@ class CAgentLink( CAgentServer_Link ):
             return agentNO.status == ADT.EAgent_Status.Idle
         elif task.type == ATD.ETaskType.LoadBox:
             return bOnTrack_Idle_Connected
+        elif task.type == ATD.ETaskType.UnloadBox:
+            return bOnTrack_Idle_Connected
 
         return False
 
@@ -422,7 +437,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.applyRoute( nodes_route )
 
         elif task.type == ATD.ETaskType.DoCharge:
-            if not agentNO.isOnNode( nodeType = ENodeTypes.ServiceStation ):
+            if not agentNO.isOnNode( nodeType = { ENodeTypes.ServiceStation } ):
                 tKey = agentNO.isOnTrack()
 
                 route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, tKey, agentNO.angle )
@@ -438,9 +453,8 @@ class CAgentLink( CAgentServer_Link ):
         elif task.type == ATD.ETaskType.JmpToTask:
             agentNO.task_idx = task.data
 
-        elif task.type == ATD.ETaskType.LoadBox:
-
-            if not agentNO.isOnNode( nodeID = task.data.nodeID, nodeType = ENodeTypes.StorageSingle ):
+        elif task.type in ATD.BoxTasks:
+            if not agentNO.isOnNode( nodeID = task.data.nodeID, nodeTypes = { ENodeTypes.StorageSingle, ENodeTypes.DummyNode } ):
                 tKey = agentNO.isOnTrack()
                 startNode = tKey[0]
                 targetNode = task.data.nodeID
@@ -449,11 +463,6 @@ class CAgentLink( CAgentServer_Link ):
                 agentNO.target_LU_side = task.data.side
                 agentNO.applyRoute( nodes_route )
             else:
-                if agentNO.status == ADT.EAgent_Status.Idle:
-                    ##remove##
-                    #TODO: tofunc
-                    # agentSide = GU.getAgentSide( self.nxGraph, self.agentNO().edge.toTuple(), self.agentNO().angle )
-                    # side = agentNO.target_LU_side
-                    # LU_side = side if agentSide == SGT.ESide.Right else side.invert()
-                    side = agentNO.getTransformedSide()
-                    self.pushCmd( ASP( event = EAgentServer_Event.BoxLoad, data = side ) )
+                if agentNO.status != ADT.EAgent_Status.Idle: return
+                event = agentCmd_by_BoxTaskType[ task.type ] # load, unload cmd event
+                self.pushCmd( ASP( event = event, data = agentNO.getTransformedSide() ) )
