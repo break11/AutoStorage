@@ -159,6 +159,14 @@ class CAgent_NO( CNetObj ):
         if not tEdgeKey: return False
 
         return GU.isOnNode( self.nxGraph, tEdgeKey, self.position, _nodeID=nodeID, _nodeType=nodeType )
+    
+    def getTransformedSide( self, angle = None, edge = None ):
+        angle = angle if angle is not None else self.angle
+        edge = edge if edge is not None else self.edge.toTuple()
+
+        agent_side = GU.getAgentSide( self.nxGraph, edge, angle )
+        side = self.target_LU_side if agent_side == SGT.ESide.Right else self.target_LU_side.invert()
+        return side
 
     def putToNode( self, nodeID ):        
         if not self.nxGraph.has_node( nodeID ): return

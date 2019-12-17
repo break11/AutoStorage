@@ -254,14 +254,15 @@ class CAgent_SGItem(QGraphicsItem):
     def draw_BL_BU(self, painter):
         status = self.__agentNetObj().status
         if status not in ADT.BL_BU_Statuses: return
+        ##remove##
+        # ##TODO: tofunc
+        # nxGraph = self.__agentNetObj().nxGraph
+        # edge = self.__agentNetObj().edge.toTuple()
+        # angle = self.__agentNetObj().angle
+        # agentSide = getAgentSide( nxGraph, edge, angle )
+        # side = self.__agentNetObj().target_LU_side if agentSide == SGT.ESide.Right else self.__agentNetObj().target_LU_side.invert()
 
-        ##TODO: tofunc
-        nxGraph = self.__agentNetObj().nxGraph
-        edge = self.__agentNetObj().edge.toTuple()
-        angle = self.__agentNetObj().angle
-        agentSide = getAgentSide( nxGraph, edge, angle )
-
-        side   = self.__agentNetObj().target_LU_side if agentSide == SGT.ESide.Right else self.__agentNetObj().target_LU_side.invert()
+        side = self.__agentNetObj().getTransformedSide()
 
         painter.setPen( self.BL_BU_pen )
 

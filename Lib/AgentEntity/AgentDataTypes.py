@@ -39,11 +39,6 @@ class EAgent_Status( BaseEnum ):
     Charging        = auto()
     OnRoute         = auto()
 
-    ##remove##
-    # BoxLoad_Right   = auto()
-    # BoxLoad_Left    = auto()
-    # BoxUnload_Right = auto()
-    # BoxUnload_Left  = auto()
     BoxLoad         = auto()
     BoxUnload       = auto()
 
@@ -69,15 +64,6 @@ errorStatuses = [ EAgent_Status.NoRouteToCharge,
                   EAgent_Status.TaskError,
                   EAgent_Status.LoadUnloadError,
                   EAgent_Status.AngleError ]
-
-##remove##
-# BL_BU_Agent_Status = { (AEV.BoxLoad,   SGT.ESide.Left)  : EAgent_Status.BoxLoad_Left,
-#                        (AEV.BoxLoad,   SGT.ESide.Right) : EAgent_Status.BoxLoad_Right,
-#                        (AEV.BoxUnload, SGT.ESide.Left)  : EAgent_Status.BoxUnload_Left,
-#                        (AEV.BoxUnload, SGT.ESide.Right) : EAgent_Status.BoxUnload_Right,
-#                     }
-
-# BL_BU_Agent_Status_vals = BL_BU_Agent_Status.values()
 
 #########################################################
 

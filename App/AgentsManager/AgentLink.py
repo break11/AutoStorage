@@ -304,8 +304,11 @@ class CAgentLink( CAgentServer_Link ):
 
         # расчет правильной стороны прижима челнока к рельсам
         finalAgentAngle, final_tKey = self.SII[-1].angle, self.SII[-1].edge
-        final_agentSide = GU.getAgentSide( self.nxGraph, final_tKey, finalAgentAngle )
-        side = final_agentSide if final_agentSide == SGT.ESide.Right else final_agentSide.invert()
+        side = agentNO.getTransformedSide( angle = finalAgentAngle, edge = final_tKey )
+        ##remove##
+        # final_agentSide = GU.getAgentSide( self.nxGraph, final_tKey, finalAgentAngle )
+        # side = agentNO.target_LU_side
+        # side = side if final_agentSide == SGT.ESide.Right else side.invert()
         sensor_side = SGT.ESensorSide[ "S" + side.name ]
 
         for seq in seqList:
@@ -447,9 +450,10 @@ class CAgentLink( CAgentServer_Link ):
                 agentNO.applyRoute( nodes_route )
             else:
                 if agentNO.status == ADT.EAgent_Status.Idle:
+                    ##remove##
                     #TODO: tofunc
-                    agentSide = GU.getAgentSide( self.nxGraph, self.agentNO().edge.toTuple(), self.agentNO().angle )
-                    side = agentNO.target_LU_side
-                    LU_side = side if agentSide == SGT.ESide.Right else side.invert()
-
-                    self.pushCmd( ASP( event = EAgentServer_Event.BoxLoad, data = LU_side ) )
+                    # agentSide = GU.getAgentSide( self.nxGraph, self.agentNO().edge.toTuple(), self.agentNO().angle )
+                    # side = agentNO.target_LU_side
+                    # LU_side = side if agentSide == SGT.ESide.Right else side.invert()
+                    side = agentNO.getTransformedSide()
+                    self.pushCmd( ASP( event = EAgentServer_Event.BoxLoad, data = side ) )
