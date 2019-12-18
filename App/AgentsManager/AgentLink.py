@@ -8,7 +8,7 @@ import networkx as nx
 from PyQt5.QtCore import QTimer
 
 import Lib.Common.GraphUtils as GU
-from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps
+from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps, cmdProps_Box_LU
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Utils import isNone_or_Empty
@@ -91,6 +91,12 @@ class CAgentLink( CAgentServer_Link ):
         elif cmd.sPropName in cmdProps_keys:
             if cmd.value == ADT.EAgent_CMD_State.Init:
                 cmd_desc = cmdProps[ cmd.sPropName ]
+                # для команд погрузки-выгрузки коробок особая обработка, т.к. требуется адаптация поля target_LU_side в агенте,
+                # для корректной обработки стороны выгрузки по NT~IT
+                if cmd.sPropName in cmdProps_Box_LU:
+                    agent_side = GU.getAgentSide( self.nxGraph, agentNO.edge.toTuple(), agentNO.angle )
+                    agentNO.target_LU_side = cmd_desc.data if agent_side == SGT.ESide.Right else cmd_desc.data.invert()
+
                 self.pushCmd( ASP( event = cmd_desc.event, data=cmd_desc.data ) )
                 agentNO[ cmd.sPropName ] = ADT.EAgent_CMD_State.Done
 
@@ -214,13 +220,18 @@ class CAgentLink( CAgentServer_Link ):
                             return
                         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
 
-                        if self.agentNO().status == ADT.EAgent_Status.BoxLoad:
-                            boxNO = getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnNode, data=SGT.SNodePlace( nodeID, self.agentNO().target_LU_side ) ) )
-                            boxNO.address = CBoxAddress( EBoxAddressType.OnAgent, data=self.agentNO().name )
-                        elif self.agentNO().status == ADT.EAgent_Status.BoxUnload:
-                            boxNO = getBox_by_BoxAddress( CBoxAddress( EBoxAddressType.OnAgent, data=self.agentNO().name ) )
-                            boxNO.address = CBoxAddress( EBoxAddressType.OnNode, data=SGT.SNodePlace( nodeID, self.agentNO().target_LU_side ) )
+                        agentAddress = CBoxAddress( EBoxAddressType.OnAgent, data=self.agentNO().name )
+                        nodeAddress  = CBoxAddress( EBoxAddressType.OnNode, data=SGT.SNodePlace( nodeID, self.agentNO().target_LU_side ) )
 
+                        if self.agentNO().status == ADT.EAgent_Status.BoxLoad:
+                            fromAddr, toAddr = nodeAddress, agentAddress
+                        elif self.agentNO().status == ADT.EAgent_Status.BoxUnload:
+                            fromAddr, toAddr = agentAddress, nodeAddress
+
+                        boxNO = getBox_by_BoxAddress( fromAddr )
+                        if boxNO is not None:
+                            boxNO.address = toAddr
+        
                     self.agentNO().status = ADT.EAgent_Status.Idle
 
                 elif NT_Data.event in ADT.BL_BU_Events:
