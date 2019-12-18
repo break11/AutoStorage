@@ -440,15 +440,10 @@ class CAgentLink( CAgentServer_Link ):
         agentNO = self.agentNO()
 
         if task.type == ATD.ETaskType.GoToNode:
-            tKey = agentNO.isOnTrack()
-            startNode = tKey[0]
-            targetNode = task.data
-            nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
-            agentNO.status = ADT.EAgent_Status.OnRoute
-            agentNO.applyRoute( nodes_route )
+            agentNO.goToNode( task.data )
 
         elif task.type == ATD.ETaskType.DoCharge:
-            if not agentNO.isOnNode( nodeType = { ENodeTypes.ServiceStation } ):
+            if not agentNO.isOnNode( nodeTypes = { ENodeTypes.ServiceStation } ):
                 tKey = agentNO.isOnTrack()
 
                 route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, tKey, agentNO.angle )
@@ -465,15 +460,23 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.task_idx = task.data
 
         elif task.type in ATD.BoxTasks:
-            if not agentNO.isOnNode( nodeID = task.data.nodeID, nodeTypes = { ENodeTypes.StorageSingle, ENodeTypes.DummyNode } ):
-                tKey = agentNO.isOnTrack()
-                startNode = tKey[0]
-                targetNode = task.data.nodeID
-                nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
-                agentNO.status = ADT.EAgent_Status.OnRoute
+            bOnTargetNode   = agentNO.isOnNode( nodeID = task.data.nodeID, nodeTypes = { ENodeTypes.StorageSingle } )
+            bWithTargetSide = agentNO.target_LU_side == task.data.side
+
+            if not bOnTargetNode:
                 agentNO.target_LU_side = task.data.side
-                agentNO.applyRoute( nodes_route )
-            else:
+                agentNO.goToNode( task.data.nodeID )
+
+            elif bOnTargetNode and not bWithTargetSide:
+                taskNodeID = task.data.nodeID
+                NeighborsIDs = list(self.nxGraph.successors( taskNodeID )) + list(self.nxGraph.predecessors( taskNodeID ))
+                NeighborsIDs = [ nodeID for nodeID in NeighborsIDs if GU.nodeType( self.nxGraph, nodeID ) != SGT.ENodeTypes.Terminal ]
+                targetNodeID = NeighborsIDs[0]
+
+                agentNO.target_LU_side = task.data.side
+                agentNO.goToNode( targetNodeID )
+
+            elif bOnTargetNode and bWithTargetSide:
                 if agentNO.status != ADT.EAgent_Status.Idle: return
                 event = agentCmd_by_BoxTaskType[ task.type ] # load, unload cmd event
                 self.pushCmd( ASP( event = event, data = agentNO.getTransformedSide() ) )

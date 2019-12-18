@@ -1,8 +1,8 @@
-
-from PyQt5.QtCore import QTimer
-
 from copy import deepcopy
 from collections import namedtuple
+import networkx as nx
+
+from PyQt5.QtCore import QTimer
 
 from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
@@ -183,6 +183,15 @@ class CAgent_NO( CNetObj ):
         self.position = 0 if tEdgeKey[ 0 ] == nodeID else GU.edgeSize( self.nxGraph, tEdgeKey )
 
     def goToNode( self, targetNode ):
+        tKey = self.isOnTrack()
+        if tKey is None: return
+
+        startNode = tKey[0]
+        nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
+        self.status = ADT.EAgent_Status.OnRoute
+        self.applyRoute( nodes_route )
+
+    def goToNode_by_Task( self, targetNode ):
         if not self.nxGraph.has_node( targetNode ): return
 
         tKey = self.isOnTrack()

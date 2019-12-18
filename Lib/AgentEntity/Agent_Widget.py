@@ -169,7 +169,7 @@ class CAgent_Widget( CNetObj_Widget ):
         self.agentNO.putToNode( self.lePutTo.text() )
 
     def on_leGoTo_returnPressed( self ):
-        self.agentNO.goToNode( self.leGoTo.text() )
+        self.agentNO.goToNode_by_Task( self.leGoTo.text() )
 
     def on_btnDoCharge_released( self ):
         self.agentNO.task_list = ATD.CTaskList( elementList=[ ATD.CTask( taskType=ATD.ETaskType.DoCharge, taskData=97 ) ] )
@@ -189,7 +189,7 @@ class CAgent_Widget( CNetObj_Widget ):
             self.agentNO.putToNode( gItem.nodeID )
                 
         elif self.selectTargetMode == SelectionTarget.goTo:
-            self.agentNO.goToNode( gItem.nodeID )
+            self.agentNO.goToNode_by_Task( gItem.nodeID )
 
         self.btnSelectPutTo.setChecked( False )
         self.btnSelectGoTo.setChecked( False )
