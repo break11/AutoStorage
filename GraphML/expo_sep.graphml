@@ -130,7 +130,7 @@
     <node id="24">
       <data key="d0">4555</data>
       <data key="d1">2175</data>
-      <data key="d2">PickStationOut</data>
+      <data key="d2">PickStation</data>
     </node>
     <node id="25">
       <data key="d0">4555</data>

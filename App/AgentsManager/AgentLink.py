@@ -460,7 +460,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.task_idx = task.data
 
         elif task.type in ATD.BoxTasks:
-            bOnTargetNode   = agentNO.isOnNode( nodeID = task.data.nodeID, nodeTypes = { ENodeTypes.StorageSingle } )
+            bOnTargetNode   = agentNO.isOnNode( nodeID = task.data.nodeID, nodeTypes = { ENodeTypes.StorageSingle, ENodeTypes.PickStation } )
             bWithTargetSide = agentNO.target_LU_side == task.data.side
 
             if not bOnTargetNode:
