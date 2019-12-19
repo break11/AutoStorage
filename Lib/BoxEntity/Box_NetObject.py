@@ -19,6 +19,9 @@ class SBoxProps( metaclass = СStrProps_Meta ):
 
 SBP = SBoxProps
 
+def getBox_by_Name( boxName ):
+    return boxesNodeCache()().childByName( boxName )
+
 def getBox_from_NodePlace( nodePlace ):
     if boxesNodeCache()() is None: return None
     boxName = boxesNodeCache()().get( str( nodePlace ) )
@@ -27,7 +30,7 @@ def getBox_from_NodePlace( nodePlace ):
 def getBox_by_BoxAddress( boxAddress ):
     if boxesNodeCache()() is None: return None
     boxName =  boxesNodeCache()().get( str( boxAddress.data ) )
-    return boxesNodeCache()().childByName( boxName )
+    return getBox_by_Name( boxName )
 
 def boxesNodeCache():
     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Boxes )

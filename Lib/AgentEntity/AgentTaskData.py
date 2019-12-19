@@ -20,6 +20,7 @@ class ETaskType( BaseEnum ):
     JmpToTask     = auto()
 
     GN            = GoToNode
+    LBN           = LoadBoxByName
     LB            = LoadBox
     UB            = UnloadBox
     DC            = DoCharge
@@ -27,7 +28,7 @@ class ETaskType( BaseEnum ):
 
     Default = Undefined
 
-BoxTasks = { ETaskType.LoadBox, ETaskType.UnloadBox }
+BoxTasks = { ETaskType.LoadBox, ETaskType.UnloadBox, ETaskType.LoadBoxByName }
 
 ######################
 
