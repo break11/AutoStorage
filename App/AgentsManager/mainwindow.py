@@ -28,6 +28,7 @@ from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
 from Lib.AgentEntity.AgentLogManager import ALM
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
+from Lib.BoxEntity.Box_NetObject import boxesNodeCache
 
 class CAM_MainWindow(QMainWindow):
     def registerObjects_Widgets(self):
@@ -48,6 +49,10 @@ class CAM_MainWindow(QMainWindow):
         self.SimpleAgentTest_Timer = QTimer( self )
         self.SimpleAgentTest_Timer.setInterval(500)
         self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
+
+        self.SimpleBoxTest_Timer = QTimer( self )
+        self.SimpleBoxTest_Timer.setInterval(500)
+        self.SimpleBoxTest_Timer.timeout.connect( self.SimpleBoxTest )
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
@@ -126,6 +131,12 @@ class CAM_MainWindow(QMainWindow):
         for socketThread in aLink.socketThreads:
             socketThread.disconnectFromServer()
     ###################################################
+    @pyqtSlot("bool")
+    def on_btnSimpleBox_Test_clicked( self, bVal ):
+        if bVal:
+            self.SimpleBoxTest_Timer.start()
+        else:
+            self.SimpleBoxTest_Timer.stop()
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
@@ -134,10 +145,44 @@ class CAM_MainWindow(QMainWindow):
         else:
             self.SimpleAgentTest_Timer.stop()
 
-    enabledTargetNodes = [ SGT.ENodeTypes.StorageSingle,
+    enabledTargetNodes = { SGT.ENodeTypes.StorageSingle,
                            SGT.ENodeTypes.PickStation,
                            SGT.ENodeTypes.PickStationIn,
-                           SGT.ENodeTypes.PickStationOut ]
+                           SGT.ENodeTypes.PickStationOut }
+
+    def SimpleBoxTest( self ):
+        if self.graphRootNode() is None: return
+        if self.agentsNode().childCount() == 0: return
+
+        for agentNO in self.agentsNode().children:
+            if not agentNO.auto_control: continue
+            if agentNO.isOnTrack() is None: continue
+            if not agentNO.task_list.isEmpty(): continue
+
+            box1 =  list( boxesNodeCache()().children )[ random.randint(0, boxesNodeCache()().childCount() - 1) ]
+            box2 =  list( boxesNodeCache()().children )[ random.randint(0, boxesNodeCache()().childCount() - 1) ]
+            box1_address = box1.address
+            box2_address = box2.address
+
+            # поиск таргет ноды PickStation
+            nxGraph = self.graphRootNode().nxGraph
+            nodes = list( nxGraph.nodes )
+            while True:
+                targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
+                nType = nodeType(nxGraph, targetNode)
+                if nType in {SGT.ENodeTypes.PickStation}:
+                    break
+            
+            taskList = []
+            taskList.append( ATD.CTask( ATD.ETaskType.DoCharge, 90 ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box1.name ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box2.name ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box1_address.data ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.LoadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box2_address.data ) )
+
+            agentNO.task_list = ATD.CTaskList( taskList )            
 
     def SimpleAgentTest( self ):
         if self.graphRootNode() is None: return
