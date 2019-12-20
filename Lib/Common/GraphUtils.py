@@ -3,6 +3,7 @@ import math
 import networkx as nx
 import os
 import re
+import random
 
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.StorageGraphTypes import SGA
@@ -47,6 +48,18 @@ def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
         nodeID = tKey[1]
 
     return nodeID
+
+def randomNode( nxGraph, _nodeTypes, count = 1, allowDuplicates = False ):
+    nodes = [ nodeID for nodeID in nxGraph.nodes() if nodeType( nxGraph, nodeID ) in _nodeTypes ]
+    assert allowDuplicates or len(nodes) >= count, f"Not enought unique nodes in the Graph for choosing {count} random nodes of {_nodeTypes} types."
+    
+    selected = []
+    while len( selected ) < count:
+        nodeID = random.choice( nodes )
+        if allowDuplicates or nodeID not in selected:
+            selected.append( nodeID )
+
+    return selected
 
 def isOnNode( nxGraph, tKey, pos, allowOffset=50, _nodeID=None, _nodeTypes=None ):
     nodeID = nodeByPos( nxGraph, tKey, pos, allowOffset )

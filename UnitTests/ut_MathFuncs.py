@@ -632,5 +632,34 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="1", _nodeTypes = { SGT.ENodeTypes.ServiceStation } ), False )
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeID="2", _nodeTypes = { SGT.ENodeTypes.ServiceStation } ), False )
 
+    def test_randomNode(self):
+        _nodeTypes, count = { SGT.ENodeTypes.StorageSingle }, 4
+        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count )
+        bTypes = map( lambda nodeID: gu.nodeType( nxGraph_mag_ext, nodeID ) in _nodeTypes, nodes )
+        
+        self.assertTrue( all(bTypes) )
+        self.assertTrue( len(nodes) == count )
+
+        #####################################################################################
+        _nodeTypes, count = { SGT.ENodeTypes.DummyNode, SGT.ENodeTypes.ServiceStation }, 2
+        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count )
+        bTypes = map( lambda nodeID: gu.nodeType( nxGraph_mag_ext, nodeID ) in _nodeTypes, nodes )
+        
+        self.assertTrue( all(bTypes) )
+        self.assertTrue( len(nodes) == count )
+
+        #####################################################################################
+        _nodeTypes, count = { SGT.ENodeTypes.ServiceStation }, 2
+        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count )
+
+        self.assertTrue( len(nodes) == count )
+        self.assertNotEqual( nodes[0], nodes[1] )
+
+        #####################################################################################
+        _nodeTypes, count = { SGT.ENodeTypes.ServiceStation }, 10
+        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count, allowDuplicates=True )
+
+        self.assertTrue( len(nodes) == count )
+
 if __name__ == "__main__":
     unittest.main()
