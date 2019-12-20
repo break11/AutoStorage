@@ -21,7 +21,7 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
-from Lib.Common.GraphUtils import nodeType, routeToServiceStation
+from Lib.Common.GraphUtils import nodeType, routeToServiceStation, randomNodes
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
@@ -159,28 +159,22 @@ class CAM_MainWindow(QMainWindow):
             if agentNO.isOnTrack() is None: continue
             if not agentNO.task_list.isEmpty(): continue
 
-            box1 =  list( boxesNodeCache()().children )[ random.randint(0, boxesNodeCache()().childCount() - 1) ]
-            box2 =  list( boxesNodeCache()().children )[ random.randint(0, boxesNodeCache()().childCount() - 1) ]
-            box1_address = box1.address
-            box2_address = box2.address
+            box1 = random.choice( list( boxesNodeCache()().children ) )
+            box2 = box1
+            while box2 == box1: box2 = random.choice( list( boxesNodeCache()().children ) )
 
             # поиск таргет ноды PickStation
             nxGraph = self.graphRootNode().nxGraph
-            nodes = list( nxGraph.nodes )
-            while True:
-                targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
-                nType = nodeType(nxGraph, targetNode)
-                if nType in {SGT.ENodeTypes.PickStation}:
-                    break
+            targetNode = randomNodes( nxGraph, { SGT.ENodeTypes.PickStation } ).pop(0)
             
             taskList = []
             taskList.append( ATD.CTask( ATD.ETaskType.DoCharge, 90 ) )
             taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box1.name ) )
             taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
             taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box2.name ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box1_address.data ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box1.address.data ) )
             taskList.append( ATD.CTask( ATD.ETaskType.LoadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box2_address.data ) )
+            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box2.address.data ) )
 
             agentNO.task_list = ATD.CTaskList( taskList )            
 
@@ -195,12 +189,7 @@ class CAM_MainWindow(QMainWindow):
 
             # поиск таргет ноды
             nxGraph = self.graphRootNode().nxGraph
-            nodes = list( nxGraph.nodes )
-            while True:
-                targetNode = nodes[ random.randint(0, len( nxGraph.nodes ) - 1) ]
-                nType = nodeType(nxGraph, targetNode)
-                if nType in self.enabledTargetNodes:
-                    break
+            targetNode = randomNodes( nxGraph, self.enabledTargetNodes ).pop(0)
             
             # выдача задания
             agentNO.task_list = ATD.CTaskList( [ ATD.CTask( ATD.ETaskType.DoCharge, 30 ), ATD.CTask( ATD.ETaskType.GoToNode, targetNode ) ] )

@@ -49,7 +49,7 @@ def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
 
     return nodeID
 
-def randomNode( nxGraph, _nodeTypes, count = 1, allowDuplicates = False ):
+def randomNodes( nxGraph, _nodeTypes, count = 1, allowDuplicates = False ):
     nodes = [ nodeID for nodeID in nxGraph.nodes() if nodeType( nxGraph, nodeID ) in _nodeTypes ]
     assert allowDuplicates or len(nodes) >= count, f"Not enought unique nodes in the Graph for choosing {count} random nodes of {_nodeTypes} types."
     

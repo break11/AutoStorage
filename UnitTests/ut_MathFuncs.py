@@ -632,9 +632,9 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="1", _nodeTypes = { SGT.ENodeTypes.ServiceStation } ), False )
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeID="2", _nodeTypes = { SGT.ENodeTypes.ServiceStation } ), False )
 
-    def test_randomNode(self):
+    def test_randomNodes(self):
         _nodeTypes, count = { SGT.ENodeTypes.StorageSingle }, 4
-        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count )
+        nodes = gu.randomNodes( nxGraph_mag_ext, _nodeTypes, count = count )
         bTypes = map( lambda nodeID: gu.nodeType( nxGraph_mag_ext, nodeID ) in _nodeTypes, nodes )
         
         self.assertTrue( all(bTypes) )
@@ -642,7 +642,7 @@ class TestStrFuncs(unittest.TestCase):
 
         #####################################################################################
         _nodeTypes, count = { SGT.ENodeTypes.DummyNode, SGT.ENodeTypes.ServiceStation }, 2
-        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count )
+        nodes = gu.randomNodes( nxGraph_mag_ext, _nodeTypes, count = count )
         bTypes = map( lambda nodeID: gu.nodeType( nxGraph_mag_ext, nodeID ) in _nodeTypes, nodes )
         
         self.assertTrue( all(bTypes) )
@@ -650,14 +650,14 @@ class TestStrFuncs(unittest.TestCase):
 
         #####################################################################################
         _nodeTypes, count = { SGT.ENodeTypes.ServiceStation }, 2
-        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count )
+        nodes = gu.randomNodes( nxGraph_mag_ext, _nodeTypes, count = count )
 
         self.assertTrue( len(nodes) == count )
         self.assertNotEqual( nodes[0], nodes[1] )
 
         #####################################################################################
         _nodeTypes, count = { SGT.ENodeTypes.ServiceStation }, 10
-        nodes = gu.randomNode( nxGraph_mag_ext, _nodeTypes, count = count, allowDuplicates=True )
+        nodes = gu.randomNodes( nxGraph_mag_ext, _nodeTypes, count = count, allowDuplicates=True )
 
         self.assertTrue( len(nodes) == count )
 
