@@ -2,6 +2,7 @@
 import random
 import os
 import networkx as nx
+from enum import Enum, auto
 
 from PyQt5.QtCore import pyqtSlot, QTimer, QTime
 from PyQt5.QtWidgets import QMainWindow, QLayout
@@ -30,6 +31,10 @@ import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.BoxEntity.Box_NetObject import boxesNodeCache
 
+class EAgentTest( Enum ):
+    SimpleRoute = auto()
+    SimpleBox   = auto()
+
 class CAM_MainWindow(QMainWindow):
     def registerObjects_Widgets(self):
         reg = self.WidgetManager.registerWidget
@@ -46,19 +51,18 @@ class CAM_MainWindow(QMainWindow):
         self.dkAgent_CMD_Log_Contents.layout().addWidget( self.ACL_Form )
         self.dkAgent_CMD_Log_Contents.layout().layoutSizeConstraint = QLayout.SetNoConstraint
 
-        self.SimpleAgentTest_Timer = QTimer( self )
-        self.SimpleAgentTest_Timer.setInterval(500)
-        self.SimpleAgentTest_Timer.timeout.connect( self.SimpleAgentTest )
-
-        self.SimpleBoxTest_Timer = QTimer( self )
-        self.SimpleBoxTest_Timer.setInterval(500)
-        self.SimpleBoxTest_Timer.timeout.connect( self.SimpleBoxTest )
+        self.AgentTest_Timer = QTimer( self )
+        self.AgentTest_Timer.setInterval(500)
+        self.AgentTest_Timer.timeout.connect( self.AgentTest )
+        self.AgentTest_Timer.start()
 
         self.graphRootNode = graphNodeCache()
         self.agentsNode = agentsNodeCache()
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
         self.registerObjects_Widgets()
+
+        self.testType = None
                
     def init( self, initPhase ):
         if initPhase == EAppStartPhase.BeforeRedisConnect:
@@ -134,23 +138,27 @@ class CAM_MainWindow(QMainWindow):
     @pyqtSlot("bool")
     def on_btnSimpleBox_Test_clicked( self, bVal ):
         if bVal:
-            self.SimpleBoxTest_Timer.start()
+            self.btnSimpleAgent_Test.setChecked( False )
+            self.testType = EAgentTest.SimpleBox
         else:
-            self.SimpleBoxTest_Timer.stop()
+            self.testType = None
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
         if bVal:
-            self.SimpleAgentTest_Timer.start()
+            self.btnSimpleBox_Test.setChecked( False )
+            self.testType = EAgentTest.SimpleRoute
         else:
-            self.SimpleAgentTest_Timer.stop()
+            self.testType = None
 
     enabledTargetNodes = { SGT.ENodeTypes.StorageSingle,
                            SGT.ENodeTypes.PickStation,
                            SGT.ENodeTypes.PickStationIn,
                            SGT.ENodeTypes.PickStationOut }
 
-    def SimpleBoxTest( self ):
+    def AgentTest( self ):
+        if self.testType == None: return
+
         if self.graphRootNode() is None: return
         if self.agentsNode().childCount() == 0: return
 
@@ -159,41 +167,34 @@ class CAM_MainWindow(QMainWindow):
             if agentNO.isOnTrack() is None: continue
             if not agentNO.task_list.isEmpty(): continue
 
-            box1 = random.choice( list( boxesNodeCache()().children ) )
-            box2 = box1
-            while box2 == box1: box2 = random.choice( list( boxesNodeCache()().children ) )
+            if self.testType == EAgentTest.SimpleRoute:
+                # поиск таргет ноды
+                nxGraph = self.graphRootNode().nxGraph
+                targetNode = randomNodes( nxGraph, self.enabledTargetNodes ).pop(0)
+                
+                # выдача задания
+                agentNO.task_list = ATD.CTaskList( [ ATD.CTask( ATD.ETaskType.DoCharge, 30 ), ATD.CTask( ATD.ETaskType.GoToNode, targetNode ) ] )
 
-            # поиск таргет ноды PickStation
-            nxGraph = self.graphRootNode().nxGraph
-            targetNode = randomNodes( nxGraph, { SGT.ENodeTypes.PickStation } ).pop(0)
-            
-            taskList = []
-            taskList.append( ATD.CTask( ATD.ETaskType.DoCharge, 90 ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box1.name ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box2.name ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box1.address.data ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.LoadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
-            taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box2.address.data ) )
+            elif self.testType == EAgentTest.SimpleBox:
+                box1 = random.choice( list( boxesNodeCache()().children ) )
+                box2 = box1
+                while box2 == box1: box2 = random.choice( list( boxesNodeCache()().children ) )
 
-            agentNO.task_list = ATD.CTaskList( taskList )            
+                # поиск таргет ноды PickStation
+                nxGraph = self.graphRootNode().nxGraph
+                targetNode = randomNodes( nxGraph, { SGT.ENodeTypes.PickStation } ).pop(0)
+                
+                taskList = []
+                taskList.append( ATD.CTask( ATD.ETaskType.DoCharge, 90 ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box1.name ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box2.name ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box1.address.data ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.LoadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box2.address.data ) )
 
-    def SimpleAgentTest( self ):
-        if self.graphRootNode() is None: return
-        if self.agentsNode().childCount() == 0: return
+                agentNO.task_list = ATD.CTaskList( taskList )            
 
-        for agentNO in self.agentsNode().children:
-            if not agentNO.auto_control: continue
-            if agentNO.isOnTrack() is None: continue
-            if not agentNO.task_list.isEmpty(): continue
-
-            # поиск таргет ноды
-            nxGraph = self.graphRootNode().nxGraph
-            targetNode = randomNodes( nxGraph, self.enabledTargetNodes ).pop(0)
-            
-            # выдача задания
-            agentNO.task_list = ATD.CTaskList( [ ATD.CTask( ATD.ETaskType.DoCharge, 30 ), ATD.CTask( ATD.ETaskType.GoToNode, targetNode ) ] )
-    
     # ******************************************************
     @pyqtSlot("bool")
     def on_btnChargeOn_clicked( self, clicked ):
