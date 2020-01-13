@@ -1,0 +1,182 @@
+[
+    {
+        "name": "1",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=9|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "2",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=8|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "3",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=7|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "4",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=6|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "5",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=5|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "6",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=4|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "7",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=2|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "8",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=9|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "9",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=8|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "10",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=7|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "11",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=6|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "12",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=5|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "13",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=4|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "14",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=2|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "15",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=44|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "16",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=45|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "17",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=46|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "18",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=44|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "19",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=45|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "20",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=46|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    }
+]
