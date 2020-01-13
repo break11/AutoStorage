@@ -23,7 +23,7 @@ from Lib.BoxEntity.Box_NetObject import getBox_from_NodePlace, getBox_by_BoxAddr
 from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
 from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
-from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event, OD_OP_events
+from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
 from Lib.AgentEntity.AgentServer_Link import CAgentServer_Link
 import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.AgentEntity.AgentProtocolUtils import calcNextPacketN
@@ -162,7 +162,7 @@ class CAgentLink( CAgentServer_Link ):
             else:
                 self.DE_IDX += 1
 
-        elif cmd.event in OD_OP_events:
+        elif cmd.event == EAgentServer_Event.OdometerDistance:
             if isNone_or_Empty( self.graphRootNode() ):
                 print( SC.No_Graph_loaded )
                 return

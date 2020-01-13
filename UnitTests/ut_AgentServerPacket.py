@@ -317,24 +317,11 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p2.event, EAgentServer_Event.OdometerZero )
         self.assertEqual( p1.toStr(), p2.toStr() )
         self.assertEqual( p1.toStr(), p3 )
-        # OP
-        #########################
-        sData = "50"
-        sTimeStamp = "1221122112"
-        s = f"040{MS}{sTimeStamp}{MS}OP{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerPassed, packetN=40, timeStamp=int( sTimeStamp, 10 ), data=ADT.SOD_OP_Data.fromString( sData ) )
-        p2 = CAgentServerPacket.fromStr( s )
-        p3 = s + "\n"
-
-        print( p1.toStr(), p2.toStr(), p3 )
-        self.assertEqual( p2.event, EAgentServer_Event.OdometerPassed )
-        self.assertEqual( p1.toStr(), p2.toStr() )
-        self.assertEqual( p1.toStr(), p3 )
         # OD
         #########################
         sData = "50"
         s = f"040{MS}{sTimeStamp}{MS}OD{MS}{sData}"
-        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, timeStamp=int( sTimeStamp ), data=ADT.SOD_OP_Data.fromString( sData ) )
+        p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, timeStamp=int( sTimeStamp ), data=ADT.SOdometerData.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
         p3 = s + "\n"
 

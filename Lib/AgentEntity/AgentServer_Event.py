@@ -19,7 +19,6 @@ class EAgentServer_Event( Enum ):
     SequenceEnd        = auto() # SE
     DistancePassed     = auto() # DP
     OdometerZero       = auto() # OZ
-    OdometerPassed     = auto() # OP
     OdometerDistance   = auto() # OD
     DistanceEnd        = auto() # DE
     BoxLoad            = auto() # BL
@@ -41,8 +40,6 @@ class EAgentServer_Event( Enum ):
     def toStr( self ):
         return _AgentServer_Event_to_Str.get( self )
 
-OD_OP_events = [EAgentServer_Event.OdometerDistance, EAgentServer_Event.OdometerPassed]
-
 _AgentServer_Event_from_Str = {
                                 "ER": EAgentServer_Event.Error,
                                 "WR": EAgentServer_Event.Warning_,
@@ -62,7 +59,6 @@ _AgentServer_Event_from_Str = {
                                 "SE": EAgentServer_Event.SequenceEnd,
                                 "DP": EAgentServer_Event.DistancePassed,
                                 "OZ": EAgentServer_Event.OdometerZero,
-                                "OP": EAgentServer_Event.OdometerPassed,
                                 "OD": EAgentServer_Event.OdometerDistance,
                                 "DE": EAgentServer_Event.DistanceEnd,
                                 "BL": EAgentServer_Event.BoxLoad,

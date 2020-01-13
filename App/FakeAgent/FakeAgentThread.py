@@ -31,7 +31,7 @@ taskCommands = [ AEV.SequenceBegin,
                  AEV.PowerEnable
                ]
 
-NotIgnoreEvents = ADT.TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.OdometerPassed, AEV.BoxLoadAborted, AEV.BrakeRelease } )
+NotIgnoreEvents = ADT.TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV.BoxLoadAborted, AEV.BrakeRelease } )
 
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     hwCounter = 0
@@ -80,9 +80,6 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
 
         elif cmd.event == AEV.OdometerDistance:
             FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data ) )
-
-        elif cmd.event == AEV.OdometerPassed:
-            FAL.pushCmd( self.genPacket( event = AEV.OdometerPassed, data = FAL.OD_OP_Data ) )
 
         elif cmd.event == AEV.BrakeRelease:
             FAL.bErrorState = False

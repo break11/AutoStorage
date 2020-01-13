@@ -80,44 +80,28 @@ class TestASP_DataParser(unittest.TestCase):
 
         self.assertEqual( sData, eData.toString() )
 
-    def test_OD_OP(self):
+    def test_OD(self):
         sData="U"
-        packet = CAgentServerPacket( event = EV.OdometerPassed, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOdometerData.fromString( sData ) )
 
         eData = packet.data
-        self.assertEqual( type(eData), ADT.SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOdometerData )
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
 
         sData="100"
-        packet = CAgentServerPacket( event = EV.OdometerPassed, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOdometerData.fromString( sData ) )
 
         eData = packet.data
-        self.assertEqual( type(eData), ADT.SOD_OP_Data )
-        self.assertEqual( eData.bUndefined, False )
-        self.assertEqual( eData.nDistance, 100 )
-
-        sData="U"
-        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
-
-        eData = packet.data
-        self.assertEqual( type(eData), ADT.SOD_OP_Data )
-        self.assertEqual( eData.bUndefined, True )
-        self.assertEqual( eData.nDistance, 0 )
-
-        sData="100"
-        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
-
-        eData = packet.data
-        self.assertEqual( type(eData), ADT.SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOdometerData )
         self.assertEqual( eData.bUndefined, False )
         self.assertEqual( eData.nDistance, 100 )
 
         sData="10.5"
-        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOD_OP_Data.fromString( sData ) )
+        packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOdometerData.fromString( sData ) )
 
         eData = packet.data
-        self.assertEqual( type(eData), ADT.SOD_OP_Data )
+        self.assertEqual( type(eData), ADT.SOdometerData )
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
 

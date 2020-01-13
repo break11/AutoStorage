@@ -10,7 +10,7 @@ DS = "^" # Data Splitter
 
 minChargeValue = 30
 
-TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerPassed }
+TeleEvents = { AEV.BatteryState, AEV.TemperatureState, AEV.TaskList, AEV.OdometerDistance }
 BL_BU_Events = { AEV.BoxLoad, AEV.BoxUnload }
 
 # хелперная функция для принудительного перевода данных команды в строку, независимо от исходного типа
@@ -280,10 +280,10 @@ class SHW_Data:
 
 #########################################################
 
-class SOD_OP_Data:
+class SOdometerData:
     "OD~100"
-    "OP~138"
-    "OP~U"
+    "OD~138"
+    "OD~U"
 
     def __init__( self, bUndefined=True, nDistance=0 ):
         self.bUndefined = bUndefined
@@ -302,7 +302,7 @@ class SOD_OP_Data:
             bUndefined = True
             nDistance = 0
 
-        return SOD_OP_Data( bUndefined = bUndefined, nDistance = nDistance )
+        return SOdometerData( bUndefined = bUndefined, nDistance = nDistance )
 
     def toString( self, bShortForm = False ):
         if not self.bUndefined:
@@ -316,8 +316,7 @@ class SOD_OP_Data:
 
 DT_by_events = { AEV.BatteryState       : SBS_Data,
                  AEV.TemperatureState   : STS_Data,
-                 AEV.OdometerDistance   : SOD_OP_Data,
-                 AEV.OdometerPassed     : SOD_OP_Data,
+                 AEV.OdometerDistance   : SOdometerData,
                  AEV.HelloWorld         : SHW_Data,
                  AEV.NewTask            : SNT_Data,
                  AEV.WheelOrientation   : SGT.EWidthType,
