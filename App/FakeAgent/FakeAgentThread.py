@@ -79,7 +79,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
             FAL.pushCmd( self.genPacket( event = AEV.TemperatureState, data = FAL.temperatureState ) )
 
         elif cmd.event == AEV.OdometerDistance:
-            FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data ) )
+            FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OdometerData ) )
 
         elif cmd.event == AEV.BrakeRelease:
             FAL.bErrorState = False
@@ -149,8 +149,8 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                     self.startNextTask()
 
             elif FAL.currentTask.event == AEV.WheelOrientation:
-                FAL.OD_OP_Data.bUndefined = False
-                FAL.OD_OP_Data.nDistance = 0
+                FAL.OdometerData.bUndefined = False
+                FAL.OdometerData.nDistance = 0
                 # send an "odometry resetted" to server
                 FAL.pushCmd( self.genPacket( event = AEV.OdometerZero ) )
 
@@ -170,11 +170,11 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                     if FAL.distanceToPass > 0:
                         FAL.distanceToPass = FAL.distanceToPass - DP_DELTA_PER_CYCLE
                         if FAL.currentDirection == SGT.EDirection.Forward:
-                            FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance + DP_DELTA_PER_CYCLE
+                            FAL.OdometerData.nDistance = FAL.OdometerData.nDistance + DP_DELTA_PER_CYCLE
                         else:
-                            FAL.OD_OP_Data.nDistance = FAL.OD_OP_Data.nDistance - DP_DELTA_PER_CYCLE
+                            FAL.OdometerData.nDistance = FAL.OdometerData.nDistance - DP_DELTA_PER_CYCLE
                         
-                        FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OD_OP_Data ) )
+                        FAL.pushCmd( self.genPacket( event = AEV.OdometerDistance, data = FAL.OdometerData ) )
 
                     elif FAL.distanceToPass <= 0:
                         FAL.distanceToPass = 0

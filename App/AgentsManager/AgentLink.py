@@ -175,8 +175,8 @@ class CAgentLink( CAgentServer_Link ):
             if agentNO.route.count() == 0: return
             if self.currSII() is None: return
         
-            OD_OP_Data = cmd.data
-            new_od = OD_OP_Data.getDistance()
+            OdometerData = cmd.data
+            new_od = OdometerData.getDistance()
                 
             distance = self.currSII().K * ( new_od - agentNO.odometer )
             agentNO.odometer = new_od

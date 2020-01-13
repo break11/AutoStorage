@@ -21,7 +21,7 @@ class TestASP_DataParser(unittest.TestCase):
             self.assertNotEqual( agentStatus, ADT.EAgent_Status.Default )
 
     def test_HW(self):
-        sData = "cartV1^555"
+        sData = f"cartV1{ADT.DS}555"
         packet = CAgentServerPacket( event = EV.HelloWorld, data = ADT.SHW_Data.fromString( sData ) )
 
         eData = packet.data
@@ -89,7 +89,7 @@ class TestASP_DataParser(unittest.TestCase):
         self.assertEqual( eData.bUndefined, True )
         self.assertEqual( eData.nDistance, 0 )
 
-        sData="100"
+        sData = f"100{ADT.DS}1{ADT.DS}2{ADT.DS}3{ADT.DS}4"
         packet = CAgentServerPacket( event = EV.OdometerDistance, data = ADT.SOdometerData.fromString( sData ) )
 
         eData = packet.data

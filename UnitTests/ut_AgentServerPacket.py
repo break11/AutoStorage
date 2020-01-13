@@ -319,7 +319,7 @@ class TestAgentServerPacket(unittest.TestCase):
         self.assertEqual( p1.toStr(), p3 )
         # OD
         #########################
-        sData = "50"
+        sData = f"50{DS}0{DS}1{DS}-1{DS}2"
         s = f"040{MS}{sTimeStamp}{MS}OD{MS}{sData}"
         p1 = CAgentServerPacket( event=EAgentServer_Event.OdometerDistance, packetN=40, timeStamp=int( sTimeStamp ), data=ADT.SOdometerData.fromString( sData ) )
         p2 = CAgentServerPacket.fromStr( s )
