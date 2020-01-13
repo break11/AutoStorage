@@ -123,12 +123,14 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         if FAL.currentTask:
             if FAL.currentTask.event == AEV.PowerDisable:
                 FAL.batteryState.PowerType = ADT.EAgentBattery_Type.N
+                FAL.OdometerData.bUndefined = True
                 NotIgnoreEvents -= { AEV.BrakeRelease }
                 FAL.pushCmd( self.genPacket( event = AEV.Error, data = f"SERVO DISABLED DUE TO PMSM TIMEOUT" ) )
                 self.startNextTask()
 
             elif FAL.currentTask.event == AEV.PowerEnable:
                 FAL.batteryState.PowerType = ADT.EAgentBattery_Type.Supercap
+                FAL.OdometerData.bUndefined = False
                 NotIgnoreEvents.add( AEV.BrakeRelease )
                 self.startNextTask()
 
@@ -149,9 +151,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
                     self.startNextTask()
 
             elif FAL.currentTask.event == AEV.WheelOrientation:
-                FAL.OdometerData.bUndefined = False
                 FAL.OdometerData.nDistance = 0
-                # send an "odometry resetted" to server
                 FAL.pushCmd( self.genPacket( event = AEV.OdometerZero ) )
 
                 FAL.currentWheelsOrientation = FAL.currentTask.data # EWidthType

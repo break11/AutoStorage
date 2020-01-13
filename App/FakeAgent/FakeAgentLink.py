@@ -22,4 +22,4 @@ class CFakeAgentLink( CAgentServer_Link ):
 
         self.temperatureState = ADT.STS_Data( 24,29,29,29,29,25,25,25,25 )
         self.batteryState = ADT.SBS_Data( ADT.EAgentBattery_Type.Supercap, 43.2, 39.31, 47.43, 00.9, 00.4 )
-        self.OdometerData  = ADT.SOdometerData()
+        self.OdometerData  = ADT.SOdometerData( bUndefined=False )
