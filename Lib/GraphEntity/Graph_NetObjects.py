@@ -31,9 +31,14 @@ class CGraphRoot_NO( CNetObj ):
 
 ###################################################################################
 
+common_NodeProps = { SGT.SGA.x, SGT.SGA.y, SGT.SGA.nodeType }
+spec_NodeProps = {
+    SGT.ENodeTypes.ServiceStation : { SGT.SGA.chargePort, SGT.SGA.chargeSide }
+}
+
 class CGraphNode_NO( CNetObj ):
     def_props = {
-                    SGT.SGA.x: 0,                          
+                    SGT.SGA.x: 0,
                     SGT.SGA.y: 0,                          
                     SGT.SGA.nodeType: SGT.ENodeTypes.DummyNode,
                     SGT.SGA.chargePort: "",

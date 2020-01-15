@@ -524,7 +524,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         #добавление нод
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton and (self.EditMode & EGManagerEditMode.AddNode) :
-                attr = deepcopy ( CGraphNode_NO.def_props )
+                attr = {}
+                attr[ SGT.SGA.nodeType ] = SGT.ENodeTypes.DummyNode
                 attr[ SGT.SGA.x ] = round (self.gView.mapToScene(event.pos()).x())
                 attr[ SGT.SGA.y ] = round (self.gView.mapToScene(event.pos()).y())
 
