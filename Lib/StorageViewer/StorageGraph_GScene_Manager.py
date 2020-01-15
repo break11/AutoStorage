@@ -50,7 +50,7 @@ SGItemDesc = namedtuple( "SGItemDesc", "create_func delete_func" )
 
 class CStorageGraph_GScene_Manager( QObject ):
     itemTouched = pyqtSignal( QGraphicsItem )
-    nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StorageSingle, SGT.ENodeTypes.ServiceStation]
+    nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StoragePoint, SGT.ENodeTypes.PowerStation]
 
     @property
     def nxGraph(self): return self.graphRootNode().nxGraph
@@ -191,7 +191,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         last_node = None
         for x in range(0, nodes_side_count * step, step):
             for y in range(0, nodes_side_count * 400, 400):
-                props = { SGT.SGA.x: x, SGT.SGA.y: y, SGT.SGA.nodeType : SGT.ENodeTypes.StorageSingle }
+                props = { SGT.SGA.x: x, SGT.SGA.y: y, SGT.SGA.nodeType : SGT.ENodeTypes.StoragePoint }
                 cur_node = CGraphNode_NO( name = self.genStrNodeID(), parent = self.graphRootNode().nodesNode(),
                         saveToRedis = True, props = props, ext_fields = {} )
                 if last_node:

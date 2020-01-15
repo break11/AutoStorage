@@ -51,11 +51,11 @@ class CNode_SGItem(QGraphicsItem):
         return { self.netObj().UID }
 
     def calcBBox(self):
-        if self.nodeType == SGT.ENodeTypes.StorageSingle:
+        if self.nodeType == SGT.ENodeTypes.StoragePoint:
             self.__BBoxRect = QRectF( -self.__st_width/2 - self.__st_offset, -self.__st_height/2,
                                        self.__st_offset*2 + self.__st_width, self.__st_height )
             self.spTextRect = self.__BBoxRect.adjusted(1*self.__R, 1*self.__R, -self.__R, -self.__R)
-        elif self.nodeType == SGT.ENodeTypes.ServiceStation:
+        elif self.nodeType == SGT.ENodeTypes.PowerStation:
             self.__BBoxRect = QRectF( -SGT.wide_Rail_Width/2 - self.__clemma_width, -self.__clemma_width/2,
                                                     SGT.wide_Rail_Width + self.__clemma_width*2, self.__clemma_width )
             self.__BBoxRect.adjust( -self.__clemma_offset, 0, self.__clemma_offset, 0 )
@@ -94,7 +94,7 @@ class CNode_SGItem(QGraphicsItem):
         lod = option.levelOfDetailFromTransform( painter.worldTransform() )
         font = QFont()
 
-        if self.nodeType == SGT.ENodeTypes.ServiceStation:
+        if self.nodeType == SGT.ENodeTypes.PowerStation:
             if lod > 0.1:
                 pen = QPen( Qt.white )
                 painter.setPen( pen )
@@ -108,7 +108,7 @@ class CNode_SGItem(QGraphicsItem):
                 painter.drawText( self.minus_rect, Qt.AlignCenter, "-" )
                 painter.drawText( self.plus_rect, Qt.AlignCenter, "+" )
 
-        if self.nodeType == SGT.ENodeTypes.StorageSingle:
+        if self.nodeType == SGT.ENodeTypes.StoragePoint:
             if self.SGM.bDrawSpecialLines:
                 #прямая пропорциональности
                 pen = QPen( Qt.magenta )

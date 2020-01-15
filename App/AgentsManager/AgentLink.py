@@ -263,7 +263,7 @@ class CAgentLink( CAgentServer_Link ):
     def prepareCharging( self ):
         agentNO = self.agentNO()
         tKey = agentNO.edge.toTuple()
-        if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeTypes = { ENodeTypes.ServiceStation } ):
+        if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeTypes = { ENodeTypes.PowerStation } ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
@@ -453,7 +453,7 @@ class CAgentLink( CAgentServer_Link ):
             agentNO.goToNode( task.data )
 
         elif task.type == ATD.ETaskType.DoCharge:
-            if not agentNO.isOnNode( nodeTypes = { ENodeTypes.ServiceStation } ):
+            if not agentNO.isOnNode( nodeTypes = { ENodeTypes.PowerStation } ):
                 tKey = agentNO.isOnTrack()
 
                 route_weight, nodes_route = GU.routeToServiceStation( self.nxGraph, tKey, agentNO.angle )
@@ -479,7 +479,7 @@ class CAgentLink( CAgentServer_Link ):
                 nodeID = task.data.nodeID
                 side = task.data.side
                 
-            bOnTargetNode   = agentNO.isOnNode( nodeID = nodeID, nodeTypes = { ENodeTypes.StorageSingle, ENodeTypes.PickStation } )
+            bOnTargetNode   = agentNO.isOnNode( nodeID = nodeID, nodeTypes = { ENodeTypes.StoragePoint, ENodeTypes.PickStation } )
             bWithTargetSide = agentNO.target_LU_side == side
 
             if not bOnTargetNode:

@@ -73,7 +73,7 @@ class Test_SGM_Funcs(unittest.TestCase):
         for dummyNodeItem in SGM.nodeGItems.values():
             SGM.updateNodeMiddleLine( dummyNodeItem )
 
-        # StorageSingle
+        # StoragePoint
         self.assertTrue(    math.isclose( SGM.nodeGItems["n0"].middleLineAngle, 45.0,  abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["2"].middleLineAngle,  360.0, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["5"].middleLineAngle,  270.0, abs_tol=1e-9 )    )
@@ -83,7 +83,7 @@ class Test_SGM_Funcs(unittest.TestCase):
         self.assertTrue(    math.isclose( SGM.nodeGItems["19"].middleLineAngle, 251.565051177078, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["21"].middleLineAngle, 247.499999999999, abs_tol=1e-9 )    )
         
-        # ServiceStation
+        # PowerStation
         self.assertTrue(    math.isclose( SGM.nodeGItems["24"].middleLineAngle, 360.0, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["27"].middleLineAngle, 180.0, abs_tol=1e-9 )    )
         self.assertTrue(    math.isclose( SGM.nodeGItems["29"].middleLineAngle, 270.0, abs_tol=1e-9 )    )

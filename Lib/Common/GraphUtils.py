@@ -241,9 +241,9 @@ def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
     
     eNodeType = nxGraph.nodes[ nodeID ][ SGA.nodeType ]
     
-    if eNodeType == SGT.ENodeTypes.StorageSingle:
+    if eNodeType == SGT.ENodeTypes.StoragePoint:
         r_vec = rotateToRightSector( r_vec )
-    elif eNodeType == SGT.ENodeTypes.ServiceStation:
+    elif eNodeType == SGT.ENodeTypes.PowerStation:
         eSide = nxGraph.nodes[ nodeID ][ SGA.chargeSide ]
         r_vec = rotateToLeftSector( r_vec ) if eSide == SGT.ESide.Left else rotateToRightSector( r_vec )
     
@@ -383,7 +383,7 @@ def shortestNodesRoute( nxGraph, agentEdge, agentAngle, targetNode, targetSide =
     return 0, []
 
 def routeToServiceStation( nxGraph, agentEdge, agentAngle ):
-    charge_nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.ServiceStation )
+    charge_nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.PowerStation )
     nodes_routes_weighted = []
 
     for targetNode in charge_nodes:

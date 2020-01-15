@@ -26,27 +26,25 @@ SGA = SGraphAttrs
 #######################################################
 
 class ENodeTypes( BaseEnum ):
-    UnknownType    = auto()
     DummyNode      = auto()
-    StorageSingle  = auto()
-    Cross          = auto()
+    RailNode       = auto()
+    StoragePoint   = auto()
+    RailCross      = auto()
     PickStation    = auto()
-    PickStationIn  = auto()
-    PickStationOut = auto()
-    ServiceStation = auto()
+    PowerStation   = auto()
     Terminal       = auto()
 
-    Default = UnknownType
+    Default = DummyNode
 
 nodeColors = {
-    ENodeTypes.UnknownType    : Qt.darkRed,
-    ENodeTypes.DummyNode      : Qt.darkGreen,
-    ENodeTypes.StorageSingle  : Qt.cyan,
-    ENodeTypes.Cross          : Qt.darkMagenta,
+    ENodeTypes.DummyNode    : Qt.darkRed,
+    ENodeTypes.RailNode      : Qt.darkGreen,
+    ENodeTypes.StoragePoint  : Qt.cyan,
+    ENodeTypes.RailCross          : Qt.darkMagenta,
     ENodeTypes.PickStation    : Qt.blue,
-    ENodeTypes.PickStationIn  : Qt.darkYellow,
-    ENodeTypes.PickStationOut : Qt.yellow,
-    ENodeTypes.ServiceStation : Qt.darkBlue,
+    ENodeTypes.PickStation  : Qt.darkYellow,
+    ENodeTypes.PickStation : Qt.yellow,
+    ENodeTypes.PowerStation : Qt.darkBlue,
     ENodeTypes.Terminal       : Qt.lightGray,
 }
 

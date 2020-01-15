@@ -151,10 +151,7 @@ class CAM_MainWindow(QMainWindow):
         else:
             self.testType = None
 
-    enabledTargetNodes = { SGT.ENodeTypes.StorageSingle,
-                           SGT.ENodeTypes.PickStation,
-                           SGT.ENodeTypes.PickStationIn,
-                           SGT.ENodeTypes.PickStationOut }
+    enabledTargetNodes = { SGT.ENodeTypes.StoragePoint, SGT.ENodeTypes.PickStation }
 
     def AgentTest( self ):
         if self.testType == None: return
