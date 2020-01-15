@@ -140,7 +140,6 @@ def load_and_fix_GraphML_File( sFName="" ):
 
     converToPython( nxGraph )
 
-    SGT.prepareGraphProps( nxGraph, bToEnum = False )
     nx.write_graphml( nxGraph, sFName )
 
 def main():
