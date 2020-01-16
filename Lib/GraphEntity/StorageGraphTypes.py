@@ -20,6 +20,8 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     x                = None
     y                = None
     nodeType         = None
+    left             = None
+    right            = None
 
 SGA = SGraphAttrs
 

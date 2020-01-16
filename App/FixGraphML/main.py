@@ -107,7 +107,7 @@ def convertTo_TransporterVersion( nxGraph ):
 
     SGT.prepareGraphProps( nxGraph )
 
-    # добавление недостающих свойств для нод
+    # добавление недостающих обязательных свойств для нод
     for k,v in nxGraph.nodes().items():
         propList = common_NodeProps
         nodeType = v[ SGT.SGA.nodeType ]
