@@ -16,7 +16,7 @@
     <node id="nLU">
       <data key="d3">-500</data>
       <data key="d4">-500</data>
-      <data key="d5">RailNode</data>
+      <data key="d5">RailPoint</data>
     </node>
     <node id="n0">
       <data key="d3">0</data>
@@ -24,7 +24,7 @@
       <data key="d5">RailCross</data>
     </node>
     <node id="nRD">
-      <data key="d5">RailNode</data>
+      <data key="d5">RailPoint</data>
       <data key="d3">2000</data>
       <data key="d4">2000</data>
     </node>

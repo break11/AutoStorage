@@ -29,7 +29,7 @@ SGA = SGraphAttrs
 
 class ENodeTypes( BaseEnum ):
     DummyNode      = auto()
-    RailNode       = auto()
+    RailPoint      = auto()
     StoragePoint   = auto()
     RailCross      = auto()
     PickStation    = auto()
@@ -40,15 +40,20 @@ class ENodeTypes( BaseEnum ):
 
 nodeColors = {
     ENodeTypes.DummyNode    : Qt.darkRed,
-    ENodeTypes.RailNode      : Qt.darkGreen,
-    ENodeTypes.StoragePoint  : Qt.cyan,
-    ENodeTypes.RailCross          : Qt.darkMagenta,
-    ENodeTypes.PickStation    : Qt.blue,
+    ENodeTypes.RailPoint     : Qt.darkGreen,
+    ENodeTypes.StoragePoint : Qt.cyan,
+    ENodeTypes.RailCross    : Qt.darkMagenta,
+    ENodeTypes.PickStation  : Qt.blue,
     ENodeTypes.PickStation  : Qt.darkYellow,
-    ENodeTypes.PickStation : Qt.yellow,
+    ENodeTypes.PickStation  : Qt.yellow,
     ENodeTypes.PowerStation : Qt.darkBlue,
-    ENodeTypes.Terminal       : Qt.lightGray,
+    ENodeTypes.Terminal     : Qt.lightGray,
 }
+
+#######################################################
+# class ENodeTypes( BaseEnum ):
+
+#     Default = DummyNode
 
 #######################################################
 class ERailHeight( BaseEnum ):

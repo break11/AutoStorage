@@ -13,62 +13,62 @@
     <node id="1">
       <data key="d0">1500</data>
       <data key="d1">-2000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="2">
       <data key="d0">4500</data>
       <data key="d1">-2000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="3">
       <data key="d0">1500</data>
       <data key="d1">-500</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="4">
       <data key="d0">4500</data>
       <data key="d1">-500</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="5">
       <data key="d0">1500</data>
       <data key="d1">1000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="6">
       <data key="d0">4500</data>
       <data key="d1">1000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="7">
       <data key="d0">6000</data>
       <data key="d1">-2000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="8">
       <data key="d0">9000</data>
       <data key="d1">-2000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="9">
       <data key="d0">6000</data>
       <data key="d1">-500</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="10">
       <data key="d0">9000</data>
       <data key="d1">-500</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="11">
       <data key="d0">6000</data>
       <data key="d1">1000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <node id="12">
       <data key="d0">9000</data>
       <data key="d1">1000</data>
-      <data key="d2">RailNode</data>
+      <data key="d2">RailPoint</data>
     </node>
     <edge source="1" target="2">
       <data key="d3">3000</data>

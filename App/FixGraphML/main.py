@@ -95,7 +95,7 @@ def convertTo_TransporterVersion( nxGraph ):
     print( "********************** convertTo_TransporterVersion ***************************" )
 
     # переименование типов нод
-    fieldsToRename = { "DummyNode"      : "RailNode",
+    fieldsToRename = { "DummyNode"      : "RailPoint",
                        "UnknownType"    : "DummyNode",
                        "StorageSingle"  : "StoragePoint",
                        "PickStationIn"  : "PickStation",

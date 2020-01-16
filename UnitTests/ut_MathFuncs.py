@@ -619,14 +619,14 @@ class TestStrFuncs(unittest.TestCase):
         self.assertEqual( gu.nodeByPos( nxGraph, tEdgeKey12, 494, allowOffset=5 ), None )
 
     def test_isOnNode(self):
-        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeTypes = { SGT.ENodeTypes.RailNode } ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeTypes = { SGT.ENodeTypes.RailPoint } ), True )
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeTypes = { SGT.ENodeTypes.PowerStation } ), False )
-        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeTypes = { SGT.ENodeTypes.RailNode } ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeTypes = { SGT.ENodeTypes.RailPoint } ), True )
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeTypes = { SGT.ENodeTypes.PowerStation } ), False )
 
-        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeID="1", _nodeTypes = { SGT.ENodeTypes.RailNode } ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeID="1", _nodeTypes = { SGT.ENodeTypes.RailPoint } ), True )
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 0,   _nodeID="1", _nodeTypes = { SGT.ENodeTypes.PowerStation } ), False )
-        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="2", _nodeTypes = { SGT.ENodeTypes.RailNode } ), True )
+        self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="2", _nodeTypes = { SGT.ENodeTypes.RailPoint } ), True )
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="2", _nodeTypes = { SGT.ENodeTypes.PowerStation } ), False )
 
         self.assertEqual( gu.isOnNode( nxGraph, tEdgeKey12, 500, _nodeID="1", _nodeTypes = { SGT.ENodeTypes.PowerStation } ), False )
@@ -641,7 +641,7 @@ class TestStrFuncs(unittest.TestCase):
         self.assertTrue( len(nodes) == count )
 
         #####################################################################################
-        _nodeTypes, count = { SGT.ENodeTypes.RailNode, SGT.ENodeTypes.PowerStation }, 2
+        _nodeTypes, count = { SGT.ENodeTypes.RailPoint, SGT.ENodeTypes.PowerStation }, 2
         nodes = gu.randomNodes( nxGraph_mag_ext, _nodeTypes, count = count )
         bTypes = map( lambda nodeID: gu.nodeType( nxGraph_mag_ext, nodeID ) in _nodeTypes, nodes )
         
