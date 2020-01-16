@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="edgeType" attr.type="string" for="edge" id="d9" />
   <key attr.name="curvature" attr.type="string" for="edge" id="d8" />
   <key attr.name="widthType" attr.type="string" for="edge" id="d7" />
   <key attr.name="sensorSide" attr.type="string" for="edge" id="d6" />
@@ -31,7 +32,7 @@
       <data key="d1">1250</data>
     </node>
     <node id="nRU">
-      <data key="d2">DummyNode</data>
+      <data key="d2">RailPoint</data>
       <data key="d0">1000</data>
       <data key="d1">-1000</data>
     </node>
@@ -47,6 +48,7 @@
       <data key="d6">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
     </edge>
     <edge source="nRD" target="n0">
       <data key="d3">500</data>
@@ -55,6 +57,7 @@
       <data key="d8">Straight</data>
       <data key="d5">0</data>
       <data key="d7">Narrow</data>
+      <data key="d9">Rail</data>
     </edge>
     <edge source="nLD" target="n0">
       <data key="d3">500</data>
@@ -63,6 +66,7 @@
       <data key="d8">Straight</data>
       <data key="d5">0</data>
       <data key="d7">Narrow</data>
+      <data key="d9">Rail</data>
     </edge>
     <edge source="nRU" target="nLU">
       <data key="d3">500</data>
@@ -71,6 +75,7 @@
       <data key="d6">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
     </edge>
   </graph>
 </graphml>

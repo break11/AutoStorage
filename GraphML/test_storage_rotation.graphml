@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="edgeType" attr.type="string" for="edge" id="d12" />
   <key attr.name="curvature" attr.type="string" for="edge" id="d11" />
   <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d10" />
   <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d9" />
@@ -148,7 +149,7 @@
       <data key="d1">8200</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Right</data>
-      <data key="d4" />
+      <data key="d4">ttyS0</data>
     </node>
     <node id="25">
       <data key="d0">2800</data>
@@ -165,7 +166,7 @@
       <data key="d1">8200</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Left</data>
-      <data key="d4" />
+      <data key="d4">ttyS0</data>
     </node>
     <node id="28">
       <data key="d0">4200</data>
@@ -177,7 +178,7 @@
       <data key="d1">7200</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Right</data>
-      <data key="d4" />
+      <data key="d4">ttyS0</data>
     </node>
     <node id="30">
       <data key="d0">5600</data>
@@ -199,7 +200,7 @@
       <data key="d1">8400</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Left</data>
-      <data key="d4" />
+      <data key="d4">ttyS0</data>
     </node>
     <node id="34">
       <data key="d0">7600</data>
@@ -214,6 +215,7 @@
       <data key="d9">0</data>
       <data key="d10">0</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="n0" target="nLU">
       <data key="d7">Narrow</data>
@@ -223,6 +225,7 @@
       <data key="d5">500</data>
       <data key="d10">0</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="n0" target="nRD">
       <data key="d7">Narrow</data>
@@ -231,6 +234,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="nRD" target="n0">
       <data key="d7">Narrow</data>
@@ -239,6 +243,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="1" target="2">
       <data key="d7">Narrow</data>
@@ -247,6 +252,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="2" target="1">
       <data key="d7">Narrow</data>
@@ -255,6 +261,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="2" target="3">
       <data key="d7">Narrow</data>
@@ -263,6 +270,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="3" target="2">
       <data key="d7">Narrow</data>
@@ -271,6 +279,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="4" target="5">
       <data key="d7">Narrow</data>
@@ -279,6 +288,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="5" target="6">
       <data key="d7">Narrow</data>
@@ -287,6 +297,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="5" target="4">
       <data key="d7">Narrow</data>
@@ -295,6 +306,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="6" target="5">
       <data key="d7">Narrow</data>
@@ -303,6 +315,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="8" target="9">
       <data key="d7">Narrow</data>
@@ -311,6 +324,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="8" target="7">
       <data key="d7">Narrow</data>
@@ -319,6 +333,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="8" target="16">
       <data key="d7">Narrow</data>
@@ -327,6 +342,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="10" target="11">
       <data key="d7">Narrow</data>
@@ -335,6 +351,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="11" target="12">
       <data key="d7">Narrow</data>
@@ -343,6 +360,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="11" target="10">
       <data key="d7">Narrow</data>
@@ -351,6 +369,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="12" target="11">
       <data key="d7">Narrow</data>
@@ -359,6 +378,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="13" target="14">
       <data key="d7">Narrow</data>
@@ -367,6 +387,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="14" target="15">
       <data key="d7">Narrow</data>
@@ -375,6 +396,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="14" target="13">
       <data key="d7">Narrow</data>
@@ -383,6 +405,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="15" target="14">
       <data key="d7">Narrow</data>
@@ -391,6 +414,7 @@
       <data key="d10">0</data>
       <data key="d11">Straight</data>
       <data key="d8">SBoth</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="17" target="19">
       <data key="d5">500</data>
@@ -399,6 +423,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="18" target="19">
       <data key="d5">500</data>
@@ -407,6 +432,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="19" target="17">
       <data key="d5">500</data>
@@ -415,6 +441,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="19" target="18">
       <data key="d5">500</data>
@@ -423,6 +450,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="20" target="21">
       <data key="d5">500</data>
@@ -431,6 +459,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="21" target="20">
       <data key="d5">500</data>
@@ -439,6 +468,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="21" target="22">
       <data key="d5">500</data>
@@ -447,6 +477,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="22" target="21">
       <data key="d5">500</data>
@@ -455,6 +486,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Narrow</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="23" target="24">
       <data key="d5">500</data>
@@ -463,6 +495,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="24" target="23">
       <data key="d5">500</data>
@@ -471,6 +504,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="24" target="25">
       <data key="d5">500</data>
@@ -479,6 +513,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="25" target="24">
       <data key="d5">500</data>
@@ -487,6 +522,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="26" target="27">
       <data key="d5">500</data>
@@ -495,6 +531,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="27" target="26">
       <data key="d5">500</data>
@@ -503,6 +540,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="27" target="28">
       <data key="d5">500</data>
@@ -511,6 +549,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="28" target="27">
       <data key="d5">500</data>
@@ -519,6 +558,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="29" target="30">
       <data key="d5">500</data>
@@ -527,6 +567,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="29" target="31">
       <data key="d5">500</data>
@@ -535,6 +576,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="30" target="29">
       <data key="d5">500</data>
@@ -543,6 +585,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="31" target="29">
       <data key="d5">500</data>
@@ -551,6 +594,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="32" target="33">
       <data key="d5">500</data>
@@ -559,6 +603,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="33" target="32">
       <data key="d5">500</data>
@@ -567,6 +612,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="33" target="34">
       <data key="d5">500</data>
@@ -575,6 +621,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
     <edge source="34" target="33">
       <data key="d5">500</data>
@@ -583,6 +630,7 @@
       <data key="d8">SBoth</data>
       <data key="d7">Wide</data>
       <data key="d11">Straight</data>
+      <data key="d12">Rail</data>
     </edge>
   </graph>
 </graphml>

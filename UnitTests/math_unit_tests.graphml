@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="edgeType" attr.type="string" for="edge" id="d9" />
   <key attr.name="widthType" attr.type="string" for="edge" id="d8" />
   <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d7" />
   <key attr.name="curvature" attr.type="string" for="edge" id="d6" />
@@ -57,6 +58,7 @@
       <data key="d6">Straight</data>
       <data key="d7">0</data>
       <data key="d8">Narrow</data>
+      <data key="d9">Rail</data>
     </edge>
     <edge source="2" target="1">
       <data key="d3">500</data>
@@ -65,6 +67,7 @@
       <data key="d6">Straight</data>
       <data key="d7">0</data>
       <data key="d8">Narrow</data>
+      <data key="d9">Rail</data>
     </edge>
   </graph>
 </graphml>

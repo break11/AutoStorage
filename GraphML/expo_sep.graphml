@@ -1050,7 +1050,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="46" target="47">
       <data key="d7">500</data>
@@ -1059,7 +1059,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="46" target="45">
       <data key="d7">500</data>
@@ -1068,7 +1068,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="47" target="48">
       <data key="d7">500</data>
@@ -1077,7 +1077,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="47" target="46">
       <data key="d7">500</data>
@@ -1086,7 +1086,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="48" target="49">
       <data key="d7">500</data>
@@ -1095,7 +1095,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="48" target="47">
       <data key="d7">500</data>
@@ -1104,7 +1104,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="49" target="48">
       <data key="d7">500</data>
@@ -1113,7 +1113,7 @@
       <data key="d10">SBoth</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
-      <data key="d13">Transporter</data>
+      <data key="d13">Rail</data>
     </edge>
   </graph>
 </graphml>
