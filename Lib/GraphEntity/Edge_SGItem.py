@@ -23,6 +23,14 @@ class CEdge_SGItem(QGraphicsItem):
     @property
     def y2(self): return self.node_2().y
 
+    def getAnyEdgeNO( self ):
+        return self.edge1_2() if self.edge1_2() is not None else self.edge2_1()
+
+    def getType( self ):
+        edgeNO = self.getAnyEdgeNO()
+        edgeType = edgeNO[ SGT.SGA.edgeType ]
+        return edgeType
+
     def __init__(self, SGM, fsEdgeKey, graphRootNode, parent ):
         super().__init__( parent=parent )
 
@@ -122,11 +130,11 @@ class CEdge_SGItem(QGraphicsItem):
         if lod > 50:
             if self.edge1_2() is not None:
                 edgeLines.append( QLineF( self.baseLine.length() - 30, -1 + of, self.baseLine.length() - 50, -10 + of ) ) #     \
-                edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                             # -----
+                edgeLines.append( QLineF( 0, of, self.baseLine.length(), of ) )                                           # -----
                 edgeLines.append( QLineF( self.baseLine.length() - 30, 1 + of, self.baseLine.length() - 50, 10 + of ) )   #     /
             if self.edge2_1() is not None:
                 edgeLines.append( QLineF( 30, -1 - of, 50, -10 - of ) )              # /
-                edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )  # -----
+                edgeLines.append( QLineF( self.baseLine.length(), -of, 0, -of ) )    # -----
                 edgeLines.append( QLineF( 30, 1  - of,  50, 10 - of ) )              # \
                 # edgeLines.append( QLineF( 50, -10 - of,  50, 10 - of ) )
         elif lod > 30:
@@ -141,7 +149,7 @@ class CEdge_SGItem(QGraphicsItem):
         if self.isSelected():
             fillColor = Qt.red
         else:
-            fillColor = Qt.darkGreen
+            fillColor = Qt.darkGreen if self.getType() == SGT.EEdgeTypes.Rail else Qt.darkCyan
 
         pen.setColor( fillColor )
         pen.setWidth( 5 )

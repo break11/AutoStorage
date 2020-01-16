@@ -7,6 +7,7 @@ from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.StorageGraphTypes import SGA
 
 class CEdgeDecorate_SGItem(QGraphicsItem):
+    __TS_Line_Width = 250
     def __init__(self, parentEdge, parentItem ):
         super().__init__( parent = parentItem )
         self.parentEdge = parentEdge
@@ -15,13 +16,13 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
     def updatedDecorate( self ):
         self.prepareGeometryChange()
 
-        edgeNetObj = self.parentEdge.edge1_2()
-        if edgeNetObj is None:
-            edgeNetObj = self.parentEdge.edge2_1()
-        assert edgeNetObj is not None
+        edgeNetObj = self.parentEdge.getAnyEdgeNO()
 
         self.setRotation( -self.parentEdge.rotateAngle() )
-        self.width = SGT.railWidth[ edgeNetObj.widthType ] if ( edgeNetObj and SGA.widthType in edgeNetObj.props) else 0
+        if self.parentEdge.getType() == SGT.EEdgeTypes.Rail:
+            self.width = SGT.railWidth[ edgeNetObj.widthType ] if ( SGA.widthType in edgeNetObj.props) else 0
+        else:
+            self.width = self.__TS_Line_Width
 
         w = self.width
         self.__BBoxRect = QRectF( -w/2, -w/2, self.parentEdge.baseLine.length() + w, w )
@@ -37,11 +38,15 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         if self.parentEdge.SGM.bDrawMainRail:
             pen = QPen()
             pen.setWidth( self.width )
-            if self.parentEdge.SGM.bDrawInfoRails:
-                pen.setColor( QColor( 150, 150, 150, 120 ) )
-            else:
-                pen.setColor( QColor( 150, 150, 150 ) )
-            pen.setCapStyle( Qt.RoundCap )
+            color = QColor( 150, 150, 150 ) if self.parentEdge.getType() == SGT.EEdgeTypes.Rail else QColor( 255, 150, 150 )
+
+            alpha = 120 if self.parentEdge.SGM.bDrawInfoRails else 255
+
+            if self.parentEdge.getType() == SGT.EEdgeTypes.Rail:
+                pen.setCapStyle( Qt.RoundCap )
+
+            color.setAlpha( alpha )
+            pen.setColor( color )
 
             painter.setPen( pen )
             painter.drawLine( 0,0, self.parentEdge.baseLine.length(),0 )

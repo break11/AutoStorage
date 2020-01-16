@@ -36,6 +36,7 @@ def registerNetObj_Props_Types():
     reg( float )
     reg( ADT.EAgent_Status )
     reg( SGT.ENodeTypes )
+    reg( SGT.EEdgeTypes )
     reg( SGT.ESensorSide )
     reg( SGT.EWidthType )
     reg( SGT.ECurvature )

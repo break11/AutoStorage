@@ -83,9 +83,9 @@ class CGraphNode_NO( CNetObj ):
 
 ###################################################################################
 
-common_EdgeProps = { SGT.SGA.edgeType }
+common_EdgeProps = { SGT.SGA.edgeType, SGT.SGA.edgeSize }
 spec_EdgeProps = {
-    SGT.EEdgeTypes.Rail : { SGT.SGA.edgeSize, SGT.SGA.highRailSizeFrom, SGT.SGA.highRailSizeTo,
+    SGT.EEdgeTypes.Rail : { SGT.SGA.highRailSizeFrom, SGT.SGA.highRailSizeTo,
                             SGT.SGA.sensorSide, SGT.SGA.widthType, SGT.SGA.curvature }
 }
 
