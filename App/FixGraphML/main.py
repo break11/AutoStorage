@@ -5,7 +5,7 @@ import networkx as nx
 from Lib.Common.StrConsts import SC
 from Lib.Common.Utils import mergeDicts
 import Lib.GraphEntity.StorageGraphTypes as SGT
-from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO, common_NodeProps, spec_NodeProps
+import Lib.GraphEntity.Graph_NetObjects as GNO
 
 def adjustAttr( sAttrName, val, graphAttr ):
     if val is None: return None
@@ -106,17 +106,25 @@ def convertTo_TransporterVersion( nxGraph ):
     renameNodeTypes( nxGraph, fieldsToRename )
 
     SGT.prepareGraphProps( nxGraph )
+    
+    # добавление недостающих свойств для Граней и Нод
+    def normalizeObjectsProps( objDict, typePropName, commonProps, specProps, defPropsVal ):
+        for k,v in objDict.items():
+            # поле Type отсутствовало в дикте свойств, добавляем его туда с дефолтным значением
+            if typePropName not in v:
+                v[ typePropName ] = defPropsVal[ typePropName ]
 
-    # добавление недостающих обязательных свойств для нод
-    for k,v in nxGraph.nodes().items():
-        propList = common_NodeProps
-        nodeType = v[ SGT.SGA.nodeType ]
-        if nodeType in spec_NodeProps:
-            propList = propList.union( spec_NodeProps[ nodeType ] )
-        
-        for propName in propList:
-            if propName not in v:
-                v[ propName ] = CGraphNode_NO.def_props[ propName ]
+            propList = commonProps
+            objType = v[ typePropName ]
+            if objType in specProps:
+                propList = propList.union( specProps[ objType ] )
+
+            for propName in propList:
+                if propName not in v:
+                    v[ propName ] = defPropsVal[ propName ]
+
+    normalizeObjectsProps( nxGraph.nodes(), SGT.SGA.nodeType, GNO.common_NodeProps, GNO.spec_NodeProps, GNO.CGraphNode_NO.def_props )
+    normalizeObjectsProps( nxGraph.edges(), SGT.SGA.edgeType, GNO.common_EdgeProps, GNO.spec_EdgeProps, GNO.CGraphEdge_NO.def_props )
 
     SGT.prepareGraphProps( nxGraph, bToEnum=False )
 

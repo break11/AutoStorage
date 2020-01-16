@@ -20,6 +20,7 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     x                = None
     y                = None
     nodeType         = None
+    edgeType         = None
     left             = None
     right            = None
 
@@ -40,7 +41,7 @@ class ENodeTypes( BaseEnum ):
 
 nodeColors = {
     ENodeTypes.DummyNode    : Qt.darkRed,
-    ENodeTypes.RailPoint     : Qt.darkGreen,
+    ENodeTypes.RailPoint    : Qt.darkGreen,
     ENodeTypes.StoragePoint : Qt.cyan,
     ENodeTypes.RailCross    : Qt.darkMagenta,
     ENodeTypes.PickStation  : Qt.blue,
@@ -51,9 +52,11 @@ nodeColors = {
 }
 
 #######################################################
-# class ENodeTypes( BaseEnum ):
+class EEdgeTypes( BaseEnum ):
+    Rail        = auto()
+    Transporter = auto()
 
-#     Default = DummyNode
+    Default = Rail
 
 #######################################################
 class ERailHeight( BaseEnum ):
@@ -181,6 +184,7 @@ class SNodePlace:
 ###########################################################
 
 graphEnums = { SGA.nodeType   : ENodeTypes, 
+               SGA.edgeType   : EEdgeTypes,
                SGA.sensorSide : ESensorSide,
                SGA.widthType  : EWidthType, 
                SGA.curvature  : ECurvature, 
