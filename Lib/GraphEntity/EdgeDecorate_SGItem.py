@@ -38,7 +38,7 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
         if self.parentEdge.SGM.bDrawMainRail:
             pen = QPen()
             pen.setWidth( self.width )
-            color = QColor( 150, 150, 150 ) if self.parentEdge.getType() == SGT.EEdgeTypes.Rail else QColor( 255, 150, 150 )
+            color = QColor( 150, 150, 150 ) if self.parentEdge.getType() == SGT.EEdgeTypes.Rail else QColor( 150, 120, 90 )
 
             alpha = 120 if self.parentEdge.SGM.bDrawInfoRails else 255
 

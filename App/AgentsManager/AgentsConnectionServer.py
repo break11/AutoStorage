@@ -27,7 +27,7 @@ class CAgentsConnectionServer(QTcpServer):
         address = QHostAddress( QHostAddress.Any )
         if not self.listen( address=address, port=8888 ):
             print( f"{self.s_AgentsNetServer} - Unable to start the server: {self.errorString()}." )
-            return
+            # return
         else:
             print( f'{self.s_AgentsNetServer} created OK, listen started on address = {address.toString()}.' )
 

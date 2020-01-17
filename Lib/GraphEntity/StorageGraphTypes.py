@@ -29,26 +29,32 @@ SGA = SGraphAttrs
 #######################################################
 
 class ENodeTypes( BaseEnum ):
-    DummyNode      = auto()
-    RailPoint      = auto()
-    StoragePoint   = auto()
-    RailCross      = auto()
-    PickStation    = auto()
-    PowerStation   = auto()
-    Terminal       = auto()
+    DummyNode        = auto()
+    RailPoint        = auto()
+    StoragePoint     = auto()
+    RailCross        = auto()
+    PickStation      = auto()
+    PowerStation     = auto()
+    Terminal         = auto()
+    TransporterPoint = auto()
+    TransporterIn    = auto()
+    TransporterOut   = auto()
+    UserPoint        = auto()
 
     Default = DummyNode
 
 nodeColors = {
-    ENodeTypes.DummyNode    : Qt.darkRed,
-    ENodeTypes.RailPoint    : Qt.darkGreen,
-    ENodeTypes.StoragePoint : Qt.cyan,
-    ENodeTypes.RailCross    : Qt.darkMagenta,
-    ENodeTypes.PickStation  : Qt.blue,
-    ENodeTypes.PickStation  : Qt.darkYellow,
-    ENodeTypes.PickStation  : Qt.yellow,
-    ENodeTypes.PowerStation : Qt.darkBlue,
-    ENodeTypes.Terminal     : Qt.lightGray,
+    ENodeTypes.DummyNode        : Qt.darkRed,
+    ENodeTypes.RailPoint        : Qt.darkGreen,
+    ENodeTypes.StoragePoint     : Qt.cyan,
+    ENodeTypes.RailCross        : Qt.darkMagenta,
+    ENodeTypes.PickStation      : Qt.darkYellow,
+    ENodeTypes.PowerStation     : Qt.darkBlue,
+    ENodeTypes.Terminal         : Qt.lightGray,
+    ENodeTypes.TransporterPoint : Qt.darkRed,
+    ENodeTypes.TransporterIn    : Qt.darkYellow,
+    ENodeTypes.TransporterOut   : Qt.yellow,
+    ENodeTypes.UserPoint        : Qt.darkRed,
 }
 
 #######################################################
