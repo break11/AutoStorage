@@ -27,7 +27,6 @@ class CAgentsConnectionServer(QTcpServer):
         address = QHostAddress( QHostAddress.Any )
         if not self.listen( address=address, port=8888 ):
             print( f"{self.s_AgentsNetServer} - Unable to start the server: {self.errorString()}." )
-            # return
         else:
             print( f'{self.s_AgentsNetServer} created OK, listen started on address = {address.toString()}.' )
 
@@ -62,10 +61,7 @@ class CAgentsConnectionServer(QTcpServer):
         if not isinstance( agentNO, CAgent_NO ): return
 
         ### del AgentLink
-        agentN = int( agentNO.name )
-        agentLink = self.getAgentLink( agentN, bWarning = True )
-        if agentLink is not None:
-            del self.AgentLinks[ agentN ]
+        self.deleteAgentLink( agentN = int( agentNO.name ) )
 
     ##########################
     def incomingConnection(self, socketDescriptor):
@@ -98,6 +94,7 @@ class CAgentsConnectionServer(QTcpServer):
             if thread in agentLink.socketThreads:
                 print( f"Deleting thread {id(thread)} agentN={thread.agentLink().agentN} from thread list for agent.")
                 agentLink.socketThreads.remove(thread)
+                agentLink.agentNO().connectedTime = 0
 
         print ( f"Deleting thread {id(thread)}." )
         thread.deleteLater()

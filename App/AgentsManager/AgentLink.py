@@ -116,8 +116,6 @@ class CAgentLink( CAgentServer_Link ):
         # обновление статуса connectedTime для NetObj челнока
         if self.isConnected():
             agentNO.connectedTime += 1
-        else:
-            agentNO.connectedTime = 0
 
     ####################
     def calcAgentAngle( self, agentNO ):
