@@ -81,6 +81,8 @@ class CAgentLink( CAgentServer_Link ):
     ##################
 
     def onObjPropUpdated( self, cmd ):
+        if not self.isConnected(): return
+        
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
 
         if agentNO.UID != self.agentNO().UID: return
@@ -107,15 +109,17 @@ class CAgentLink( CAgentServer_Link ):
     ##################
 
     def mainTick(self):
+        if not self.isConnected(): return
+
         agentNO = self.agentNO()
+
+        # обновление статуса connectedTime для NetObj челнока
+        agentNO.connectedTime += 1
 
         if agentNO.RTele:
             for e in ADT.TeleEvents:
                 self.pushCmd( ASP( event=e ), bAllowDuplicate=False )
 
-        # обновление статуса connectedTime для NetObj челнока
-        if self.isConnected():
-            agentNO.connectedTime += 1
 
     ####################
     def calcAgentAngle( self, agentNO ):
@@ -339,6 +343,8 @@ class CAgentLink( CAgentServer_Link ):
     #######################
 
     def processTaskList( self ):
+        if not self.isConnected(): return
+
         agentNO = self.agentNO()
 
         tl = agentNO.task_list
