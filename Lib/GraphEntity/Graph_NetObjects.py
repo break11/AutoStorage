@@ -5,6 +5,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
 from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
+from Lib.Common.StrConsts import SC
 import Lib.GraphEntity.StorageGraphTypes as SGT
 
 s_Graph = "Graph"
@@ -32,23 +33,24 @@ class CGraphRoot_NO( CNetObj ):
 ###################################################################################
 
 common_NodeProps = { SGT.SGA.x, SGT.SGA.y, SGT.SGA.nodeType }
+# spec_NodeProps - True в дикте означает обязательное присутствие свойства в объекте
 spec_NodeProps = {
-    SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargePort, SGT.SGA.chargeSide },
-    SGT.ENodeTypes.PickStation      : { SGT.SGA.left, SGT.SGA.right },
-    SGT.ENodeTypes.TransporterPoint : { SGT.SGA.linkPoint, SGT.SGA.linkPlace }
+    SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargePort : True,  SGT.SGA.chargeSide : True  },
+    SGT.ENodeTypes.PickStation      : { SGT.SGA.left       : False, SGT.SGA.right      : False },
+    SGT.ENodeTypes.TransporterPoint : { SGT.SGA.linkPoint  : False, SGT.SGA.linkPlace  : False }
 }
 
 class CGraphNode_NO( CNetObj ):
     def_props = {
-                    SGT.SGA.x: 0,
-                    SGT.SGA.y: 0,                          
-                    SGT.SGA.nodeType: SGT.ENodeTypes.DummyNode,
-                    SGT.SGA.chargePort: "ttyS0",
-                    SGT.SGA.chargeSide: SGT.ESide.Default,
-                    SGT.SGA.left: "transporter_in_1__node",
-                    SGT.SGA.right: "transporter_in_2__node",
-                    SGT.SGA.linkPoint: "some_node",
-                    SGT.SGA.linkPlace: SGT.SNodePlace( "some_node", SGT.ESide.Left )
+                    SGT.SGA.x          : 0,
+                    SGT.SGA.y          : 0,                          
+                    SGT.SGA.nodeType   : SGT.ENodeTypes.DummyNode,
+                    SGT.SGA.chargePort : "ttyS0",
+                    SGT.SGA.chargeSide : SGT.ESide.Default,
+                    SGT.SGA.left       : SC.some_node,
+                    SGT.SGA.right      : SC.some_node,
+                    SGT.SGA.linkPoint  : SC.some_node,
+                    SGT.SGA.linkPlace  : SGT.SNodePlace( SC.some_node, SGT.ESide.Left )
                 }
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
@@ -88,8 +90,8 @@ class CGraphNode_NO( CNetObj ):
 
 common_EdgeProps = { SGT.SGA.edgeType, SGT.SGA.edgeSize }
 spec_EdgeProps = {
-    SGT.EEdgeTypes.Rail : { SGT.SGA.highRailSizeFrom, SGT.SGA.highRailSizeTo,
-                            SGT.SGA.sensorSide, SGT.SGA.widthType, SGT.SGA.curvature }
+    SGT.EEdgeTypes.Rail : { SGT.SGA.highRailSizeFrom : True, SGT.SGA.highRailSizeTo : True,
+                            SGT.SGA.sensorSide : True, SGT.SGA.widthType : True, SGT.SGA.curvature : True }
 }
 
 class CGraphEdge_NO( CNetObj ):

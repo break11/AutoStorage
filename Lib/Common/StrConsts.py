@@ -10,6 +10,7 @@ class SC( metaclass = СStrProps_Meta ):
     propRef             = None
     name                = None
     UID                 = None
+    some_node           = None
     sWarning            = "[Warning]:"
     sError              = "[Error]:"
     sAssert             = "[Assert]:"

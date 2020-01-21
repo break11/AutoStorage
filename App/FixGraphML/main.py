@@ -117,7 +117,7 @@ def convertTo_TransporterVersion( nxGraph ):
             propList = commonProps
             objType = v[ typePropName ]
             if objType in specProps:
-                propList = propList.union( specProps[ objType ] )
+                propList = propList.union( { propName for propName, val in specProps[ objType ].items() if val } )
 
             for propName in propList:
                 if propName not in v:
@@ -131,7 +131,7 @@ def convertTo_TransporterVersion( nxGraph ):
 ###############################################################################################
         
 def converToPython( nxGraph ):
-    convertFromHaskell( nxGraph )
+    # convertFromHaskell( nxGraph )
     convertTo_TransporterVersion( nxGraph )
 
 ###############################################################################################

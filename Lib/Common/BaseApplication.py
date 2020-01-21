@@ -41,6 +41,7 @@ def registerNetObj_Props_Types():
     reg( SGT.EWidthType )
     reg( SGT.ECurvature )
     reg( SGT.ESide )
+    reg( SGT.SNodePlace )
     reg( ADT.EAgent_CMD_State )
     reg( ADT.SBS_Data )
     reg( ADT.EConnectedStatus )

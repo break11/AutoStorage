@@ -193,7 +193,8 @@ graphEnums = { SGA.nodeType   : ENodeTypes,
                SGA.sensorSide : ESensorSide,
                SGA.widthType  : EWidthType, 
                SGA.curvature  : ECurvature, 
-               SGA.chargeSide : ESide,      
+               SGA.chargeSide : ESide,
+               SGA.linkPlace  : SNodePlace
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):
