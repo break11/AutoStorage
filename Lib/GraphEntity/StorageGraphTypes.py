@@ -23,6 +23,8 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     edgeType         = None
     left             = None
     right            = None
+    linkPoint        = None
+    linkPlace        = None
 
 SGA = SGraphAttrs
 
@@ -37,8 +39,7 @@ class ENodeTypes( BaseEnum ):
     PowerStation     = auto()
     Terminal         = auto()
     TransporterPoint = auto()
-    TransporterIn    = auto()
-    TransporterOut   = auto()
+    TP               = TransporterPoint
     UserPoint        = auto()
 
     Default = DummyNode
@@ -52,8 +53,6 @@ nodeColors = {
     ENodeTypes.PowerStation     : Qt.darkBlue,
     ENodeTypes.Terminal         : Qt.lightGray,
     ENodeTypes.TransporterPoint : Qt.darkRed,
-    ENodeTypes.TransporterIn    : Qt.darkYellow,
-    ENodeTypes.TransporterOut   : Qt.yellow,
     ENodeTypes.UserPoint        : Qt.darkRed,
 }
 

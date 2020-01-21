@@ -33,8 +33,9 @@ class CGraphRoot_NO( CNetObj ):
 
 common_NodeProps = { SGT.SGA.x, SGT.SGA.y, SGT.SGA.nodeType }
 spec_NodeProps = {
-    SGT.ENodeTypes.PowerStation : { SGT.SGA.chargePort, SGT.SGA.chargeSide },
-    SGT.ENodeTypes.PickStation  : { SGT.SGA.left, SGT.SGA.right }
+    SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargePort, SGT.SGA.chargeSide },
+    SGT.ENodeTypes.PickStation      : { SGT.SGA.left, SGT.SGA.right },
+    SGT.ENodeTypes.TransporterPoint : { SGT.SGA.linkPoint, SGT.SGA.linkPlace }
 }
 
 class CGraphNode_NO( CNetObj ):
@@ -45,7 +46,9 @@ class CGraphNode_NO( CNetObj ):
                     SGT.SGA.chargePort: "ttyS0",
                     SGT.SGA.chargeSide: SGT.ESide.Default,
                     SGT.SGA.left: "transporter_in_1__node",
-                    SGT.SGA.right: "transporter_in_2__node"
+                    SGT.SGA.right: "transporter_in_2__node",
+                    SGT.SGA.linkPoint: "some_node",
+                    SGT.SGA.linkPlace: SGT.SNodePlace( "some_node", SGT.ESide.Left )
                 }
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
