@@ -9,8 +9,6 @@
   <key attr.name="edgeSize" attr.type="long" for="edge" id="d7" />
   <key attr.name="chargePort" attr.type="string" for="node" id="d6" />
   <key attr.name="chargeSide" attr.type="string" for="node" id="d5" />
-  <key attr.name="left" attr.type="string" for="node" id="d4" />
-  <key attr.name="right" attr.type="string" for="node" id="d3" />
   <key attr.name="nodeType" attr.type="string" for="node" id="d2" />
   <key attr.name="y" attr.type="long" for="node" id="d1" />
   <key attr.name="x" attr.type="long" for="node" id="d0" />
@@ -149,15 +147,11 @@
       <data key="d0">1012</data>
       <data key="d1">9300</data>
       <data key="d2">PickStation</data>
-      <data key="d3">transporter_in_2__node</data>
-      <data key="d4">transporter_in_1__node</data>
     </node>
     <node id="27">
       <data key="d0">1012</data>
       <data key="d1">11075</data>
       <data key="d2">PickStation</data>
-      <data key="d3">transporter_in_2__node</data>
-      <data key="d4">transporter_in_1__node</data>
     </node>
     <node id="28">
       <data key="d0">1012</data>

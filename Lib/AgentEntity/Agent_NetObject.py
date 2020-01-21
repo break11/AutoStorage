@@ -106,7 +106,7 @@ class CAgent_NO( CNetObj ):
                 SAP.TS : ADT.STS_Data.defVal(),
 
                 SAP.RTele : 1,
-                SAP.target_LU_side : SGT.ESide.Default
+                SAP.target_LU_side : SGT.ESide.Right
                 }
     local_props = { SAP.connectedStatus }
               

@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import genSplitPattern
+from Lib.Common.StrConsts import SC
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
     widthType        = None
@@ -21,9 +22,8 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     y                = None
     nodeType         = None
     edgeType         = None
-    left             = None
-    right            = None
-    linkPoint        = None
+    linkLeft         = None
+    linkRight        = None
     linkPlace        = None
 
 SGA = SGraphAttrs
@@ -130,13 +130,15 @@ class EDirection( BaseEnum ):
     Default = Error
 
 class ESide( BaseEnum ):
-    Left    = auto()
-    Right   = auto()
+    Undefined = auto()
+    Left      = auto()
+    Right     = auto()
     # сокращенные элементы для работы fromString по ним
-    L       = Left
-    R       = Right
+    U         = Undefined
+    L         = Left
+    R         = Right
 
-    Default = Right
+    Default = Undefined
 
     @staticmethod
     def fromAngle( angle ):
@@ -148,6 +150,7 @@ class ESide( BaseEnum ):
             return ESide.Right
 
     def invert(self):
+        assert self != ESide.Undefined, "Func 'invert()' can invert only 'Left' or 'Rigth' values!"
         return ESide.Left if self == ESide.Right else ESide.Right
 
 ###########################################################
@@ -178,8 +181,9 @@ class SNodePlace:
             nodeID = l[0]
             side   = ESide.fromString( l[1] )
         except:
+            print( f"{SC.sWarning} SNodePlace can't convert from '{data}'!" )
             nodeID = ""
-            side   = ESide.Default
+            side   = ESide.Undefined
 
         return SNodePlace( nodeID = nodeID, side = side )
 
@@ -194,6 +198,8 @@ graphEnums = { SGA.nodeType   : ENodeTypes,
                SGA.widthType  : EWidthType, 
                SGA.curvature  : ECurvature, 
                SGA.chargeSide : ESide,
+               SGA.linkLeft   : SNodePlace,
+               SGA.linkRight  : SNodePlace,
                SGA.linkPlace  : SNodePlace
              }
 

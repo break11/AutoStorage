@@ -36,8 +36,8 @@ common_NodeProps = { SGT.SGA.x, SGT.SGA.y, SGT.SGA.nodeType }
 # spec_NodeProps - True в дикте означает обязательное присутствие свойства в объекте
 spec_NodeProps = {
     SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargePort : True,  SGT.SGA.chargeSide : True  },
-    SGT.ENodeTypes.PickStation      : { SGT.SGA.left       : False, SGT.SGA.right      : False },
-    SGT.ENodeTypes.TransporterPoint : { SGT.SGA.linkPoint  : False, SGT.SGA.linkPlace  : False }
+    SGT.ENodeTypes.PickStation      : { SGT.SGA.linkLeft   : False, SGT.SGA.linkRight  : False },
+    SGT.ENodeTypes.TransporterPoint : { SGT.SGA.linkPlace  : False }
 }
 
 class CGraphNode_NO( CNetObj ):
@@ -47,10 +47,9 @@ class CGraphNode_NO( CNetObj ):
                     SGT.SGA.nodeType   : SGT.ENodeTypes.DummyNode,
                     SGT.SGA.chargePort : "ttyS0",
                     SGT.SGA.chargeSide : SGT.ESide.Default,
-                    SGT.SGA.left       : SC.some_node,
-                    SGT.SGA.right      : SC.some_node,
-                    SGT.SGA.linkPoint  : SC.some_node,
-                    SGT.SGA.linkPlace  : SGT.SNodePlace( SC.some_node, SGT.ESide.Left )
+                    SGT.SGA.linkLeft   : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
+                    SGT.SGA.linkRight  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
+                    SGT.SGA.linkPlace  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined )
                 }
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
