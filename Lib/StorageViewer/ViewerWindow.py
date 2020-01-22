@@ -42,18 +42,20 @@ class SSceneOptions( metaclass = СStrProps_Meta ):
     snap_to_grid       = None
     draw_bbox          = None
     draw_special_lines = None
+    lock_editing       = None
 
 SSO = SSceneOptions
 
 ###########################################
 sceneDefSettings = {
-                    SSO.grid_size           : 400,   # type: ignore
-                    SSO.draw_grid           : False, # type: ignore
-                    SSO.draw_info_rails     : False, # type: ignore
-                    SSO.draw_main_rail      : False, # type: ignore
-                    SSO.snap_to_grid        : False, # type: ignore
-                    SSO.draw_bbox           : False, # type: ignore
-                    SSO.draw_special_lines  : False, # type: ignore
+                    SSO.grid_size           : 400,  
+                    SSO.draw_grid           : False,
+                    SSO.draw_info_rails     : False,
+                    SSO.draw_main_rail      : False,
+                    SSO.snap_to_grid        : False,
+                    SSO.draw_bbox           : False,
+                    SSO.draw_special_lines  : False,
+                    SSO.lock_editing        : False
                     }
 ###########################################
 
@@ -162,6 +164,9 @@ class CViewerWindow(QMainWindow):
         self.SGM.setDrawBBox         ( CSM.dictOpt( sceneSettings, SSO.draw_bbox,          default = self.SGM.bDrawBBox ) )
         self.SGM.setDrawSpecialLines ( CSM.dictOpt( sceneSettings, SSO.draw_special_lines, default = self.SGM.bDrawSpecialLines ) )
 
+        bLockEditing = CSM.dictOpt( sceneSettings, SSO.lock_editing, default = bool( self.SGM.Mode & EGManagerMode.EditScene ) )
+        self.SGM.setModeFlags( self.SGM.Mode & ( EGManagerMode.EditScene if not bLockEditing else ~EGManagerMode.EditScene ) )
+
         #setup ui
         self.sbGridSize.setValue       ( self.StorageMap_Scene.gridSize )
         self.acGrid.setChecked         ( self.StorageMap_Scene.bDrawGrid )
@@ -182,6 +187,7 @@ class CViewerWindow(QMainWindow):
                                         SSO.draw_main_rail      : self.SGM.bDrawMainRail,
                                         SSO.draw_bbox           : self.SGM.bDrawBBox,
                                         SSO.draw_special_lines  : self.SGM.bDrawSpecialLines,
+                                        SSO.lock_editing        : not bool( self.SGM.Mode & EGManagerMode.EditScene )
                                      }
     #############################################################################
 
