@@ -11,7 +11,7 @@ twisted is just not feasible. What follows is an example of its use:
 # --------------------------------------------------------------------------- #
 # import the various server implementations
 # --------------------------------------------------------------------------- #
-from pymodbus.server.sync import StartTcpServer
+from pymodbus.server.sync import StartTcpServer, ModbusTcpServer, ModbusSocketFramer
 from pymodbus.server.sync import StartTlsServer
 from pymodbus.server.sync import StartUdpServer
 from pymodbus.server.sync import StartSerialServer
@@ -87,13 +87,20 @@ def run_server():
     #
     #     store = ModbusSlaveContext(..., zero_mode=True)
     # ----------------------------------------------------------------------- #
-    store = ModbusSlaveContext(
+    store1 = ModbusSlaveContext(
         di=ModbusSequentialDataBlock(0, [17]*100),
         co=ModbusSequentialDataBlock(0, [17]*100),
         hr=ModbusSequentialDataBlock(0, [17]*100),
         ir=ModbusSequentialDataBlock(0, [17]*100))
 
-    context = ModbusServerContext(slaves=store, single=True)
+    store2 = ModbusSlaveContext(
+        di=ModbusSequentialDataBlock(0, [17]*100),
+        co=ModbusSequentialDataBlock(0, [17]*100),
+        hr=ModbusSequentialDataBlock(0, [20]*100),
+        ir=ModbusSequentialDataBlock(0, [17]*100))
+
+
+    context = ModbusServerContext(slaves={ 0x1:store1, 0x2:store2 }, single=False)
 
     # ----------------------------------------------------------------------- #
     # initialize the server information
@@ -112,7 +119,18 @@ def run_server():
     # run the server you want
     # ----------------------------------------------------------------------- #
     # Tcp:
-    StartTcpServer(context, identity=identity, address=("localhost", 5020))
+
+    from threading import Thread
+
+    # StartTcpServer(context, identity=identity, address=("localhost", 5020))
+
+    server = ModbusTcpServer( context, framer = ModbusSocketFramer, identity = identity, address = ("localhost", 5020) )
+    server_thread = Thread( target=server.serve_forever )
+
+    # server.serve_forever()
+    server_thread.start()
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    return server
 
     # TCP with different framer
     # StartTcpServer(context, identity=identity,
@@ -141,5 +159,5 @@ def run_server():
     #                   timeout=1)
 
 
-if __name__ == "__main__":
-    run_server()
+# if __name__ == "__main__":
+server = run_server()

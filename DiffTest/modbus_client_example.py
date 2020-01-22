@@ -87,6 +87,7 @@ def run_sync_client():
     rr = client.read_coils(1, 1, unit=UNIT)
     log.debug(rr)
     print("\n===============================================================\n")
+    return client
 
 
     # ----------------------------------------------------------------------- #
@@ -166,5 +167,5 @@ def run_sync_client():
     client.close()
 
 
-if __name__ == "__main__":
-    run_sync_client()
+# if __name__ == "__main__":
+client = run_sync_client()
