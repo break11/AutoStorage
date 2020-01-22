@@ -19,6 +19,7 @@ import Lib.GraphEntity.StorageGraphTypes as SGT
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.BoxEntity.BoxAddress import CBoxAddress
+import Lib.TransporterEntity.TransporterDataTypes as TDT
 
 def registerNetObjTypes():
     reg = CNetObj_Manager.registerType
@@ -47,6 +48,7 @@ def registerNetObj_Props_Types():
     reg( ADT.EConnectedStatus )
     reg( ADT.STS_Data )
     reg( ATD.CTaskList )
+    reg( TDT.ETransporterMode )
     reg( CBoxAddress )
     reg( CStrList )
 

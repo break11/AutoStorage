@@ -54,7 +54,7 @@ nodeColors = {
     ENodeTypes.PowerStation     : Qt.darkBlue,
     ENodeTypes.Terminal         : Qt.lightGray,
     ENodeTypes.TransporterPoint : Qt.darkRed,
-    ENodeTypes.UserPoint        : Qt.darkRed,
+    ENodeTypes.UserPoint        : Qt.darkCyan,
 }
 
 #######################################################

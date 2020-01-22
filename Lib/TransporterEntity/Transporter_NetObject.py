@@ -1,113 +1,42 @@
 from copy import deepcopy
-from collections import namedtuple
 import networkx as nx
 
-from PyQt5.QtCore import QTimer
+# from PyQt5.QtCore import QTimer
 
 from Lib.Net.NetObj import CNetObj
-from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
-from Lib.Net.NetObj_Manager import CNetObj_Manager
-import Lib.Common.GraphUtils as GU
-from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
-from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
-import Lib.AgentEntity.AgentDataTypes as ADT
-import Lib.AgentEntity.AgentTaskData as ATD
-from Lib.GraphEntity import StorageGraphTypes as SGT
+# from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
+# from Lib.Net.NetObj_Manager import CNetObj_Manager
+# import Lib.Common.GraphUtils as GU
+# from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+# from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
+# import Lib.AgentEntity.AgentDataTypes as ADT
+# import Lib.AgentEntity.AgentTaskData as ATD
+# from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.StrProps_Meta import СStrProps_Meta
-from Lib.Common.StrConsts import SC
-from Lib.Common.SerializedList import CStrList
+import Lib.TransporterEntity.TransporterDataTypes as TDT
+# from Lib.Common.StrConsts import SC
+# from Lib.Common.SerializedList import CStrList
 
-s_Agents = "Agents"
+s_Transporters = "Transporters"
 
-class SAgentProps( metaclass = СStrProps_Meta ):
-    edge            = None
-    position        = None
-    route           = None
-    route_idx       = None
-    angle           = None
-    odometer        = None
-    status          = None
-    auto_control    = None
-    connectedTime   = None
-    connectedStatus = None
-    task_list       = None
-    task_idx        = None
-    cmd_PE          = None
-    cmd_PD          = None
-    cmd_BR          = None
-    cmd_ES          = None
-    cmd_BL_L        = None
-    cmd_BL_R        = None
-    cmd_BU_L        = None
-    cmd_BU_R        = None
-    cmd_BA          = None
-    cmd_CM          = None
-    RTele           = None
-    BS              = None
-    TS              = None
-    target_LU_side  = None
+class STransporterProps( metaclass = СStrProps_Meta ):
+    busy = None
+    mode = None
 
-SAP = SAgentProps
+STP = STransporterProps
 
-cmdDesc = namedtuple( "cmdDesc", "event data" )
+# def agentsNodeCache():
+#     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Agents )
 
-cmdProps = { SAP.cmd_PE   : cmdDesc( event=EV.PowerEnable,    data=None),
-             SAP.cmd_PD   : cmdDesc( event=EV.PowerDisable,   data=None),
-             SAP.cmd_BR   : cmdDesc( event=EV.BrakeRelease,   data=None),
-             SAP.cmd_ES   : cmdDesc( event=EV.EmergencyStop,  data=None),
-             SAP.cmd_BA   : cmdDesc( event=EV.BoxLoadAborted, data=None),
-             SAP.cmd_CM   : cmdDesc( event=EV.ChargeMe,       data=None),
+# def queryAgentNetObj( name ):
+#     props = deepcopy( CAgent_NO.def_props )
+#     return agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
 
-             SAP.cmd_BL_L : cmdDesc( event=EV.BoxLoad,        data=SGT.ESide.Left  ),
-             SAP.cmd_BL_R : cmdDesc( event=EV.BoxLoad,        data=SGT.ESide.Right ),
-             SAP.cmd_BU_L : cmdDesc( event=EV.BoxUnload,      data=SGT.ESide.Left  ),
-             SAP.cmd_BU_R : cmdDesc( event=EV.BoxUnload,      data=SGT.ESide.Right ),
-            }
-
-cmdDesc_To_Prop = {} #type:ignore
-for k, v in cmdProps.items():
-    cmdDesc_To_Prop[ v ] = k
-
-cmdProps_keys = cmdProps.keys()
-cmdProps_Box_LU = { SAP.cmd_BL_L, SAP.cmd_BL_R, SAP.cmd_BU_L, SAP.cmd_BU_R }
-
-def agentsNodeCache():
-    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Agents )
-
-def queryAgentNetObj( name ):
-    props = deepcopy( CAgent_NO.def_props )
-    return agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
-
-class CAgent_NO( CNetObj ):
+class CTransporter_NO( CNetObj ):
     def_props = {
-                SAP.status: ADT.EAgent_Status.Idle,
-                SAP.connectedTime : 0,
-                SAP.connectedStatus : ADT.EConnectedStatus.disconnected,
-                SAP.auto_control : 1,
-
-                SAP.edge: CStrList(),
-                SAP.position: 0,
-                SAP.angle : 0.0,
-                SAP.odometer : 0,              
-
-                SAP.route: CStrList(),
-                SAP.route_idx: 0,
-                SAP.task_list : ATD.CTaskList(),
-                SAP.task_idx  : 0,
-
-                SAP.cmd_PE   : ADT.EAgent_CMD_State.Done, SAP.cmd_PD   : ADT.EAgent_CMD_State.Done,
-                SAP.cmd_BR   : ADT.EAgent_CMD_State.Done, SAP.cmd_ES   : ADT.EAgent_CMD_State.Done,
-                SAP.cmd_BL_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BL_R : ADT.EAgent_CMD_State.Done,
-                SAP.cmd_BU_L : ADT.EAgent_CMD_State.Done, SAP.cmd_BU_R : ADT.EAgent_CMD_State.Done,
-                SAP.cmd_BA   : ADT.EAgent_CMD_State.Done, SAP.cmd_CM   : ADT.EAgent_CMD_State.Done,
-
-                SAP.BS : ADT.SBS_Data.defVal(),
-                SAP.TS : ADT.STS_Data.defVal(),
-
-                SAP.RTele : 1,
-                SAP.target_LU_side : SGT.ESide.Right
+                STP.busy : False,
+                STP.mode : TDT.ETransporterMode.Default,
                 }
-    local_props = { SAP.connectedStatus }
               
     @property
     def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None
