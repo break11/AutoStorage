@@ -42,7 +42,8 @@ class ENodeTypes( BaseEnum ):
     TP               = TransporterPoint
     UserPoint        = auto()
 
-    Default = DummyNode
+    Undefined = auto()
+    Default   = DummyNode
 
 nodeColors = {
     ENodeTypes.DummyNode        : Qt.darkRed,
@@ -61,6 +62,7 @@ class EEdgeTypes( BaseEnum ):
     Rail        = auto()
     Transporter = auto()
 
+    Undefined = auto()
     Default = Rail
 
 #######################################################
@@ -70,6 +72,7 @@ class ERailHeight( BaseEnum ):
     H = High
     L = Low
 
+    Undefined = auto()
     Default = Low
 
 #######################################################
@@ -81,6 +84,7 @@ class EWidthType( BaseEnum ):
     N = Narrow
     W = Wide
 
+    Undefined = auto()
     Default = Narrow
     
 sensorNarr = 342  # half of distance between sensors (x axis)
@@ -102,6 +106,7 @@ class ECurvature( BaseEnum ):
     C = Curve
     S = Straight
 
+    Undefined = auto()
     Default = Straight
 
 class ESensorSide( BaseEnum ):
@@ -115,7 +120,8 @@ class ESensorSide( BaseEnum ):
     B = SBoth
     P = SPassive
 
-    Default  = SBoth
+    Undefined = auto()
+    Default   = SBoth
 
     def shortName( self ): return self.name[1] # SLeft = L, SRight = R
 
@@ -127,18 +133,19 @@ class EDirection( BaseEnum ):
     F = Forward
     R = Rear
 
-    Default = Error
+    Undefined = auto()
+    Default = Forward
 
 class ESide( BaseEnum ):
-    Undefined = auto()
     Left      = auto()
     Right     = auto()
     # сокращенные элементы для работы fromString по ним
-    U         = Undefined
     L         = Left
     R         = Right
 
-    Default = Undefined
+    Undefined = auto()
+    U         = Undefined
+    Default   = Right
 
     @staticmethod
     def fromAngle( angle ):

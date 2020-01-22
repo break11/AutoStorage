@@ -15,7 +15,8 @@ class ECustomEnum( BaseEnum ):
     Two   = auto()
     Three = auto()
 
-    Default = One
+    Undefined = auto()
+    Default   = One
 
 class CTestType:
     def __init__( self, bVal ):
@@ -101,7 +102,7 @@ class Test_StrTypeConverter(unittest.TestCase):
 
         s = "NotEnumValue"
         b = CStrTypeConverter.ValFromStr( ECustomEnum, s )
-        self.assertEqual( b, ECustomEnum.One )
+        self.assertEqual( b, ECustomEnum.Undefined )
 
         #################
 

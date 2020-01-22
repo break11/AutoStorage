@@ -8,7 +8,9 @@ from Lib.Common.BaseEnum import BaseEnum
 class EChargeCMD( BaseEnum ):
     on      = auto()
     off     = auto()
-    Default = on
+
+    Undefined = auto()
+    Default   = on
 
 def controlCharge( chargeCMD, port ):
     # print( f"Charging status:{chargeCMD} port:{port}" ) # дублируется в sh - скрипте

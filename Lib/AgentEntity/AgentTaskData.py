@@ -11,7 +11,6 @@ TDS = "=" # Task Data Splitter
 TDS_split_pattern = genSplitPattern( TDS )
 
 class ETaskType( BaseEnum ):
-    Undefined     = auto()
     GoToNode      = auto()
     LoadBoxByName = auto()
     LoadBox       = auto()
@@ -26,7 +25,8 @@ class ETaskType( BaseEnum ):
     DC            = DoCharge
     JT            = JmpToTask
 
-    Default = Undefined
+    Undefined = auto()
+    Default   = GoToNode
 
 BoxTasks = { ETaskType.LoadBox, ETaskType.UnloadBox, ETaskType.LoadBoxByName }
 

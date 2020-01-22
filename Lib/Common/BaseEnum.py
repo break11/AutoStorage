@@ -3,7 +3,7 @@ from Lib.Common.StrConsts import SC
 
 class BaseEnum( Enum ):
     @classmethod
-    def fromString( cls, sValue ): return EnumFromString( cls, sValue, cls.Default )
+    def fromString( cls, sValue ): return EnumFromString( cls, sValue = sValue, defValue = cls.Undefined )
 
     def toString( self, bShortForm = False ):
         if not bShortForm:

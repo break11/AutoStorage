@@ -26,12 +26,16 @@ class EConnectedStatus( BaseEnum ):
     connected    = auto()
     disconnected = auto()
     freeze       = auto()
+
+    Undefined    = auto()
     Default      = disconnected
 
 class EAgent_CMD_State( BaseEnum ):
     Init = auto()
     Done = auto()
-    Default = Done
+
+    Undefined = auto()
+    Default   = Done
 
 class EAgent_Status( BaseEnum ):
     Idle            = auto()
@@ -52,6 +56,7 @@ class EAgent_Status( BaseEnum ):
     # ошибки из routeBuilder - enum ERouteStatus, который возвращается из функции buildRoute
     AngleError      = auto() # ошибка при построении маршрута при некорретном угле челнока ( отклонение от оси рельса более 45 градусов )
 
+    Undefined       = auto()
     Default         = Idle
 
 BL_BU_Statuses = { EAgent_Status.BoxLoad, EAgent_Status.BoxUnload }
@@ -98,6 +103,7 @@ class EAgentBattery_Type( BaseEnum ):
     L = Li
     N = NoPower
 
+    Undefined  = auto()
     Default    = Supercap
     
 #########################################################

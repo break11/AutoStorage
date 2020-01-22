@@ -18,7 +18,7 @@ class TestASP_DataParser(unittest.TestCase):
         # проверка того, что каждому статусу со значением False из энама ERouteStatus соответствует статус из энама EAgent_Status
         for routeStatus in [ x for x in ERouteStatus if x is not ERouteStatus.Normal ]:
             agentStatus = ADT.EAgent_Status.fromString( routeStatus.name )
-            self.assertNotEqual( agentStatus, ADT.EAgent_Status.Default )
+            self.assertNotEqual( agentStatus, ADT.EAgent_Status.Undefined )
 
     def test_HW(self):
         sData = f"cartV1{ADT.DS}555"

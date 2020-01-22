@@ -9,11 +9,11 @@ MDS = "="
 MDS_split_pattern = genSplitPattern( MDS )
 
 class EBoxAddressType( BaseEnum ):
-    Undefined  = auto()
     OnNode  = auto()
     OnAgent = auto()
 
-    Default = Undefined
+    Undefined = auto()
+    Default   = OnNode
 
 class CBoxAddress:
     dataFromStrFunc = {
