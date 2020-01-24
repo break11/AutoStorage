@@ -7,6 +7,7 @@ from PyQt5 import uic
 from Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
 from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj
 from Lib.BoxEntity.Box_NetObject import loadBoxes_to_NetObj
+from Lib.TransporterEntity.Transporter_NetObject import loadTransporters_to_NetObj
 from Lib.Common.GraphUtils import sGraphML_file_filters
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.BaseApplication import EAppStartPhase
@@ -25,8 +26,10 @@ class CGraphLoad_Widget(QWidget):
     def loadGraphConfig( self, bReload=False ):
         sFName = correctFNameToProjectDir( self.leGraphML.text() )
         loadGraphML_to_NetObj( sFName, bReload )
-        sFName = os.path.splitext(sFName)[0] + '.json'
-        loadBoxes_to_NetObj( sFName, bReload )
+
+        sFBaseName = os.path.splitext(sFName)[0]
+        loadBoxes_to_NetObj( sFBaseName + '.boxes', bReload )
+        loadTransporters_to_NetObj( sFBaseName + '.transporters', bReload )
 
     def on_btnLoadGraphML_released( self ):
         self.loadGraphConfig()

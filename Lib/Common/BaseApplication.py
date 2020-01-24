@@ -19,6 +19,7 @@ import Lib.GraphEntity.StorageGraphTypes as SGT
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.BoxEntity.BoxAddress import CBoxAddress
+from Lib.TransporterEntity.Transporter_NetObject import CTransporter_NO, s_Transporters
 import Lib.TransporterEntity.TransporterDataTypes as TDT
 
 def registerNetObjTypes():
@@ -29,12 +30,14 @@ def registerNetObjTypes():
     reg( CGraphEdge_NO )
     reg( CAgent_NO )
     reg( CBox_NO )
+    reg( CTransporter_NO )
 
 def registerNetObj_Props_Types():
     reg = CStrTypeConverter.registerType
     reg( int )
     reg( str )
     reg( float )
+    reg( bool )
     reg( ADT.EAgent_Status )
     reg( SGT.ENodeTypes )
     reg( SGT.EEdgeTypes )
@@ -49,18 +52,20 @@ def registerNetObj_Props_Types():
     reg( ADT.STS_Data )
     reg( ATD.CTaskList )
     reg( TDT.ETransporterMode )
+    reg( TDT.ETransporterConnectionType )
     reg( CBoxAddress )
     reg( CStrList )
 
 class CBaseApplication( QApplication ):
     def registerObjMonitor_Widgets(self ):
         reg = self.objMonitor.WidgetManager.registerWidget
-        reg( CNetObj,       CDictProps_Widget )
-        reg( CGraphRoot_NO, CDictProps_Widget )
-        reg( CGraphNode_NO, CDictProps_Widget )
-        reg( CGraphEdge_NO, CDictProps_Widget )
-        reg( CAgent_NO,     CDictProps_Widget )
-        reg( CBox_NO,       CDictProps_Widget )
+        reg( CNetObj,         CDictProps_Widget )
+        reg( CGraphRoot_NO,   CDictProps_Widget )
+        reg( CGraphNode_NO,   CDictProps_Widget )
+        reg( CGraphEdge_NO,   CDictProps_Widget )
+        reg( CAgent_NO,       CDictProps_Widget )
+        reg( CBox_NO,         CDictProps_Widget )
+        reg( CTransporter_NO, CDictProps_Widget )
 
     def __init__(self, argv, bNetworkMode ):
         super().__init__( argv )
@@ -107,6 +112,7 @@ class CBaseApplication( QApplication ):
 
         CNetObj_Manager.rootObj.queryObj( s_Agents, CNetObj )
         CNetObj_Manager.rootObj.queryObj( s_Boxes,  CNetObj )
+        CNetObj_Manager.rootObj.queryObj( s_Transporters, CNetObj )
         CNetObj_Manager.rootObj.queryObj( s_Graph,  CGraphRoot_NO )
 
         if self.bNetworkMode:

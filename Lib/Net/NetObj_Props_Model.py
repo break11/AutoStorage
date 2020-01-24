@@ -6,7 +6,7 @@ from .Net_Events import ENet_Event as EV
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 
 class CNetObj_Props_Model( QAbstractTableModel ):
-    delegateTypes = [int, str, float]
+    delegateTypes = [int, str, float, bool]
     def __init__( self, parent ):
         super().__init__( parent=parent)
         self.propList = []

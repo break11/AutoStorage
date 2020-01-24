@@ -1,13 +1,17 @@
 from copy import deepcopy
 import networkx as nx
+import os
+import json
 
 # from PyQt5.QtCore import QTimer
 
 from Lib.Net.NetObj import CNetObj
 # from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
-# from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj_Utils import destroy_If_Reload
+import Lib.Net.NetObj_JSON as nJSON
 # import Lib.Common.GraphUtils as GU
-# from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 # from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
 # import Lib.AgentEntity.AgentDataTypes as ADT
 # import Lib.AgentEntity.AgentTaskData as ATD
@@ -15,27 +19,33 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 import Lib.TransporterEntity.TransporterDataTypes as TDT
 # from Lib.Common.StrConsts import SC
-# from Lib.Common.SerializedList import CStrList
+from Lib.Common.SerializedList import CStrList
 
 s_Transporters = "Transporters"
 
 class STransporterProps( metaclass = СStrProps_Meta ):
     busy = None
     mode = None
+    connectionType    = None
+    connectionAddress = None
+    nodesList = None
 
 STP = STransporterProps
 
-# def agentsNodeCache():
-#     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Agents )
+def transportersNodeCache():
+    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Transporters )
 
-# def queryAgentNetObj( name ):
-#     props = deepcopy( CAgent_NO.def_props )
-#     return agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
+def queryTransporterNetObj( name ):
+    props = deepcopy( CTransporter_NO.def_props )
+    return transportersNodeCache()().queryObj( sName=name, ObjClass=CTransporter_NO, props=props )
 
 class CTransporter_NO( CNetObj ):
     def_props = {
                 STP.busy : False,
                 STP.mode : TDT.ETransporterMode.Default,
+                STP.connectionType    : TDT.ETransporterConnectionType.Default,
+                STP.connectionAddress : "localhost:5020",
+                STP.nodesList         : CStrList()
                 }
               
     @property
@@ -47,129 +57,19 @@ class CTransporter_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-        self.tick_Timer = QTimer()
-        self.tick_Timer.setInterval( 1000 )
-        self.tick_Timer.timeout.connect( self.onTick )
-        self.tick_Timer.start()
+####################
 
-    def onTick( self ):
-        if self.connectedTime == 0:
-           self.connectedStatus = ADT.EConnectedStatus.disconnected
-        elif self.connectedTime == self.lastConnectedTime:
-           self.connectedStatus = ADT.EConnectedStatus.freeze
-        else:
-           self.connectedStatus = ADT.EConnectedStatus.connected
+def loadTransporters_to_NetObj( sFName, bReload ):
+    if not destroy_If_Reload( s_Transporters, bReload ): return False
 
-        self.lastConnectedTime = self.connectedTime
+    if not os.path.exists( sFName ):
+        print( f"{SC.sWarning} Transporters file not found '{sFName}'!" )
+        return False
 
-    def ObjPropUpdated( self, netCmd ):
-        if netCmd.sPropName == SAP.status:
-            if netCmd.value in ADT.errorStatuses:
-                self.auto_control = 0
+    TS_NetObj = CNetObj_Manager.rootObj.queryObj( s_Transporters, CNetObj )
+    with open( sFName, "r" ) as read_file:
+        Transporters = json.load( read_file )
+        nJSON.load_Data( jData=Transporters, parent=TS_NetObj, bLoadUID=False )
 
-    def isOnTrack( self ):
-        if ( not self.edge ) or ( not self.graphRootNode() ):
-            return
+    return True
 
-        tEdgeKey = self.edge.toTuple()
-
-        if len(tEdgeKey) < 2 :
-            return
-        
-        nodeID_1 = tEdgeKey[0]
-        nodeID_2 = tEdgeKey[1]
-
-        if not self.nxGraph.has_edge( nodeID_1, nodeID_2 ):
-            return
-        
-        return tEdgeKey
-
-    def isOnNode( self, nodeID = None, nodeTypes = None ):
-        tEdgeKey = self.isOnTrack()
-        if not tEdgeKey: return False
-
-        return GU.isOnNode( self.nxGraph, tEdgeKey, self.position, _nodeID=nodeID, _nodeTypes = nodeTypes )
-    
-    def getTransformedSide( self, angle = None, edge = None ):
-        angle = angle if angle is not None else self.angle
-        edge = edge if edge is not None else self.edge.toTuple()
-
-        agent_side = GU.getAgentSide( self.nxGraph, edge, angle )
-        side = self.target_LU_side if agent_side == SGT.ESide.Right else self.target_LU_side.invert()
-        return side
-
-    def putToNode( self, nodeID ):        
-        if not self.nxGraph.has_node( nodeID ): return
-
-        if GU.nodeType( self.nxGraph, nodeID ) == SGT.ENodeTypes.Terminal: return
-
-        edges = list( self.nxGraph.out_edges( nodeID ) ) + list( self.nxGraph.in_edges( nodeID ) )
-        if len( edges ) == 0: return
-
-        tEdgeKey = edges[ 0 ]
-        self.edge = CStrList.fromTuple( tEdgeKey )
-        self.position = 0 if tEdgeKey[ 0 ] == nodeID else GU.edgeSize( self.nxGraph, tEdgeKey )
-
-    def goToNode( self, targetNode ):
-        tKey = self.isOnTrack()
-        if tKey is None: return
-
-        startNode = tKey[0]
-        nodes_route = nx.algorithms.dijkstra_path(self.nxGraph, startNode, targetNode)
-        self.status = ADT.EAgent_Status.OnRoute
-        self.applyRoute( nodes_route )
-
-    def goToNode_by_Task( self, targetNode ):
-        if not self.nxGraph.has_node( targetNode ): return
-
-        tKey = self.isOnTrack()
-        if tKey is None:
-            self.putToNode( targetNode )
-            return
-
-        startNode = tKey[0]
-
-        if GU.nodeType( self.nxGraph, targetNode ) == SGT.ENodeTypes.Terminal: return
-
-        self.task_list = ATD.CTaskList( elementList=[ ATD.CTask( taskType=ATD.ETaskType.GoToNode, taskData=targetNode ) ] )
-
-    def applyRoute( self, nodes_route ):
-        route_size = len(nodes_route)
-        if route_size == 0: return
-
-        tKey = self.isOnTrack()
-        assert tKey is not None
-        assert nodes_route[0] in tKey, "Cant apply route. The position and route do not intersect."
-
-        curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
-        
-        if route_size == 1:
-            if nodes_route[0] == tKey[0]:
-                nodes_route = list( reversed(tKey) )
-            else:
-                nodes_route = list( tKey )
-        else:
-            # выполнится только одно условие, тк одна из нод tKey присутствует в маршруте ( см. assert выше )
-            if tKey[0] not in nodes_route: nodes_route.insert( 0, tKey[0] )
-            if tKey[1] not in nodes_route: nodes_route.insert( 0, tKey[1] )
-
-        # перепрыгивание на кратную грань, если челнок стоит на грани противоположной направлению маршрута
-        if ( nodes_route[1], nodes_route[0] ) == tKey:
-            tKey = tuple( reversed(tKey) )
-            self.edge = CStrList.fromTuple( tKey )
-            curEdgeSize = GU.edgeSize( self.nxGraph, tKey )
-            self.position = curEdgeSize - self.position
-        
-        # переставляем челнок на вторую грань маршрута, если его позиция на первой грани более 50%
-        if ( self.position / curEdgeSize ) > 0.5:
-            if len( nodes_route ) > 2:
-                nodes_route = nodes_route[1:]
-                tKey = ( nodes_route[0], nodes_route[1] )
-                self.edge = CStrList.fromTuple( tKey )
-                self.position = 0
-            else:
-                return
-
-        self.route = CStrList( elementList = nodes_route )
-
-        return nodes_route

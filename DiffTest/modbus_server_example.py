@@ -100,7 +100,7 @@ def run_server():
         ir=ModbusSequentialDataBlock(0, [17]*100))
 
 
-    context = ModbusServerContext(slaves={ 0x1:store1, 0x2:store2 }, single=False)
+    context = ModbusServerContext(slaves={ 0x8:store1, 0x11:store2 }, single=False)
 
     # ----------------------------------------------------------------------- #
     # initialize the server information

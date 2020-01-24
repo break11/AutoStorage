@@ -9,3 +9,10 @@ class ETransporterMode( BaseEnum ):
 
     Undefined = auto()
     Default   = SingleBox
+
+class ETransporterConnectionType( BaseEnum ):
+    TCP_IP = auto()
+    USB    = auto()
+
+    Undefined = auto()
+    Default   = TCP_IP

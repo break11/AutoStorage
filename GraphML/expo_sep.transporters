@@ -1,0 +1,15 @@
+[
+    {
+        "name": "TS_1",
+        "type": "CTransporter_NO",
+        "props": {
+            "busy": false,
+            "mode": "SingleBox",
+            "connectionType"    : "TCP_IP",
+            "connectionAddress" : "localhost:5020",
+            "nodesList"         : "45, 46, 47, 48, 49, 50"
+                 },
+        "ext_fields": {},
+        "children": []
+    }
+]
