@@ -16,7 +16,7 @@ from  Lib.Common.Utils import time_func
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
 s_Redis_port = "port"
-s_Redis_ip__default   = "localhost"
+s_Redis_ip__default   = SC.localhost
 s_Redis_port__default = "6379"
 
 s_net_cmd_log   = "net_cmd_log"

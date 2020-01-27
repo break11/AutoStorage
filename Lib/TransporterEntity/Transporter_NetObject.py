@@ -18,7 +18,7 @@ from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 # from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 import Lib.TransporterEntity.TransporterDataTypes as TDT
-# from Lib.Common.StrConsts import SC
+from Lib.Common.StrConsts import SC
 from Lib.Common.SerializedList import CStrList
 
 s_Transporters = "Transporters"
@@ -26,6 +26,7 @@ s_Transporters = "Transporters"
 class STransporterProps( metaclass = СStrProps_Meta ):
     busy = None
     mode = None
+    masterAddress     = None
     connectionType    = None
     connectionAddress = None
     nodesList = None
@@ -43,8 +44,9 @@ class CTransporter_NO( CNetObj ):
     def_props = {
                 STP.busy : False,
                 STP.mode : TDT.ETransporterMode.Default,
+                STP.masterAddress     : SC.localhost,
                 STP.connectionType    : TDT.ETransporterConnectionType.Default,
-                STP.connectionAddress : "localhost:5020",
+                STP.connectionAddress : f"{SC.localhost}:5020",
                 STP.nodesList         : CStrList()
                 }
               

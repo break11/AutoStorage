@@ -11,6 +11,7 @@ class SC( metaclass = СStrProps_Meta ):
     name                = None
     UID                 = None
     some_node           = None
+    localhost           = None
     sWarning            = "[Warning]:"
     sError              = "[Error]:"
     sAssert             = "[Assert]:"
