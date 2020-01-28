@@ -56,7 +56,7 @@ class CAM_MainWindow(QMainWindow):
         self.AgentTest_Timer.timeout.connect( self.AgentTest )
         self.AgentTest_Timer.start()
 
-        self.graphRootNode = graphNodeCache()
+        self.graphRootNode = graphNodeCache
         self.agentsNode = agentsNodeCache()
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )

@@ -16,13 +16,12 @@ from Lib.Common.SerializedList import CStrList
 
 sDir = "./GraphML/"
 
-CNetObj_Manager.initRoot()
 loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
 CNetObj_Manager.rootObj.queryObj( ANO.s_Agents, CNetObj ) #type:ignore
-graphRootNode = graphNodeCache()
+# graphRootNode = graphNodeCache()
 
 
-nxGraph        = graphRootNode().nxGraph
+nxGraph        = graphNodeCache().nxGraph
 
 tEdgeKey_1_2   = ("1", "2")
 lEdgeKey_1_2   = list( tEdgeKey_1_2 )

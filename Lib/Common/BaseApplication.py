@@ -35,8 +35,6 @@ class CBaseApplication( QApplication ):
             self.ttlTimer.setInterval( 1500 )
             self.ttlTimer.start()
         
-        CNetObj_Manager.initRoot()
-
     def initConnection(self, parent=None ):
         if self.bNetworkMode:
             if not CNetObj_Manager.connect(): return False

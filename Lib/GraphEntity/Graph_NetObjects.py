@@ -12,8 +12,12 @@ s_Graph = "Graph"
 s_Nodes = "Nodes"
 s_Edges = "Edges"
 
-def graphNodeCache():
-    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Graph )
+##remove##
+# def graphNodeCache():
+#     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Graph )
+
+# graphNodeCache = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Graph )
+graphNodeCache = CTreeNodeCache( path = s_Graph )
 
 class CGraphRoot_NO( CNetObj ):    
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None, nxGraph=None ):

@@ -41,14 +41,10 @@ agentCmd_by_BoxTaskType = {
 
 class CAgentLink( CAgentServer_Link ):
     @property
-    def nxGraph( self ):
-        agentNO = self.agentNO()
-        assert agentNO is not None
-        return agentNO.graphRootNode().nxGraph
+    def nxGraph( self ): return graphNodeCache().nxGraph
 
     def __init__(self, agentN):
         super().__init__( agentN = agentN )
-
 
         # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
@@ -57,7 +53,6 @@ class CAgentLink( CAgentServer_Link ):
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
-        self.graphRootNode = graphNodeCache()
         self.routeBuilder = CRouteBuilder()
         self.SII = []
         self.DE_IDX = 0
@@ -165,7 +160,7 @@ class CAgentLink( CAgentServer_Link ):
                 self.DE_IDX += 1
 
         elif cmd.event == EAgentServer_Event.OdometerDistance:
-            if isNone_or_Empty( self.graphRootNode() ):
+            if isNone_or_Empty( graphNodeCache() ):
                 print( SC.No_Graph_loaded )
                 return
 
@@ -305,7 +300,7 @@ class CAgentLink( CAgentServer_Link ):
         self.segOD = 0
         self.SII = []
 
-        if isNone_or_Empty( self.graphRootNode() ):
+        if isNone_or_Empty( graphNodeCache() ):
             print( SC.No_Graph_loaded )
             agentNO.status = ADT.EAgent_Status.RouteError
             return

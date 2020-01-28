@@ -113,7 +113,7 @@ class CAgent_NO( CNetObj ):
     def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-        self.graphRootNode = graphNodeCache()
+        self.graphRootNode = graphNodeCache
         self.lastConnectedTime = 0
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )

@@ -46,6 +46,18 @@ s_ObjectsSet = "objects_set"
 from time import sleep
 
 class CNetObj_Manager( object ):
+    __objects = weakref.WeakValueDictionary() # type: ignore
+
+    @classmethod
+    def initRoot(cls):
+        # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
+        cls.rootObj = CNetObj(name="root", id = sys.maxsize )
+        cls.__objects[ cls.rootObj.UID ] = cls.rootObj
+
+    __genLocal_UID = sys.maxsize
+    
+    #####################################################
+
     PS = "~" # Packet Splitter
     redisConn = None
     serviceConn = None
@@ -198,18 +210,6 @@ class CNetObj_Manager( object ):
 
         # if i: print( f"NetCmd count in tick = {i}" )
 
-    #####################################################
-    
-    __objects = weakref.WeakValueDictionary() # type: ignore
-
-    @classmethod
-    def initRoot(cls):
-        # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
-        cls.rootObj = CNetObj(name="root", id = sys.maxsize )
-        cls.__objects[ cls.rootObj.UID ] = cls.rootObj
-
-    __genLocal_UID = sys.maxsize
-
     @classmethod
     def genNetObj_UID( cls ):
         if cls.isConnected():
@@ -360,3 +360,6 @@ class CNetObj_Manager( object ):
 
 from .NetObj import CNetObj
 from .NetCmd import CNetCmd
+
+# из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
+CNetObj_Manager.initRoot()

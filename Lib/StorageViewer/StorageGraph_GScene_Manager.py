@@ -87,7 +87,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         # self.gScene.setBspTreeDepth( 1 )
 
         self.__maxNodeID    = 0
-        self.graphRootNode = graphNodeCache()
+        self.graphRootNode = graphNodeCache
         self.agentsNode    = agentsNodeCache()
 
         CNetObj_Manager.addCallback( EV.ObjCreated,       self.ObjCreated )

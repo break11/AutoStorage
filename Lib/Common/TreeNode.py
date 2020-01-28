@@ -76,18 +76,24 @@ class CTreeNode:
 
 ##################################################################################
 
+##remove##
+
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+
 class CTreeNodeCache:
-    def __init__( self, baseNode, path):
+    def __init__( self, path, baseNode = None ):
         # baseNode - должна быть типа CNetObj, но для исключения перекрестных ссылок проверяем, что по ошибке не был передан экземпляр CTreeNodeCache
         # такое возможно из-за существования хелперных функций возвращающих CTreeNodeCache, которым дополнительно надо вызвать __call__
         assert not isinstance( baseNode, CTreeNodeCache )
 
-        self.baseNode = weakref.ref( baseNode )
+        self.baseNode = weakref.ref( baseNode ) if baseNode is not None else None
         self.path = path
         self.__cache = None
 
     def __call__( self ):
         if (self.__cache is None) or (self.__cache() is None):
-            self.__cache = CTreeNode.resolvePath( self.baseNode(), self.path )
+            baseNode = self.baseNode() if self.baseNode is not None else CNetObj_Manager.rootObj
+            # self.__cache = CTreeNode.resolvePath( self.baseNode(), self.path )
+            self.__cache = CTreeNode.resolvePath( baseNode, self.path )
             if self.__cache: self.__cache = weakref.ref( self.__cache )
         return self.__cache() if self.__cache else None

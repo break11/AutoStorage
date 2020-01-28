@@ -14,7 +14,6 @@ from Lib.Common.StrTypeConverter import CStrTypeConverter
 
 CStrTypeConverter.registerType( str )
 
-CNetObj_Manager.initRoot()
 CNetObj( id=121, parent=CNetObj_Manager.rootObj, props={ "Test" : "Yes" } ) # type:ignore
 
 class Test_NetCmd(unittest.TestCase):

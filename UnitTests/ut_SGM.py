@@ -15,6 +15,8 @@ from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCac
 from Lib.GraphEntity import StorageGraphTypes as SGT
 sDir = "./GraphML/"
 
+from Lib.Common.TreeNode import CTreeNodeCache
+
 # Dummy-классы для имитиции окружения StorageGraph_GScene_Manager
 
 class CNode_SGItem_Dummy:
@@ -38,7 +40,9 @@ class CSGM_Dummy:
 
         CNetObj_Manager.initRoot()
         loadGraphML_to_NetObj( sFName = sFName, bReload = False )
-        self.graphRootNode = graphNodeCache()
+        self.graphRootNode = graphNodeCache
+        print( graphNodeCache().nxGraph.nodes() )
+        # self.graphRootNode = CTreeNodeCache( path = "Graph" )
 
         for nodeNetObj in self.graphRootNode().nodesNode().children:
             self.addNode( nodeNetObj )
