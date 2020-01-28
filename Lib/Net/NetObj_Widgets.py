@@ -12,8 +12,8 @@ from Lib.GraphEntity import StorageGraphTypes as SGT
 
 class CNetObj_WidgetsManager:
     def __init__( self, widgetContainer ):
-        self.__netObj_Widgets_UNIQ = {} # type: ignore # контейнер экземпляров виджетов с привязкой по типу виджета
-        self.__netObj_Widgets      = {} # type: ignore # контейнер экземпляров виджетов с привязкой по типу CNetObj
+        self.__netObj_Widgets_UNIQ = {} # контейнер экземпляров виджетов с привязкой по типу виджета
+        self.__netObj_Widgets      = {} # контейнер экземпляров виджетов с привязкой по типу CNetObj
         self.widgetContainer = widgetContainer
         self.activeWidget = None
     

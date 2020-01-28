@@ -3,7 +3,7 @@ import os
 import json
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QWidget, QFileDialog
+from PyQt5.QtWidgets import QWidget, QFileDialog, QDockWidget, QWidget
 from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel, pyqtSlot
 from PyQt5.Qt import QInputDialog
 
@@ -40,6 +40,32 @@ class CNetObj_Monitor(QWidget):
     def enabledInOptions():
         settings = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
         return CSM.dictOpt( settings, s_active, default=b_active_default )
+
+    @staticmethod
+    def init_NetObj_Monitor( parentWidget=None, registerWidgetsFunc=None ):
+        if not CNetObj_Monitor.enabledInOptions(): return
+
+        objMonitor = CNetObj_Monitor( parent=parentWidget )
+                
+        # т.к. Qt уничтожает пустой layoput() (без виджетов в нем) при загрузке ui-шника, то
+        # делаем вставку окна монитора в layoput() в зависимости от класса виджета
+        if parentWidget:
+            if isinstance( parentWidget, QDockWidget ):
+                parentWidget.setWidget( objMonitor )
+                # сохраняем в доке окна монитора инфу о ID клиента, при штатной вставке окна в док - заголовок окна теряется
+                parentWidget.setWindowTitle( objMonitor.windowTitle() )
+            elif isinstance( parentWidget, QWidget ) and parentWidget.layout():
+                parentWidget.layout().addWidget( objMonitor )
+
+        objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
+
+        if registerWidgetsFunc:
+            registerWidgetsFunc( reg = objMonitor.WidgetManager.registerWidget )
+
+        objMonitor.show()
+
+        return objMonitor
+
 
     def __init__(self, parent=None):
         super().__init__( parent=parent )
