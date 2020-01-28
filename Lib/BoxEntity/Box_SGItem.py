@@ -49,7 +49,7 @@ class CBox_SGItem(QGraphicsItem):
         if a.addressType == EBoxAddressType.OnNode:
             nodeSGItem = self.SGM.nodeGItems[ a.data.nodeID ]
             self.setParentItem( nodeSGItem )
-            kX = kX_by_ESide[ a.data.side ]
+            kX = CBox_SGItem.kX_by_ESide[ a.data.side ]
             self.setPos( kX * 700, 0 )
 
         elif a.addressType == EBoxAddressType.OnAgent:

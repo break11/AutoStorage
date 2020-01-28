@@ -8,7 +8,7 @@ import networkx as nx
 from PyQt5.QtCore import QTimer
 
 import Lib.Common.GraphUtils as GU
-from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps, cmdProps_Box_LU
+from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps, cmdProps_Box_LU, agentsNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Utils import isNone_or_Empty
@@ -21,7 +21,6 @@ from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 from Lib.BoxEntity.Box_NetObject import getBox_from_NodePlace, getBox_by_BoxAddress, getBox_by_Name
 from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
-from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
 from Lib.AgentEntity.AgentServer_Link import CAgentServer_Link
@@ -38,6 +37,7 @@ agentCmd_by_BoxTaskType = {
     ATD.ETaskType.UnloadBox : EAgentServer_Event.BoxUnload,
     ATD.ETaskType.LoadBoxByName : EAgentServer_Event.BoxLoad
 }
+
 
 class CAgentLink( CAgentServer_Link ):
     @property
