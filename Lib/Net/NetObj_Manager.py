@@ -48,10 +48,13 @@ from time import sleep
 
 class CNetObj_Manager( object ):
     __objects = weakref.WeakValueDictionary() # type: ignore
+    rootObj = None
 
     @classmethod
     def initRoot(cls):
         # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
+        if cls.rootObj is not None:
+            cls.rootObj.destroy()
         cls.rootObj = CNetObj(name="root", id = sys.maxsize )
         cls.__objects[ cls.rootObj.UID ] = cls.rootObj
         CTreeNodeCache.rootObj = cls.rootObj

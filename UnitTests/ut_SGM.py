@@ -18,11 +18,8 @@ from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 
 sDir = "./GraphML/"
-# print( id(graphNodeCache()), graphNodeCache().nxGraph.nodes() , "\n" )
-print( "4444444444444444" )
+
 CNetObj_Manager.initRoot()
-# gc.collect()
-# print( id(graphNodeCache()), graphNodeCache().nxGraph.nodes() , "\n" )
 
 # Dummy-классы для имитиции окружения StorageGraph_GScene_Manager
 class CNode_SGItem_Dummy:

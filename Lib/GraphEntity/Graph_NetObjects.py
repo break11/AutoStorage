@@ -30,8 +30,6 @@ class CGraphRoot_NO( CNetObj ):
         self.nodesNode = CTreeNodeCache( basePath = self.path(), path = s_Nodes )
         self.edgesNode = CTreeNodeCache( basePath = self.path(), path = s_Edges )
 
-        print( graphNodeCache(), "5555555555" )
-
 ###################################################################################
 
 common_NodeProps = { SGT.SGA.x, SGT.SGA.y, SGT.SGA.nodeType }
@@ -58,9 +56,7 @@ class CGraphNode_NO( CNetObj ):
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     def beforeRegister( self ):
-        print( self.parent.parent.nxGraph.nodes(), "77777777777777" )
-        print( graphNodeCache(), "5555555555" )
-        # перед отправкой в редим подмена указателя на props
+        # перед отправкой в редис подмена указателя на props
         if not self.__has_nxNode():
             self.nxGraph().add_node( self.name, **self.props )
             self.props = self.nxGraph().nodes[ self.name ]

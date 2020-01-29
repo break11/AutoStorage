@@ -16,8 +16,10 @@ from Lib.Common.SerializedList import CStrList
 
 sDir = "./GraphML/"
 
+CNetObj_Manager.initRoot()
+
 loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
-agentsNetObj = CNetObj_Manager.rootObj.queryObj( ANO.s_Agents, CNetObj ) #type:ignore
+CNetObj_Manager.rootObj.queryObj( ANO.s_Agents, CNetObj ) # type:ignore
 
 tEdgeKey_1_2   = ("1", "2")
 lEdgeKey_1_2   = list( tEdgeKey_1_2 )
@@ -40,6 +42,7 @@ Route_2        = ["2", "3", "4", "5", "6"]
 strRoute_2     = ",".join( Route_2 )
 
 Route_3        = ["3", "4", "5", "6"]
+
 
 class CTestAgentNetObjFuncs(unittest.TestCase):
 
@@ -323,16 +326,11 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
         with self.assertRaises( AssertionError ):
             agentNO.applyRoute( deepcopy(Route_1) )
 
-
         agentNO.destroy()
 
-    @classmethod
-    def tearDownClass(cls):
-        CNetObj_Manager.rootObj.destroy()
-        # global agentsNetObj
-        # agentsNetObj.destroy()
-        # agentsNetObj = None
-        # del agentsNetObj
+    # @classmethod
+    # def tearDownClass(cls):
+    #     CNetObj_Manager.rootObj.destroy()
 
 if __name__ == "__main__":
     unittest.main()
