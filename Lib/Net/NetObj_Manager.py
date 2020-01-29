@@ -53,6 +53,7 @@ class CNetObj_Manager( object ):
         # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
         cls.rootObj = CNetObj(name="root", id = sys.maxsize )
         cls.__objects[ cls.rootObj.UID ] = cls.rootObj
+        CTreeNodeCache.rootObj = cls.rootObj
 
     __genLocal_UID = sys.maxsize
     
