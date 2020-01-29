@@ -6,6 +6,7 @@ import os
 import networkx as nx
 import math
 import weakref
+# import gc
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
@@ -13,12 +14,17 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager
 from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.GraphEntity import StorageGraphTypes as SGT
-sDir = "./GraphML/"
 
-from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.TreeNodeCache import CTreeNodeCache
+
+sDir = "./GraphML/"
+# print( id(graphNodeCache()), graphNodeCache().nxGraph.nodes() , "\n" )
+print( "4444444444444444" )
+CNetObj_Manager.initRoot()
+# gc.collect()
+# print( id(graphNodeCache()), graphNodeCache().nxGraph.nodes() , "\n" )
 
 # Dummy-классы для имитиции окружения StorageGraph_GScene_Manager
-
 class CNode_SGItem_Dummy:
     @property
     def nodeType( self ): return self.netObj().nodeType
@@ -38,20 +44,16 @@ class CSGM_Dummy:
         self.nodeGItems = {}
         self.edgeGItems = {}
 
-        CNetObj_Manager.initRoot()
-        loadGraphML_to_NetObj( sFName = sFName, bReload = False )
-        self.graphRootNode = graphNodeCache
-        print( graphNodeCache().nxGraph.nodes() )
-        # self.graphRootNode = CTreeNodeCache( path = "Graph" )
+        loadGraphML_to_NetObj( sFName = sFName, bReload = True )
 
-        for nodeNetObj in self.graphRootNode().nodesNode().children:
+        for nodeNetObj in graphNodeCache().nodesNode().children:
             self.addNode( nodeNetObj )
 
         for tKey in self.nxGraph.edges():
             self.addEdge( tKey )
 
     @property
-    def nxGraph(self): return self.graphRootNode().nxGraph
+    def nxGraph(self): return graphNodeCache().nxGraph
 
     def addNode(self, nodeNetObj):
         dummyNodeItem = CNode_SGItem_Dummy(nodeNetObj)

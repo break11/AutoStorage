@@ -16,6 +16,8 @@ from Lib.Net.Net_Events import ENet_Event as EV
 import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.AgentEntity.Agent_NetObject import SAP
 
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+
 bgColorsByConnectedStatus = { ADT.EConnectedStatus.connected    : Qt.darkGreen,
                               ADT.EConnectedStatus.disconnected : Qt.darkGray,
                               ADT.EConnectedStatus.freeze       : Qt.darkCyan }
@@ -123,11 +125,11 @@ class CAgent_SGItem(QGraphicsItem):
             self.parking()
             return
 
-        x1, y1, x2, y2 = getEdgeCoords( self.SGM.graphRootNode().nxGraph, tEdgeKey )
+        x1, y1, x2, y2 = getEdgeCoords( graphNodeCache().nxGraph, tEdgeKey )
         edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
 
         rAngle = edge_vec.selfAngle()
-        eSize = edgeSize( self.SGM.graphRootNode().nxGraph, tEdgeKey )
+        eSize = edgeSize( graphNodeCache().nxGraph, tEdgeKey )
 
         pos = self.__agentNetObj().position
 

@@ -1,15 +1,17 @@
 
-from PyQt5.QtWidgets import ( QGraphicsItem, QGraphicsLineItem )
-from PyQt5.QtGui import ( QPen, QPainterPath, QPolygonF, QTransform, QColor, QPainter )
-from PyQt5.QtCore import ( Qt, QPoint, QRect, QLineF, QRectF )
 import math
+
+from PyQt5.QtWidgets import QGraphicsItem, QGraphicsLineItem
+from PyQt5.QtGui import QPen, QPainterPath, QPolygonF, QTransform, QColor, QPainter
+from PyQt5.QtCore import Qt, QPoint, QRect, QLineF, QRectF
 
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Common.GraphUtils import EdgeDisplayName
-from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.TreeNodeCache import CTreeNodeCache
 
 from Lib.GraphEntity.EdgeDecorate_SGItem import CEdgeDecorate_SGItem
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 
 class CEdge_SGItem(QGraphicsItem):
     __fBBoxD  =  60 # 20   # расширение BBox для удобства выделения
@@ -31,7 +33,7 @@ class CEdge_SGItem(QGraphicsItem):
         edgeType = edgeNO[ SGT.SGA.edgeType ]
         return edgeType
 
-    def __init__(self, SGM, fsEdgeKey, graphRootNode, parent ):
+    def __init__(self, SGM, fsEdgeKey, parent ):
         super().__init__( parent=parent )
 
         self.SGM = SGM
@@ -41,11 +43,11 @@ class CEdge_SGItem(QGraphicsItem):
         self.nodeID_1 = t[0]
         self.nodeID_2 = t[1]
 
-        self.node_1 = CTreeNodeCache( baseNode = graphRootNode().nodesNode(), path = self.nodeID_1 )
-        self.node_2 = CTreeNodeCache( baseNode = graphRootNode().nodesNode(), path = self.nodeID_2 )
+        self.node_1 = CTreeNodeCache( basePath = graphNodeCache().nodesNode().path(), path = self.nodeID_1 )
+        self.node_2 = CTreeNodeCache( basePath = graphNodeCache().nodesNode().path(), path = self.nodeID_2 )
 
-        self.edge1_2 = CTreeNodeCache( baseNode = graphRootNode().edgesNode(), path = EdgeDisplayName( self.nodeID_1, self.nodeID_2 ) )
-        self.edge2_1 = CTreeNodeCache( baseNode = graphRootNode().edgesNode(), path = EdgeDisplayName( self.nodeID_2, self.nodeID_1 ) )
+        self.edge1_2 = CTreeNodeCache( basePath = graphNodeCache().edgesNode().path(), path = EdgeDisplayName( self.nodeID_1, self.nodeID_2 ) )
+        self.edge2_1 = CTreeNodeCache( basePath = graphNodeCache().edgesNode().path(), path = EdgeDisplayName( self.nodeID_2, self.nodeID_1 ) )
 
         self.edgesNetObj_by_TKey = {}
         self.edgesNetObj_by_TKey[ ( self.nodeID_1, self.nodeID_2 ) ] = self.edge1_2

@@ -5,7 +5,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Net.NetObj_JSON as nJSON
 from Lib.Net.NetObj_Utils import destroy_If_Reload
-from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
 from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
@@ -45,10 +45,9 @@ class CBox_NO( CNetObj ):
     def_props = { SBP.address: CBoxAddress( addressType=EBoxAddressType.Undefined ) }
 
     @property
-    def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None
+    def nxGraph( self ): return graphNodeCache().nxGraph if graphNodeCache() is not None else None
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-        self.graphRootNode = graphNodeCache
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     #############

@@ -14,7 +14,6 @@ sDir = "./UnitTests/RouteBuilder/"
 
 CNetObj_Manager.initRoot()
 loadGraphML_to_NetObj( sFName = sDir + "DE_test.graphml", bReload = False)
-graphRootNode = graphNodeCache()
 
 routeBuilder = CRouteBuilder()
 

@@ -19,7 +19,7 @@ from Lib.GraphEntity.EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 from Lib.Common.GuiUtils import gvFitToPage
 from Lib.Common.Utils import time_func
 from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache
-from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Common.StrConsts import SC
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
@@ -53,7 +53,7 @@ class CStorageGraph_GScene_Manager( QObject ):
     nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StoragePoint, SGT.ENodeTypes.PowerStation]
 
     @property
-    def nxGraph(self): return self.graphRootNode().nxGraph
+    def nxGraph(self): return graphNodeCache().nxGraph
 
     def __init__(self, gScene, gView):
         super().__init__()
@@ -87,7 +87,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         # self.gScene.setBspTreeDepth( 1 )
 
         self.__maxNodeID    = 0
-        self.graphRootNode = graphNodeCache
         self.agentsNode    = agentsNodeCache()
 
         CNetObj_Manager.addCallback( EV.ObjCreated,       self.ObjCreated )
@@ -179,8 +178,8 @@ class CStorageGraph_GScene_Manager( QObject ):
         # self.init()
         # не вызываем здесь, т.к. вызовется при реакции на создание корневого элемента графа
 
-        if self.graphRootNode():
-            self.graphRootNode().destroy()
+        if graphNodeCache():
+            graphNodeCache().destroy()
 
         createGraph_NO_Branches( nxGraph = nx.DiGraph() )
         
@@ -192,10 +191,10 @@ class CStorageGraph_GScene_Manager( QObject ):
         for x in range(0, nodes_side_count * step, step):
             for y in range(0, nodes_side_count * 400, 400):
                 props = { SGT.SGA.x: x, SGT.SGA.y: y, SGT.SGA.nodeType : SGT.ENodeTypes.StoragePoint }
-                cur_node = CGraphNode_NO( name = self.genStrNodeID(), parent = self.graphRootNode().nodesNode(),
+                cur_node = CGraphNode_NO( name = self.genStrNodeID(), parent = graphNodeCache().nodesNode(),
                         saveToRedis = True, props = props, ext_fields = {} )
                 if last_node:
-                    CGraphEdge_NO.createEdge_NetObj( nodeID_1 = cur_node.name, nodeID_2 = last_node.name, parent = self.graphRootNode().edgesNode() )
+                    CGraphEdge_NO.createEdge_NetObj( nodeID_1 = cur_node.name, nodeID_2 = last_node.name, parent = graphNodeCache().edgesNode() )
 
                 last_node = cur_node
 
@@ -377,7 +376,7 @@ class CStorageGraph_GScene_Manager( QObject ):
         fsEdgeKey = frozenset( ( netObj.nxNodeID_1(), netObj.nxNodeID_2() ) )
         if self.edgeGItems.get( fsEdgeKey ) : return False
 
-        edgeGItem = CEdge_SGItem( self, fsEdgeKey=fsEdgeKey, graphRootNode=self.graphRootNode, parent=self.GraphRoot_ParentGItem )
+        edgeGItem = CEdge_SGItem( self, fsEdgeKey=fsEdgeKey, parent=self.GraphRoot_ParentGItem )
 
         edgeGItem.updatePos()
         self.edgeGItems[ fsEdgeKey ] = edgeGItem
@@ -398,10 +397,10 @@ class CStorageGraph_GScene_Manager( QObject ):
             nodeID_1 = nodeGItems[i].nodeID
             nodeID_2 = nodeGItems[i+1].nodeID
             if direct: #создание граней в прямом направлении
-                CGraphEdge_NO.createEdge_NetObj( nodeID_1, nodeID_2, parent = self.graphRootNode().edgesNode(), props=CGraphEdge_NO.def_props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_1, nodeID_2, parent = graphNodeCache().edgesNode(), props=CGraphEdge_NO.def_props )
 
             if reverse: #создание граней в обратном направлении
-                CGraphEdge_NO.createEdge_NetObj( nodeID_2, nodeID_1, parent = self.graphRootNode().edgesNode(), props=CGraphEdge_NO.def_props )
+                CGraphEdge_NO.createEdge_NetObj( nodeID_2, nodeID_1, parent = graphNodeCache().edgesNode(), props=CGraphEdge_NO.def_props )
 
             if direct == False and reverse == False: continue
 
@@ -461,10 +460,10 @@ class CStorageGraph_GScene_Manager( QObject ):
             edgeGItem.edge2_1().destroy()
 
         if b12:
-            CGraphEdge_NO.createEdge_NetObj( edgeGItem.nodeID_2, edgeGItem.nodeID_1, parent = self.graphRootNode().edgesNode(), props=attr12 )
+            CGraphEdge_NO.createEdge_NetObj( edgeGItem.nodeID_2, edgeGItem.nodeID_1, parent = graphNodeCache().edgesNode(), props=attr12 )
         
         if b21:
-            CGraphEdge_NO.createEdge_NetObj( edgeGItem.nodeID_1, edgeGItem.nodeID_2, parent = self.graphRootNode().edgesNode(), props=attr21 )
+            CGraphEdge_NO.createEdge_NetObj( edgeGItem.nodeID_1, edgeGItem.nodeID_2, parent = graphNodeCache().edgesNode(), props=attr21 )
 
         edgeGItem.update()
         edgeGItem.decorateSGItem.update()
@@ -529,7 +528,7 @@ class CStorageGraph_GScene_Manager( QObject ):
                 attr[ SGT.SGA.x ] = round (self.gView.mapToScene(event.pos()).x())
                 attr[ SGT.SGA.y ] = round (self.gView.mapToScene(event.pos()).y())
 
-                CGraphNode_NO( name=self.genStrNodeID(), parent=self.graphRootNode().nodesNode(), props=attr )
+                CGraphNode_NO( name=self.genStrNodeID(), parent = graphNodeCache().nodesNode(), props=attr )
 
                 ##TODO: разобраться и починить ув-е размера сцены при добавление элементов на ее краю
                 # self.gScene.setSceneRect( self.gScene.itemsBoundingRect() )

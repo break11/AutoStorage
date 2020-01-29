@@ -17,11 +17,7 @@ from Lib.Common.SerializedList import CStrList
 sDir = "./GraphML/"
 
 loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
-CNetObj_Manager.rootObj.queryObj( ANO.s_Agents, CNetObj ) #type:ignore
-# graphRootNode = graphNodeCache()
-
-
-nxGraph        = graphNodeCache().nxGraph
+agentsNetObj = CNetObj_Manager.rootObj.queryObj( ANO.s_Agents, CNetObj ) #type:ignore
 
 tEdgeKey_1_2   = ("1", "2")
 lEdgeKey_1_2   = list( tEdgeKey_1_2 )
@@ -34,8 +30,8 @@ strList_EdgeKey_2_1 = CStrList.fromTuple( tEdgeKey_2_1 )
 tEdgeKey_2_3   = ("2", "3")
 strList_EdgeKey_2_3 = CStrList.fromTuple( tEdgeKey_2_3 )
 
-edgeSize_1_2   = GU.edgeSize( nxGraph, tEdgeKey_1_2 )
-edgeSize_2_1   = GU.edgeSize( nxGraph, tEdgeKey_2_1 )
+edgeSize_1_2   = GU.edgeSize( graphNodeCache().nxGraph, tEdgeKey_1_2 )
+edgeSize_2_1   = GU.edgeSize( graphNodeCache().nxGraph, tEdgeKey_2_1 )
 
 Route_1        = ["1", "2", "3", "4", "5", "6"]
 strRoute_1     = ",".join( Route_1 )
@@ -329,6 +325,14 @@ class CTestAgentNetObjFuncs(unittest.TestCase):
 
 
         agentNO.destroy()
+
+    @classmethod
+    def tearDownClass(cls):
+        CNetObj_Manager.rootObj.destroy()
+        # global agentsNetObj
+        # agentsNetObj.destroy()
+        # agentsNetObj = None
+        # del agentsNetObj
 
 if __name__ == "__main__":
     unittest.main()

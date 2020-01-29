@@ -20,7 +20,6 @@ sDir = "./UnitTests/RouteBuilder/"
 
 CNetObj_Manager.initRoot()
 loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
-graphRootNode = graphNodeCache()
 
 class CRouteCase():
     genUID = 0
@@ -65,7 +64,7 @@ class CTestRouteBuilder(unittest.TestCase):
         # f = open( "./UnitTests/RouteBuilder/passed.txt", "w" )
         for case in routeCases:
 
-            shortestPath = shortest_path( graphRootNode().nxGraph, case.startNode, case.endNode )
+            shortestPath = shortest_path( graphNodeCache().nxGraph, case.startNode, case.endNode )
 
             route, SII, routeStatus = routeBuilder.buildRoute( nodeList = shortestPath, agent_angle = case.agentAngle )
 

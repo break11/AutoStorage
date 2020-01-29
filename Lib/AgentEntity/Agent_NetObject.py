@@ -5,7 +5,8 @@ import networkx as nx
 from PyQt5.QtCore import QTimer
 
 from Lib.Net.NetObj import CNetObj
-from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
+from Lib.Common.TreeNode import CTreeNode
+from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Common.GraphUtils as GU
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
@@ -71,12 +72,11 @@ for k, v in cmdProps.items():
 cmdProps_keys = cmdProps.keys()
 cmdProps_Box_LU = { SAP.cmd_BL_L, SAP.cmd_BL_R, SAP.cmd_BU_L, SAP.cmd_BU_R }
 
-def agentsNodeCache():
-    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Agents )
+agentsNodeCache = CTreeNodeCache( path = s_Agents )
 
 def queryAgentNetObj( name ):
     props = deepcopy( CAgent_NO.def_props )
-    return agentsNodeCache()().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
+    return agentsNodeCache().queryObj( sName=name, ObjClass=CAgent_NO, props=props )
 
 class CAgent_NO( CNetObj ):
     def_props = {
@@ -110,10 +110,9 @@ class CAgent_NO( CNetObj ):
     local_props = { SAP.connectedStatus }
               
     @property
-    def nxGraph( self ): return self.graphRootNode().nxGraph if self.graphRootNode() is not None else None
+    def nxGraph( self ): return graphNodeCache().nxGraph if graphNodeCache() is not None else None
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-        self.graphRootNode = graphNodeCache
         self.lastConnectedTime = 0
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
@@ -139,7 +138,7 @@ class CAgent_NO( CNetObj ):
                 self.auto_control = 0
 
     def isOnTrack( self ):
-        if ( not self.edge ) or ( not self.graphRootNode() ):
+        if ( not self.edge ) or ( not graphNodeCache() ):
             return
 
         tEdgeKey = self.edge.toTuple()

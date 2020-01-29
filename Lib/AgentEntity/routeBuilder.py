@@ -74,12 +74,9 @@ class ERouteStatus(Enum):
 
 class CRouteBuilder():
     """Class to generate a list of correct commands in @WO/@DP/... notation for a given start and stop node"""
-    def __init__(self):
-        self.graphRootNode = graphNodeCache
-
     @property
     def nxGraph(self):
-        return self.graphRootNode().nxGraph
+        return graphNodeCache().nxGraph
     
     def edgeSize( self, tKey ):
         return edgeSize( self.nxGraph, tKey )

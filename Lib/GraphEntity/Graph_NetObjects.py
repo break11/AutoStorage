@@ -2,7 +2,8 @@
 import networkx as nx
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
-from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
+from Lib.Common.TreeNode import CTreeNode
+from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Utils import destroy_If_Reload
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
 from Lib.Common.StrConsts import SC
@@ -12,11 +13,6 @@ s_Graph = "Graph"
 s_Nodes = "Nodes"
 s_Edges = "Edges"
 
-##remove##
-# def graphNodeCache():
-#     return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Graph )
-
-# graphNodeCache = CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Graph )
 graphNodeCache = CTreeNodeCache( path = s_Graph )
 
 class CGraphRoot_NO( CNetObj ):    
@@ -31,8 +27,10 @@ class CGraphRoot_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )        
 
-        self.nodesNode = CTreeNodeCache( baseNode = self, path = s_Nodes )
-        self.edgesNode = CTreeNodeCache( baseNode = self, path = s_Edges )
+        self.nodesNode = CTreeNodeCache( basePath = self.path(), path = s_Nodes )
+        self.edgesNode = CTreeNodeCache( basePath = self.path(), path = s_Edges )
+
+        print( graphNodeCache(), "5555555555" )
 
 ###################################################################################
 
@@ -57,11 +55,11 @@ class CGraphNode_NO( CNetObj ):
                 }
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-        self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
-
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     def beforeRegister( self ):
+        print( self.parent.parent.nxGraph.nodes(), "77777777777777" )
+        print( graphNodeCache(), "5555555555" )
         # перед отправкой в редим подмена указателя на props
         if not self.__has_nxNode():
             self.nxGraph().add_node( self.name, **self.props )
@@ -72,7 +70,7 @@ class CGraphNode_NO( CNetObj ):
         if self.nxGraph():
             incEdges = list( self.nxGraph().out_edges( self.name ) ) +  list( self.nxGraph().in_edges( self.name ) )
 
-        edges = self.graphNode().edgesNode()
+        edges = graphNodeCache().edgesNode()
         if edges:
             for edgeID in incEdges:
                 n1 = edgeID[0]
@@ -85,7 +83,7 @@ class CGraphNode_NO( CNetObj ):
         if self.__has_nxNode():
             self.nxGraph().remove_node( self.name )
 
-    def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
+    def nxGraph(self)     : return graphNodeCache().nxGraph if graphNodeCache() else None
     def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.__has_nxNode() else {}
     def __has_nxNode(self): return self.nxGraph().has_node( self.name ) if self.nxGraph() else None
 
@@ -120,9 +118,6 @@ class CGraphEdge_NO( CNetObj ):
         edge = parent.queryObj( EdgeDisplayName( nodeID_1, nodeID_2 ), cls, props=props, ext_fields=ext_fields )
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-
-        self.graphNode = CTreeNodeCache( baseNode = self, path = "../../" )
-
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     def beforeRegister( self ):
@@ -142,7 +137,7 @@ class CGraphEdge_NO( CNetObj ):
     def nxNodeID_2(self)  : return self.ext_fields[ self.s_NodeID_2 ]
     def __has_nxEdge(self): return self.nxGraph().has_edge( self.nxNodeID_1(), self.nxNodeID_2() ) if self.nxGraph() else None
     def __nxEdgeName(self): return ( self.nxNodeID_1(), self.nxNodeID_2() )
-    def nxGraph(self)     : return self.graphNode().nxGraph if self.graphNode() else None
+    def nxGraph(self)     : return graphNodeCache().nxGraph if graphNodeCache() else None
     def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
 
 def createGraph_NO_Branches( nxGraph ):

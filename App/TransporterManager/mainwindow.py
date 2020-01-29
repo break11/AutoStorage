@@ -26,8 +26,6 @@ class CTM_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
-
-        self.graphRootNode = graphNodeCache()
         # self.agentsNode = agentsNodeCache()
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )

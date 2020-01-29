@@ -56,7 +56,6 @@ class CAM_MainWindow(QMainWindow):
         self.AgentTest_Timer.timeout.connect( self.AgentTest )
         self.AgentTest_Timer.start()
 
-        self.graphRootNode = graphNodeCache
         self.agentsNode = agentsNodeCache()
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
@@ -156,7 +155,7 @@ class CAM_MainWindow(QMainWindow):
     def AgentTest( self ):
         if self.testType == None: return
 
-        if self.graphRootNode() is None: return
+        if graphNodeCache() is None: return
         if self.agentsNode().childCount() == 0: return
 
         for agentNO in self.agentsNode().children:
@@ -166,7 +165,7 @@ class CAM_MainWindow(QMainWindow):
 
             if self.testType == EAgentTest.SimpleRoute:
                 # поиск таргет ноды
-                nxGraph = self.graphRootNode().nxGraph
+                nxGraph = graphNodeCache().nxGraph
                 targetNode = randomNodes( nxGraph, self.enabledTargetNodes ).pop(0)
                 
                 # выдача задания
@@ -178,7 +177,7 @@ class CAM_MainWindow(QMainWindow):
                 while box2 == box1: box2 = random.choice( list( boxesNodeCache()().children ) )
 
                 # поиск таргет ноды PickStation
-                nxGraph = self.graphRootNode().nxGraph
+                nxGraph = graphNodeCache().nxGraph
                 targetNode = randomNodes( nxGraph, { SGT.ENodeTypes.PickStation } ).pop(0)
                 
                 taskList = []
