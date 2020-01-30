@@ -1,4 +1,5 @@
 import sys
+from collections import namedtuple
 
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -44,7 +45,6 @@ s_Client_UID = "client_uid_gen"
 s_ObjectsSet = "objects_set"
 
 ########################################################
-from time import sleep
 
 class CNetObj_Manager( object ):
     __objects = weakref.WeakValueDictionary() # type: ignore
@@ -117,6 +117,16 @@ class CNetObj_Manager( object ):
         return cls.__netObj_Types[ typeUID ]
 
     #####################################################
+    __registered_controllers = {} # type: ignore
+    controllerDesc = namedtuple( "controllerDesc", "controllerClass attachFunc" )
+    
+    @classmethod
+    def registerController(cls, netObjClass, controllerClass, attachFunc = lambda netObj : True):
+        assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
+        cls.__registered_controllers[ netObjClass.__name__ ] = CNetObj_Manager.controllerDesc( controllerClass, attachFunc )
+        print( cls.__registered_controllers )
+
+    #####################################################
     @classmethod
     def redisKey_clientInfoName_C(cls, ClientID): return f"client:{ClientID}:name"
     @classmethod
@@ -142,7 +152,7 @@ class CNetObj_Manager( object ):
 
     @classmethod
     @time_func( sMsg="tick time --------------------------", threshold=50 )
-    def onTick( cls ):
+    def netTick( cls ):
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
         NetUpdatedObj = [] # контейнер хранящий [ [netObj, netCmd], ... ] объектов по которым прошли обновления полей
 
@@ -235,6 +245,13 @@ class CNetObj_Manager( object ):
                 cls.pipe.sadd( s_ObjectsSet, netObj.UID )
                 netObj.saveToRedis( cls.pipe )
                 CNetObj_Manager.sendNetCMD( cmd )
+        
+        clsName = netObj.__class__.__name__
+        reg = cls.__registered_controllers.get( clsName )
+        if reg is not None:
+            if reg.attachFunc( netObj ):
+                print( "1111111111111111111111111111111111111" )
+                netObj.controllers[ clsName ] = reg.controllerClass( netObj )
                     
     @classmethod
     def unregisterObj( cls, netObj ):

@@ -3,22 +3,28 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager, CNetObj_Widget
 
-from Lib.AgentEntity.Agent_NetObject import CAgent_NO
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO, s_Agents
+from App.AgentsManager.AgentLink import CAgentLink
 
-from Lib.BoxEntity.Box_NetObject import CBox_NO
+from Lib.BoxEntity.Box_NetObject import CBox_NO, s_Boxes
 from Lib.BoxEntity.BoxAddress import CBoxAddress
 
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 from Lib.Common.SerializedList import CStrList
 
-from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
+from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, s_Graph
 import Lib.GraphEntity.StorageGraphTypes as SGT
 
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
 
-from Lib.TransporterEntity.Transporter_NetObject import CTransporter_NO
+from Lib.TransporterEntity.Transporter_NetObject import CTransporter_NO, s_Transporters
 import Lib.TransporterEntity.TransporterDataTypes as TDT
+
+rootObjDict = { s_Agents       : CNetObj,
+                s_Boxes        : CNetObj,
+                s_Transporters : CNetObj,
+                s_Graph        : CGraphRoot_NO }
 
 def register_NetObj():
     reg = CNetObj_Manager.registerType
@@ -62,3 +68,7 @@ def register_NetObj_Widgets_for_ObjMonitor( reg ):
     reg( CAgent_NO,       CDictProps_Widget )
     reg( CBox_NO,         CDictProps_Widget )
     reg( CTransporter_NO, CDictProps_Widget )
+
+def register_NetObj_Controllers_for_AgentManager():
+    reg = CNetObj_Manager.registerController
+    reg( CAgent_NO, CAgentLink )

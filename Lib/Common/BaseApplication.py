@@ -7,21 +7,22 @@ from .SettingsManager import CSettingsManager as CSM
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Monitor import CNetObj_Monitor
-from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, s_Graph
-from Lib.AgentEntity.Agent_NetObject import s_Agents
-from Lib.BoxEntity.Box_NetObject import s_Boxes
 from Lib.Common.GuiUtils import CNoAltMenu_Style
-from Lib.TransporterEntity.Transporter_NetObject import s_Transporters
 
 import Lib.Common.NetObj_Registration as NO_Reg
 
 class CBaseApplication( QApplication ):
-    def __init__(self, argv, bNetworkMode ):
+    def __init__(self, argv, bNetworkMode, registerControllersFunc = None, rootObjDict = {} ):
         super().__init__( argv )
 
         self.bNetworkMode = bNetworkMode
 
         self.setStyle( CNoAltMenu_Style() )
+
+        if registerControllersFunc is not None:
+            registerControllersFunc()
+
+        self.rootObjDict = rootObjDict
 
         NO_Reg.register_NetObj()
         NO_Reg.register_NetObj_Props()
@@ -39,13 +40,11 @@ class CBaseApplication( QApplication ):
         if self.bNetworkMode:
             if not CNetObj_Manager.connect(): return False
 
-        CNetObj_Manager.rootObj.queryObj( s_Agents, CNetObj )
-        CNetObj_Manager.rootObj.queryObj( s_Boxes,  CNetObj )
-        CNetObj_Manager.rootObj.queryObj( s_Transporters, CNetObj )
-        CNetObj_Manager.rootObj.queryObj( s_Graph,  CGraphRoot_NO )
+        for k,v in self.rootObjDict.items():
+            CNetObj_Manager.rootObj.queryObj( k, v )
 
         if self.bNetworkMode:
-            self.tickTimer.timeout.connect( CNetObj_Manager.onTick )
+            self.tickTimer.timeout.connect( CNetObj_Manager.netTick )
             self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
 
         return True
@@ -64,10 +63,11 @@ class EAppStartPhase( Enum ):
     BeforeRedisConnect = auto()
     AfterRedisConnect  = auto()
 
-def baseAppRun( default_settings, bNetworkMode, mainWindowClass, bShowFullscreen=False, mainWindowParams={} ):
+def baseAppRun( default_settings, bNetworkMode, mainWindowClass, bShowFullscreen=False, mainWindowParams={},
+                registerControllersFunc = None, rootObjDict = {} ):
     CSM.loadSettings( default=default_settings )
 
-    app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode )
+    app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode, registerControllersFunc = registerControllersFunc, rootObjDict = rootObjDict )
     
     window = mainWindowClass( **mainWindowParams )
 
