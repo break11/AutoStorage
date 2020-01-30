@@ -6,7 +6,8 @@ import json
 # from PyQt5.QtCore import QTimer
 
 from Lib.Net.NetObj import CNetObj
-# from Lib.Common.TreeNode import CTreeNode, CTreeNodeCache
+# from Lib.Common.TreeNode import CTreeNode,
+from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj_Utils import destroy_If_Reload
 import Lib.Net.NetObj_JSON as nJSON
@@ -23,6 +24,8 @@ from Lib.Common.SerializedList import CStrList
 
 s_Transporters = "Transporters"
 
+transportersNodeCache = CTreeNodeCache( path = s_Transporters )
+
 class STransporterProps( metaclass = СStrProps_Meta ):
     busy = None
     mode = None
@@ -33,12 +36,9 @@ class STransporterProps( metaclass = СStrProps_Meta ):
 
 STP = STransporterProps
 
-def transportersNodeCache():
-    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Transporters )
-
 def queryTransporterNetObj( name ):
     props = deepcopy( CTransporter_NO.def_props )
-    return transportersNodeCache()().queryObj( sName=name, ObjClass=CTransporter_NO, props=props )
+    return transportersNodeCache().queryObj( sName=name, ObjClass=CTransporter_NO, props=props )
 
 class CTransporter_NO( CNetObj ):
     def_props = {

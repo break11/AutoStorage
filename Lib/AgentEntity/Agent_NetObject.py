@@ -20,6 +20,8 @@ from Lib.Common.SerializedList import CStrList
 
 s_Agents = "Agents"
 
+agentsNodeCache = CTreeNodeCache( path = s_Agents )
+
 class SAgentProps( metaclass = СStrProps_Meta ):
     edge            = None
     position        = None
@@ -71,8 +73,6 @@ for k, v in cmdProps.items():
 
 cmdProps_keys = cmdProps.keys()
 cmdProps_Box_LU = { SAP.cmd_BL_L, SAP.cmd_BL_R, SAP.cmd_BU_L, SAP.cmd_BU_R }
-
-agentsNodeCache = CTreeNodeCache( path = s_Agents )
 
 def queryAgentNetObj( name ):
     props = deepcopy( CAgent_NO.def_props )

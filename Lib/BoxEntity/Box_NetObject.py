@@ -14,30 +14,29 @@ from Lib.AgentEntity.Agent_NetObject import agentsNodeCache
 
 s_Boxes = "Boxes"
 
+boxesNodeCache = CTreeNodeCache( path = s_Boxes )
+
 class SBoxProps( metaclass = СStrProps_Meta ):
     address = None
 
 SBP = SBoxProps
 
 def getBox_by_Name( boxName ):
-    return boxesNodeCache()().childByName( boxName )
+    return boxesNodeCache().childByName( boxName )
 
 def getBox_from_NodePlace( nodePlace ):
-    if boxesNodeCache()() is None: return None
-    boxName = boxesNodeCache()().get( str( nodePlace ) )
-    return boxesNodeCache()().childByName( boxName )
+    if boxesNodeCache() is None: return None
+    boxName = boxesNodeCache().get( str( nodePlace ) )
+    return boxesNodeCache().childByName( boxName )
 
 def getBox_by_BoxAddress( boxAddress ):
-    if boxesNodeCache()() is None: return None
-    boxName =  boxesNodeCache()().get( str( boxAddress.data ) )
+    if boxesNodeCache() is None: return None
+    boxName =  boxesNodeCache().get( str( boxAddress.data ) )
     return getBox_by_Name( boxName )
-
-def boxesNodeCache():
-    return CTreeNodeCache( baseNode = CNetObj_Manager.rootObj, path = s_Boxes )
 
 def queryBoxNetObj( name ):
     props = deepcopy( CBox_NO.def_props )
-    return boxesNodeCache()().queryObj( sName=name, ObjClass=CBox_NO, props=props )
+    return boxesNodeCache().queryObj( sName=name, ObjClass=CBox_NO, props=props )
 
 ####################
 
@@ -95,7 +94,7 @@ class CBox_NO( CNetObj ):
             return self.nxGraph.has_node( self.address.data.nodeID ) if self.nxGraph is not None else False
 
         if self.address.addressType == EBoxAddressType.OnAgent:
-            return agentsNodeCache()().childByName( str(self.address.data) ) is not None
+            return agentsNodeCache().childByName( str(self.address.data) ) is not None
 
 ####################
 

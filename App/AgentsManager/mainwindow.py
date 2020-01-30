@@ -55,8 +55,6 @@ class CAM_MainWindow(QMainWindow):
         self.AgentTest_Timer.setInterval(500)
         self.AgentTest_Timer.timeout.connect( self.AgentTest )
         self.AgentTest_Timer.start()
-
-        self.agentsNode = agentsNodeCache()
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
         self.registerObjects_Widgets()
@@ -156,9 +154,9 @@ class CAM_MainWindow(QMainWindow):
         if self.testType == None: return
 
         if graphNodeCache() is None: return
-        if self.agentsNode().childCount() == 0: return
+        if agentsNodeCache().childCount() == 0: return
 
-        for agentNO in self.agentsNode().children:
+        for agentNO in agentsNodeCache().children:
             if not agentNO.auto_control: continue
             if agentNO.isOnTrack() is None: continue
             if not agentNO.task_list.isEmpty(): continue
@@ -172,9 +170,9 @@ class CAM_MainWindow(QMainWindow):
                 agentNO.task_list = ATD.CTaskList( [ ATD.CTask( ATD.ETaskType.DoCharge, 30 ), ATD.CTask( ATD.ETaskType.GoToNode, targetNode ) ] )
 
             elif self.testType == EAgentTest.SimpleBox:
-                box1 = random.choice( list( boxesNodeCache()().children ) )
+                box1 = random.choice( list( boxesNodeCache().children ) )
                 box2 = box1
-                while box2 == box1: box2 = random.choice( list( boxesNodeCache()().children ) )
+                while box2 == box1: box2 = random.choice( list( boxesNodeCache().children ) )
 
                 # поиск таргет ноды PickStation
                 nxGraph = graphNodeCache().nxGraph

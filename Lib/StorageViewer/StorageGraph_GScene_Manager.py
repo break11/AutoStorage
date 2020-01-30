@@ -24,7 +24,7 @@ from Lib.Common.StrConsts import SC
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_SGItem import CAgent_SGItem
-from Lib.AgentEntity.Agent_NetObject import CAgent_NO, SAP, agentsNodeCache
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO, SAP
 from Lib.BoxEntity.Box_NetObject import CBox_NO, SBP
 from Lib.BoxEntity.Box_SGItem import CBox_SGItem
 from Lib.Common.Dummy_GItem import CDummy_GItem
@@ -87,7 +87,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         # self.gScene.setBspTreeDepth( 1 )
 
         self.__maxNodeID    = 0
-        self.agentsNode    = agentsNodeCache()
 
         CNetObj_Manager.addCallback( EV.ObjCreated,       self.ObjCreated )
         CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )

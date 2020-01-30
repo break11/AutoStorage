@@ -14,7 +14,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Utils import isNone_or_Empty
 import Lib.Common.FileUtils as FileUtils
 from Lib.Common.StrConsts import SC
-from Lib.Common.TreeNode import CTreeNodeCache
+from Lib.Common.TreeNodeCache import CTreeNodeCache
 import Lib.Common.ChargeUtils as CU
 from Lib.Common.SerializedList import CStrList
 from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
@@ -49,7 +49,7 @@ class CAgentLink( CAgentServer_Link ):
         # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
         # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
         # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
-        self.agentNO = CTreeNodeCache( baseNode = agentsNodeCache()(), path = str( self.agentN ) )
+        self.agentNO = CTreeNodeCache( basePath = agentsNodeCache().path(), path = str( self.agentN ) )
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
