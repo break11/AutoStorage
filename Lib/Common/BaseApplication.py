@@ -27,10 +27,14 @@ class CBaseApplication( QApplication ):
         NO_Reg.register_NetObj()
         NO_Reg.register_NetObj_Props()
 
+        self.controllersTimer = QTimer()
+        self.controllersTimer.setInterval( 500 )
+        self.controllersTimer.start()
+
         if self.bNetworkMode:
-            self.tickTimer = QTimer()
-            self.tickTimer.setInterval( 100 )
-            self.tickTimer.start()
+            self.netTimer = QTimer()
+            self.netTimer.setInterval( 100 )
+            self.netTimer.start()
 
             self.ttlTimer = QTimer()
             self.ttlTimer.setInterval( 1500 )
@@ -43,8 +47,10 @@ class CBaseApplication( QApplication ):
         for k,v in self.rootObjDict.items():
             CNetObj_Manager.rootObj.queryObj( k, v )
 
+        self.controllersTimer.timeout.connect( CNetObj_Manager.controllersTick )
+
         if self.bNetworkMode:
-            self.tickTimer.timeout.connect( CNetObj_Manager.netTick )
+            self.netTimer.timeout.connect( CNetObj_Manager.netTick )
             self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
 
         return True

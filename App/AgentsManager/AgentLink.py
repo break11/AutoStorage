@@ -38,18 +38,12 @@ agentCmd_by_BoxTaskType = {
     ATD.ETaskType.LoadBoxByName : EAgentServer_Event.BoxLoad
 }
 
-
 class CAgentLink( CAgentServer_Link ):
     @property
     def nxGraph( self ): return graphNodeCache().nxGraph
 
-    def __init__(self, agentN):
-        super().__init__( agentN = agentN )
-
-        # self.agentNO - если agentLink создается по событию от NetObj - то он уже есть
-        # но если он создается по событию от сокета (соединение от челнока - в списке еще нет такого агента) - то его не будет
-        # до конца конструктора, пока он не будет создан снаружи в AgentConnectionServer
-        self.agentNO = CTreeNodeCache( basePath = agentsNodeCache().path(), path = str( self.agentN ) )
+    def __init__(self, agentNO ):
+        super().__init__( agentN = agentNO.name )
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
 
@@ -80,7 +74,7 @@ class CAgentLink( CAgentServer_Link ):
         
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
 
-        if agentNO.UID != self.agentNO().UID: return
+        if agentNO.UID != self.netObj().UID: return
 
         if cmd.sPropName == SAP.status:
             ALM.doLogString( self, thread_UID="M", data=f"Agent status changed to {agentNO.status}", color="#0000FF" )
@@ -106,7 +100,7 @@ class CAgentLink( CAgentServer_Link ):
     def mainTick(self):
         if not self.isConnected(): return
 
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
 
         # обновление статуса connectedTime для NetObj челнока
         agentNO.connectedTime += 1
@@ -130,27 +124,28 @@ class CAgentLink( CAgentServer_Link ):
     
     # местная ф-я обработки пакета, если он признан актуальным
     def processRxPacket( self, cmd ):
+        agentNO = self.netObj()
+
         if cmd.event == EAgentServer_Event.OK:
-            if self.agentNO().status == ADT.EAgent_Status.AgentError:
-                self.agentNO().status = ADT.EAgent_Status.Idle
+            if self.netObj().status == ADT.EAgent_Status.AgentError:
+                self.netObj().status = ADT.EAgent_Status.Idle
 
         if cmd.event == EAgentServer_Event.OdometerZero:
-            self.agentNO().odometer = 0
+            self.netObj().odometer = 0
 
         elif cmd.event == EAgentServer_Event.Error:
-            self.agentNO().status = ADT.EAgent_Status.AgentError
+            self.netObj().status = ADT.EAgent_Status.AgentError
             self.clearCurrentTX_cmd()
             self.TX_Packets.clear()
 
         elif cmd.event == EAgentServer_Event.BatteryState:
-            self.agentNO().BS = cmd.data
+            self.netObj().BS = cmd.data
 
         elif cmd.event == EAgentServer_Event.TemperatureState:
-            self.agentNO().TS = cmd.data
+            self.netObj().TS = cmd.data
 
         elif cmd.event == EAgentServer_Event.DistanceEnd:
             self.segOD = 0
-            agentNO = self.agentNO()
 
             self.setPos_by_DE()
 
@@ -163,8 +158,6 @@ class CAgentLink( CAgentServer_Link ):
             if isNone_or_Empty( graphNodeCache() ):
                 print( SC.No_Graph_loaded )
                 return
-
-            agentNO = self.agentNO()
 
             tKey = agentNO.isOnTrack()
 
@@ -199,11 +192,11 @@ class CAgentLink( CAgentServer_Link ):
                 self.calcAgentAngle( agentNO )
 
         elif cmd.event == EAgentServer_Event.ChargeBegin:
-            self.agentNO().status = ADT.EAgent_Status.Charging
+            self.netObj().status = ADT.EAgent_Status.Charging
             self.doChargeCMD( CU.EChargeCMD.on )
 
         elif cmd.event == EAgentServer_Event.ChargeEnd:
-            self.agentNO().status = ADT.EAgent_Status.Idle
+            self.netObj().status = ADT.EAgent_Status.Idle
             self.doChargeCMD( CU.EChargeCMD.off )
 
         elif cmd.event == EAgentServer_Event.NewTask:
@@ -211,32 +204,32 @@ class CAgentLink( CAgentServer_Link ):
 
             if NT_Data:
                 if NT_Data.event == EAgentServer_Event.Idle:
-                    if self.agentNO().status in ADT.BL_BU_Statuses:
-                        tKey = self.agentNO().isOnTrack()
+                    if self.netObj().status in ADT.BL_BU_Statuses:
+                        tKey = self.netObj().isOnTrack()
                         if tKey is None:
-                            self.agentNO().status = ADT.EAgent_Status.LoadUnloadError
+                            self.netObj().status = ADT.EAgent_Status.LoadUnloadError
                             return
-                        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
+                        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
 
-                        agentAddress = CBoxAddress( EBoxAddressType.OnAgent, data=self.agentNO().name )
-                        nodeAddress  = CBoxAddress( EBoxAddressType.OnNode, data=SGT.SNodePlace( nodeID, self.agentNO().target_LU_side ) )
+                        agentAddress = CBoxAddress( EBoxAddressType.OnAgent, data=self.netObj().name )
+                        nodeAddress  = CBoxAddress( EBoxAddressType.OnNode, data=SGT.SNodePlace( nodeID, self.netObj().target_LU_side ) )
 
-                        if self.agentNO().status == ADT.EAgent_Status.BoxLoad:
+                        if self.netObj().status == ADT.EAgent_Status.BoxLoad:
                             fromAddr, toAddr = nodeAddress, agentAddress
-                        elif self.agentNO().status == ADT.EAgent_Status.BoxUnload:
+                        elif self.netObj().status == ADT.EAgent_Status.BoxUnload:
                             fromAddr, toAddr = agentAddress, nodeAddress
 
                         boxNO = getBox_by_BoxAddress( fromAddr )
                         if boxNO is not None:
                             boxNO.address = toAddr
         
-                    self.agentNO().status = ADT.EAgent_Status.Idle
+                    self.netObj().status = ADT.EAgent_Status.Idle
 
                 elif NT_Data.event in ADT.BL_BU_Events:
-                    self.agentNO().status = ADT.EAgent_Status[ NT_Data.event.name ]
+                    self.netObj().status = ADT.EAgent_Status[ NT_Data.event.name ]
 
     def setPos_by_DE( self ):
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
         if agentNO.status == ADT.EAgent_Status.PosSyncError:
             return
 
@@ -255,26 +248,26 @@ class CAgentLink( CAgentServer_Link ):
     def push_ES_and_ErrorStatus(self):
             ES_cmd = ASP( event = EAgentServer_Event.EmergencyStop )
             self.pushCmd( ES_cmd, bExpressPacket=True )
-            self.agentNO().status = ADT.EAgent_Status.PosSyncError
+            self.netObj().status = ADT.EAgent_Status.PosSyncError
 
     def prepareCharging( self ):
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
         tKey = agentNO.edge.toTuple()
         if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeTypes = { ENodeTypes.PowerStation } ):
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
-        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
+        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
         port = GU.nodeChargePort( self.nxGraph, nodeID )
         if port is None:
-            self.agentNO().status = ADT.EAgent_Status.CantCharge
+            self.netObj().status = ADT.EAgent_Status.CantCharge
             return
 
         self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
 
     def doChargeCMD( self, chargeCMD ):
-        tKey = self.agentNO().edge.toTuple()
-        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.agentNO().position )
+        tKey = self.netObj().edge.toTuple()
+        nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
 
         port = GU.nodeChargePort( self.nxGraph, nodeID )
         # проверка на наличие порта выполнена в prepareCharging, предполагаем, что с момента prepareCharging челнок не перемещался по нодам
@@ -284,7 +277,7 @@ class CAgentLink( CAgentServer_Link ):
     #########################################################
 
     def processRoute( self ):
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
 
         if agentNO.status in ADT.errorStatuses:
             return
@@ -315,7 +308,7 @@ class CAgentLink( CAgentServer_Link ):
 
         if agentNO.route.isEmpty(): return
 
-        seqList, self.SII, routeStatus = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.agentNO().angle )
+        seqList, self.SII, routeStatus = self.routeBuilder.buildRoute( nodeList = agentNO.route(), agent_angle = self.netObj().angle )
 
         if routeStatus is not ERouteStatus.Normal:
             agentNO.status = ADT.EAgent_Status.fromString( routeStatus.name )
@@ -340,7 +333,7 @@ class CAgentLink( CAgentServer_Link ):
     def processTaskList( self ):
         if not self.isConnected(): return
 
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
 
         tl = agentNO.task_list
 
@@ -373,7 +366,7 @@ class CAgentLink( CAgentServer_Link ):
     #######################
 
     def taskValid( self, task ):
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
 
         if task.type == ATD.ETaskType.Undefined:
             return False
@@ -399,7 +392,7 @@ class CAgentLink( CAgentServer_Link ):
         return False
 
     def taskComplete( self, task ):
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
 
         if task.type == ATD.ETaskType.Undefined:
             return False
@@ -424,7 +417,7 @@ class CAgentLink( CAgentServer_Link ):
         return False
 
     def readyForTask( self, task ):
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
 
         bOnTrack_Idle_Connected = agentNO.isOnTrack() and agentNO.status == ADT.EAgent_Status.Idle and agentNO.connectedStatus == ADT.EConnectedStatus.connected
 
@@ -446,7 +439,7 @@ class CAgentLink( CAgentServer_Link ):
         return False
 
     def processTask( self, task ):
-        agentNO = self.agentNO()
+        agentNO = self.netObj()
 
         if task.type == ATD.ETaskType.GoToNode:
             agentNO.goToNode( task.data )

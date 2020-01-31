@@ -96,7 +96,6 @@ class CAgentLogManager( QObject ):
         logRow = CLogRow( data=data, event=None, bTX_or_RX=None, status = None, agentLink_Ref = weakref.ref(agentLink) )
         
         self.writeToLogFile( agentLink, logRow )
-
         self.AgentLogUpdated.emit( logRow )
 
     @classmethod
