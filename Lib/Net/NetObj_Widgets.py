@@ -22,7 +22,7 @@ class CNetObj_WidgetsManager:
 
         w = self.queryWidget( netObj_Widget_Class )
 
-        self.__netObj_Widgets[ netObj.typeUID ] = w
+        self.__netObj_Widgets[ netObj.__class__.__name__ ] = w
 
         self.widgetContainer.layout().addWidget( w )
         w.hide()
@@ -37,7 +37,7 @@ class CNetObj_WidgetsManager:
         return w
 
     def getWidget( self, netObj ):
-        widget = self.__netObj_Widgets.get( netObj.typeUID )
+        widget = self.__netObj_Widgets.get( netObj.__class__.__name__ )
         return widget
 
     def clearActiveWidget( self ):

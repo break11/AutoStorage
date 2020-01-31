@@ -28,8 +28,6 @@ class CNetObj( CTreeNode ):
     local_props = set() #type:ignore
     __modelHeaderData = [ SNOP.name, SNOP.ChildCount, SNOP.UID, SNOP.TypeName, ]
 
-    typeUID = 0 # hash of the class name - fill after registration in registerNetObjTypes()
-
 ###################################################################################
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
@@ -54,7 +52,7 @@ class CNetObj( CTreeNode ):
                             hd.index( SNOP.name       ) : lambda: weakSelf().name,
                             hd.index( SNOP.ChildCount ) : lambda: weakSelf().childCount(),
                             hd.index( SNOP.UID        ) : lambda: weakSelf().UID,
-                            hd.index( SNOP.TypeName   ) : lambda: weakSelf().typeUID,
+                            hd.index( SNOP.TypeName   ) : lambda: weakSelf().__class__.__name__,
                             }
 
         ## завершающая стадия конструирования объекта, когда основной __init__ уже прошел, но до отправки в редис через registerObj
@@ -74,7 +72,7 @@ class CNetObj( CTreeNode ):
         # Команда сигнал "объект удален" в деструкторе объекта не нужна (посылка по сети), т.к. при локальном удалении объектов на всех клиентах
         # в канал посылаются сообщения об удалении с каждого клиента, что увеличивает число команд в зависимости от числа клиентов
 
-    def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.typeUID )}>'
+    def __repr__(self): return f'<{str(self.UID)} {self.name} {str( self.__class__.__name__ )}>'
 
 ###################################################################################
     def queryObj( self, sName, ObjClass, **kwargs ):
@@ -187,8 +185,8 @@ class CNetObj( CTreeNode ):
     def redisKey_Name(self)       : return self.redisKey_Name_C( self.UID )
 
     @classmethod
-    def redisKey_TypeUID_C(cls, UID) : return f"{SNOP.obj}:{UID}:{SNOP.TypeName}"
-    def redisKey_TypeUID(self)       : return self.redisKey_TypeUID_C( self.UID )
+    def redisKey_Type_C(cls, UID) : return f"{SNOP.obj}:{UID}:{SNOP.TypeName}"
+    def redisKey_Type(self)       : return self.redisKey_Type_C( self.UID )
 
     @classmethod        
     def redisKey_Parent_C(cls, UID) : return f"{SNOP.obj}:{UID}:{SNOP.parent}"
@@ -209,7 +207,7 @@ class CNetObj( CTreeNode ):
 
         # сохранение стандартного набора полей
         pipe.set( self.redisKey_Name(),    self.__modelData[ hd.index( SNOP.name    ) ]() )
-        pipe.set( self.redisKey_TypeUID(), self.__modelData[ hd.index( SNOP.TypeName ) ]() )
+        pipe.set( self.redisKey_Type(), self.__modelData[ hd.index( SNOP.TypeName ) ]() )
         parent = self.parent.UID if self.parent else None
         pipe.set( self.redisKey_Parent(),  parent )
 
@@ -227,7 +225,7 @@ class CNetObj( CTreeNode ):
             
         pipe.get( cls.redisKey_Name_C( UID ) )
         pipe.get( cls.redisKey_Parent_C( UID ) )
-        pipe.get( cls.redisKey_TypeUID_C( UID ) )
+        pipe.get( cls.redisKey_Type_C( UID ) )
         pipe.hgetall( CNetObj.redisKey_Props_C( UID ) )        
         pipe.hgetall( CNetObj.redisKey_ExtFields_C( UID ) )
     
@@ -248,12 +246,12 @@ class CNetObj( CTreeNode ):
             return None, nextIDX
 
         parentID  = int( values[ valIDX + 1 ] )
-        typeUID   = values[ valIDX + 2 ]
+        sObjClass = values[ valIDX + 2 ]
         pProps    = values[ valIDX + 3 ]
         extFields = values[ valIDX + 4 ]
 
         name       = nameField
-        objClass   = CNetObj_Manager.netObj_Type( typeUID )
+        objClass   = CNetObj_Manager.netObj_Type( sObjClass )
         props      = CStrTypeConverter.DictFromStr( pProps, def_props = objClass.def_props )
         ext_fields = CStrTypeConverter.DictFromStr( extFields )
 
@@ -262,7 +260,7 @@ class CNetObj( CTreeNode ):
         return netObj, nextIDX
 
     def delFromRedis( self, pipe ):
-        pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_TypeUID(), self.redisKey_Props(), self.redisKey_ExtFields() )
+        pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_Type(), self.redisKey_Props(), self.redisKey_ExtFields() )
 
     # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
     # если соответствующий метод есть в объекте он будет вызван до глобальных, только для конкретного объекта

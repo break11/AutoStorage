@@ -1,14 +1,13 @@
 import sys
-from collections import namedtuple
 
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.StrConsts import SC
+from Lib.Common.Utils import CRepeatTimer
 from .Net_Events import ENet_Event as EV
 # from .NetCmd import CNetCmd
 import weakref
 import redis
-import weakref
 import time
 from __main__ import __file__ as baseFName
 import os
@@ -47,6 +46,7 @@ s_ObjectsSet = "objects_set"
 ########################################################
 
 class CNetObj_Manager( object ):
+
     __objects = weakref.WeakValueDictionary() # type: ignore
     rootObj = None
 
@@ -108,23 +108,23 @@ class CNetObj_Manager( object ):
     @classmethod
     def registerType(cls, netObjClass):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
-        typeUID = netObjClass.__name__
-        netObjClass.typeUID = typeUID
-        cls.__netObj_Types[ typeUID ] = netObjClass
+        cls.__netObj_Types[ netObjClass.__name__ ] = netObjClass
 
     @classmethod
-    def netObj_Type(cls, typeUID):
-        return cls.__netObj_Types[ typeUID ]
+    def netObj_Type(cls, sObjClass):
+        return cls.__netObj_Types[ sObjClass ]
 
     #####################################################
     __registered_controllers = {} # type: ignore
-    controllerDesc = namedtuple( "controllerDesc", "controllerClass attachFunc" )
     
     @classmethod
-    def registerController(cls, netObjClass, controllerClass, attachFunc = lambda netObj : True):
+    def registerController(cls, netObjClass, controllersDict ):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
-        cls.__registered_controllers[ netObjClass.__name__ ] = CNetObj_Manager.controllerDesc( controllerClass, attachFunc )
-        print( cls.__registered_controllers )
+        cls.__registered_controllers[ netObjClass.__name__ ] = controllersDict
+
+    @classmethod
+    def controllersTick(cls):
+        pass
 
     #####################################################
     @classmethod
@@ -246,12 +246,15 @@ class CNetObj_Manager( object ):
                 netObj.saveToRedis( cls.pipe )
                 CNetObj_Manager.sendNetCMD( cmd )
         
+            # controllers
         clsName = netObj.__class__.__name__
-        reg = cls.__registered_controllers.get( clsName )
-        if reg is not None:
-            if reg.attachFunc( netObj ):
-                print( "1111111111111111111111111111111111111" )
-                netObj.controllers[ clsName ] = reg.controllerClass( netObj )
+        regDict = cls.__registered_controllers.get( clsName )
+        if regDict is not None:
+            for controllerClass, attathFunc in regDict.items():
+                if attathFunc( netObj ):
+                    controller = controllerClass( netObj )
+                    netObj.controllers[ controllerClass.__name__ ] = controller
+                    controller.netObj = weakref.ref( netObj )
                     
     @classmethod
     def unregisterObj( cls, netObj ):
@@ -261,6 +264,9 @@ class CNetObj_Manager( object ):
             # if CNetObj_Manager.redisConn.sismember( s_ObjectsSet, netObj.UID ):
             cls.pipe.srem( s_ObjectsSet, netObj.UID )
             netObj.delFromRedis( cls.pipe )
+
+            # controllers
+            netObj.controllers.clear()
 
     @classmethod
     def accessObj( cls, UID, genAssert=False, genWarning=False ):
