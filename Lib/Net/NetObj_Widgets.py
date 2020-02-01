@@ -17,12 +17,12 @@ class CNetObj_WidgetsManager:
         self.widgetContainer = widgetContainer
         self.activeWidget = None
     
-    def registerWidget( self, netObj, netObj_Widget_Class ):
-        assert issubclass( netObj, CNetObj )
+    def registerWidget( self, netObj_Class, netObj_Widget_Class ):
+        assert issubclass( netObj_Class, CNetObj )
 
         w = self.queryWidget( netObj_Widget_Class )
 
-        self.__netObj_Widgets[ netObj.__class__.__name__ ] = w
+        self.__netObj_Widgets[ netObj_Class.__name__ ] = w
 
         self.widgetContainer.layout().addWidget( w )
         w.hide()
