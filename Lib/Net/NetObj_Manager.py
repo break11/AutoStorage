@@ -115,7 +115,7 @@ class CNetObj_Manager( object ):
         return cls.__netObj_Types[ sObjClass ]
 
     #####################################################
-    __registered_controllers = {} # type: ignore
+    __registered_controllers = {} # type: ignore  controller_class.__name__ : controller_apply_function
     
     @classmethod
     def registerController(cls, netObjClass, controllersDict ):
