@@ -30,8 +30,9 @@ class CAgentsConnectionServer(QTcpServer):
         else:
             print( f'{self.s_AgentsNetServer} created OK, listen started on address = {address.toString()}.' )
 
-        CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
+        ##remove##
+        # CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
+        # CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
 
     def __del__(self):
         print( f"{self.s_AgentsNetServer} shutting down." )
@@ -50,18 +51,19 @@ class CAgentsConnectionServer(QTcpServer):
         self.AgentLinks = {}
         self.close()
     ##########################
-    def onObjCreated( self, cmd ):
-        agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
-        if not isinstance( agentNO, CAgent_NO ): return
+    ##remove##
+    # def onObjCreated( self, cmd ):
+    #     agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+    #     if not isinstance( agentNO, CAgent_NO ): return
 
-        self.queryAgent_Link_and_NetObj( int(agentNO.name) )
+    #     self.queryAgent_Link_and_NetObj( int(agentNO.name) )
 
-    def onObjPrepareDelete( self, cmd ):
-        agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
-        if not isinstance( agentNO, CAgent_NO ): return
+    # def onObjPrepareDelete( self, cmd ):
+    #     agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
+    #     if not isinstance( agentNO, CAgent_NO ): return
 
-        ### del AgentLink
-        self.deleteAgentLink( agentN = int( agentNO.name ) )
+    #     ### del AgentLink
+    #     self.deleteAgentLink( agentN = int( agentNO.name ) )
 
     ##########################
     def incomingConnection(self, socketDescriptor):
