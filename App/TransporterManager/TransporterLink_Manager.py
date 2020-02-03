@@ -39,7 +39,3 @@ class CTransporterLink_Manager:
 
         return tsLink
 
-    def deleteAgentLink(self, agentN):
-        print ( f"Del AgentLink agentN={agentN}" )
-        del self.AgentLinks[agentN]
-

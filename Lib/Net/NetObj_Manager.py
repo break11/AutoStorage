@@ -246,7 +246,7 @@ class CNetObj_Manager( object ):
                 netObj.saveToRedis( cls.pipe )
                 CNetObj_Manager.sendNetCMD( cmd )
         
-            # controllers
+        # controllers
         clsName = netObj.__class__.__name__
         regDict = cls.__registered_controllers.get( clsName )
         if regDict is not None:

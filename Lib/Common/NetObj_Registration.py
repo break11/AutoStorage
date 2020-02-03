@@ -71,4 +71,4 @@ def register_NetObj_Widgets_for_ObjMonitor( reg ):
 
 def register_NetObj_Controllers_for_AgentManager():
     reg = CNetObj_Manager.registerController
-    reg( CAgent_NO, { CAgentLink : lambda netObj : True} )
+    reg( CAgent_NO, { CAgentLink : lambda netObj : True } )

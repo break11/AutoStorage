@@ -25,9 +25,9 @@ class CAgentThread( CAgentServer_Net_Thread ):
                 HW_Data = cmd.data
                 if not HW_Data.bIsValid: continue
                 
-                if not self.ACS().getAgentLink( HW_Data.agentN, bWarning = False):
+                if not self.ACS().getAgentLink( HW_Data.agentN ):
                     self.newAgent.emit( HW_Data.agentN )
-                    while (not self.ACS().getAgentLink( HW_Data.agentN, bWarning = False)):
+                    while (not self.ACS().getAgentLink( HW_Data.agentN)):
                         self.msleep(10)
 
                 self.agentNumberInited.emit( HW_Data.agentN )

@@ -30,6 +30,7 @@ from Lib.AgentEntity.AgentLogManager import ALM
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.BoxEntity.Box_NetObject import boxesNodeCache
+from .AgentLink import CAgentLink
 
 class EAgentTest( Enum ):
     SimpleRoute = auto()
@@ -71,11 +72,6 @@ class CAM_MainWindow(QMainWindow):
             self.AgentsConnectionServer = CAgentsConnectionServer()
             self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
 
-            # # для всех загруженных из редис Agent_NetObj создаем AgentLink-и
-            # for row in range( self.Agents_Model.rowCount() ):
-            #     agentNO = self.Agents_Model.agentNO_from_Index( self.Agents_Model.index( row, 0 ) )
-            #     self.AgentsConnectionServer.queryAgent_Link_and_NetObj( int(agentNO.name) )
-
     def closeEvent( self, event ):
         self.AgentsConnectionServer = None
         save_Window_State_And_Geometry( self )
@@ -95,14 +91,13 @@ class CAM_MainWindow(QMainWindow):
 
     def CurrentAgentChanged( self, current, previous):
         if self.AgentsConnectionServer is None: return
-        agentLink = self.AgentsConnectionServer.getAgentLink( self.currAgentN(), bWarning = False )
-
-        self.ACL_Form.setAgentLink( agentLink )
 
         agentNO = self.currArentNO()        
         if agentNO is not None:
+            self.ACL_Form.setAgentLink( agentNO.getController( CAgentLink ) )
             self.WidgetManager.activateWidget( agentNO )
         else:
+            self.ACL_Form.setAgentLink( None )
             self.WidgetManager.clearActiveWidget()
 
     ################################################################
@@ -128,7 +123,7 @@ class CAM_MainWindow(QMainWindow):
         if not ci.isValid(): return
         
         agentNO = self.Agents_Model.agentNO_from_Index( ci )
-        aLink = self.AgentsConnectionServer.getAgentLink( int(agentNO.name) )
+        aLink = agentNO.getController( CAgentLink )
         for socketThread in aLink.socketThreads:
             socketThread.disconnectFromServer()
     ###################################################

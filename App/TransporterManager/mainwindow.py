@@ -44,11 +44,6 @@ class CTM_MainWindow(QMainWindow):
             # self.AgentsConnectionServer = CAgentsConnectionServer()
             # self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
 
-            # для всех загруженных из редис Agent_NetObj создаем AgentLink-и
-            # for row in range( self.Agents_Model.rowCount() ):
-            #     agentNO = self.Agents_Model.agentNO_from_Index( self.Agents_Model.index( row, 0 ) )
-            #     self.AgentsConnectionServer.queryAgent_Link_and_NetObj( int(agentNO.name) )
-
     def closeEvent( self, event ):
         # self.AgentsConnectionServer = None
         save_Window_State_And_Geometry( self )

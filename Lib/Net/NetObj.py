@@ -29,6 +29,9 @@ class CNetObj( CTreeNode ):
     __modelHeaderData = [ SNOP.name, SNOP.ChildCount, SNOP.UID, SNOP.TypeName, ]
 
 ###################################################################################
+    def getController( self, controllerClass ):
+        return self.controllers.get( controllerClass.__name__ )
+###################################################################################
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         self.UID  = id if id else CNetObj_Manager.genNetObj_UID()
