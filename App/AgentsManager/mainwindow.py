@@ -104,9 +104,9 @@ class CAM_MainWindow(QMainWindow):
 
     @pyqtSlot("bool")
     def on_btnAddAgent_clicked( self, bVal ):
-        agentN = UT.askAgentName( self )
+        agentN = UT.askSomeValue( self )
         if agentN is not None:
-            queryAgentNetObj( name=str(agentN) )            
+            queryAgentNetObj( name=agentN )            
 
     @pyqtSlot("bool")
     def on_btnDelAgent_clicked( self, bVal ):

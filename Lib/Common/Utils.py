@@ -4,15 +4,11 @@ from Lib.Common.StrConsts import SC
 
 from PyQt5.Qt import QInputDialog
 
-def askAgentName( parent ):
-    aName, ok = QInputDialog.getText(parent, 'New Agent Dialog', 'Enter agent name:')
+def askSomeValue( parent ):
+    aName, ok = QInputDialog.getText(parent, 'New Value Dialog', 'Enter value:')
     if not ok: return
 
-    try:
-        return int(aName)
-    except:
-        print( f"{SC.sError} Can't create Agent with name='{aName}'. Agent need INT name!" )
-
+    return aName
 #####################################
 
 class CRepeatTimer(Timer):

@@ -80,11 +80,11 @@ class CAgentsConnectionServer(QTcpServer):
         print ( f"Deleting thread {id(thread)}." )
         thread.deleteLater()
 
-    @pyqtSlot(int)
+    @pyqtSlot(str)
     def thread_NewAgent(self, agentN):
-        queryAgentNetObj( str( agentN ) )
+        queryAgentNetObj( agentN )
 
-    @pyqtSlot(int)
+    @pyqtSlot(str)
     def thread_AgentNumberInited(self, agentN):
         thread = self.sender()
         print( f"Agent number {agentN} estimated for thread {id(thread)}." )
@@ -105,5 +105,5 @@ class CAgentsConnectionServer(QTcpServer):
     #############################################################
 
     def getAgentLink( self, agentN ):
-        agentNO = agentsNodeCache().childByName( str( agentN ) )
+        agentNO = agentsNodeCache().childByName( agentN )
         return agentNO.getController( CAgentLink ) if agentNO is not None else None

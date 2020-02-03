@@ -27,7 +27,7 @@ class TestASP_DataParser(unittest.TestCase):
         eData = packet.data
         self.assertEqual( type(eData), ADT.SHW_Data )
         self.assertEqual( eData.agentType, "cartV1" )
-        self.assertEqual( eData.agentN, 555 )
+        self.assertEqual( eData.agentN, "555" )
         self.assertEqual( eData.bIsValid, True )
 
         self.assertEqual( sData, eData.toString() )
@@ -40,7 +40,7 @@ class TestASP_DataParser(unittest.TestCase):
         eData = packet.data
 
         self.assertEqual( type(eData), ADT.SHW_Data )
-        self.assertEqual( eData.agentN, 0 )
+        self.assertEqual( eData.agentN, "XXX" )
         self.assertEqual( eData.bIsValid, False )
 
     def test_DP(self):

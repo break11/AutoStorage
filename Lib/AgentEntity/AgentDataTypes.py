@@ -265,16 +265,23 @@ class SHW_Data:
 
     @classmethod
     def fromString( cls, data ):
+        def error():
+            nonlocal agentType, agentN, bIsValid
+            agentType = "Unknown Agent"
+            agentN    = "XXX"
+            bIsValid = False
+
         l = data.split( DS )
 
         try:
             agentType = l[0]
-            agentN    = int(l[1])
+            agentN    = l[1]
             bIsValid = True
         except:
-            agentType = "Unknown Agent"
-            agentN    = 0
-            bIsValid = False
+            error()
+        
+        if not agentN:
+            error()
 
         HW_Data = SHW_Data( agentType, agentN )
         HW_Data.bIsValid = bIsValid
@@ -282,7 +289,7 @@ class SHW_Data:
         return HW_Data
 
     def toString( self, bShortForm = False ):
-        return f"{self.agentType}{ DS }{self.agentN:03d}"
+        return f"{self.agentType}{ DS }{self.agentN}"
 
 #########################################################
 

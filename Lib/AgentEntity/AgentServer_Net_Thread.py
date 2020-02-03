@@ -19,8 +19,8 @@ class CAgentServer_Net_Thread(QThread):
     genUID = 0
     threadFinished = pyqtSignal()
     socketError       = pyqtSignal( int )
-    newAgent          = pyqtSignal( int )
-    agentNumberInited = pyqtSignal( int )
+    newAgent          = pyqtSignal( str )
+    agentNumberInited = pyqtSignal( str )
 
     def __init__( self ):
         super().__init__()

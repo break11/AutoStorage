@@ -68,7 +68,7 @@ class CFA_MainWindow(QMainWindow):
     ################################################################
 
     def on_btnAddAgent_released( self ):
-        agentN = UT.askAgentName( self )
+        agentN = UT.askSomeValue( self )
         if agentN is not None:            
             self.Agents_Model.addAgent( agentN )
 
