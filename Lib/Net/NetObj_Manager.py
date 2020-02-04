@@ -115,7 +115,8 @@ class CNetObj_Manager( object ):
         return cls.__netObj_Types[ sObjClass ]
 
     #####################################################
-    __registered_controllers = {} # type: ignore  controller_class.__name__ : controller_apply_function
+    __registered_controllers = {} #type:ignore   # controller_class.__name__ : controller_apply_function
+    __controllers = weakref.WeakSet() #type:ignore
     
     @classmethod
     def registerController(cls, netObjClass, controllersDict ):
@@ -124,7 +125,9 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def controllersTick(cls):
-        pass
+        for controller in cls.__controllers:
+            if hasattr( controller, "onTick" ):
+                controller.onTick()
 
     #####################################################
     @classmethod
@@ -255,6 +258,7 @@ class CNetObj_Manager( object ):
                     controller = controllerClass( netObj )
                     netObj.controllers[ controllerClass.__name__ ] = controller
                     controller.netObj = weakref.ref( netObj )
+                    cls.__controllers.add( controller )
                     
     @classmethod
     def unregisterObj( cls, netObj ):

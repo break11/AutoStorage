@@ -46,8 +46,9 @@ class CBox_NO( CNetObj ):
     @property
     def nxGraph( self ): return graphNodeCache().nxGraph if graphNodeCache() is not None else None
 
-    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+    ##remove##
+    # def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
+    #     super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     #############
 

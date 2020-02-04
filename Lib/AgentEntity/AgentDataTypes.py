@@ -61,7 +61,8 @@ class EAgent_Status( BaseEnum ):
 
 BL_BU_Statuses = { EAgent_Status.BoxLoad, EAgent_Status.BoxUnload }
 
-errorStatuses = [ EAgent_Status.NoRouteToCharge,
+errorStatuses = [ EAgent_Status.Undefined,
+                  EAgent_Status.NoRouteToCharge,
                   EAgent_Status.PosSyncError,
                   EAgent_Status.CantCharge,
                   EAgent_Status.AgentError,
