@@ -46,6 +46,7 @@ class ENodeTypes( BaseEnum ):
     Default   = DummyNode
 
 nodeColors = {
+    ENodeTypes.Undefined        : Qt.darkRed,
     ENodeTypes.DummyNode        : Qt.darkRed,
     ENodeTypes.RailPoint        : Qt.darkGreen,
     ENodeTypes.StoragePoint     : Qt.cyan,

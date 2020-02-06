@@ -8,12 +8,17 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Common.GuiUtils import CNoAltMenu_Style
+from Lib.Common.TickManager import CTickManager
 
 import Lib.Common.NetObj_Registration as NO_Reg
 
 class CBaseApplication( QApplication ):
     def __init__(self, argv, bNetworkMode, registerControllersFunc = None, rootObjDict = {} ):
         super().__init__( argv )
+
+        CTickManager.start()
+        CTickManager.addTicker( self, 100, self.onTick )
+        CTickManager.addTicker( self, 500, self.onTick1 )
 
         self.bNetworkMode = bNetworkMode
 
@@ -39,6 +44,12 @@ class CBaseApplication( QApplication ):
             self.ttlTimer = QTimer()
             self.ttlTimer.setInterval( 1500 )
             self.ttlTimer.start()
+
+    def onTick( self ):
+        print( "test" )
+
+    def onTick1( self ):
+        print( "test 1111111111111111111111111" )
         
     def initConnection(self, parent=None ):
         if self.bNetworkMode:

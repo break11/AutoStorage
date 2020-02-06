@@ -56,12 +56,12 @@ class CAgentLink( CAgentServer_Link ):
         self.main_Timer = QTimer()
         self.main_Timer.setInterval(1000)
         self.main_Timer.timeout.connect( self.mainTick )
-        # self.main_Timer.start()
+        self.main_Timer.start()
 
         self.task_Timer = QTimer()
         self.task_Timer.setInterval(500)
         self.task_Timer.timeout.connect( self.processTaskList )
-        # self.task_Timer.start()
+        self.task_Timer.start()
 
     def __del__(self):
         self.main_Timer.stop()
@@ -79,8 +79,8 @@ class CAgentLink( CAgentServer_Link ):
                 counter = 0
             return counter
         
-        self.mainCounter = doTimer( self.mainCounter, self.mainTick, 10 )
-        self.taskCounter = doTimer( self.taskCounter, self.processTaskList, 5 )
+        # self.mainCounter = doTimer( self.mainCounter, self.mainTick, 10 )
+        # self.taskCounter = doTimer( self.taskCounter, self.processTaskList, 5 )
 
     def onObjPropUpdated( self, cmd ):
         if not self.isConnected(): return
