@@ -13,6 +13,7 @@ from __main__ import __file__ as baseFName
 import os
 from Lib.Common import NetUtils
 from  Lib.Common.Utils import time_func
+from Lib.Common.TickManager import CTickManager
 
 s_Redis_opt  = "redis"
 s_Redis_ip   = "ip"
@@ -143,6 +144,7 @@ class CNetObj_Manager( object ):
     clientInfoExpTime = 5
     @classmethod
     def updateClientInfo( cls ):
+        if not cls.isConnected(): return
         appName = baseFName if (os.sep not in baseFName) else baseFName.rsplit(os.sep, 1)[1] # обработка запуска через 'python myApp.py' или './myApp.py'
 
         sKey = cls.redisKey_clientInfoName()
@@ -156,6 +158,8 @@ class CNetObj_Manager( object ):
     @classmethod
     @time_func( sMsg="tick time --------------------------", threshold=50 )
     def netTick( cls ):
+        if not cls.isConnected(): return
+
         NetCreatedObj_UIDs = [] # контейнер хранящий ID объектов по которым получены команды создания
         NetUpdatedObj = [] # контейнер хранящий [ [netObj, netCmd], ... ] объектов по которым прошли обновления полей
 
@@ -354,7 +358,7 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def disconnect( cls ):
-        if not cls.redisConn: return
+        if not cls.isConnected(): return
         
         cmd = CNetCmd( Event=EV.ClientDisconnected )
         CNetObj_Manager.sendNetCMD( cmd )
@@ -395,3 +399,8 @@ from .NetCmd import CNetCmd
 
 # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
 CNetObj_Manager.initRoot()
+
+CTickManager.addTicker( CNetObj_Manager, 100, CNetObj_Manager.netTick )
+CTickManager.addTicker( CNetObj_Manager, 500, CNetObj_Manager.controllersTick )
+CTickManager.addTicker( CNetObj_Manager, 1500, CNetObj_Manager.updateClientInfo )
+

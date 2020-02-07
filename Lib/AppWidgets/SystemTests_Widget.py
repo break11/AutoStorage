@@ -59,4 +59,5 @@ class CSystemTests_Widget(QWidget):
         edges = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Edges")
 
         for edge in edges.children:
-            edge.widthType = SGT.EWidthType.Wide if edge.widthType == SGT.EWidthType.Narrow else SGT.EWidthType.Narrow
+            if hasattr( edge, "widthType"):
+                edge.widthType = SGT.EWidthType.Wide if edge.widthType == SGT.EWidthType.Narrow else SGT.EWidthType.Narrow

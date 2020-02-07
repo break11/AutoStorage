@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import Qt
 
 from .SettingsManager import CSettingsManager as CSM
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -17,8 +17,6 @@ class CBaseApplication( QApplication ):
         super().__init__( argv )
 
         CTickManager.start()
-        CTickManager.addTicker( self, 100, self.onTick )
-        CTickManager.addTicker( self, 500, self.onTick1 )
 
         self.bNetworkMode = bNetworkMode
 
@@ -31,25 +29,6 @@ class CBaseApplication( QApplication ):
 
         NO_Reg.register_NetObj()
         NO_Reg.register_NetObj_Props()
-
-        self.controllersTimer = QTimer()
-        self.controllersTimer.setInterval( 500 )
-        self.controllersTimer.start()
-
-        if self.bNetworkMode:
-            self.netTimer = QTimer()
-            self.netTimer.setInterval( 100 )
-            self.netTimer.start()
-
-            self.ttlTimer = QTimer()
-            self.ttlTimer.setInterval( 1500 )
-            self.ttlTimer.start()
-
-    def onTick( self ):
-        print( "test" )
-
-    def onTick1( self ):
-        print( "test 1111111111111111111111111" )
         
     def initConnection(self, parent=None ):
         if self.bNetworkMode:
@@ -58,20 +37,12 @@ class CBaseApplication( QApplication ):
         for k,v in self.rootObjDict.items():
             CNetObj_Manager.rootObj.queryObj( k, v )
 
-        self.controllersTimer.timeout.connect( CNetObj_Manager.controllersTick )
-
-        if self.bNetworkMode:
-            self.netTimer.timeout.connect( CNetObj_Manager.netTick )
-            self.ttlTimer.timeout.connect( CNetObj_Manager.updateClientInfo )
-
         return True
 
     def doneConnection(self):
         # удаление объектов после дисконнекта, чтобы в сеть НЕ попали команды удаления объектов ( для других клиентов )
-        if self.bNetworkMode:
-            CNetObj_Manager.disconnect()
+        CNetObj_Manager.disconnect()
         CNetObj_Manager.rootObj.localDestroyChildren()
-
 
 ##########################################################################
 from enum import Enum, auto

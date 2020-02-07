@@ -5,8 +5,6 @@ import os
 import subprocess
 import networkx as nx
 
-from PyQt5.QtCore import QTimer
-
 import Lib.Common.GraphUtils as GU
 from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps, cmdProps_Box_LU, agentsNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -29,6 +27,7 @@ from Lib.AgentEntity.AgentProtocolUtils import calcNextPacketN
 from Lib.AgentEntity.AgentLogManager import ALM
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.GraphEntity import StorageGraphTypes as SGT
+from Lib.Common.TickManager import CTickManager
 
 from Lib.AgentEntity.routeBuilder import CRouteBuilder, ERouteStatus
 
@@ -53,18 +52,10 @@ class CAgentLink( CAgentServer_Link ):
         self.segOD = 0
         self.edges_route = []
 
-        self.main_Timer = QTimer()
-        self.main_Timer.setInterval(1000)
-        self.main_Timer.timeout.connect( self.mainTick )
-        self.main_Timer.start()
-
-        self.task_Timer = QTimer()
-        self.task_Timer.setInterval(500)
-        self.task_Timer.timeout.connect( self.processTaskList )
-        self.task_Timer.start()
+        CTickManager.addTicker( CNetObj_Manager, 1000, self.mainTick )
+        CTickManager.addTicker( CNetObj_Manager, 500,  self.processTaskList )
 
     def __del__(self):
-        self.main_Timer.stop()
         super().__del__()
 
     ##################
