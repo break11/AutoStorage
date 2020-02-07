@@ -3,8 +3,6 @@ import networkx as nx
 import os
 import json
 
-# from PyQt5.QtCore import QTimer
-
 from Lib.Net.NetObj import CNetObj
 # from Lib.Common.TreeNode import CTreeNode,
 from Lib.Common.TreeNodeCache import CTreeNodeCache

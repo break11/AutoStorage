@@ -4,7 +4,7 @@ import os
 import networkx as nx
 from enum import Enum, auto
 
-from PyQt5.QtCore import pyqtSlot, QTimer, QTime
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QMainWindow, QLayout
 from PyQt5 import uic
 

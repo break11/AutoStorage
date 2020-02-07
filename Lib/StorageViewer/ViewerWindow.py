@@ -2,7 +2,7 @@
 import sys
 import os
 
-from PyQt5.QtCore import pyqtSlot, QByteArray, QTimer, Qt
+from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
@@ -19,6 +19,7 @@ from Lib.Common.GuiUtils import gvFitToPage, load_Window_State_And_Geometry, sav
 from Lib.Common.Utils import time_func
 from Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
 from Lib.Common.StrProps_Meta import СStrProps_Meta
+from Lib.Common.TickManager import CTickManager
 from Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -85,10 +86,7 @@ class CViewerWindow(QMainWindow):
         uic.loadUi( os.path.dirname( __file__ ) + '/ViewerWindow.ui', self )
         self.setWindowTitle( self.__sWindowTitle )
 
-        self.timer = QTimer()
-        self.timer.setInterval(100)
-        self.timer.timeout.connect( self.tick )
-        self.timer.start()
+        CTickManager.addTicker( self, 100, self.tick )
 
         self.bFullScreen = False
         self.DocWidgetsHiddenStates = {}

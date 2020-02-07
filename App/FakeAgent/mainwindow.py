@@ -8,7 +8,7 @@ import weakref
 from copy import deepcopy
 
 from PyQt5.Qt import Qt
-from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QTextCursor
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction
 from PyQt5 import uic
@@ -19,6 +19,7 @@ from Lib.Common import FileUtils
 from Lib.Common.StrConsts import SC
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 import Lib.Common.Utils as UT
+from Lib.Common.TickManager import CTickManager
 from .FakeAgentsList_Model import CFakeAgentsList_Model
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 
@@ -43,9 +44,7 @@ class CFA_MainWindow(QMainWindow):
         self.tvAgents.setModel( self.Agents_Model )
         self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
 
-        self.reconnectTest_Timer = QTimer()
-        self.reconnectTest_Timer.setInterval(4000)
-        self.reconnectTest_Timer.timeout.connect( self.reconnectTest_tick )
+        CTickManager.addTicker( self, 2000, self.reconnectTest_tick )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )
@@ -96,25 +95,17 @@ class CFA_MainWindow(QMainWindow):
 
         self.Agents_Model.disconnect( agentN, bLostSignal = True )
 
-    @pyqtSlot("bool")
-    def on_btnReconnectTest_clicked( self, bVal ):
-        if bVal: self.reconnectTest_Timer.start()
-        else: self.reconnectTest_Timer.stop()
-
     ###################################################
-
 
     reconnectCounter = 0
     def reconnectTest_tick(self):
+        if not self.btnReconnectTest.isChecked(): return
+
         self.reconnectCounter += 1
         for i in range( self.Agents_Model.rowCount() ):
             agentN = self.Agents_Model.agentN( i )
             fakeAgentLink = self.Agents_Model.getAgentLink( agentN )
             if self.reconnectCounter % 2 == 0:
                 self.Agents_Model.disconnect( agentN )
-                self.reconnectTest_Timer.setInterval(500)
-                self.reconnectTest_Timer.start()
             else:
                 self.Agents_Model.connect( agentN=agentN, ip=self.cbServerIP.currentText(), port=int(self.cbServerPort.currentText()) )
-                self.reconnectTest_Timer.setInterval(4000)
-                self.reconnectTest_Timer.start()

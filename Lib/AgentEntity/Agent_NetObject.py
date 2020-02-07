@@ -2,8 +2,6 @@ from copy import deepcopy
 from collections import namedtuple
 import networkx as nx
 
-from PyQt5.QtCore import QTimer
-
 from Lib.Net.NetObj import CNetObj
 from Lib.Common.TreeNode import CTreeNode
 from Lib.Common.TreeNodeCache import CTreeNodeCache
@@ -17,6 +15,7 @@ from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
 from Lib.Common.SerializedList import CStrList
+from Lib.Common.TickManager import CTickManager
 
 s_Agents = "Agents"
 
@@ -117,10 +116,7 @@ class CAgent_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-        self.tick_Timer = QTimer()
-        self.tick_Timer.setInterval( 1000 )
-        self.tick_Timer.timeout.connect( self.onTick )
-        self.tick_Timer.start()
+        CTickManager.addTicker( self, 1000, self.onTick )
 
     def onTick( self ):
         if self.connectedTime == 0:

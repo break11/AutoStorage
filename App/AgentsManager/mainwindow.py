@@ -4,7 +4,7 @@ import os
 import networkx as nx
 from enum import Enum, auto
 
-from PyQt5.QtCore import pyqtSlot, QTimer, QTime
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QMainWindow, QLayout
 from PyQt5 import uic
 
@@ -21,6 +21,7 @@ from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_Stat
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
 import Lib.Common.ChargeUtils as CU
+from Lib.Common.TickManager import CTickManager
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from Lib.Common.GraphUtils import nodeType, routeToServiceStation, randomNodes
 from .AgentsList_Model import CAgentsList_Model
@@ -52,10 +53,7 @@ class CAM_MainWindow(QMainWindow):
         self.dkAgent_CMD_Log_Contents.layout().addWidget( self.ACL_Form )
         self.dkAgent_CMD_Log_Contents.layout().layoutSizeConstraint = QLayout.SetNoConstraint
 
-        self.AgentTest_Timer = QTimer( self )
-        self.AgentTest_Timer.setInterval(500)
-        self.AgentTest_Timer.timeout.connect( self.AgentTest )
-        self.AgentTest_Timer.start()
+        CTickManager.addTicker( self, 500, self.AgentTest )
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
         self.registerObjects_Widgets()

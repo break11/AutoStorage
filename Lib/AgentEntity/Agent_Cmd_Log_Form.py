@@ -2,7 +2,6 @@ import os
 import weakref
 
 from PyQt5.Qt import pyqtSlot
-from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QWidget, QCheckBox
 from PyQt5.QtGui import QTextCursor
 from PyQt5 import uic
@@ -14,6 +13,7 @@ import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
 from Lib.AgentEntity.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColor, TX_color, RX_color, Duplicate_color
 from Lib.Common.SettingsManager import CSettingsManager as CSM
+from Lib.Common.TickManager import CTickManager
 import Lib.Common.GuiUtils as GU
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
@@ -102,10 +102,7 @@ class CAgent_Cmd_Log_Form(QWidget):
         ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
 
         self.buffLogRows = []
-        self.main_Timer = QTimer()
-        self.main_Timer.setInterval( 300 )
-        self.main_Timer.timeout.connect( self.logTick )
-        self.main_Timer.start()
+        CTickManager.addTicker( self, 300, self.logTick )
 
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки

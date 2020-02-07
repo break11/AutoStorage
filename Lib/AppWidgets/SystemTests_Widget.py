@@ -5,9 +5,9 @@ import networkx as nx
 from PyQt5.QtWidgets import QWidget
 from PyQt5 import uic
 
-from PyQt5.QtCore import pyqtSlot, QTimer
 from Lib.Common.Utils import time_func
 from Lib.Common.BaseApplication import EAppStartPhase
+from Lib.Common.TickManager import CTickManager
 from Lib.GraphEntity import StorageGraphTypes as SGT
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -18,29 +18,18 @@ class CSystemTests_Widget(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/SystemTests_Widget.ui", self )
 
-        self.updateNodesXYTest_Timer = QTimer( self )
-        self.updateNodesXYTest_Timer.setInterval(100)
-        self.updateNodesXYTest_Timer.timeout.connect( self.updateNodesXYTest )
-
-        self.updateEdgesWidthTest_Timer = QTimer( self )
-        self.updateEdgesWidthTest_Timer.setInterval(1000)
-        self.updateEdgesWidthTest_Timer.timeout.connect( self.updateEdgesWidthTest )
+        CTickManager.addTicker( self, 100, self.updateNodesXYTest )
+        CTickManager.addTicker( self, 1000, self.updateEdgesWidthTest )
 
     def init( self, initPhase ):
         pass
-        # if initPhase == EAppStartPhase.AfterRedisConnect:
-        #     self.loadGraphML()
 
     ###################################################
-    @pyqtSlot("bool")
-    def on_btnUpdateNodesXY_Test_clicked( self, bVal ):
-        if bVal:
-            self.updateNodesXYTest_Timer.start()
-        else:
-            self.updateNodesXYTest_Timer.stop()
 
-    @time_func( sMsg="updateNodesXYTest time" )
-    def updateNodesXYTest(self):        
+    @time_func( sMsg="updateNodesXYTest time", threshold=0.05 )
+    def updateNodesXYTest(self):
+        if not self.btnUpdateNodesXY_Test.isChecked(): return
+
         nodes = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Nodes")
 
         for node in nodes.children:
@@ -48,14 +37,9 @@ class CSystemTests_Widget(QWidget):
             node["y"] += 1
     ###################################################
 
-    @pyqtSlot("bool")
-    def on_btnUpdateEdgesWidth_Test_clicked( self, bVal ):
-        if bVal:
-            self.updateEdgesWidthTest_Timer.start()
-        else:
-            self.updateEdgesWidthTest_Timer.stop()
-
     def updateEdgesWidthTest( self ):
+        if not self.btnUpdateEdgesWidth_Test.isChecked(): return
+
         edges = CNetObj.resolvePath( CNetObj_Manager.rootObj, "Graph/Edges")
 
         for edge in edges.children:

@@ -3,10 +3,11 @@ import os
 
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from Lib.Common.GuiUtils import Std_Model_Item
+from Lib.Common.TickManager import CTickManager
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 
@@ -15,10 +16,7 @@ class CClientList_Widget(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/ClientList_Widget.ui", self )
 
-        self.ClientList_Timer = QTimer()
-        self.ClientList_Timer.setInterval(1500)
-        self.ClientList_Timer.timeout.connect( self.updateClientList )
-        self.ClientList_Timer.start()
+        CTickManager.addTicker( self, 1500, self.updateClientList )
         
         # модель со списком сервисов
         self.clientList_Model = QStandardItemModel( self )

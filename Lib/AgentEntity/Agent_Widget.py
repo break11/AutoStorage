@@ -16,10 +16,9 @@ from Lib.Net.NetObj_Control_Linker import CNetObj_Button_Linker, CNetObj_EditLin
 import Lib.Common.GraphUtils as GU
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.SerializedList import CStrList
+from Lib.Common.TickManager import CTickManager
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
-
-from PyQt5.QtCore import QTimer
 
 class SelectionTarget( Enum ):
     null  = auto()
@@ -83,10 +82,7 @@ class CAgent_Widget( CNetObj_Widget ):
         # angle
         self.sbLinker.addControl( self.sbAngle )
 
-        self.updateControls_Timer = QTimer()
-        self.updateControls_Timer.setInterval(1000)
-        self.updateControls_Timer.timeout.connect( self.updateControls )
-        self.updateControls_Timer.start()
+        CTickManager.addTicker( self, 1000, self.updateControls )
 
     s_color_red = "color: red"
     def updateControls( self ):
