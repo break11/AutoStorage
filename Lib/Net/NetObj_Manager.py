@@ -1,14 +1,13 @@
 import sys
+import weakref
+import redis
+import time
 
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.StrConsts import SC
 from Lib.Common.Utils import CRepeatTimer
 from .Net_Events import ENet_Event as EV
-# from .NetCmd import CNetCmd
-import weakref
-import redis
-import time
 from __main__ import __file__ as baseFName
 import os
 from Lib.Common import NetUtils
@@ -75,28 +74,22 @@ class CNetObj_Manager( object ):
 
     callbacksDict = {} # type: ignore # Dict of List by ECallbackType
     for e in EV:
-        callbacksDict[ e ] = [] 
+        callbacksDict[ e ] = weakref.WeakSet()
 
     @classmethod
-    def addCallback( cls, eventType, callback ):
-        assert callable( callback ), "CNetObj_Manager.addCallback need take a function!"
-        cls.callbacksDict[ eventType ].append( weakref.WeakMethod( callback ) )
+    def addCallback( cls, eventType, obj ):
+        assert hasattr( obj, eventType.name ), f"Object {obj} has no function {eventType.name} for NetObj callback!"
+        cls.callbacksDict[ eventType ].add( obj )
 
     @classmethod
     def doCallbacks( cls, netCmd ):
         # Empty list from None WeakMethods
-        cl = cls.callbacksDict[ netCmd.Event ]
-        cl = [ x for x in cl if x() is not None ]
-        cls.callbacksDict[ netCmd.Event ] = cl
-            
-        # local object callbacks
-        if netCmd.Obj_UID:
-            netObj = cls.accessObj( netCmd.Obj_UID )
-            if netObj: netObj.doSelfCallBack( netCmd )
+        cs = cls.callbacksDict[ netCmd.Event ]
 
         # global callbacks
-        for callback in cl:
-            callback()( netCmd )
+        for obj_ref in cs:
+            callbackFunc = getattr( obj_ref, netCmd.Event.name )
+            callbackFunc( netCmd )
             
     @classmethod
     def eventLogCallBack( cls, netCmd ):
@@ -291,13 +284,6 @@ class CNetObj_Manager( object ):
 
         return netObj
 
-    # @classmethod
-    # def accessObjRef( cls, UID, genAssert=False, genWarning=False ):
-    #     obj = cls.accessObj( UID, genAssert=genAssert, genWarning=genWarning )
-    #     if obj is not None:
-    #         obj = weakref.ref( obj )
-    #     return obj
-
     #####################################################
 
     @classmethod
@@ -312,7 +298,8 @@ class CNetObj_Manager( object ):
 
             if cls.bEvent_Log:
                 for e in EV:
-                    cls.addCallback( e, cls.eventLogCallBack )
+                    setattr( cls, EV.name, cls.eventLogCallBack )
+                    cls.addCallback( e, cls )
 
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0, decode_responses=True)
             cls.pipe = cls.redisConn.pipeline()

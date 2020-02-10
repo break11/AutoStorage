@@ -14,8 +14,8 @@ class CNetObj_Model( QAbstractItemModel ):
         super().__init__( parent=parent)
         self.__rootProxy = None
 
-        CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
+        CNetObj_Manager.addCallback( EV.ObjCreated,       self )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self )
 
     def __del__( self ):
         if self.__rootProxy:
@@ -27,7 +27,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
     ########################################################################
 
-    def onObjCreated( self, netCmd ):
+    def ObjCreated( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         parentProxy = CNetObj_Proxy.proxy_from_NetObjID( netObj.parent.UID ) if netObj.parent else None
 
@@ -44,7 +44,7 @@ class CNetObj_Model( QAbstractItemModel ):
 
         self.layoutChanged.emit()
 
-    def onObjPrepareDelete( self, netCmd ):
+    def ObjPrepareDelete( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         parentProxy = CNetObj_Proxy.proxy_from_NetObjID( netObj.parent.UID ) if netObj.parent else None
 

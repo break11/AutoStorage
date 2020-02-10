@@ -45,7 +45,7 @@ class CAgent_SGItem(QGraphicsItem):
         self.setZValue( 40 )
         
         self.createGraphicElements()
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self )
 
     def createGraphicElements(self):
         w = SGT.wide_Rail_Width
@@ -142,7 +142,7 @@ class CAgent_SGItem(QGraphicsItem):
 
         super().setPos(x, y)
 
-    def onObjPropUpdated( self, cmd ):
+    def ObjPropUpdated( self, cmd ):
         if cmd.Obj_UID != self.__agentNetObj().UID: return
 
         if cmd.sPropName == SAP.connectedStatus:

@@ -18,3 +18,6 @@ def destroy_If_Reload( s_Obj, bReload ):
         return True
 
     return False
+
+def isSelfEvent( netCmd, netObj ):
+    return netObj.UID == netCmd.Obj_UID

@@ -4,21 +4,21 @@ class CTransporterLink_Manager:
     def __init__( self ):
         self.TS_Links = {}
 
-        CNetObj_Manager.addCallback( EV.ObjCreated, self.onObjCreated )
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
+        CNetObj_Manager.addCallback( EV.ObjCreated,       self )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self )
 
     def __del__(self):
         self.TS_Links = {}
 
     ###########################
 
-    def onObjCreated( self, cmd ):
+    def ObjCreated( self, cmd ):
         tsNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
         if not isinstance( tsNO, CTransporter_NO ): return
 
         self.queryTS_Link_and_NetObj( tsNO.name )
 
-    def onObjPrepareDelete( self, cmd ):
+    def ObjPrepareDelete( self, cmd ):
         tsNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
         if not isinstance( tsNO, CTransporter_NO ): return
 

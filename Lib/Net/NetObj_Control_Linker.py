@@ -17,7 +17,7 @@ class CNetObj_Control_Linker( QObject ):
     def __init__( self ):
         super().__init__()
         self.__netObj = None
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self )
         self.control_by_PropName = {}
         self.valToControlFunc_by_Control = {}
         self.valFromControlFunc_by_Control = {}
@@ -29,7 +29,7 @@ class CNetObj_Control_Linker( QObject ):
         self.valToControlFunc_by_Control  [ control ] = valToControlFunc
         self.valFromControlFunc_by_Control[ control ] = valFromControlFunc
 
-    def onObjPropUpdated( self, netCmd ):
+    def ObjPropUpdated( self, netCmd ):
         if ( self.netObj is None ) or ( netCmd.Obj_UID != self.netObj.UID ): return
 
         if netCmd.sPropName in self.control_by_PropName:

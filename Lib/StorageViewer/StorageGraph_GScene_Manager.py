@@ -88,9 +88,9 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         self.__maxNodeID    = 0
 
-        CNetObj_Manager.addCallback( EV.ObjCreated,       self.ObjCreated )
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.ObjPrepareDelete )
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.ObjPropUpdated )
+        CNetObj_Manager.addCallback( EV.ObjCreated,       self )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self )
 
         self.Agents_ParentGItem = CDummy_GItem()
         self.Agents_ParentGItem.setZValue( 40 )

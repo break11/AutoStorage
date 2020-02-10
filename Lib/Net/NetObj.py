@@ -265,10 +265,4 @@ class CNetObj( CTreeNode ):
     def delFromRedis( self, pipe ):
         pipe.delete( self.redisKey_Name(), self.redisKey_Parent(), self.redisKey_Type(), self.redisKey_Props(), self.redisKey_ExtFields() )
 
-    # в объектах могут быть локальные callback-и, имя равно ENet_Event значению enum-а - например ObjPrepareDelete
-    # если соответствующий метод есть в объекте он будет вызван до глобальных, только для конкретного объекта
-    def doSelfCallBack( self, netCmd ):
-        c = getattr( self, netCmd.Event.name, None )
-        if c: c( netCmd )
-
 from .NetObj_Manager import CNetObj_Manager

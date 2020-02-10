@@ -15,9 +15,9 @@ class CAgentsList_Model( QAbstractTableModel ):
 
         self.agentsList = [ agentNO.UID for agentNO in agentsNodeCache().children ]
 
-        CNetObj_Manager.addCallback( EV.ObjCreated, self.onAgent_Created )
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onAgent_PrepareDelete )
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onAgent_PropUpdated )
+        CNetObj_Manager.addCallback( EV.ObjCreated,       self )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self )
 
     def rowCount( self, parentIndex=QModelIndex() ):
         return len( self.agentsList )
@@ -81,7 +81,7 @@ class CAgentsList_Model( QAbstractTableModel ):
         return self.createIndex( row, column )
 
     ################################
-    def onAgent_Created( self, netCmd ):
+    def ObjCreated( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if netObj.parent != agentsNodeCache(): return
 
@@ -90,7 +90,7 @@ class CAgentsList_Model( QAbstractTableModel ):
         self.agentsList.append( netObj.UID )
         self.endInsertRows()
 
-    def onAgent_PrepareDelete( self, netCmd ):
+    def ObjPrepareDelete( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if netObj.parent != agentsNodeCache(): return
 
@@ -99,7 +99,7 @@ class CAgentsList_Model( QAbstractTableModel ):
         del self.agentsList[ idx ]
         self.endRemoveRows()
 
-    def onAgent_PropUpdated( self, netCmd ):
+    def ObjPropUpdated( self, netCmd ):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID, genAssert=True )
         if netObj.parent != agentsNodeCache(): return
 

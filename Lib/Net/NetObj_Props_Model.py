@@ -12,22 +12,22 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.propList = []
         self.propCounter = {}
         self.objList = []
-        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self.onObjPrepareDelete )
-        CNetObj_Manager.addCallback( EV.ObjPropCreated,   self.onObjPropCreated )
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self.onObjPropUpdated )
-        CNetObj_Manager.addCallback( EV.ObjPropDeleted,   self.onObjPropDelete )
+        CNetObj_Manager.addCallback( EV.ObjPrepareDelete, self )
+        CNetObj_Manager.addCallback( EV.ObjPropCreated,   self )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self )
+        CNetObj_Manager.addCallback( EV.ObjPropDeleted,   self )
 
     ####################################
-    def onObjPrepareDelete( self, cmd ):
+    def ObjPrepareDelete( self, cmd ):
         self.removeObj( cmd.Obj_UID )
 
-    def onObjPropCreated( self, cmd ):
+    def ObjPropCreated( self, cmd ):
         if cmd.Obj_UID not in self.objList:
             return
 
         self.appendProp( cmd.sPropName )
 
-    def onObjPropUpdated( self, cmd ):
+    def ObjPropUpdated( self, cmd ):
         if cmd.Obj_UID not in self.objList:
             return
 
@@ -37,7 +37,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
 
         self.dataChanged.emit( idx, idx )
 
-    def onObjPropDelete( self, cmd ):
+    def ObjPropDeleted( self, cmd ):
         if cmd.Obj_UID not in self.objList:
             return
 

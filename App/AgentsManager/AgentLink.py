@@ -44,7 +44,7 @@ class CAgentLink( CAgentServer_Link ):
     def __init__(self, agentNO ):
         super().__init__( agentN = agentNO.name )
 
-        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self.onObjPropUpdated )
+        CNetObj_Manager.addCallback( EV.ObjPropUpdated, self )
 
         self.routeBuilder = CRouteBuilder()
         self.SII = []
@@ -52,8 +52,8 @@ class CAgentLink( CAgentServer_Link ):
         self.segOD = 0
         self.edges_route = []
 
-        CTickManager.addTicker( CNetObj_Manager, 1000, self.mainTick )
-        CTickManager.addTicker( CNetObj_Manager, 500,  self.processTaskList )
+        CTickManager.addTicker( self, 1000, self.mainTick )
+        CTickManager.addTicker( self, 500,  self.processTaskList )
 
     def __del__(self):
         super().__del__()
@@ -73,7 +73,7 @@ class CAgentLink( CAgentServer_Link ):
         # self.mainCounter = doTimer( self.mainCounter, self.mainTick, 10 )
         # self.taskCounter = doTimer( self.taskCounter, self.processTaskList, 5 )
 
-    def onObjPropUpdated( self, cmd ):
+    def ObjPropUpdated( self, cmd ):
         if not self.isConnected(): return
         
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )

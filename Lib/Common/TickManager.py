@@ -28,7 +28,9 @@ class CTickManager:
 
     @classmethod
     def onTick( cls ):
-        for obj in cls.tickers:
+        # необходимо проходить по новому временному объекту списку, т.к. в процессе итерации может измениться исходный список тикеров cls.tickers
+        # т.к. в своих "onTick()" объекты могут создать или удалить другие объекты
+        for obj in list(cls.tickers):
             for ticker in obj.tickers:
                 ticker()
 

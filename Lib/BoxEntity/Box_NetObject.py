@@ -4,7 +4,8 @@ import json
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Net.NetObj_JSON as nJSON
-from Lib.Net.NetObj_Utils import destroy_If_Reload
+from Lib.Net.NetObj_Utils import destroy_If_Reload, isSelfEvent
+from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import SC
@@ -46,29 +47,41 @@ class CBox_NO( CNetObj ):
     @property
     def nxGraph( self ): return graphNodeCache().nxGraph if graphNodeCache() is not None else None
 
-    ##remove##
-    # def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
-    #     super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+    def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
+        l = [ EV.ObjCreated, EV.ObjPrepareDelete, EV.ObjCreated.ObjPropCreated, EV.ObjPropUpdated, EV.ObjPropDeleted ]
+        for e in l:
+            CNetObj_Manager.addCallback( e, self )
+
+        super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
     #############
-
     def ObjPropCreated( self, netCmd ):
+        if not isSelfEvent( netCmd, self ): return
+
         if netCmd.sPropName == SBP.address:
             self.addCacheItem()
 
     def ObjPropUpdated( self, netCmd ):
+        if not isSelfEvent( netCmd, self ): return
+
         if netCmd.sPropName == SBP.address:
             self.delCacheItem( str(netCmd.oldValue.data) )
             self.addCacheItem()
     
     def ObjPropDeleted( self, netCmd ):
+        if not isSelfEvent( netCmd, self ): return
+
         if netCmd.sPropName == SBP.address:
             self.delCacheItem( str(netCmd.value.data) )
 
     def ObjCreated( self, netCmd ):
+        if not isSelfEvent( netCmd, self ): return
+
         self.addCacheItem()
 
     def ObjPrepareDelete( self, netCmd ):
+        if not isSelfEvent( netCmd, self ): return
+
         propAddress = self.get( SBP.address )
         if propAddress:
             self.delCacheItem( str(propAddress.data) )

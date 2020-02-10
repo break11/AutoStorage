@@ -2,9 +2,10 @@
 import networkx as nx
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
+from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNode import CTreeNode
 from Lib.Common.TreeNodeCache import CTreeNodeCache
-from Lib.Net.NetObj_Utils import destroy_If_Reload
+from Lib.Net.NetObj_Utils import destroy_If_Reload, isSelfEvent
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
 from Lib.Common.StrConsts import SC
 import Lib.GraphEntity.StorageGraphTypes as SGT
@@ -54,6 +55,7 @@ class CGraphNode_NO( CNetObj ):
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+        CNetObj_Manager.addCallback( EV.ObjDeleted, self )
 
     def beforeRegister( self ):
         # перед отправкой в редис подмена указателя на props
@@ -62,6 +64,8 @@ class CGraphNode_NO( CNetObj ):
             self.props = self.nxGraph().nodes[ self.name ]
 
     def ObjDeleted( self, netCmd ):
+        if not isSelfEvent( netCmd, self ): return
+
         incEdges = []
         if self.nxGraph():
             incEdges = list( self.nxGraph().out_edges( self.name ) ) +  list( self.nxGraph().in_edges( self.name ) )
@@ -115,6 +119,7 @@ class CGraphEdge_NO( CNetObj ):
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
+        CNetObj_Manager.addCallback( EV.ObjDeleted, self )
 
     def beforeRegister( self ):
         # перед отправкой в редис подмена указателя на props
@@ -124,6 +129,8 @@ class CGraphEdge_NO( CNetObj ):
             self.props = self.nxGraph().edges[ tKey ]
 
     def ObjDeleted( self, netCmd ):
+        if not isSelfEvent( netCmd, self ): return
+
         # при удалении NetObj объекта грани удаляем соответствующую грань из графа
         # такой грани уже может не быть в графе, если изначально удалялась нода, она сама внутри графа удалит инцидентную грань
         if self.__has_nxEdge():
