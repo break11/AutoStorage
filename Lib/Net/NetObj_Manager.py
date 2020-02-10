@@ -174,7 +174,7 @@ class CNetObj_Manager( object ):
                 #################################################################################################
                 # предварительный проход по командам создания объектов для вычитывания всех необходимых данный одним пайпом
                 for netCmd in cmdList:
-                    netObj = cls.accessObj( netCmd.Obj_UID )
+                    netObj = cls.accessObj( netCmd.Obj_UID, genWarning=True )
 
                     if netCmd.Event == EV.ObjCreated:
                         if netObj is not None: continue

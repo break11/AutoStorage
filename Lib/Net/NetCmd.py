@@ -37,8 +37,7 @@ class CNetCmd:
         if self.Event in ObjProp_Event_Group:
             sPropName  = self.sPropName
             sPropValue = CStrTypeConverter.ValToStr(self.value)
-            if self.Event == EV.ObjPropCreated:
-                sPropType = type( self.value ).__name__
+           sPropType = type( self.value ).__name__
 
         return f"{cmd}{ self.DS }{Obj_UID}{ self.DS }{sPropName}{ self.DS }{sPropValue}{ self.DS }{sPropType}"
         
@@ -55,11 +54,7 @@ class CNetCmd:
         
         if ev in ObjProp_Event_Group:
             propName  = l[ EPos.PropName ]
-            obj    = CNetObj_Manager.accessObj( Obj_UID, genAssert=True )
-            if ev == EV.ObjPropCreated:
-                propType = eval( l[ EPos.PropType ] )
-            else:
-                propType = type( obj[ propName ] )
+            propType = l[ EPos.PropType ]
             value  = CStrTypeConverter.ValFromStr( propType, l[ EPos.PropValue ] )
 
         return CNetCmd( Event=ev, Obj_UID=Obj_UID, PropName=propName, value=value )
@@ -74,5 +69,3 @@ class CNetCmd:
         eq = eq and self.value      == other.value
 
         return eq
-
-from .NetObj_Manager import CNetObj_Manager

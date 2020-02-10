@@ -7,12 +7,12 @@ class CStrTypeConverter:
     
     @classmethod
     def registerType( cls, typeClass ):
-        assert typeClass not in cls.from_str_funcs
+        assert typeClass.__name__ not in cls.from_str_funcs
 
         if hasattr( typeClass, cls.s_fromString ):
-            cls.from_str_funcs[ typeClass ] = typeClass.fromString
+            cls.from_str_funcs[ typeClass.__name__ ] = typeClass.fromString
         else:
-            cls.from_str_funcs[ typeClass ] = typeClass
+            cls.from_str_funcs[ typeClass.__name__ ] = typeClass
 
     @classmethod
     def clear( cls): cls.from_str_funcs.clear()
@@ -20,17 +20,17 @@ class CStrTypeConverter:
     ###################
 
     @classmethod
-    def ValFromStr( cls, typeClass, s ):
-        if typeClass in cls.from_str_funcs:
-            obj = cls.from_str_funcs[ typeClass ]( s )
+    def ValFromStr( cls, typeClassName, s ):
+        if typeClassName in cls.from_str_funcs:
+            obj = cls.from_str_funcs[ typeClassName ]( s )
             return obj
         else:
-            print( f"{SC.sWarning} Unsupport type = {typeClass.__name__} value = {s} for converting from String!" )
+            print( f"{SC.sWarning} Unsupport type = {typeClassName} value = {s} for converting from String!" )
             
     @classmethod
     def ValToStr( cls, val ):
         typeClass = type( val )
-        if typeClass in cls.from_str_funcs:
+        if typeClass.__name__ in cls.from_str_funcs:
             return str( val )
         else:
             print( f"{SC.sWarning} Unsupport type = {typeClass.__name__} value = {val} for converting to String!" )
@@ -49,6 +49,6 @@ class CStrTypeConverter:
         d1 = {}
         for k, v in d.items():
             typeClass = type( def_props[k] ) if k in def_props else str
-            d1[ k ] = cls.ValFromStr( typeClass, v )
+            d1[ k ] = cls.ValFromStr( typeClass.__name__, v )
         return d1
 
