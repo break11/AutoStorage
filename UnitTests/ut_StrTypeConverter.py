@@ -44,7 +44,7 @@ class Test_StrTypeConverter(unittest.TestCase):
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "0" )
 
-        b = CStrTypeConverter.ValFromStr( int, s )
+        b = CStrTypeConverter.ValFromStr( int.__name__, s )
         self.assertEqual( a, b )
 
         ######
@@ -53,7 +53,7 @@ class Test_StrTypeConverter(unittest.TestCase):
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "-4" )
 
-        b = CStrTypeConverter.ValFromStr( int, s )
+        b = CStrTypeConverter.ValFromStr( int.__name__, s )
         self.assertEqual( a, b )
 
         ######
@@ -62,7 +62,7 @@ class Test_StrTypeConverter(unittest.TestCase):
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "10" )
 
-        b = CStrTypeConverter.ValFromStr( int, s )
+        b = CStrTypeConverter.ValFromStr( int.__name__, s )
         self.assertEqual( a, b )
 
         #################
@@ -71,7 +71,7 @@ class Test_StrTypeConverter(unittest.TestCase):
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "3.5" )
 
-        b = CStrTypeConverter.ValFromStr( float, s )
+        b = CStrTypeConverter.ValFromStr( float.__name__, s )
         self.assertEqual( a, b )
 
         #################
@@ -80,7 +80,7 @@ class Test_StrTypeConverter(unittest.TestCase):
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "test" )
 
-        b = CStrTypeConverter.ValFromStr( str, s )
+        b = CStrTypeConverter.ValFromStr( str.__name__, s )
         self.assertEqual( a, b )
 
         s = "test"
@@ -97,11 +97,11 @@ class Test_StrTypeConverter(unittest.TestCase):
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "Two" )
 
-        b = CStrTypeConverter.ValFromStr( ECustomEnum, s )
+        b = CStrTypeConverter.ValFromStr( ECustomEnum.__name__, s )
         self.assertEqual( a, b )
 
         s = "NotEnumValue"
-        b = CStrTypeConverter.ValFromStr( ECustomEnum, s )
+        b = CStrTypeConverter.ValFromStr( ECustomEnum.__name__, s )
         self.assertEqual( b, ECustomEnum.Undefined )
 
         #################
@@ -111,14 +111,14 @@ class Test_StrTypeConverter(unittest.TestCase):
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "True" )
 
-        b = CStrTypeConverter.ValFromStr( CTestType, s )
+        b = CStrTypeConverter.ValFromStr( CTestType.__name__, s )
         self.assertEqual( b.bVal, a.bVal )
 
         a = CTestType( False )
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "False" )
 
-        b = CStrTypeConverter.ValFromStr( CTestType, s )
+        b = CStrTypeConverter.ValFromStr( CTestType.__name__, s )
         self.assertEqual( b.bVal, a.bVal )
 
 if __name__ == "__main__":

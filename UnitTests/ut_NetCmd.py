@@ -45,7 +45,7 @@ class Test_NetCmd(unittest.TestCase):
 
         #############
 
-        sCMD = f"{EV.ObjPropUpdated}{ CNetCmd.DS }{121}{ CNetCmd.DS }Test{ CNetCmd.DS }Yes{ CNetCmd.DS }"
+        sCMD = f"{EV.ObjPropUpdated}{ CNetCmd.DS }{121}{ CNetCmd.DS }Test{ CNetCmd.DS }Yes{ CNetCmd.DS }str"
         cmd = CNetCmd( Event = EV.ObjPropUpdated, Obj_UID=121, PropName="Test", value="Yes" )
         cmd1 = CNetCmd.fromString( sCMD )
 
