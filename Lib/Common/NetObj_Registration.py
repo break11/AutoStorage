@@ -20,6 +20,7 @@ import Lib.AgentEntity.AgentTaskData as ATD
 
 from Lib.TransporterEntity.Transporter_NetObject import CTransporter_NO, s_Transporters
 import Lib.TransporterEntity.TransporterDataTypes as TDT
+from App.TransporterManager.TransporterChunk import CTransporterChunk
 
 rootObjDict = { s_Agents       : CNetObj,
                 s_Boxes        : CNetObj,
@@ -72,3 +73,7 @@ def register_NetObj_Widgets_for_ObjMonitor( reg ):
 def register_NetObj_Controllers_for_AgentManager():
     reg = CNetObj_Manager.registerController
     reg( CAgent_NO, { CAgentLink : lambda netObj : True } )
+
+def register_NetObj_Controllers_for_TransporterManager():
+    reg = CNetObj_Manager.registerController
+    reg( CGraphEdge_NO, { CTransporterChunk : lambda edgeNO : edgeNO.edgeType == SGT.EEdgeTypes.Transporter } )
