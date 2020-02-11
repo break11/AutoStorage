@@ -5,7 +5,9 @@ class CTransporterLink_Manager:
     ###########################
 
     @classmethod
-    def queryTS_Name_by_Point( pointName ):
+    def queryTS_Name_by_Point( cls, pointName ):
         for tsNO in transportersNodeCache().children:
-            print( "Test" )
+            if pointName in tsNO.nodesList():
+                return tsNO.name
+        return ""
 

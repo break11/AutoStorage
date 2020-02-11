@@ -50,7 +50,7 @@ class CGraphNode_NO( CNetObj ):
                     SGT.SGA.chargeSide : SGT.ESide.Default,
                     SGT.SGA.linkLeft   : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
                     SGT.SGA.linkRight  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
-                    SGT.SGA.linkPlace  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined )
+                    SGT.SGA.linkPlace  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
                 }
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):
@@ -92,7 +92,8 @@ class CGraphNode_NO( CNetObj ):
 common_EdgeProps = { SGT.SGA.edgeType, SGT.SGA.edgeSize }
 spec_EdgeProps = {
     SGT.EEdgeTypes.Rail : { SGT.SGA.highRailSizeFrom : True, SGT.SGA.highRailSizeTo : True,
-                            SGT.SGA.sensorSide : True, SGT.SGA.widthType : True, SGT.SGA.curvature : True }
+                            SGT.SGA.sensorSide : True, SGT.SGA.widthType : True, SGT.SGA.curvature : True },
+    SGT.EEdgeTypes.Transporter : { SGT.SGA.tsName : False }
 }
 
 class CGraphEdge_NO( CNetObj ):
@@ -103,7 +104,8 @@ class CGraphEdge_NO( CNetObj ):
                     SGT.SGA.highRailSizeTo:   0,                 
                     SGT.SGA.sensorSide:       SGT.ESensorSide.SBoth, 
                     SGT.SGA.widthType:        SGT.EWidthType.Narrow, 
-                    SGT.SGA.curvature:        SGT.ECurvature.Straight
+                    SGT.SGA.curvature:        SGT.ECurvature.Straight,
+                    SGT.SGA.tsName:           ""
                 }
 
     s_NodeID_1  = "NodeID_1"

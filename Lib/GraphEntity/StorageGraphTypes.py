@@ -25,6 +25,7 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     linkLeft         = None
     linkRight        = None
     linkPlace        = None
+    tsName           = None
 
 SGA = SGraphAttrs
 
