@@ -53,7 +53,7 @@ class CAM_MainWindow(QMainWindow):
         self.dkAgent_CMD_Log_Contents.layout().addWidget( self.ACL_Form )
         self.dkAgent_CMD_Log_Contents.layout().layoutSizeConstraint = QLayout.SetNoConstraint
 
-        CTickManager.addTicker( self, 500, self.AgentTest )
+        CTickManager.addTicker( 500, self.AgentTest )
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )
         self.registerObjects_Widgets()

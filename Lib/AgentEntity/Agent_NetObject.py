@@ -119,7 +119,7 @@ class CAgent_NO( CNetObj ):
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
         CNetObj_Manager.addCallback( ENet_Event.ObjPropUpdated, self )
-        CTickManager.addTicker( self, 1000, self.onTick )
+        CTickManager.addTicker( 1000, self.onTick )
 
     def onTick( self ):
         if self.connectedTime == 0:

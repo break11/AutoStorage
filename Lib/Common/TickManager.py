@@ -8,7 +8,15 @@ class CTickManager:
     tickers = weakref.WeakSet() # type:ignore
     mainTimer = QTimer()
     @classmethod
-    def addTicker( cls, obj, interval, obj_func ):
+    def addTicker( cls, interval, obj_func, obj = None ):
+        if obj is None:
+            try:
+                obj = obj_func.__self__ # берем объект из метода
+            except AttributeError:
+                print( f"Need to pass a class object if {obj_func} is unbound function." )
+        else:
+            if hasattr(obj, "__self__"): assert obj == obj_func.__self__, "Method is not bound to obj {obj}!"
+
         if not hasattr( obj, "tickers" ):
             obj.tickers = set()
         cls.tickers.add( obj )

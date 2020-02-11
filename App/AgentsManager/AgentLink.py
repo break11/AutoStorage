@@ -52,8 +52,8 @@ class CAgentLink( CAgentServer_Link ):
         self.segOD = 0
         self.edges_route = []
 
-        CTickManager.addTicker( self, 1000, self.mainTick )
-        CTickManager.addTicker( self, 500,  self.processTaskList )
+        CTickManager.addTicker( 1000, self.mainTick )
+        CTickManager.addTicker( 500,  self.processTaskList )
 
     def __del__(self):
         super().__del__()

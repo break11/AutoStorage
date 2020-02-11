@@ -16,7 +16,7 @@ class CClientList_Widget(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/ClientList_Widget.ui", self )
 
-        CTickManager.addTicker( self, 1500, self.updateClientList )
+        CTickManager.addTicker( 1500, self.updateClientList )
         
         # модель со списком сервисов
         self.clientList_Model = QStandardItemModel( self )

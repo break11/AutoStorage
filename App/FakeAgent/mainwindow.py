@@ -44,7 +44,7 @@ class CFA_MainWindow(QMainWindow):
         self.tvAgents.setModel( self.Agents_Model )
         self.tvAgents.selectionModel().currentRowChanged.connect( self.CurrentAgentChanged )
 
-        CTickManager.addTicker( self, 2000, self.reconnectTest_tick )
+        CTickManager.addTicker( 2000, self.reconnectTest_tick )
 
     def closeEvent( self, event ):
         save_Window_State_And_Geometry( self )

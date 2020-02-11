@@ -102,7 +102,7 @@ class CAgent_Cmd_Log_Form(QWidget):
         ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
 
         self.buffLogRows = []
-        CTickManager.addTicker( self, 300, self.logTick )
+        CTickManager.addTicker( 300, self.logTick )
 
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки

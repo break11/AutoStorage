@@ -82,7 +82,7 @@ class CAgent_Widget( CNetObj_Widget ):
         # angle
         self.sbLinker.addControl( self.sbAngle )
 
-        CTickManager.addTicker( self, 1000, self.updateControls )
+        CTickManager.addTicker( 1000, self.updateControls )
 
     s_color_red = "color: red"
     def updateControls( self ):

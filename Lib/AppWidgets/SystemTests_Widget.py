@@ -18,8 +18,8 @@ class CSystemTests_Widget(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( os.path.dirname( __file__ ) + "/SystemTests_Widget.ui", self )
 
-        CTickManager.addTicker( self, 100, self.updateNodesXYTest )
-        CTickManager.addTicker( self, 1000, self.updateEdgesWidthTest )
+        CTickManager.addTicker( 100, self.updateNodesXYTest )
+        CTickManager.addTicker( 1000, self.updateEdgesWidthTest )
 
     def init( self, initPhase ):
         pass

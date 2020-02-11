@@ -387,7 +387,7 @@ from .NetCmd import CNetCmd
 # из-за перекрестных ссылок не получается создать объект прямо в теле описания класса
 CNetObj_Manager.initRoot()
 
-CTickManager.addTicker( CNetObj_Manager, 100, CNetObj_Manager.netTick )
-CTickManager.addTicker( CNetObj_Manager, 500, CNetObj_Manager.controllersTick )
-CTickManager.addTicker( CNetObj_Manager, 1500, CNetObj_Manager.updateClientInfo )
+CTickManager.addTicker( 100,  CNetObj_Manager.netTick,          CNetObj_Manager, )
+CTickManager.addTicker( 500,  CNetObj_Manager.controllersTick,  CNetObj_Manager, )
+CTickManager.addTicker( 1500, CNetObj_Manager.updateClientInfo, CNetObj_Manager, )
 

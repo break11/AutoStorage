@@ -86,7 +86,7 @@ class CViewerWindow(QMainWindow):
         uic.loadUi( os.path.dirname( __file__ ) + '/ViewerWindow.ui', self )
         self.setWindowTitle( self.__sWindowTitle )
 
-        CTickManager.addTicker( self, 100, self.tick )
+        CTickManager.addTicker( 100, self.tick )
 
         self.bFullScreen = False
         self.DocWidgetsHiddenStates = {}
