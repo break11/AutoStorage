@@ -7,6 +7,8 @@ from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.TransporterEntity.Transporter_NetObject import s_Transporters
 import Lib.GraphEntity.StorageGraphTypes as SGT
 from .TransporterLink_Manager import CTransporterLink_Manager
+import Lib.Common.NetUtils as NU
+from Lib.Common.StrConsts import SC
 
 class CTransporterChunk:
     def ObjPropUpdated( self, netCmd ):
@@ -19,7 +21,7 @@ class CTransporterChunk:
                 self._tsNO = None
 
     @property
-    def tsNo( self ):
+    def tsNO( self ):
         if not self.netObj().tsName:
             self.netObj().tsName = CTransporterLink_Manager.queryTS_Name_by_Point( self.netObj().nxNodeID_1() )
 
@@ -29,10 +31,14 @@ class CTransporterChunk:
         assert netObj.edgeType == SGT.EEdgeTypes.Transporter
         CTickManager.addTicker( 500, self.onTick )
         CNetObj_Manager.addCallback( eventType = EV.ObjPropUpdated, obj = self )
-        self.tsNO = None
+        self._tsNO = None
 
     def init( self ):
         self.netObj()[ SGT.SGA.tsName ] = ""
     
     def onTick(self):
-        print( self.tsNo, self.netObj().name )
+        if not self.tsNO: return
+
+        if self.tsNO.masterAddress != SC.localhost and self.tsNO.masterAddress != NU.get_ip(): return
+        
+        print( self.tsNO, self.netObj().name, NU.get_ip() )
