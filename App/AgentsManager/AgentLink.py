@@ -41,8 +41,8 @@ class CAgentLink( CAgentServer_Link ):
     @property
     def nxGraph( self ): return graphNodeCache().nxGraph
 
-    def __init__(self, agentNO ):
-        super().__init__( agentN = agentNO.name )
+    def __init__(self, netObj ):
+        super().__init__( agentN = netObj.name )
 
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self )
 

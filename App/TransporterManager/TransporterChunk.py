@@ -1,18 +1,38 @@
 
+from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.Net_Events import ENet_Event as EV
+from Lib.Net.NetObj_Utils import isSelfEvent
 from Lib.Common.TickManager import CTickManager
+from Lib.Common.TreeNodeCache import CTreeNodeCache
+from Lib.TransporterEntity.Transporter_NetObject import s_Transporters
 import Lib.GraphEntity.StorageGraphTypes as SGT
 from .TransporterLink_Manager import CTransporterLink_Manager
 
 class CTransporterChunk:
-    def accessTS_NO(self):
+    def ObjPropUpdated( self, netCmd ):
+        if not isSelfEvent( netCmd, self.netObj() ): return
+
+        if netCmd.sPropName == SGT.SGA.tsName:
+            if netCmd.value:
+                self._tsNO = CTreeNodeCache( path=self.netObj().tsName, basePath=s_Transporters)
+            else:
+                self._tsNO = None
+
+    @property
+    def tsNo( self ):
         if not self.netObj().tsName:
             self.netObj().tsName = CTransporterLink_Manager.queryTS_Name_by_Point( self.netObj().nxNodeID_1() )
 
-    def __init__(self, edgeNO ):
-        assert edgeNO.edgeType == SGT.EEdgeTypes.Transporter
+        return self._tsNO() if self._tsNO is not None else None
+
+    def __init__(self, netObj ):
+        assert netObj.edgeType == SGT.EEdgeTypes.Transporter
         CTickManager.addTicker( 500, self.onTick )
-        edgeNO[ SGT.SGA.tsName ] = ""
+        CNetObj_Manager.addCallback( eventType = EV.ObjPropUpdated, obj = self )
+        self.tsNO = None
+
+    def init( self ):
+        self.netObj()[ SGT.SGA.tsName ] = ""
     
     def onTick(self):
-        self.accessTS_NO()
-        # print( self.netObj().name )
+        print( self.tsNo, self.netObj().name )

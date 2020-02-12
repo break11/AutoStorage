@@ -49,6 +49,8 @@ class TestTreeNode(unittest.TestCase):
     def test_TreeNodeCache(self):
         CTreeNodeCache.rootObj = rootNode # type:ignore
 
+        self.assertEqual( CTreeNodeCache( path = "" )(), CTreeNodeCache.rootObj )
+
         c1_1_cache = CTreeNodeCache( basePath = c2_2_Node.path(), path = "../../c1/c1_1" )
         self.assertEqual( c1_1_cache(), c1_1_Node )
 

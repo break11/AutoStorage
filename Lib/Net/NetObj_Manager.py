@@ -256,6 +256,7 @@ class CNetObj_Manager( object ):
                     netObj.controllers[ controllerClass.__name__ ] = controller
                     controller.netObj = weakref.ref( netObj )
                     cls.__controllers.add( controller )
+                    if hasattr(controller, "init"): controller.init()
                     
     @classmethod
     def unregisterObj( cls, netObj ):
