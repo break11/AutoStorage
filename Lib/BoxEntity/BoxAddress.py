@@ -10,6 +10,7 @@ MDS_split_pattern = genSplitPattern( MDS )
 
 class EBoxAddressType( BaseEnum ):
     OnNode  = auto()
+    OnEdge  = auto()
     OnAgent = auto()
 
     Undefined = auto()
@@ -19,6 +20,7 @@ class CBoxAddress:
     dataFromStrFunc = {
                         EBoxAddressType.Undefined : lambda sData : sData,
                         EBoxAddressType.OnNode    : SGT.SNodePlace.fromString,
+                        EBoxAddressType.OnEdge    : SGT.SEdgePlace.fromString,
                         EBoxAddressType.OnAgent   : lambda sData : int( sData ),
                       }
 

@@ -174,7 +174,7 @@ class SNodePlace:
 
     def __str__( self ): return self.toString()
 
-    def isValid( self ): return self.nodeID and ( self.side is not None )
+    def isValid( self ): return self.nodeID and ( self.side != ESide.Undefined )
 
     def __eq__( self, other ):
         eq = True
@@ -196,8 +196,47 @@ class SNodePlace:
 
         return SNodePlace( nodeID = nodeID, side = side )
 
-    def toString( self ):
-        return f"{self.nodeID}{ self.DS }{self.side}"
+    def toString( self ): return f"{self.nodeID}{ self.DS }{self.side}"
+
+###########################################################
+
+class SEdgePlace:
+    DS = "|"
+    DS_split_pattern = genSplitPattern( f"\{DS}" )
+
+    def __init__( self, nodeID_1, nodeID_2, pos ):
+        self.nodeID_1 = nodeID_1
+        self.nodeID_2 = nodeID_2
+        self.pos = pos
+
+    def __str__( self ): return self.toString()
+
+    def isValid( self ): return self.nodeID_1 and self.nodeID_2 and ( self.pos is not None )
+
+    def __eq__( self, other ):
+        eq = True
+        eq = eq and self.nodeID_1 == other.nodeID_1
+        eq = eq and self.nodeID_2 == other.nodeID_2
+        eq = eq and self.pos == other.pos
+        return eq
+
+    @classmethod
+    def fromString( cls, data ):
+        l = re.split( cls.DS_split_pattern, data )
+
+        try:
+            nodeID_1 = l[0]
+            nodeID_1 = l[1]
+            pos      = int( l[3] )
+        except:
+            print( f"{SC.sWarning} SEdgePlace can't convert from '{data}'!" )
+            nodeID_1 = ""
+            nodeID_2 = ""
+            pos      = None
+
+        return SEdgePlace( nodeID_1, nodeID_2, pos )
+
+    def toString( self ): return f"{self.nodeID_1}{ self.DS }{self.nodeID_2}{ self.DS }{self.pos}"
 
 ###########################################################
 

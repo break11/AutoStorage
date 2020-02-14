@@ -41,4 +41,4 @@ class CTransporterChunk:
 
         if self.tsNO.masterAddress != SC.localhost and self.tsNO.masterAddress != NU.get_ip(): return
         
-        print( self.tsNO, self.netObj().name, NU.get_ip() )
+        print( self.tsNO, self.netObj().name, NU.get_ip(), id( self ) )
