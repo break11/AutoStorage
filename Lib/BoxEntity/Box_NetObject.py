@@ -107,6 +107,9 @@ class CBox_NO( CNetObj ):
         if self.address.addressType == EBoxAddressType.OnNode:
             return self.nxGraph.has_node( self.address.data.nodeID ) if self.nxGraph is not None else False
 
+        if self.address.addressType == EBoxAddressType.OnEdge:
+            return self.nxGraph.has_edge( self.address.data.nodeID_1, self.address.data.nodeID_2 ) if self.nxGraph is not None else False
+
         if self.address.addressType == EBoxAddressType.OnAgent:
             return agentsNodeCache().childByName( str(self.address.data) ) is not None
 

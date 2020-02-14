@@ -34,8 +34,20 @@ class Test_CBoxAddress(unittest.TestCase):
 
         self.assertEqual( type(addr_test.data), SGT.SNodePlace )
         ##################################################################################################
+        sData = "OnEdge=1|2|100"
+        addr  = CBoxAddress( EBoxAddressType.OnEdge, data = SGT.SEdgePlace( "1", "2", 100 ) )
+        addr1 = CBoxAddress( EBoxAddressType.OnEdge, data = SGT.SEdgePlace.fromString( "1|2|100" ) )
+        addr_test = CBoxAddress.fromString( sData )
+
+        self.assertEqual( addr, addr1 )
+        self.assertEqual( addr, addr_test )
+        self.assertEqual( addr.toString(), sData )
+        self.assertEqual( addr_test.toString(), sData )
+
+        self.assertEqual( type(addr_test.data), SGT.SEdgePlace )
+        ##################################################################################################
         sData = "OnAgent=555"
-        addr = CBoxAddress( EBoxAddressType.OnAgent, data=555 )
+        addr = CBoxAddress( EBoxAddressType.OnAgent, data="555" )
         addr_test = CBoxAddress.fromString( sData )
 
         self.assertEqual( addr, addr_test )

@@ -51,6 +51,7 @@ def register_NetObj_Props():
     reg( SGT.ECurvature )
     reg( SGT.ESide )
     reg( SGT.SNodePlace )
+    reg( SGT.SEdgePlace )
     reg( ADT.EAgent_CMD_State )
     reg( ADT.SBS_Data )
     reg( ADT.EConnectedStatus )

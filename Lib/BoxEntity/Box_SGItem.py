@@ -52,11 +52,16 @@ class CBox_SGItem(QGraphicsItem):
             kX = CBox_SGItem.kX_by_ESide[ a.data.side ]
             self.setPos( kX * 700, 0 )
 
+        elif a.addressType == EBoxAddressType.OnEdge:
+            tKey = ( a.data.nodeID_1, a.data.nodeID_2 )
+            edgeSGItem = self.SGM.edgeGItems[ frozenset(tKey) ]
+            self.setParentItem( edgeSGItem )
+            self.setPos( a.data.pos, 0 )
+
         elif a.addressType == EBoxAddressType.OnAgent:
             agentSGItem = self.SGM.agentGItems[ str(a.data) ]
             self.setParentItem( agentSGItem )
             self.setPos( 0, 0 )
-
 
     def boundingRect(self):
         return self.__BBoxRect_Adj

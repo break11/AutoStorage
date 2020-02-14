@@ -21,11 +21,22 @@ class CBoxAddress:
                         EBoxAddressType.Undefined : lambda sData : sData,
                         EBoxAddressType.OnNode    : SGT.SNodePlace.fromString,
                         EBoxAddressType.OnEdge    : SGT.SEdgePlace.fromString,
-                        EBoxAddressType.OnAgent   : lambda sData : int( sData ),
+                        EBoxAddressType.OnAgent   : lambda sData : sData,
                       }
+
+    datraType_by_addressType = {
+                                EBoxAddressType.OnNode    : SGT.SNodePlace,
+                                EBoxAddressType.OnEdge    : SGT.SEdgePlace,
+                                EBoxAddressType.OnAgent   : str
+    }
 
     def __init__( self, addressType, data = None ):
         self.addressType = addressType
+
+        if addressType != EBoxAddressType.Undefined:
+            dataType = self.datraType_by_addressType.get( addressType )
+            assert dataType == type(data), "Data type of address invalid!"
+            
         self.data = data
 
     def __str__( self ): return self.toString()
