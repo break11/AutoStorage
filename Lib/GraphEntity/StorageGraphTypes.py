@@ -190,7 +190,7 @@ class SNodePlace:
             nodeID = l[0]
             side   = ESide.fromString( l[1] )
         except:
-            print( f"{SC.sWarning} SNodePlace can't convert from '{data}'!" )
+            print( f"{SC.sError} SNodePlace can't convert from '{data}'!" )
             nodeID = ""
             side   = ESide.Undefined
 
@@ -226,10 +226,10 @@ class SEdgePlace:
 
         try:
             nodeID_1 = l[0]
-            nodeID_1 = l[1]
-            pos      = int( l[3] )
+            nodeID_2 = l[1]
+            pos      = int( l[2] )
         except:
-            print( f"{SC.sWarning} SEdgePlace can't convert from '{data}'!" )
+            print( f"{SC.sError} SEdgePlace can't convert from '{data}'!" )
             nodeID_1 = ""
             nodeID_2 = ""
             pos      = None
