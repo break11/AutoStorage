@@ -126,21 +126,14 @@ class CAgent_SGItem(QGraphicsItem):
             return
 
         x1, y1, x2, y2 = getEdgeCoords( graphNodeCache().nxGraph, tEdgeKey )
-        edge_vec = Vector2( x2 - x1, - (y2 - y1) ) #берём отрицательное значение "y" тк, значения по оси "y" увеличиваются по направлению вниз
-
-        rAngle = edge_vec.selfAngle()
+        edge_vec = Vector2( x2 - x1, y2 - y1 )
         eSize = edgeSize( graphNodeCache().nxGraph, tEdgeKey )
 
+        # x1, x2 - позиция стартовой ноды грани, рассчитываем приращение этого вектора (x1, y1), исходя из позиции челнока
         pos = self.__agentNetObj().position
+        vec = Vector2( x1, y1 ) + edge_vec.multiply( pos / eSize )
 
-        k = edge_vec.magnitude() * pos / eSize
-        d_x = k * math.cos( rAngle )
-        d_y = k * math.sin( rAngle )
-
-        x = round(x1 + d_x)
-        y = round(y1 - d_y)
-
-        super().setPos(x, y)
+        super().setPos( round(vec.x), round(vec.y) )
 
     def ObjPropUpdated( self, cmd ):
         if cmd.Obj_UID != self.__agentNetObj().UID: return
