@@ -8,6 +8,10 @@ from PyQt5.QtWidgets import QGraphicsItem
 from Lib.BoxEntity.BoxAddress import EBoxAddressType
 import Lib.GraphEntity.StorageGraphTypes as SGT
 
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+from Lib.Common.GraphUtils import getEdgeCoords, edgeSize
+from Lib.Common.Vectors import Vector2
+
 class CBox_SGItem(QGraphicsItem):
     __boxW = 200
     __fBBoxD  = 20 # расширение BBox для удобства выделения
@@ -56,7 +60,13 @@ class CBox_SGItem(QGraphicsItem):
             tKey = ( a.data.nodeID_1, a.data.nodeID_2 )
             edgeSGItem = self.SGM.edgeGItems[ frozenset(tKey) ]
             self.setParentItem( edgeSGItem )
-            self.setPos( a.data.pos, 0 )
+            
+            eSize = edgeSize( graphNodeCache().nxGraph, tKey )
+            x1, y1, x2, y2 = getEdgeCoords( graphNodeCache().nxGraph, tKey )
+            edge_vec = Vector2( x2 - x1, y2 - y1 )
+            k = edge_vec.magnitude() / eSize # соотношение длины реального вектора и прописанной длины грани
+            
+            self.setPos( k * a.data.pos, 0 )
 
         elif a.addressType == EBoxAddressType.OnAgent:
             agentSGItem = self.SGM.agentGItems[ str(a.data) ]
