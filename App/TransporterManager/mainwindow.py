@@ -14,6 +14,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
 from Lib.Common.StrConsts import SC
 import Lib.Common.Utils as UT
+import Lib.Common.FileUtils as FU
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
@@ -25,7 +26,7 @@ class CTM_MainWindow(QMainWindow):
         
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
         # self.agentsNode = agentsNodeCache()
         
         self.WidgetManager = CNetObj_WidgetsManager( self.dkObjectWdiget_Contents )

@@ -9,6 +9,7 @@ from Lib.Common.Utils import time_func
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.TickManager import CTickManager
 from Lib.GraphEntity import StorageGraphTypes as SGT
+import Lib.Common.FileUtils as FU
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj, CTreeNode
@@ -16,7 +17,7 @@ from Lib.Net.NetObj import CNetObj, CTreeNode
 class CSystemTests_Widget(QWidget):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
-        uic.loadUi( os.path.dirname( __file__ ) + "/SystemTests_Widget.ui", self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
 
         CTickManager.addTicker( 100, self.updateNodesXYTest )
         CTickManager.addTicker( 1000, self.updateEdgesWidthTest )

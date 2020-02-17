@@ -7,12 +7,14 @@ from PyQt5.Qt import QInputDialog, Qt
 from .NetObj_Widgets import CNetObj_Widget
 from .Net_Events import ENet_Event as EV
 from  Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
+import Lib.Common.FileUtils as FU
 from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
+from  Lib.Net.Obj_Prop_Create_Dialog import CObj_Prop_Create_Dialog
 
 class CDictProps_Widget( CNetObj_Widget ):
     def __init__( self, parent = None):
         super().__init__( parent = parent)
-        uic.loadUi( os.path.dirname( __file__ ) + '/DictProps_Widget.ui', self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
 
         self.__model = CNetObj_Props_Model( self )
         self.tvProps.setModel( self.__model )
@@ -37,5 +39,7 @@ class CDictProps_Widget( CNetObj_Widget ):
         del self.netObj[ propName ]
 
     def on_btnAdd_released ( self ):
-        text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')
-        if ok: self.netObj[ text ] = text
+        dlg = CObj_Prop_Create_Dialog( self )
+        print( dlg.exec() )
+        # text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')
+        # if ok: self.netObj[ text ] = text

@@ -12,11 +12,12 @@ from Lib.Common.GraphUtils import sGraphML_file_filters
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.StrConsts import SC
+import Lib.Common.FileUtils as FU
 
 class CGraphLoad_Widget(QWidget):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
-        uic.loadUi( os.path.dirname( __file__ ) + "/GraphLoad_Widget.ui", self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
         self.leGraphML.setText( CSM.rootOpt( SC.storage_graph_file, default=SC.storage_graph_file__default ) )
 
     def init( self, initPhase ):

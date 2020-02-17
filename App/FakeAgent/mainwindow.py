@@ -19,6 +19,7 @@ from Lib.Common import FileUtils
 from Lib.Common.StrConsts import SC
 from Lib.Common.GuiUtils import load_Window_State_And_Geometry, save_Window_State_And_Geometry
 import Lib.Common.Utils as UT
+import Lib.Common.FileUtils as FU
 from Lib.Common.TickManager import CTickManager
 from .FakeAgentsList_Model import CFakeAgentsList_Model
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
@@ -26,7 +27,7 @@ from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 class CFA_MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
         load_Window_State_And_Geometry( self )
 
         for ipAddress in QNetworkInterface.allAddresses():

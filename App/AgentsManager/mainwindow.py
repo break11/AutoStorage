@@ -24,6 +24,7 @@ import Lib.Common.ChargeUtils as CU
 from Lib.Common.TickManager import CTickManager
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from Lib.Common.GraphUtils import nodeType, routeToServiceStation, randomNodes
+import Lib.Common.FileUtils as FU
 from .AgentsList_Model import CAgentsList_Model
 from .AgentsConnectionServer import CAgentsConnectionServer
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket
@@ -44,7 +45,7 @@ class CAM_MainWindow(QMainWindow):
         
     def __init__(self):
         super().__init__()
-        uic.loadUi( os.path.dirname( __file__ ) + SC.mainwindow_ui, self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
 
         # загрузка интерфейса с логом и отправкой команд из внешнего ui файла
         self.ACL_Form = CAgent_Cmd_Log_Form()

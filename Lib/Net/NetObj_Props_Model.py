@@ -146,7 +146,9 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         if netObj is None: return False
 
         if role == Qt.EditRole:
-            oldVal = netObj[ propName ]
+            oldVal = netObj.get( propName )
+            if oldVal is None: return False
+            
             t = type( oldVal )
             if t in self.delegateTypes:
                 netObj[ propName ] = value

@@ -1,8 +1,8 @@
 
 import weakref
 
-from PyQt5.QtWidgets import ( QWidget, QVBoxLayout, QTableView, QAbstractItemView )
-from PyQt5.QtGui import ( QStandardItemModel )
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QAbstractItemView
+from PyQt5.QtGui import QStandardItemModel
 
 from .NetObj import CNetObj
 from .NetObj_Manager import CNetObj_Manager

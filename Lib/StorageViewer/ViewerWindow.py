@@ -14,7 +14,7 @@ from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.StrConsts import SC
 
-from Lib.Common.FileUtils import correctFNameToProjectDir, graphML_Path
+import Lib.Common.FileUtils as FU
 from Lib.Common.GuiUtils import gvFitToPage, load_Window_State_And_Geometry, save_Window_State_And_Geometry
 from Lib.Common.Utils import time_func
 from Lib.Common.GraphUtils import sGraphML_file_filters, GraphML_ext_filters
@@ -83,7 +83,7 @@ class CViewerWindow(QMainWindow):
         self.__sWindowTitle = windowTitle
         self.selectedGItem = None
 
-        uic.loadUi( os.path.dirname( __file__ ) + '/ViewerWindow.ui', self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
         self.setWindowTitle( self.__sWindowTitle )
 
         CTickManager.addTicker( 100, self.tick )
@@ -258,14 +258,14 @@ class CViewerWindow(QMainWindow):
     def loadGraphML( self, sFName ):
         if not self.unsavedChangesDialog(): return
         
-        sFName = correctFNameToProjectDir( sFName )
+        sFName = FU.correctFNameToProjectDir( sFName )
         if self.SGM.load( sFName ):
             self.graphML_fname = sFName
             self.setWindowTitle( self.__sWindowTitle + sFName )
             CSM.options[ SC.last_opened_file ] = sFName
 
     def saveGraphML( self, sFName ):
-        sFName = correctFNameToProjectDir( sFName )
+        sFName = FU.correctFNameToProjectDir( sFName )
         if not self.SGM.save( sFName ):
             mb =  QMessageBox(0,'Error', f"Can't save file with name = {sFName}", QMessageBox.Ok)
             mb.exec()
@@ -391,7 +391,7 @@ class CViewerWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_acLoadGraphML_triggered(self, bChecked):
-        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
+        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", FU.graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
         if path: self.loadGraphML( path )
 
     @pyqtSlot(bool)

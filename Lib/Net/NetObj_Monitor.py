@@ -69,7 +69,7 @@ class CNetObj_Monitor(QWidget):
 
     def __init__(self, parent=None):
         super().__init__( parent=parent )
-        uic.loadUi( os.path.dirname( __file__ ) + '/NetObj_Monitor.ui', self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
 
         ev = CTreeView_Arrows_EventFilter( self.tvNetObj )
         self.tvNetObj.installEventFilter( ev )

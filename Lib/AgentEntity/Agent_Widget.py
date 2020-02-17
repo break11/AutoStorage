@@ -17,6 +17,7 @@ import Lib.Common.GraphUtils as GU
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.SerializedList import CStrList
 from Lib.Common.TickManager import CTickManager
+import Lib.Common.FileUtils as FU
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
 
@@ -31,7 +32,7 @@ class CAgent_Widget( CNetObj_Widget ):
 
     def __init__( self, parent = None ):
         super().__init__( parent = parent)
-        uic.loadUi( os.path.dirname( __file__ ) + '/Agent_Widget.ui', self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
         self.selectTargetMode = SelectionTarget.null
         self.setSGM(  None )
 

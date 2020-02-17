@@ -8,13 +8,14 @@ from PyQt5 import uic
 
 from Lib.Common.GuiUtils import Std_Model_Item
 from Lib.Common.TickManager import CTickManager
+import Lib.Common.FileUtils as FU
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 
 class CClientList_Widget(QWidget):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
-        uic.loadUi( os.path.dirname( __file__ ) + "/ClientList_Widget.ui", self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
 
         CTickManager.addTicker( 1500, self.updateClientList )
         

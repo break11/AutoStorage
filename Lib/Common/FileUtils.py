@@ -5,6 +5,9 @@ import sys
 def projectDir():
     return os.path.abspath( os.curdir ) + "/"
 
+# генерация имени файла формы из имени файла исходника
+def UI_fileName( sFName ): return sFName.replace( ".py", ".ui" )
+
 # перевод абсолютного пути в относительный, относительно заданной директории
 def correctFNameToDir( path, sDir ):
     if path == "": return path

@@ -15,6 +15,7 @@ from Lib.AgentEntity.AgentLogManager import ALM, LogCount, s_TX, s_RX, eventColo
 from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.TickManager import CTickManager
 import Lib.Common.GuiUtils as GU
+import Lib.Common.FileUtils as FU
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.TemperatureState,
@@ -45,7 +46,7 @@ errListEvents = [ EAgentServer_Event.Error, EAgentServer_Event.Warning_ ]
 class CAgent_Cmd_Log_Form(QWidget):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
-        uic.loadUi( os.path.dirname( __file__ ) + "/Agent_Cmd_Log_Form.ui", self )
+        uic.loadUi( FU.UI_fileName( __file__ ), self )
 
         self.lbMS_1.setText( ADT.MS )
         self.lbMS_2.setText( ADT.MS )
