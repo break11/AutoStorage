@@ -97,16 +97,16 @@ class CNetObj_Manager( object ):
 
     ########################################################
 
-    __netObj_Types = {} # type: ignore
+    netObj_Types = {} # type: ignore
 
     @classmethod
     def registerType(cls, netObjClass):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
-        cls.__netObj_Types[ netObjClass.__name__ ] = netObjClass
+        cls.netObj_Types[ netObjClass.__name__ ] = netObjClass
 
     @classmethod
     def netObj_Type(cls, sObjClass):
-        return cls.__netObj_Types[ sObjClass ]
+        return cls.netObj_Types[ sObjClass ]
 
     #####################################################
     __registered_controllers = {} #type:ignore   # controller_class.__name__ : controller_apply_function

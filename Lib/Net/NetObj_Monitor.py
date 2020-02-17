@@ -15,6 +15,7 @@ from .NetObj_Model import CNetObj_Model
 from .NetObj_Widgets import CNetObj_WidgetsManager
 from .NetCmd import CNetCmd
 import Lib.Net.NetObj_JSON as nJSON
+from  Lib.Net.Obj_Prop_Create_Dialog import CObj_Prop_Create_Dialog, EDialogType
 
 from  Lib.Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -96,6 +97,7 @@ class CNetObj_Monitor(QWidget):
         for ev in EV:
             self.cbEvent.addItem( ev.name, ev )
         self.WidgetManager = CNetObj_WidgetsManager( self.saNetObj_WidgetContents )
+        self.objCreateDlg = CObj_Prop_Create_Dialog( dType=EDialogType.dtObj, parent = self )
 
     def on_btnSendNetCmd_released( self ):
         cmd = CNetCmd( Event=self.cbEvent.currentData(), Obj_UID=self.sbObj_UID.value(),
@@ -139,11 +141,9 @@ class CNetObj_Monitor(QWidget):
         # if ci.isValid():
         parent = self.netObjModel.getProxy_or_Root( ci )
 
-        text, ok = QInputDialog.getText(self, 'New NetObj Name', 'Enter object name:')
-        if not ok: return
-
-        netObj = CNetObj(name=text, parent=parent.netObj())
-        # if ok: self.netObj[ text ] = text
+        if self.objCreateDlg.exec():
+            netObjType = CNetObj_Manager.netObj_Type( self.objCreateDlg.selectedTypeName )
+            netObj = netObjType( name=self.objCreateDlg.selectedName, parent=parent.netObj() )
 
     def on_btnDel_NetObj_released( self ):
         ci = self.tvNetObj.selectionModel().currentIndex()

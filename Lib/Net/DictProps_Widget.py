@@ -9,7 +9,7 @@ from .Net_Events import ENet_Event as EV
 from  Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 import Lib.Common.FileUtils as FU
 from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
-from  Lib.Net.Obj_Prop_Create_Dialog import CObj_Prop_Create_Dialog
+from  Lib.Net.Obj_Prop_Create_Dialog import CObj_Prop_Create_Dialog, EDialogType
 
 class CDictProps_Widget( CNetObj_Widget ):
     def __init__( self, parent = None):
@@ -18,6 +18,7 @@ class CDictProps_Widget( CNetObj_Widget ):
 
         self.__model = CNetObj_Props_Model( self )
         self.tvProps.setModel( self.__model )
+        self.propCreateDlg = CObj_Prop_Create_Dialog( dType=EDialogType.dtProp, parent = self )
 
     def init( self, netObj ):
         super().init( netObj )
@@ -39,7 +40,7 @@ class CDictProps_Widget( CNetObj_Widget ):
         del self.netObj[ propName ]
 
     def on_btnAdd_released ( self ):
-        dlg = CObj_Prop_Create_Dialog( self )
-        print( dlg.exec() )
-        # text, ok = QInputDialog.getText(self, 'New Prop Dialog', 'Enter prop name:')
-        # if ok: self.netObj[ text ] = text
+        if self.propCreateDlg.exec():
+            val = self.propCreateDlg.selectedValue
+            if val is not None:
+                self.netObj[ self.propCreateDlg.selectedName ] = val

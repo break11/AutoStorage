@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>357</width>
-    <height>102</height>
+    <width>327</width>
+    <height>137</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,20 +18,20 @@
     <number>2</number>
    </property>
    <property name="leftMargin">
-    <number>3</number>
+    <number>2</number>
    </property>
    <property name="topMargin">
-    <number>3</number>
+    <number>2</number>
    </property>
    <property name="rightMargin">
-    <number>3</number>
+    <number>2</number>
    </property>
    <property name="bottomMargin">
-    <number>3</number>
+    <number>2</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0" colspan="2">
       <widget class="QLabel" name="lbName">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -44,14 +44,10 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="2" colspan="2">
       <widget class="QLineEdit" name="leName"/>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+     <item row="1" column="0">
       <widget class="QLabel" name="lbType">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -64,18 +60,34 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="1" colspan="3">
       <widget class="QComboBox" name="cbType"/>
+     </item>
+     <item row="2" column="0" colspan="3">
+      <widget class="QLabel" name="lbValue">
+       <property name="text">
+        <string>Value:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLineEdit" name="edValue"/>
      </item>
     </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
