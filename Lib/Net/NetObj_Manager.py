@@ -299,7 +299,7 @@ class CNetObj_Manager( object ):
 
             if cls.bEvent_Log:
                 for e in EV:
-                    setattr( cls, EV.name, cls.eventLogCallBack )
+                    setattr( cls, e.name, cls.eventLogCallBack )
                     cls.addCallback( e, cls )
 
             cls.redisConn = redis.StrictRedis(host=ip_address, port=ip_redis, db=0, decode_responses=True)

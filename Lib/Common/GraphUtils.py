@@ -133,6 +133,8 @@ def getAgentAngle(nxGraph, tEdgeKey, agent_angle):
         return agent_angle, None
 
 def getAgentSide(nxGraph, tEdgeKey, agent_angle):
+    if not tEdgeKey: return SGT.ESide.Undefined
+    
     railType = nxGraph.edges()[ tEdgeKey ][ SGA.widthType ]
     agent_vec = Vector2.fromAngle( math.radians( agent_angle ) )
 

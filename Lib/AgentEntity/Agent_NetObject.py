@@ -4,7 +4,6 @@ import networkx as nx
 
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event
-from Lib.Net.NetObj_Utils import isSelfEvent
 from Lib.Common.TreeNode import CTreeNode
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -108,7 +107,7 @@ class CAgent_NO( CNetObj ):
                 SAP.RTele : 1,
                 SAP.target_LU_side : SGT.ESide.Right
                 }
-    local_props = { SAP.connectedStatus, SAP.auto_control }
+    local_props = { SAP.connectedStatus }
               
     @property
     def nxGraph( self ): return graphNodeCache().nxGraph if graphNodeCache() is not None else None
@@ -118,7 +117,6 @@ class CAgent_NO( CNetObj ):
 
         super().__init__( name=name, parent=parent, id=id, saveToRedis=saveToRedis, props=props, ext_fields=ext_fields )
 
-        CNetObj_Manager.addCallback( ENet_Event.ObjPropUpdated, self )
         CTickManager.addTicker( 1000, self.onTick )
 
     def onTick( self ):
@@ -130,13 +128,6 @@ class CAgent_NO( CNetObj ):
            self.connectedStatus = ADT.EConnectedStatus.connected
 
         self.lastConnectedTime = self.connectedTime
-
-    def ObjPropUpdated( self, netCmd ):
-        if not isSelfEvent( netCmd, self ): return
-
-        if netCmd.sPropName == SAP.status:
-            if netCmd.value in ADT.errorStatuses:
-                self.auto_control = 0
 
     def isOnTrack( self ):
         if ( not self.edge ) or ( not graphNodeCache() ):

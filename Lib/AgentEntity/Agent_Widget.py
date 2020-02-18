@@ -118,7 +118,6 @@ class CAgent_Widget( CNetObj_Widget ):
     def init( self, netObj ):
         assert isinstance( netObj, CAgent_NO )
         super().init( netObj )
-        self.btnAutoControl.setChecked( netObj.auto_control )
 
         self.btnLinker.init( self.netObj )
         self.elLinker.init( self.netObj )
@@ -131,7 +130,6 @@ class CAgent_Widget( CNetObj_Widget ):
         super().done()
         self.btnSelectPutTo.setChecked( False )
         self.btnSelectGoTo.setChecked( False )
-        self.btnAutoControl.setChecked( False )        
         self.selectTargetMode = SelectionTarget.null
 
         self.btnLinker.clear()

@@ -9,7 +9,7 @@ import Lib.Common.GraphUtils as GU
 from Lib.AgentEntity.Agent_NetObject import SAP, cmdProps_keys, cmdProps, cmdProps_Box_LU, agentsNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
-from Lib.Net.NetObj_Utils import isNone_or_Empty
+from Lib.Net.NetObj_Utils import isNone_or_Empty, isSelfEvent
 import Lib.Common.FileUtils as FileUtils
 from Lib.Common.StrConsts import SC
 from Lib.Common.TreeNodeCache import CTreeNodeCache
@@ -60,27 +60,15 @@ class CAgentLink( CAgentServer_Link ):
 
     ##################
 
-    mainCounter = 0
-    taskCounter = 0
-    def onTick( self ):
-        def doTimer( counter, func, threshold ):
-            counter += 1
-            if counter >= threshold:
-                func()
-                counter = 0
-            return counter
-        
-        # self.mainCounter = doTimer( self.mainCounter, self.mainTick, 10 )
-        # self.taskCounter = doTimer( self.taskCounter, self.processTaskList, 5 )
-
     def ObjPropUpdated( self, cmd ):
-        if not self.isConnected(): return
+        # if not self.isConnected(): return
+        if not isSelfEvent( cmd, self.netObj() ): return
         
         agentNO = CNetObj_Manager.accessObj( cmd.Obj_UID, genAssert=True )
 
-        if agentNO.UID != self.netObj().UID: return
-
         if cmd.sPropName == SAP.status:
+            if cmd.value in ADT.errorStatuses:
+                agentNO.auto_control = 0
             ALM.doLogString( self, thread_UID="M", data=f"Agent status changed to {agentNO.status}", color="#0000FF" )
 
         # обработка пропертей - сигналов команд PE, PD, BR, ES
