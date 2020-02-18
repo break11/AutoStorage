@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget
+from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget, QStyleFactory
 from PyQt5.QtCore import Qt
 
 from .SettingsManager import CSettingsManager as CSM
@@ -20,7 +20,10 @@ class CBaseApplication( QApplication ):
 
         self.bNetworkMode = bNetworkMode
 
-        self.setStyle( CNoAltMenu_Style() )
+        style = CNoAltMenu_Style()
+        # print( QStyleFactory.keys() )
+        # style.setBaseStyle( QStyleFactory.create("Fusion") )
+        self.setStyle( style )
 
         if registerControllersFunc is not None:
             registerControllersFunc()

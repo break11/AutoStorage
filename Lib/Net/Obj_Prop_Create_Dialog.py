@@ -3,6 +3,7 @@ from enum import Enum, auto
 
 from .images_rc import * # for icons on Add and Del props button
 
+from PyQt5.QtCore import pyqtSlot
 from PyQt5 import uic
 from PyQt5.Qt import QInputDialog, Qt
 from PyQt5.QtWidgets import QDialog
@@ -48,4 +49,12 @@ class CObj_Prop_Create_Dialog( QDialog ):
 
         for sType in entity_by_dType[ self.dType ].keys():
             self.cbType.addItem( sType )
+
+    @pyqtSlot("bool")
+    def on_btnOk_clicked( self, bVal ):
+        self.accept()
+
+    @pyqtSlot("bool")
+    def on_btnCancel_clicked( self, bVal ):
+        self.reject()
 
