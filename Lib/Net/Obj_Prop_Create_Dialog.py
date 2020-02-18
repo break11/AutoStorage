@@ -21,19 +21,16 @@ entity_by_dType = { EDialogType.dtObj  : CNetObj_Manager.netObj_Types,
 }
 
 class CObj_Prop_Create_Dialog( QDialog ):
-    @property
     def selectedName(self):
         return self.leName.text()
 
-    @property
     def selectedTypeName( self ):
         return self.cbType.currentText()
 
-    @property
     def selectedValue( self ):
         if self.dType == EDialogType.dtProp:
             try:
-                return CStrTypeConverter.ValFromStr( self.selectedTypeName, self.edValue.text() )
+                return CStrTypeConverter.ValFromStr( self.selectedTypeName(), self.edValue.text() )
             except:
                 return None
 

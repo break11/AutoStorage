@@ -41,6 +41,6 @@ class CDictProps_Widget( CNetObj_Widget ):
 
     def on_btnAdd_released ( self ):
         if self.propCreateDlg.exec():
-            val = self.propCreateDlg.selectedValue
+            val = self.propCreateDlg.selectedValue()
             if val is not None:
-                self.netObj[ self.propCreateDlg.selectedName ] = val
+                self.netObj[ self.propCreateDlg.selectedName() ] = val

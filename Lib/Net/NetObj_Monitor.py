@@ -142,8 +142,8 @@ class CNetObj_Monitor(QWidget):
         parent = self.netObjModel.getProxy_or_Root( ci )
 
         if self.objCreateDlg.exec():
-            netObjType = CNetObj_Manager.netObj_Type( self.objCreateDlg.selectedTypeName )
-            netObj = netObjType( name=self.objCreateDlg.selectedName, parent=parent.netObj() )
+            netObjType = CNetObj_Manager.netObj_Type( self.objCreateDlg.selectedTypeName() )
+            netObj = netObjType( name=self.objCreateDlg.selectedName(), parent=parent.netObj() )
 
     def on_btnDel_NetObj_released( self ):
         ci = self.tvNetObj.selectionModel().currentIndex()
