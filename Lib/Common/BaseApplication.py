@@ -68,7 +68,8 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, bShowFullscreen
 
     window.init( EAppStartPhase.BeforeRedisConnect )
     if not app.initConnection(): return -1
-    CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor, registerWidgetsFunc = NO_Reg.register_NetObj_Widgets_for_ObjMonitor )
+    if CNetObj_Monitor.enabledInOptions():
+        CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor, registerWidgetsFunc = NO_Reg.register_NetObj_Widgets_for_ObjMonitor )
     window.init( EAppStartPhase.AfterRedisConnect )
 
     if bShowFullscreen:
