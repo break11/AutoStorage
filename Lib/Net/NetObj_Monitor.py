@@ -16,6 +16,7 @@ from .NetObj_Widgets import CNetObj_WidgetsManager
 from .NetCmd import CNetCmd
 import Lib.Net.NetObj_JSON as nJSON
 from  Lib.Net.Obj_Prop_Create_Dialog import CObj_Prop_Create_Dialog, EDialogType
+from Lib.Net.DictProps_Widget import CDictProps_Widget
 
 from  Lib.Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -43,7 +44,7 @@ class CNetObj_Monitor(QWidget):
         return CSM.dictOpt( settings, s_active, default=b_active_default )
 
     @staticmethod
-    def init_NetObj_Monitor( parentWidget=None, registerWidgetsFunc=None ):
+    def init_NetObj_Monitor( parentWidget=None ):
         if not CNetObj_Monitor.enabledInOptions(): return
 
         objMonitor = CNetObj_Monitor( parent=parentWidget )
@@ -59,14 +60,8 @@ class CNetObj_Monitor(QWidget):
                 parentWidget.layout().addWidget( objMonitor )
 
         objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
-
-        if registerWidgetsFunc:
-            registerWidgetsFunc( reg = objMonitor.WidgetManager.registerWidget )
-
         objMonitor.show()
-
         return objMonitor
-
 
     def __init__(self, parent=None):
         super().__init__( parent=parent )
@@ -96,7 +91,8 @@ class CNetObj_Monitor(QWidget):
         self.sbClientID.setValue( CNetObj_Manager.ClientID )
         for ev in EV:
             self.cbEvent.addItem( ev.name, ev )
-        self.WidgetManager = CNetObj_WidgetsManager( self.saNetObj_WidgetContents )
+
+        self.dictProps_Widget =  CDictProps_Widget( self.saNetObj_WidgetContents )
         self.objCreateDlg = CObj_Prop_Create_Dialog( dType=EDialogType.dtObj, parent = self )
 
     def on_btnSendNetCmd_released( self ):
@@ -113,7 +109,8 @@ class CNetObj_Monitor(QWidget):
         netObj = self.netObjModel.netObj_From_Index( index )
         if not netObj: return
 
-        self.WidgetManager.activateWidget( netObj )
+        self.dictProps_Widget.done()
+        self.dictProps_Widget.init( netObj )
 
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
@@ -128,7 +125,6 @@ class CNetObj_Monitor(QWidget):
         self.netObjModel.setRootNetObj( root )
         # if len(root.childCount()) < 10:
         #     self.clearView()
-
 
     def clearView( self ):
         self.tvNetObj.expandAll()

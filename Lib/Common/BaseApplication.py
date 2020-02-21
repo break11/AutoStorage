@@ -10,10 +10,10 @@ from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.TickManager import CTickManager
 
-import Lib.Common.NetObj_Registration as NO_Reg
-
 class CBaseApplication( QApplication ):
-    def __init__(self, argv, bNetworkMode, registerControllersFunc = None, rootObjDict = {} ):
+    def __init__(self, argv, bNetworkMode,
+                 register_NO_Func,
+                 rootObjDict = {} ):
         super().__init__( argv )
 
         CTickManager.start()
@@ -25,13 +25,11 @@ class CBaseApplication( QApplication ):
         # style.setBaseStyle( QStyleFactory.create("Fusion") )
         self.setStyle( style )
 
-        if registerControllersFunc is not None:
-            registerControllersFunc()
+        for f in register_NO_Func:
+            f()
 
         self.rootObjDict = rootObjDict
 
-        NO_Reg.register_NetObj()
-        NO_Reg.register_NetObj_Props()
         
     def initConnection(self, parent=None ):
         if self.bNetworkMode:
@@ -54,11 +52,15 @@ class EAppStartPhase( Enum ):
     BeforeRedisConnect = auto()
     AfterRedisConnect  = auto()
 
-def baseAppRun( default_settings, bNetworkMode, mainWindowClass, bShowFullscreen=False, mainWindowParams={},
-                registerControllersFunc = None, rootObjDict = {} ):
+def baseAppRun( default_settings, bNetworkMode,
+                register_NO_Func,
+                mainWindowClass, bShowFullscreen=False, mainWindowParams={},
+                rootObjDict = {} ):
     CSM.loadSettings( default=default_settings )
 
-    app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode, registerControllersFunc = registerControllersFunc, rootObjDict = rootObjDict )
+    app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode,
+                            register_NO_Func = register_NO_Func,
+                            rootObjDict = rootObjDict )
     
     window = mainWindowClass( **mainWindowParams )
 
@@ -72,7 +74,7 @@ def baseAppRun( default_settings, bNetworkMode, mainWindowClass, bShowFullscreen
     window.init( EAppStartPhase.BeforeRedisConnect )
     if not app.initConnection(): return -1
     if CNetObj_Monitor.enabledInOptions():
-        CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor, registerWidgetsFunc = NO_Reg.register_NetObj_Widgets_for_ObjMonitor )
+        CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor )
     window.init( EAppStartPhase.AfterRedisConnect )
 
     if bShowFullscreen:
