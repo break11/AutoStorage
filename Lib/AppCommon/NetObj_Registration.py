@@ -1,3 +1,6 @@
+
+from distutils.util import strtobool
+
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.DictProps_Widget import CDictProps_Widget
@@ -9,7 +12,7 @@ from App.AgentsManager.AgentLink import CAgentLink
 from Lib.BoxEntity.Box_NetObject import CBox_NO, s_Boxes
 from Lib.BoxEntity.BoxAddress import CBoxAddress
 
-from Lib.Common.StrTypeConverter import CStrTypeConverter
+from Lib.Common.StrTypeConverter import CStrTypeConverter as STC
 from Lib.Common.SerializedList import CStrList
 
 from Lib.GraphEntity.Graph_NetObjects import CGraphRoot_NO, CGraphNode_NO, CGraphEdge_NO, s_Graph
@@ -38,29 +41,28 @@ def register_NetObj():
     reg( CTransporter_NO )
 
 def register_NetObj_Props():
-    reg = CStrTypeConverter.registerType
-    reg( int )
-    reg( str )
-    reg( float )
-    reg( bool )
-    reg( ADT.EAgent_Status )
-    reg( SGT.ENodeTypes )
-    reg( SGT.EEdgeTypes )
-    reg( SGT.ESensorSide )
-    reg( SGT.EWidthType )
-    reg( SGT.ECurvature )
-    reg( SGT.ESide )
-    reg( SGT.SNodePlace )
-    reg( SGT.SEdgePlace )
-    reg( ADT.EAgent_CMD_State )
-    reg( ADT.SBS_Data )
-    reg( ADT.EConnectedStatus )
-    reg( ADT.STS_Data )
-    reg( ATD.CTaskList )
-    reg( TDT.ETransporterMode )
-    reg( TDT.ETransporterConnectionType )
-    reg( CBoxAddress )
-    reg( CStrList )
+    STC.registerStdType( int )
+    STC.registerStdType( str )
+    STC.registerStdType( float )
+    STC.registerType( bool, from_str_func=lambda val : bool(strtobool( val )) if type(val)==str else bool(val) )
+    STC.registerUserType( ADT.EAgent_Status )
+    STC.registerUserType( SGT.ENodeTypes )
+    STC.registerUserType( SGT.EEdgeTypes )
+    STC.registerUserType( SGT.ESensorSide )
+    STC.registerUserType( SGT.EWidthType )
+    STC.registerUserType( SGT.ECurvature )
+    STC.registerUserType( SGT.ESide )
+    STC.registerUserType( SGT.SNodePlace )
+    STC.registerUserType( SGT.SEdgePlace )
+    STC.registerUserType( ADT.EAgent_CMD_State )
+    STC.registerUserType( ADT.SBS_Data )
+    STC.registerUserType( ADT.EConnectedStatus )
+    STC.registerUserType( ADT.STS_Data )
+    STC.registerUserType( ATD.CTaskList )
+    STC.registerUserType( TDT.ETransporterMode )
+    STC.registerUserType( TDT.ETransporterConnectionType )
+    STC.registerUserType( CBoxAddress )
+    STC.registerUserType( CStrList )
 
 def register_NetObj_Widgets_for_ObjMonitor( reg ):
     reg( CNetObj,         CDictProps_Widget )

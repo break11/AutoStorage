@@ -6,13 +6,18 @@ class CStrTypeConverter:
     from_str_funcs = {} #type:ignore
     
     @classmethod
-    def registerType( cls, typeClass ):
+    def registerType( cls, typeClass, from_str_func ):
         assert typeClass.__name__ not in cls.from_str_funcs
 
-        if hasattr( typeClass, cls.s_fromString ):
-            cls.from_str_funcs[ typeClass.__name__ ] = typeClass.fromString
-        else:
-            cls.from_str_funcs[ typeClass.__name__ ] = typeClass
+        cls.from_str_funcs[ typeClass.__name__ ] = from_str_func
+
+    @classmethod
+    def registerStdType( cls, typeClass ):
+        cls.registerType( typeClass, from_str_func=typeClass )
+
+    @classmethod
+    def registerUserType( cls, typeClass ):
+        cls.registerType( typeClass, from_str_func=typeClass.fromString )
 
     @classmethod
     def clear( cls): cls.from_str_funcs.clear()
