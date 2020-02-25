@@ -24,8 +24,7 @@ class CSettingsManager():
         raise NotImplementedError( "No need to have an instance of CSettingsManager." )
 
     @classmethod
-    def loadSettings( cls, default={} ):
-        cls.options = default
+    def loadSettings( cls ):
         try:
             with open( settingsFName(), "r" ) as read_file:
                 cls.options = json.load( read_file )

@@ -52,11 +52,11 @@ class EAppStartPhase( Enum ):
     BeforeRedisConnect = auto()
     AfterRedisConnect  = auto()
 
-def baseAppRun( default_settings, bNetworkMode,
+def baseAppRun( bNetworkMode,
                 register_NO_Func,
                 mainWindowClass, bShowFullscreen=False, mainWindowParams={},
                 rootObjDict = {} ):
-    CSM.loadSettings( default=default_settings )
+    CSM.loadSettings()
 
     app = CBaseApplication( sys.argv, bNetworkMode = bNetworkMode,
                             register_NO_Func = register_NO_Func,
