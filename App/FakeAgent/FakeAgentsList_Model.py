@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSlot, pyqtSignal
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, pyqtSignal
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
