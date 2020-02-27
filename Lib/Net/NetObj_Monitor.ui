@@ -331,6 +331,57 @@ selection-color: black;
          <number>2</number>
         </property>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="btnAdd_Prop">
+            <property name="toolTip">
+             <string>Add Prop</string>
+            </property>
+            <property name="text">
+             <string>Add Prop</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images.qrc">
+              <normaloff>:/images/add.png</normaloff>:/images/add.png</iconset>
+            </property>
+            <property name="shortcut">
+             <string>Shift+Ins</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnDel_Prop">
+            <property name="toolTip">
+             <string>Del Prop</string>
+            </property>
+            <property name="text">
+             <string>Del Prop</string>
+            </property>
+            <property name="icon">
+             <iconset resource="images.qrc">
+              <normaloff>:/images/del.png</normaloff>:/images/del.png</iconset>
+            </property>
+            <property name="shortcut">
+             <string>Shift+Del</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QTableView" name="tvProps">
           <property name="styleSheet">
            <string notr="true">QTableView::item:focus { border : 2px solid blue; }</string>

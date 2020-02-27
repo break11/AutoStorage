@@ -95,7 +95,8 @@ class CNetObj_Monitor(QWidget):
         for ev in EV:
             self.cbEvent.addItem( ev.name, ev )
 
-        self.objCreateDlg = CObj_Prop_Create_Dialog( dType=EDialogType.dtObj, parent = self )
+        self.objCreateDlg  = CObj_Prop_Create_Dialog( dType=EDialogType.dtObj,  parent = self )
+        self.propCreateDlg = CObj_Prop_Create_Dialog( dType=EDialogType.dtProp, parent = self )
 
     def on_btnSendNetCmd_released( self ):
         cmd = CNetCmd( Event=self.cbEvent.currentData(), Obj_UID=self.sbObj_UID.value(),
@@ -103,10 +104,11 @@ class CNetObj_Monitor(QWidget):
         CNetObj_Manager.sendNetCMD( cmd )
 
     def treeView_SelectionChanged( self, selected, deselected ):
-        self.netObj_PropsModel.clear()
+        s = set()
         for idx in self.tvNetObj.selectionModel().selectedRows():
             netObj = self.netObjModel.netObj_From_Index( idx )
-            self.netObj_PropsModel.appendObj( netObj.UID )
+            s.add( netObj.UID )
+        self.netObj_PropsModel.updateObj_Set( s )
 
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
@@ -143,6 +145,27 @@ class CNetObj_Monitor(QWidget):
 
         netObj = self.netObjModel.netObj_From_Index( ci )
         netObj.destroy()
+
+    ###################
+
+    def on_btnDel_Prop_released ( self ):
+        idx = self.tvProps.selectionModel().currentIndex()
+        if not idx.isValid(): return
+
+        row = idx.row()
+        propName = self.netObj_PropsModel.headerData( idx.row(), Qt.Vertical )
+        for idx in self.tvNetObj.selectionModel().selectedRows():
+            netObj = self.netObjModel.netObj_From_Index( idx )
+            if netObj.get( propName ):
+                del netObj[ propName ]
+
+    def on_btnAdd_Prop_released ( self ):
+        if self.propCreateDlg.exec():
+            val = self.propCreateDlg.selectedValue()
+            if val is not None:
+                for idx in self.tvNetObj.selectionModel().selectedRows():
+                    netObj = self.netObjModel.netObj_From_Index( idx )
+                    netObj[ self.propCreateDlg.selectedName() ] = val
 
     ###################
 

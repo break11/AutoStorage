@@ -71,7 +71,7 @@ class CNetObj_Props_Model( QAbstractTableModel ):
             if propName not in self.propList:
                 self.appendProp( propName )
             else:
-                self.propCounter[ propName ] += 1
+                self.incPropCounter( propName )
 
         i = len(self.objList)
         self.beginInsertColumns( QModelIndex(), i, i )
@@ -94,12 +94,17 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         self.clearNotUsedProps()
 
     def appendProp( self, propName ):
+        self.incPropCounter( propName )
+        
         if propName in self.propList: return
         i = len( self.propList )
         self.beginInsertRows( QModelIndex(), i, i )
         self.propList.append( propName )
         self.endInsertRows()
-        self.propCounter[ propName ] = 1
+
+    def incPropCounter( self, propName ):
+        count = self.propCounter.get( propName, 0 )
+        self.propCounter[ propName ] = count + 1
 
     def decPropCounter( self, propName ):
         self.propCounter[ propName ] -= 1
