@@ -11,12 +11,10 @@ from .NetObj_Manager import CNetObj_Manager
 from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
 from .NetObj_Model import CNetObj_Model
-from .NetObj_Model import CNetObj_Model
-from .NetObj_Widgets import CNetObj_WidgetsManager
+from  Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 from .NetCmd import CNetCmd
 import Lib.Net.NetObj_JSON as nJSON
 from  Lib.Net.Obj_Prop_Create_Dialog import CObj_Prop_Create_Dialog, EDialogType
-from Lib.Net.DictProps_Widget import CDictProps_Widget
 
 from  Lib.Common.TreeView_Arrows_EventFilter import CTreeView_Arrows_EventFilter
 from  Lib.Common.SettingsManager import CSettingsManager as CSM
@@ -68,6 +66,7 @@ class CNetObj_Monitor(QWidget):
         super().__init__( parent=parent )
         uic.loadUi( FU.UI_fileName( __file__ ), self )
 
+
         ev = CTreeView_Arrows_EventFilter( self.tvNetObj )
         self.tvNetObj.installEventFilter( ev )
         self.tvNetObj.viewport().installEventFilter( ev )
@@ -78,6 +77,9 @@ class CNetObj_Monitor(QWidget):
         # то этот сигнал не испускается, что не позволит корректно очищать виджеты
         self.tvNetObj.selectionModel().selectionChanged.connect( self.treeView_SelectionChanged )
         
+        self.netObj_PropsModel = CNetObj_Props_Model( self )
+        self.tvProps.setModel( self.netObj_PropsModel )
+
         settings    = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
         winSettings = CSM.dictOpt( settings,    s_window,   default=objMonWinDefSettings )
         geometry    = CSM.dictOpt( winSettings, s_geometry, default="" )
@@ -93,7 +95,6 @@ class CNetObj_Monitor(QWidget):
         for ev in EV:
             self.cbEvent.addItem( ev.name, ev )
 
-        self.dictProps_Widget =  CDictProps_Widget( self.saNetObj_WidgetContents )
         self.objCreateDlg = CObj_Prop_Create_Dialog( dType=EDialogType.dtObj, parent = self )
 
     def on_btnSendNetCmd_released( self ):
@@ -102,16 +103,10 @@ class CNetObj_Monitor(QWidget):
         CNetObj_Manager.sendNetCMD( cmd )
 
     def treeView_SelectionChanged( self, selected, deselected ):
-        if len( selected.indexes() )   : self.init_NetObj_Widget( selected.indexes()[0] )
-
-    def init_NetObj_Widget( self, index ):
-        if not index.isValid(): return
-
-        netObj = self.netObjModel.netObj_From_Index( index )
-        if not netObj: return
-
-        self.dictProps_Widget.done()
-        self.dictProps_Widget.init( netObj )
+        self.netObj_PropsModel.clear()
+        for idx in self.tvNetObj.selectionModel().selectedRows():
+            netObj = self.netObjModel.netObj_From_Index( idx )
+            self.netObj_PropsModel.appendObj( netObj.UID )
 
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()

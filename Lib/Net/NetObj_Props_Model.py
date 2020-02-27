@@ -17,6 +17,10 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         CNetObj_Manager.addCallback( EV.ObjPropUpdated,   self )
         CNetObj_Manager.addCallback( EV.ObjPropDeleted,   self )
 
+    def clear( self ):
+        for obj in list( self.objList ):
+            self.removeObj( obj )
+
     ####################################
     def ObjPrepareDelete( self, cmd ):
         self.removeObj( cmd.Obj_UID )
@@ -56,6 +60,8 @@ class CNetObj_Props_Model( QAbstractTableModel ):
     ####################################
 
     def appendObj( self, UID ):
+        assert type( UID ) == int
+
         netObj = CNetObj_Manager.accessObj( UID )
         if netObj is None: return
 
