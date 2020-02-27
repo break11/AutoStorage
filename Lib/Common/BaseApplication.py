@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget, QStyleFactory
-from PyQt5.QtCore import Qt, QObject, QSocketNotifier, pyqtSlot
+from PyQt5.QtCore import Qt
 
 from .SettingsManager import CSettingsManager as CSM
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -9,18 +9,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.TickManager import CTickManager
-
-class CConsole(QObject):
-    def __init__( self, app ):
-        super().__init__()
-        self.app = app
-        self.notifier = QSocketNotifier( sys.stdin.fileno(), QSocketNotifier.Read, self )
-        self.notifier.activated.connect( self.readCommand )
-
-    def readCommand( self ):
-        line = sys.stdin.readline()
-        if line == "q\n":
-            self.app.quit()
+from Lib.Common.Console import CConsole
 
 class CBaseApplication( QApplication ):
     def __init__(self, argv, bNetworkMode,
@@ -42,7 +31,6 @@ class CBaseApplication( QApplication ):
             f()
 
         self.rootObjDict = rootObjDict
-
         
     def initConnection(self, parent=None ):
         if self.bNetworkMode:
@@ -93,7 +81,7 @@ def baseAppRun( bNetworkMode,
     if not app.initConnection(): return -1
 
     if CNetObj_Monitor.enabledInOptions():
-        CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor if bEnableGUI_Set else None )
+        app.objMon = CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor if bEnableGUI_Set else None )
 
     if bEnableGUI_Set:
         window.init( EAppStartPhase.AfterRedisConnect )
@@ -104,6 +92,7 @@ def baseAppRun( bNetworkMode,
             window.show()
 
     app.exec_() # главный цикл сообщений Qt
+    app.objMon = None
  
     app.doneConnection()
 

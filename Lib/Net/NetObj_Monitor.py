@@ -61,6 +61,7 @@ class CNetObj_Monitor(QWidget):
 
         objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
         objMonitor.show()
+
         return objMonitor
 
     def __init__(self, parent=None):
