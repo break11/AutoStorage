@@ -1,5 +1,6 @@
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex
+from PyQt5.QtGui import QColor
 
 from .NetObj_Manager import CNetObj_Manager
 from .Net_Events import ENet_Event as EV
@@ -146,6 +147,9 @@ class CNetObj_Props_Model( QAbstractTableModel ):
         elif role == Qt.ToolTipRole:
             val = netObj.get( propName )
             return str( type( val ) )
+        elif role == Qt.BackgroundColorRole:
+            if netObj.get( propName ) is None:
+                return QColor( Qt.darkGray )
 
     def setData( self, index, value, role = Qt.EditRole ):
         if not index.isValid(): return None
