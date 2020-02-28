@@ -602,3 +602,26 @@ class CStorageGraph_GScene_Manager( QObject ):
             gItem = self.boxGItems[ netObj.name ]
             if netCmd.sPropName == SBP.address:
                 gItem.updatePos()
+
+    #############################################################
+    def selectItemsByUID( self, objSet ):
+        s = set()
+
+        oldSelItems = set( self.gScene.selectedItems() )
+        selItems = set()
+
+        def select( d ):
+            for item in d.values():
+                if not objSet.isdisjoint( item.getNetObj_UIDs() ):
+                    selItems.add( item )
+                    item.setSelected( True )
+
+        select( self.agentGItems )
+        select( self.boxGItems   )
+        select( self.nodeGItems  )
+        select( self.edgeGItems  )
+
+        deSelectItems = oldSelItems - selItems
+
+        for item in deSelectItems:
+            item.setSelected( False )

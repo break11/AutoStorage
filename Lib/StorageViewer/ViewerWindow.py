@@ -2,9 +2,9 @@
 import sys
 import os
 
-from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
+from PyQt5.QtCore import pyqtSlot, QByteArray, Qt, pyqtSlot
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel, QApplication
 from PyQt5 import uic
 
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode, EGSceneSelectionMode
@@ -145,6 +145,7 @@ class CViewerWindow(QMainWindow):
             self.loadSettings()
 
         elif initPhase == EAppStartPhase.AfterRedisConnect:
+            QApplication.instance().objMonitor.SelectionChanged_signal.connect( self.doSelectObjects )
             if self.workMode == EWorkMode.MapDesignerMode:
                 self.loadGraphML( CSM.rootOpt( SC.last_opened_file, default=SC.storage_graph_file__default ) )
                 
@@ -290,6 +291,11 @@ class CViewerWindow(QMainWindow):
             self.WidgetManager.activateWidget( netObj )
         else:
             self.WidgetManager.clearActiveWidget()
+
+    # слот для реакции на выделение объектов в мониторе объектов
+    @pyqtSlot( set )
+    def doSelectObjects( self, objSet ):
+        self.SGM.selectItemsByUID( objSet )
                 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):

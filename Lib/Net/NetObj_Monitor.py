@@ -4,7 +4,7 @@ import json
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QFileDialog, QDockWidget, QWidget
-from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel, pyqtSlot
+from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel, pyqtSlot, pyqtSignal
 from PyQt5.Qt import QInputDialog
 
 from .NetObj_Manager import CNetObj_Manager
@@ -36,6 +36,8 @@ objMonDefSettings = {
                     }
 
 class CNetObj_Monitor(QWidget):
+    SelectionChanged_signal = pyqtSignal( set )
+
     @staticmethod
     def enabledInOptions():
         settings = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
@@ -109,6 +111,7 @@ class CNetObj_Monitor(QWidget):
             netObj = self.netObjModel.netObj_From_Index( idx )
             s.add( netObj.UID )
         self.netObj_PropsModel.updateObj_Set( s )
+        self.SelectionChanged_signal.emit( s )
 
     def closeEvent( self, event ):
         self.tvNetObj.selectionModel().clear()
