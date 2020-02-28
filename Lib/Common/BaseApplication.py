@@ -81,7 +81,7 @@ def baseAppRun( bNetworkMode,
     if not app.initConnection(): return -1
 
     if CNetObj_Monitor.enabledInOptions():
-        app.objMonitor = CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor if bEnableGUI_Set else None )
+        objMonitor = CNetObj_Monitor.init_NetObj_Monitor( parentWidget = window.dkNetObj_Monitor if bEnableGUI_Set else None )
 
     if bEnableGUI_Set:
         window.init( EAppStartPhase.AfterRedisConnect )
@@ -92,7 +92,8 @@ def baseAppRun( bNetworkMode,
             window.show()
 
     app.exec_() # главный цикл сообщений Qt
-    app.objMonitor = None
+    
+    CNetObj_Monitor.done_NetObj_Monitor()
  
     app.doneConnection()
 

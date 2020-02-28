@@ -35,7 +35,10 @@ objMonDefSettings = {
                     s_window: objMonWinDefSettings
                     }
 
+
 class CNetObj_Monitor(QWidget):
+    instance = None
+
     SelectionChanged_signal = pyqtSignal( set )
 
     @staticmethod
@@ -43,28 +46,36 @@ class CNetObj_Monitor(QWidget):
         settings = CSM.rootOpt( s_obj_monitor, objMonDefSettings )
         return CSM.dictOpt( settings, s_active, default=b_active_default )
 
-    @staticmethod
-    def init_NetObj_Monitor( parentWidget=None ):
+    @classmethod
+    def init_NetObj_Monitor( cls, parentWidget=None ):
+        assert cls.instance is None
+
         if not CNetObj_Monitor.enabledInOptions(): return
 
-        objMonitor = CNetObj_Monitor( parent=parentWidget )
+        cls.instance = CNetObj_Monitor( parent=parentWidget )
                 
         # т.к. Qt уничтожает пустой layoput() (без виджетов в нем) при загрузке ui-шника, то
         # делаем вставку окна монитора в layoput() в зависимости от класса виджета
         if parentWidget:
             if isinstance( parentWidget, QDockWidget ):
-                parentWidget.setWidget( objMonitor )
+                parentWidget.setWidget( cls.instance )
                 # сохраняем в доке окна монитора инфу о ID клиента, при штатной вставке окна в док - заголовок окна теряется
-                parentWidget.setWindowTitle( objMonitor.windowTitle() )
+                parentWidget.setWindowTitle( cls.instance.windowTitle() )
             elif isinstance( parentWidget, QWidget ) and parentWidget.layout():
-                parentWidget.layout().addWidget( objMonitor )
+                parentWidget.layout().addWidget( cls.instance )
 
-        objMonitor.setRootNetObj( CNetObj_Manager.rootObj )
-        objMonitor.show()
+        cls.instance.setRootNetObj( CNetObj_Manager.rootObj )
+        cls.instance.show()
 
-        return objMonitor
+        return cls.instance
+
+    @classmethod
+    def done_NetObj_Monitor(cls):
+        cls.instance = None
 
     def __init__(self, parent=None):
+        assert CNetObj_Monitor.instance is None
+
         super().__init__( parent=parent )
         uic.loadUi( FU.UI_fileName( __file__ ), self )
 
@@ -221,3 +232,9 @@ class CNetObj_Monitor(QWidget):
     @pyqtSlot("bool")
     def on_btnLoad_Root_clicked( self, bVal ):
         self.loadObj( parent=CNetObj_Manager.rootObj )
+
+    ###################
+
+    def doSelectObjects( self, objSet ):
+        itemIndexList = self.netObjModel.indexes_By_UID( objSet )
+        self.tvNetObj.selectionModel().select( itemIndexList, QItemSelectionModel.Select | QItemSelectionModel.Rows )

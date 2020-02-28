@@ -4,7 +4,7 @@ import os
 
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt, pyqtSlot
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel, QApplication
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
 from PyQt5 import uic
 
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode, EGSceneSelectionMode
@@ -23,6 +23,7 @@ from Lib.Common.TickManager import CTickManager
 from Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
 from Lib.Net.NetObj_Manager import CNetObj_Manager
+from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
 from Lib.GraphEntity.Node_SGItem import CNode_SGItem
@@ -145,7 +146,9 @@ class CViewerWindow(QMainWindow):
             self.loadSettings()
 
         elif initPhase == EAppStartPhase.AfterRedisConnect:
-            QApplication.instance().objMonitor.SelectionChanged_signal.connect( self.doSelectObjects )
+            objMonitor = CNetObj_Monitor.instance
+            if objMonitor:
+                objMonitor.SelectionChanged_signal.connect( self.doSelectObjects )
             if self.workMode == EWorkMode.MapDesignerMode:
                 self.loadGraphML( CSM.rootOpt( SC.last_opened_file, default=SC.storage_graph_file__default ) )
                 
@@ -284,6 +287,9 @@ class CViewerWindow(QMainWindow):
             s = s.union( gItem.getNetObj_UIDs() )
         
         self.objPropsModel.updateObj_Set( s )
+        objMonitor = CNetObj_Monitor.instance
+        if objMonitor:
+            objMonitor.doSelectObjects( s )
 
         l = list( s )
         if len( l ) == 1:

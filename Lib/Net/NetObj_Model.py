@@ -1,6 +1,6 @@
 
 
-from PyQt5.QtCore import ( Qt, QAbstractItemModel, QModelIndex )
+from PyQt5.QtCore import Qt, QAbstractItemModel, QModelIndex, QItemSelection
 
 from .NetObj import CNetObj
 from .Net_Events import ENet_Event as EV
@@ -132,6 +132,13 @@ class CNetObj_Model( QAbstractItemModel ):
             return index.internalPointer()
         else:
             return self.__rootProxy
+
+    def indexes_By_UID( self, objSet ):
+        indexes = QItemSelection()
+        for UID in objSet:
+            netObj = CNetObj_Manager.accessObj( UID )
+            indexes.append( self.proxy_To_Index( CNetObj_Proxy.queryProxy_from_NetObj( netObj ) ) )
+        return indexes
     
     ########################################################################
 
