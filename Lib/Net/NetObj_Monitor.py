@@ -241,4 +241,10 @@ class CNetObj_Monitor(QWidget):
         for index in itemIndexes:
             itemSelection.append( QItemSelectionRange( index ) )
 
+            # expand in Tree
+            idx = index.parent()
+            while idx != QModelIndex():
+                self.tvNetObj.expand( idx )
+                idx = idx.parent()
+
         self.tvNetObj.selectionModel().select( itemSelection, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows )
