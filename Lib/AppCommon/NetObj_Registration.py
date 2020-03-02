@@ -64,15 +64,6 @@ def register_NetObj_Props():
     STC.registerUserType( CBoxAddress )
     STC.registerUserType( CStrList )
 
-def register_NetObj_Widgets_for_ObjMonitor( reg ):
-    reg( CNetObj,         CDictProps_Widget )
-    reg( CGraphRoot_NO,   CDictProps_Widget )
-    reg( CGraphNode_NO,   CDictProps_Widget )
-    reg( CGraphEdge_NO,   CDictProps_Widget )
-    reg( CAgent_NO,       CDictProps_Widget )
-    reg( CBox_NO,         CDictProps_Widget )
-    reg( CTransporter_NO, CDictProps_Widget )
-
 def register_NetObj_Controllers_for_AgentManager():
     reg = CNetObj_Manager.registerController
     reg( CAgent_NO, { CAgentLink : lambda netObj : True } )

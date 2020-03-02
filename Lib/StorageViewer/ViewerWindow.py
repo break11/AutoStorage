@@ -29,6 +29,7 @@ from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
 from Lib.GraphEntity.Node_SGItem import CNode_SGItem
 from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_Widget import CAgent_Widget
+from Lib.AgentEntity.Agent_Tab_Widget import CAgent_Tab_Widget
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO
 from Lib.BoxEntity.Box_NetObject import CBox_NO
 
@@ -72,7 +73,8 @@ class CViewerWindow(QMainWindow):
 
     def registerObjects_Widgets(self):
         reg = self.WidgetManager.registerWidget
-        reg( CAgent_NO, CAgent_Widget )
+        # reg( CAgent_NO, CAgent_Widget )
+        reg( CAgent_NO, CAgent_Tab_Widget )
         reg( CGraphNode_NO, CDictProps_Widget )
         reg( CGraphEdge_NO, CDictProps_Widget )
         reg( CBox_NO,       CDictProps_Widget )
