@@ -94,9 +94,6 @@ class CViewerWindow(QMainWindow):
 
         self.graphML_fname = SC.storage_graph_file__default
 
-        self.objPropsModel = CNetObj_Props_Model( self )
-        self.tvObjProps.setModel( self.objPropsModel )
-
         self.StorageMap_Scene = CGridGraphicsScene( self )
         self.StorageMap_Scene.selectionChanged.connect( self.StorageMap_Scene_SelectionChanged )
 
@@ -286,7 +283,6 @@ class CViewerWindow(QMainWindow):
         for gItem in self.StorageMap_Scene.selectedItems():
             s = s.union( gItem.getNetObj_UIDs() )
         
-        self.objPropsModel.updateObj_Set( s )
         objMonitor = CNetObj_Monitor.instance
         if objMonitor:
             objMonitor.doSelectObjects( s )
