@@ -61,6 +61,7 @@ class CNetObj_Proxy:
         return len( self.__childProxy )
 
     def getChildProxyIndex( self, proxy ):
+        self.checkChildren()
         return self.__childProxy.index( proxy.UID )
 
     #################################################################

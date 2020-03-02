@@ -3,8 +3,8 @@ import os
 import json
 
 from PyQt5 import uic
-from PyQt5.QtWidgets import QWidget, QFileDialog, QDockWidget, QWidget
-from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel, pyqtSlot, pyqtSignal
+from PyQt5.QtWidgets import QWidget, QFileDialog, QDockWidget
+from PyQt5.QtCore import Qt, QByteArray, QModelIndex, QItemSelectionModel, pyqtSlot, pyqtSignal, QItemSelectionRange, QItemSelection
 from PyQt5.Qt import QInputDialog
 
 from .NetObj_Manager import CNetObj_Manager
@@ -236,5 +236,9 @@ class CNetObj_Monitor(QWidget):
     ###################
 
     def doSelectObjects( self, objSet ):
-        itemIndexList = self.netObjModel.indexes_By_UID( objSet )
-        self.tvNetObj.selectionModel().select( itemIndexList, QItemSelectionModel.Select | QItemSelectionModel.Rows )
+        itemIndexes = self.netObjModel.indexes_By_UID( objSet )
+        itemSelection = QItemSelection()
+        for index in itemIndexes:
+            itemSelection.append( QItemSelectionRange( index ) )
+
+        self.tvNetObj.selectionModel().select( itemSelection, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows )
