@@ -19,6 +19,9 @@ import Lib.Common.GuiUtils as GU
 import Lib.Common.FileUtils as FU
 from Lib.Net.NetObj_Widgets import CNetObj_Widget
 
+from App.AgentsManager.AgentLink import CAgentLink
+from App.FakeAgent.FakeAgentLink import CFakeAgentLink
+
 baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.TemperatureState,
                   EAgentServer_Event.TaskList,
@@ -127,8 +130,15 @@ class CAgent_Cmd_Log_Form( CNetObj_Widget ):
         assert isinstance( netObj, CAgent_NO )
         super().init( netObj )
 
+        link = netObj.getController( CAgentLink )
+        if not link: link = netObj.getController( CFakeAgentLink )
+        assert link
+
+        self.setAgentLink( link )
+
     def done( self ):
         super().done()
+        self.clear()
 
     def setAgentLink( self, agentLink ):
         if agentLink is None:
