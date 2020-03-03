@@ -26,9 +26,9 @@ class CNetObj_WidgetsManager:
         w.setWindowTitle( tabTitle )
         w.activateFunc = activateFunc
 
-        widgetSet = self.__netObj_Widgets.get( netObj_Class.__name__, set() )
-        widgetSet.add( w )
-        self.__netObj_Widgets[ netObj_Class.__name__ ] = widgetSet
+        widgets = self.__netObj_Widgets.get( netObj_Class.__name__, [] )
+        widgets.append( w )
+        self.__netObj_Widgets[ netObj_Class.__name__ ] = widgets
     
     def queryWidget(self, netObj_Widget_Class):
         assert issubclass( netObj_Widget_Class, CNetObj_Widget )
@@ -53,9 +53,9 @@ class CNetObj_WidgetsManager:
     def activateWidgets( self, netObj ):
         self.clearActiveWidgets()
 
-        widgetSet = self.getWidgets( netObj )
+        widgets = self.getWidgets( netObj )
 
-        for w in widgetSet:
+        for w in widgets:
             if not w.activateFunc( netObj ): continue
             w.init( netObj )
             self.tabWidget.addTab( w, w.windowTitle() )

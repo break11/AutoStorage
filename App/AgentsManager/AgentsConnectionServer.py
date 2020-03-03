@@ -19,8 +19,8 @@ from .AgentThread import CAgentThread
 class CAgentsConnectionServer(QTcpServer):
     s_AgentsNetServer = "Agents Net Server"
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, netObj):
+        super().__init__()
         self.UnknownConnections_Threads = []
 
         address = QHostAddress( QHostAddress.Any )

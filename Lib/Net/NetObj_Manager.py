@@ -106,15 +106,18 @@ class CNetObj_Manager( object ):
 
     @classmethod
     def netObj_Type(cls, sObjClass):
+        assert sObjClass in cls.netObj_Types, f"Unregistered netObj type {sObjClass}!"
         return cls.netObj_Types[ sObjClass ]
 
     #####################################################
-    __registered_controllers = {} #type:ignore   # controller_class.__name__ : controller_apply_function
+    __registered_controllers = {} #type:ignore   # controller_class : controller_apply_function
     __controllers = weakref.WeakSet() #type:ignore
-    
+
     @classmethod
-    def registerController(cls, netObjClass, controllersDict ):
+    def registerController(cls, netObjClass, controller, attachFunc = lambda netObj : True ):
         assert issubclass( netObjClass, CNetObj ), "netObjClass must be instance of CNetObj!"
+        controllersDict = cls.__registered_controllers.get( netObjClass.__name__, {} )
+        controllersDict[ controller ] = attachFunc
         cls.__registered_controllers[ netObjClass.__name__ ] = controllersDict
 
     @classmethod
@@ -250,8 +253,8 @@ class CNetObj_Manager( object ):
         clsName = netObj.__class__.__name__
         regDict = cls.__registered_controllers.get( clsName )
         if regDict is not None:
-            for controllerClass, attathFunc in regDict.items():
-                if attathFunc( netObj ):
+            for controllerClass, attachFunc in regDict.items():
+                if attachFunc( netObj ):
                     controller = controllerClass( netObj )
                     netObj.controllers[ controllerClass.__name__ ] = controller
                     controller.netObj = weakref.ref( netObj )

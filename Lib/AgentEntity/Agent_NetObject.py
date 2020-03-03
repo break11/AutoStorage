@@ -22,6 +22,11 @@ s_Agents = "Agents"
 
 agentsNodeCache = CTreeNodeCache( path = s_Agents )
 
+class CAgent_Root_NO( CNetObj ):
+    pass
+
+########################################################
+
 class SAgentProps( metaclass = СStrProps_Meta ):
     edge            = None
     position        = None
