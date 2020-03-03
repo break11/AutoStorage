@@ -8,6 +8,7 @@ from PyQt5 import uic
 
 from Lib.Common.StrConsts import SC
 
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket, EPacket_Status
 import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
@@ -16,6 +17,7 @@ from Lib.Common.SettingsManager import CSettingsManager as CSM
 from Lib.Common.TickManager import CTickManager
 import Lib.Common.GuiUtils as GU
 import Lib.Common.FileUtils as FU
+from Lib.Net.NetObj_Widgets import CNetObj_Widget
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.TemperatureState,
@@ -43,11 +45,12 @@ ALC_Form_DefSet = { s_filter_settings : defFilterSet }
 
 errListEvents = [ EAgentServer_Event.Error, EAgentServer_Event.Warning_ ]
 
-class CAgent_Cmd_Log_Form(QWidget):
+class CAgent_Cmd_Log_Form( CNetObj_Widget ):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
         uic.loadUi( FU.UI_fileName( __file__ ), self )
 
+        self.bFirstShow = True
         self.lbMS_1.setText( ADT.MS )
         self.lbMS_2.setText( ADT.MS )
         self.lbMS_3.setText( ADT.MS )
@@ -85,6 +88,15 @@ class CAgent_Cmd_Log_Form(QWidget):
             column += 1
             self.filterLogEvents[ e ] = fiCB
 
+        ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
+
+        self.buffLogRows = []
+        CTickManager.addTicker( 300, self.logTick )
+
+    def showEvent( self, event ):
+        if not self.bFirstShow: return
+        self.bFirstShow = False
+        
         # загрузка значений из файла настроек для кнопок фильтра сообщений
         ALC_Form_set = CSM.rootOpt( s_agent_log_cmd_form, default = ALC_Form_DefSet )
 
@@ -100,11 +112,6 @@ class CAgent_Cmd_Log_Form(QWidget):
             v = filterSet.get( sFilterSign )
             cb.setChecked( v if v is not None else True ) # при добавлении нового стандартного фильтра или если его стерли в конфиге выставляем его значение в True
 
-        ALM.AgentLogUpdated.connect( self.AgentLogUpdated )
-
-        self.buffLogRows = []
-        CTickManager.addTicker( 300, self.logTick )
-
     def hideEvent( self, event ):
         # сохранение значений кнопок фильтра сообщений в настройки
         ALC_Form_set = CSM.options[ s_agent_log_cmd_form ]
@@ -115,6 +122,13 @@ class CAgent_Cmd_Log_Form(QWidget):
         # TX, RX, AppLog, Duplicate
         for sFilterSign, cb in self.std_filters_CB_by_Str.items():
             filterSet[ sFilterSign ] = cb.isChecked()
+
+    def init( self, netObj ):
+        assert isinstance( netObj, CAgent_NO )
+        super().init( netObj )
+
+    def done( self ):
+        super().done()
 
     def setAgentLink( self, agentLink ):
         if agentLink is None:

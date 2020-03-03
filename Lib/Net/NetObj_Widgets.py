@@ -19,11 +19,12 @@ class CNetObj_WidgetsManager:
         self.tabWidget = QTabWidget( parent = widgetContainer )
         widgetContainer.layout().addWidget( self.tabWidget )
     
-    def registerWidget( self, netObj_Class, netObj_Widget_Class, tabTitle ):
+    def registerWidget( self, netObj_Class, netObj_Widget_Class, tabTitle, activateFunc = lambda netObj : True ):
         assert issubclass( netObj_Class, CNetObj )
 
         w = self.queryWidget( netObj_Widget_Class )
         w.setWindowTitle( tabTitle )
+        w.activateFunc = activateFunc
 
         widgetSet = self.__netObj_Widgets.get( netObj_Class.__name__, set() )
         widgetSet.add( w )
@@ -55,6 +56,7 @@ class CNetObj_WidgetsManager:
         widgetSet = self.getWidgets( netObj )
 
         for w in widgetSet:
+            if not w.activateFunc( netObj ): continue
             w.init( netObj )
             self.tabWidget.addTab( w, w.windowTitle() )
 
