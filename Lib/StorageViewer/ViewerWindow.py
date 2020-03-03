@@ -29,7 +29,6 @@ from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
 from Lib.GraphEntity.Node_SGItem import CNode_SGItem
 from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_Widget import CAgent_Widget
-from Lib.AgentEntity.Agent_Tab_Widget import CAgent_Tab_Widget
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO
 from Lib.BoxEntity.Box_NetObject import CBox_NO
 
@@ -73,11 +72,11 @@ class CViewerWindow(QMainWindow):
 
     def registerObjects_Widgets(self):
         reg = self.WidgetManager.registerWidget
-        # reg( CAgent_NO, CAgent_Widget )
-        reg( CAgent_NO, CAgent_Tab_Widget )
-        reg( CGraphNode_NO, CDictProps_Widget )
-        reg( CGraphEdge_NO, CDictProps_Widget )
-        reg( CBox_NO,       CDictProps_Widget )
+        reg( CAgent_NO,     CAgent_Widget,     "Agent Controls" )
+        reg( CAgent_NO,     CDictProps_Widget, "Agent Props" )
+        reg( CGraphNode_NO, CDictProps_Widget, "Props" )
+        reg( CGraphEdge_NO, CDictProps_Widget, "Props" )
+        reg( CBox_NO,       CDictProps_Widget, "Props" )
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()
@@ -292,9 +291,9 @@ class CViewerWindow(QMainWindow):
         l = list( s )
         if len( l ) == 1:
             netObj = CNetObj_Manager.accessObj( l[0] )
-            self.WidgetManager.activateWidget( netObj )
+            self.WidgetManager.activateWidgets( netObj )
         else:
-            self.WidgetManager.clearActiveWidget()
+            self.WidgetManager.clearActiveWidgets()
 
     # слот для реакции на выделение объектов в мониторе объектов
     @pyqtSlot( set )

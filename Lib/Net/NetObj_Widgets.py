@@ -1,7 +1,7 @@
 
 import weakref
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QAbstractItemView
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QAbstractItemView, QTabWidget
 from PyQt5.QtGui import QStandardItemModel
 
 from .NetObj import CNetObj
@@ -14,45 +14,49 @@ class CNetObj_WidgetsManager:
     def __init__( self, widgetContainer ):
         self.__netObj_Widgets_UNIQ = {} # контейнер экземпляров виджетов с привязкой по типу виджета
         self.__netObj_Widgets      = {} # контейнер экземпляров виджетов с привязкой по типу CNetObj
-        self.widgetContainer = widgetContainer
         self.activeWidget = None
+
+        self.tabWidget = QTabWidget( parent = widgetContainer )
+        widgetContainer.layout().addWidget( self.tabWidget )
     
-    def registerWidget( self, netObj_Class, netObj_Widget_Class ):
+    def registerWidget( self, netObj_Class, netObj_Widget_Class, tabTitle ):
         assert issubclass( netObj_Class, CNetObj )
 
         w = self.queryWidget( netObj_Widget_Class )
+        w.setWindowTitle( tabTitle )
 
-        self.__netObj_Widgets[ netObj_Class.__name__ ] = w
-
-        self.widgetContainer.layout().addWidget( w )
-        w.hide()
+        widgetSet = self.__netObj_Widgets.get( netObj_Class.__name__, set() )
+        widgetSet.add( w )
+        self.__netObj_Widgets[ netObj_Class.__name__ ] = widgetSet
     
     def queryWidget(self, netObj_Widget_Class):
         assert issubclass( netObj_Widget_Class, CNetObj_Widget )
 
         w = self.__netObj_Widgets_UNIQ.get( netObj_Widget_Class )
         if not w:
-            w = netObj_Widget_Class( parent=self.widgetContainer )
+            w = netObj_Widget_Class()
             self.__netObj_Widgets_UNIQ[ netObj_Widget_Class ] = w
         return w
 
-    def getWidget( self, netObj ):
-        widget = self.__netObj_Widgets.get( netObj.__class__.__name__ )
-        return widget
+    def getWidgets( self, netObj ):
+        widgets = self.__netObj_Widgets.get( netObj.__class__.__name__ )
+        return widgets
 
-    def clearActiveWidget( self ):
-        if self.activeWidget is not None:
-            self.activeWidget.done()
-            self.activeWidget = None
-
-    def activateWidget( self, netObj ):
-        widget = self.getWidget( netObj )
+    def clearActiveWidgets( self ):
+        for i in range( self.tabWidget.count() ):
+            w = self.tabWidget.widget( i )    
+            w.done()
         
-        self.clearActiveWidget()
+        self.tabWidget.clear()
 
-        if widget:
-            self.activeWidget = widget
-            widget.init( netObj )
+    def activateWidgets( self, netObj ):
+        self.clearActiveWidgets()
+
+        widgetSet = self.getWidgets( netObj )
+
+        for w in widgetSet:
+            w.init( netObj )
+            self.tabWidget.addTab( w, w.windowTitle() )
 
 class CNetObj_Widget( QWidget ):
     @property

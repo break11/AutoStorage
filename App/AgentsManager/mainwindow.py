@@ -94,10 +94,10 @@ class CAM_MainWindow(QMainWindow):
         agentNO = self.currArentNO()        
         if agentNO is not None:
             self.ACL_Form.setAgentLink( agentNO.getController( CAgentLink ) )
-            self.WidgetManager.activateWidget( agentNO )
+            self.WidgetManager.activateWidgets( agentNO )
         else:
             self.ACL_Form.setAgentLink( None )
-            self.WidgetManager.clearActiveWidget()
+            self.WidgetManager.clearActiveWidgets()
 
     ################################################################
 
