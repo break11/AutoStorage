@@ -30,11 +30,9 @@ from Lib.GraphEntity.Node_SGItem import CNode_SGItem
 from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_Widget import CAgent_Widget
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO
+from Lib.AgentEntity.Agent_Utils import getActual_AgentLink
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from Lib.BoxEntity.Box_NetObject import CBox_NO
-
-from App.AgentsManager.AgentLink import CAgentLink
-from App.FakeAgent.FakeAgentLink import CFakeAgentLink
 
 from .images_rc import *
 from enum import Enum, auto
@@ -75,12 +73,9 @@ class CViewerWindow(QMainWindow):
     __sWorkedArea = "Worked area: "
 
     def registerObjects_Widgets(self):
-        def testAgentLink( netObj ):
-            return netObj.getController( CFakeAgentLink ) or netObj.getController( CAgentLink )
-
         reg = self.WidgetManager.registerWidget
         reg( CAgent_NO,     CAgent_Widget,       "Agent Controls" )
-        reg( CAgent_NO,     CAgent_Cmd_Log_Form, "Agent Log", activateFunc=testAgentLink )
+        reg( CAgent_NO,     CAgent_Cmd_Log_Form, "Agent Log", activateFunc = getActual_AgentLink )
         reg( CGraphNode_NO, CDictProps_Widget,   "Props" )
         reg( CGraphEdge_NO, CDictProps_Widget,   "Props" )
         reg( CBox_NO,       CDictProps_Widget,   "Props" )

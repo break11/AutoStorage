@@ -17,7 +17,6 @@ TIMEOUT_NO_ACTIVITY_ON_SOCKET = 5
 
 class CAgentServer_Net_Thread(QThread):
     genUID = 0
-    threadFinished = pyqtSignal()
     socketError       = pyqtSignal( int )
     newAgent          = pyqtSignal( str )
     agentNumberInited = pyqtSignal( str )
@@ -47,17 +46,7 @@ class CAgentServer_Net_Thread(QThread):
         self.noRxTimer = 0
         self.bIsServer = False
 
-    def initFakeAgent( self, agentLink, host, port ):
-        self.host = host
-        self.port = port
-        self._agentLink = weakref.ref( agentLink )
-        ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} INIT" )
-    
-    def initAgentServer( self, socketDescriptor, ACS ):
-        self.bIsServer = True
-        self.ACS = weakref.ref( ACS )
-        self.socketDescriptor = socketDescriptor
-        self.bConnected = True
+    def init( self ):
         ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} INIT" )
 
     def __del__(self):
@@ -149,9 +138,6 @@ class CAgentServer_Net_Thread(QThread):
         if self.bExitByLostSignal == False:
             self.tcpSocket.disconnectFromHost()
             self.tcpSocket = None
-
-        #signal about finished state to parent. Parent shoud take care about deleting thread with deleteLater
-        self.threadFinished.emit()
 
         ALM.doLogString( self.agentLink(), self.UID, f"{self.__class__.__name__} FINISH" )
 

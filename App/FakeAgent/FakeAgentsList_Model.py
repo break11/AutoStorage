@@ -123,10 +123,11 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         if fakeAgentLink.isConnected(): return
 
         FA_Thread = CFakeAgentThread()
-        FA_Thread.initFakeAgent( fakeAgentLink, ip, port )
+        FA_Thread.init( fakeAgentLink, ip, port )
         fakeAgentLink.socketThreads.append( FA_Thread )
                     
-        FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
+        # FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
+        FA_Thread.finished.connect( self.thread_FinihsedSlot )
         FA_Thread.start()
 
         row = self.FA_List.index( agentN )
@@ -151,19 +152,14 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
     def thread_FinihsedSlot( self ):
         thread = self.sender()
 
+        # в случаях удаления агента по кнопке - сигнал thread_Finihsed отрабатывает позже чем удаление самого потока
+        # при этом все действия по удалению потока уже произведены, поэтому безболезненно делаем выход для подобной ситуации здесь
         if thread is None: return
         
         fakeAgentLink = thread.agentLink()
-        FA_Thread = fakeAgentLink.socketThreads[ 0 ]
-
-        FA_Thread.exit()
-        while not FA_Thread.isFinished():
-            pass # waiting thread stop
-        FA_Thread = None
         fakeAgentLink.socketThreads.clear()
 
-        self.sender().deleteLater()
-        
+
         if fakeAgentLink.agentN not in self.FA_List: return
 
         row = self.FA_List.index( fakeAgentLink.agentN )

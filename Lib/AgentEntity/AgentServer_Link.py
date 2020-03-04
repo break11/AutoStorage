@@ -65,6 +65,11 @@ class CAgentServer_Link:
     def isConnected( self ):
         return len(self.socketThreads) > 0
 
+    def disconnect( self, bLostSignal = False ):
+        for socketThread in self.socketThreads:
+            socketThread.bExitByLostSignal = bLostSignal
+            socketThread.disconnectFromServer()
+
     def pushCmd( self, cmd, bExpressPacket = False, bReMap_PacketN=True, bAllowDuplicate=True ):
         # если allowDuplicate=False кладем в очередь команду, только если ее там нет (это будет значить, что сторона получателя ее приняла)
         if bReMap_PacketN:

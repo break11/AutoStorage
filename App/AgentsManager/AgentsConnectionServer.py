@@ -47,7 +47,7 @@ class CAgentsConnectionServer(QTcpServer):
 
     def incomingConnection(self, socketDescriptor):
         thread = CAgentThread()
-        thread.initAgentServer( socketDescriptor, self )
+        thread.init( socketDescriptor, self )
         
         thread.finished.            connect( self.thread_Finihsed )
         thread.agentNumberInited.   connect( self.thread_AgentNumberInited )
@@ -78,7 +78,6 @@ class CAgentsConnectionServer(QTcpServer):
                 agentLink.netObj().connectedTime = 0
 
         print ( f"Deleting thread {id(thread)}." )
-        thread.deleteLater()
 
     @pyqtSlot(str)
     def thread_NewAgent(self, agentN):

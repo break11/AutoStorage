@@ -12,6 +12,13 @@ from Lib.AgentEntity.AgentLogManager import ALM
 class CAgentThread( CAgentServer_Net_Thread ):
     processRxPacket_signal   = pyqtSignal( ASP )
 
+    def init( self, socketDescriptor, ACS ):
+        self.bIsServer = True
+        self.ACS = weakref.ref( ACS )
+        self.socketDescriptor = socketDescriptor
+        self.bConnected = True
+        super().init()
+
     def initHW(self):
         self.tcpSocket.waitForReadyRead(1)
 

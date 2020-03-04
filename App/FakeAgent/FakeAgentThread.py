@@ -36,6 +36,12 @@ NotIgnoreEvents = ADT.TeleEvents.union( { AEV.PowerDisable, AEV.PowerEnable, AEV
 class CFakeAgentThread( CAgentServer_Net_Thread ):
     hwCounter = 0
 
+    def init( self, agentLink, host, port ):
+        self.host = host
+        self.port = port
+        self._agentLink = weakref.ref( agentLink )
+        super().init()
+
     def initHW(self):
         # Necessary to emulate Socket event loop! See https://forum.qt.io/topic/79145/using-qtcpsocket-without-event-loop-and-without-waitforreadyread/8
         self.tcpSocket.waitForReadyRead(1)

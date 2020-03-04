@@ -9,6 +9,7 @@ from PyQt5 import uic
 from Lib.Common.StrConsts import SC
 
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO
+from Lib.AgentEntity.Agent_Utils import getActual_AgentLink
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket, EPacket_Status
 import Lib.AgentEntity.AgentDataTypes as ADT
 from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
@@ -18,9 +19,6 @@ from Lib.Common.TickManager import CTickManager
 import Lib.Common.GuiUtils as GU
 import Lib.Common.FileUtils as FU
 from Lib.Net.NetObj_Widgets import CNetObj_Widget
-
-from App.AgentsManager.AgentLink import CAgentLink
-from App.FakeAgent.FakeAgentLink import CFakeAgentLink
 
 baseFilterSet = [ EAgentServer_Event.BatteryState,
                   EAgentServer_Event.TemperatureState,
@@ -130,8 +128,7 @@ class CAgent_Cmd_Log_Form( CNetObj_Widget ):
         assert isinstance( netObj, CAgent_NO )
         super().init( netObj )
 
-        link = netObj.getController( CAgentLink )
-        if not link: link = netObj.getController( CFakeAgentLink )
+        link = getActual_AgentLink( netObj )
         assert link
 
         self.setAgentLink( link )
