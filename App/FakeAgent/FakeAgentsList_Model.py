@@ -126,8 +126,8 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         FA_Thread.init( fakeAgentLink, ip, port )
         fakeAgentLink.socketThreads.append( FA_Thread )
                     
-        # FA_Thread.threadFinished.connect( self.thread_FinihsedSlot )
         FA_Thread.finished.connect( self.thread_FinihsedSlot )
+        FA_Thread.finished.connect( fakeAgentLink.thread_Finihsed )
         FA_Thread.start()
 
         row = self.FA_List.index( agentN )
@@ -157,8 +157,7 @@ class CFakeAgentsList_Model( QAbstractTableModel ):
         if thread is None: return
         
         fakeAgentLink = thread.agentLink()
-        fakeAgentLink.socketThreads.clear()
-
+        # fakeAgentLink.socketThreads.clear()
 
         if fakeAgentLink.agentN not in self.FA_List: return
 

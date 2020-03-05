@@ -1,11 +1,13 @@
 from collections import deque
 
+from PyQt5.QtCore import pyqtSlot, QObject
+
 from Lib.AgentEntity.AgentLogManager import ALM, LogCount
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
 from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event
 from Lib.AgentEntity.AgentProtocolUtils import calcNextPacketN
 
-class CAgentServer_Link:
+class CAgentServer_Link( QObject ):
     @property
     def last_RX_packetN( self ):
         return self.ACC_cmd.packetN
@@ -87,3 +89,21 @@ class CAgentServer_Link:
             if cmd.event == event:
                 return True
         return False
+
+    @pyqtSlot()
+    def thread_Finihsed(self):
+        thread = self.sender()
+
+        # в случаях удаления агента по кнопке - сигнал thread_Finihsed отрабатывает позже чем удаление самого потока
+        # при этом все действия по удалению потока уже произведены, поэтому безболезненно делаем выход для подобной ситуации здесь
+        if thread is None: return
+
+        if thread in self.socketThreads:
+            print( f"Deleting thread {id(thread)} agentN={self.agentN} from thread list for agent.")
+            self.socketThreads.remove( thread )
+            
+            if hasattr( self, "netObj" ): ##remove##
+                self.netObj().connectedTime = 0
+
+        print ( f"Deleting thread {id(thread)}." )
+

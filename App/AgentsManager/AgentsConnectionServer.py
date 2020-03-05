@@ -70,15 +70,6 @@ class CAgentsConnectionServer(QTcpServer):
             print ( f"Deleting thread {id(thread)} from unnumbered thread pool." )
             self.UnknownConnections_Threads.remove(thread)
 
-        agentLink = thread.agentLink()
-        if agentLink is not None:
-            if thread in agentLink.socketThreads:
-                print( f"Deleting thread {id(thread)} agentN={thread.agentLink().agentN} from thread list for agent.")
-                agentLink.socketThreads.remove(thread)
-                agentLink.netObj().connectedTime = 0
-
-        print ( f"Deleting thread {id(thread)}." )
-
     @pyqtSlot(str)
     def thread_NewAgent(self, agentN):
         queryAgentNetObj( agentN )
@@ -95,7 +86,9 @@ class CAgentsConnectionServer(QTcpServer):
         agentLink = self.getAgentLink( agentN )
 
         agentLink.socketThreads.append( thread )
+
         thread.processRxPacket_signal.connect( agentLink.processRxPacket )
+        thread.finished.              connect( agentLink.thread_Finihsed )
 
     @pyqtSlot( int )
     def thread_SocketError( self, error ):
