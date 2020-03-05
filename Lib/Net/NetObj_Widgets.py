@@ -55,6 +55,8 @@ class CNetObj_WidgetsManager:
 
         widgets = self.getWidgets( netObj )
 
+        if not widgets: return
+
         for w in widgets:
             if not w.activateFunc( netObj ): continue
             w.init( netObj )

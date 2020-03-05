@@ -22,6 +22,7 @@ from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.TickManager import CTickManager
 from Lib.Net.NetObj_Props_Model import CNetObj_Props_Model
 from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager
+from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Net.DictProps_Widget import CDictProps_Widget
@@ -289,8 +290,11 @@ class CViewerWindow(QMainWindow):
         objMonitor = CNetObj_Monitor.instance
         if objMonitor:
             objMonitor.doSelectObjects( s )
+        else:
+            self.updateObjWidget( s )
 
-        l = list( s )
+    def updateObjWidget( self, objUID_Set ):
+        l = list( objUID_Set )
         if len( l ) == 1:
             netObj = CNetObj_Manager.accessObj( l[0] )
             self.WidgetManager.activateWidgets( netObj )
@@ -301,6 +305,7 @@ class CViewerWindow(QMainWindow):
     @pyqtSlot( set )
     def doSelectObjects( self, objSet ):
         self.SGM.selectItemsByUID( objSet )
+        self.updateObjWidget( objSet )
                 
     @pyqtSlot("bool")
     def on_acFitToPage_triggered(self, bChecked):
