@@ -154,11 +154,9 @@ class CNetObj_Monitor(QWidget):
             netObj = netObjType( name=self.objCreateDlg.selectedName(), parent=parent.netObj() )
 
     def on_btnDel_NetObj_released( self ):
-        ci = self.tvNetObj.selectionModel().currentIndex()
-        if not ci.isValid(): return
-
-        netObj = self.netObjModel.netObj_From_Index( ci )
-        netObj.destroy()
+        for index in self.tvNetObj.selectionModel().selectedRows():
+            netObj = self.netObjModel.netObj_From_Index( index )
+            netObj.destroy()
 
     ###################
 
