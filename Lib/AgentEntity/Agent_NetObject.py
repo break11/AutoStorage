@@ -22,8 +22,15 @@ s_Agents = "Agents"
 
 agentsNodeCache = CTreeNodeCache( path = s_Agents )
 
+class SAgent_Root_Props( metaclass = СStrProps_Meta ):
+    test_type      = None
+
+ARP = SAgent_Root_Props
+
 class CAgent_Root_NO( CNetObj ):
-    pass
+    def_props = {
+                    ARP.test_type : ADT.EAgentTest.Undefined
+                }
 
 ########################################################
 

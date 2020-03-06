@@ -17,10 +17,7 @@ from Lib.BoxEntity.Box_NetObject import boxesNodeCache
 
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO, queryAgentNetObj, agentsNodeCache, SAP
-
-class EAgentTest( Enum ):
-    SimpleRoute = auto()
-    SimpleBox   = auto()
+from Lib.AgentEntity.AgentDataTypes import EAgentTest
 
 class CAgentsRoot_Widget( CNetObj_Widget ):
     def __init__(self):

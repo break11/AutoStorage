@@ -59,6 +59,7 @@ def register_NetObj_Props():
     STC.registerUserType( ADT.EAgent_CMD_State )
     STC.registerUserType( ADT.SBS_Data )
     STC.registerUserType( ADT.EConnectedStatus )
+    STC.registerUserType( ADT.EAgentTest )
     STC.registerUserType( ADT.STS_Data )
     STC.registerUserType( ATD.CTaskList )
     STC.registerUserType( TDT.ETransporterMode )
