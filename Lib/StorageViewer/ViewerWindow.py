@@ -28,7 +28,8 @@ from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Net.DictProps_Widget import CDictProps_Widget
 from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
 from Lib.GraphEntity.Node_SGItem import CNode_SGItem
-from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
+from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO, CGraphRoot_NO
+from Lib.GraphEntity.GraphRoot_Widget import CGraphRoot_Widget
 from Lib.AgentEntity.Agent_Widget import CAgent_Widget
 from Lib.AgentEntity.Agent_NetObject import CAgent_NO, CAgent_Root_NO
 from Lib.AgentEntity.Agent_Utils import getActual_AgentLink
@@ -82,6 +83,7 @@ class CViewerWindow(QMainWindow):
         reg( CGraphEdge_NO,  CDictProps_Widget,   "Props" )
         reg( CBox_NO,        CDictProps_Widget,   "Props" )
         reg( CAgent_Root_NO, CAgentsRoot_Widget,  "Agents Tests" )
+        reg( CGraphRoot_NO,  CGraphRoot_Widget,   "Graph" )
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()

@@ -103,6 +103,10 @@ class CNetObj( CTreeNode ):
         CNetObj_Manager.sendNetCMD( CNetCmd( Event=EV.ObjPrepareDelete, Obj_UID = self.UID ) )
         self.localDestroy()
 
+    def destroyChildren( self ):
+        for child in list(self.children):
+            child.destroy()
+
     def localDestroyChildren( self ):
         for child in list(self.children):
             child.localDestroy()

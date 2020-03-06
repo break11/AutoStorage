@@ -146,7 +146,9 @@ class CGraphEdge_NO( CNetObj ):
     def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
 
 def createGraph_NO_Branches( nxGraph ):
-    Graph  = CGraphRoot_NO( name=s_Graph, parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
+    ##remove##
+    # Graph  = CGraphRoot_NO( name=s_Graph, parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
+    Graph = CNetObj_Manager.rootObj.queryObj( sName=s_Graph, ObjClass=CGraphRoot_NO, props=nxGraph.graph )
     Nodes = CNetObj(name=s_Nodes, parent=Graph)
     Edges = CNetObj(name=s_Edges, parent=Graph)
     return Graph, Nodes, Edges

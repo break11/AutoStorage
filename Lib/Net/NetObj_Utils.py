@@ -14,7 +14,11 @@ def destroy_If_Reload( s_Obj, bReload ):
     if netObj is None: return True
 
     if bReload:
-        netObj.destroy()
+        # netObj.destroy()
+        netObj.destroyChildren()
+        # for child in list(netObj.children):
+        #     child.destroy()
+        ##remove##
         return True
 
     return False
