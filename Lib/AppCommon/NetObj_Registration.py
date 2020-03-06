@@ -19,6 +19,7 @@ from Lib.AgentEntity.Agent_NetObject import CAgent_NO, s_Agents
 import Lib.AgentEntity.AgentDataTypes as ADT
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.AgentEntity.Agent_NetObject import CAgent_Root_NO
+from Lib.AgentEntity.AgentTest import CAgentTest
 from App.AgentsManager.AgentLink import CAgentLink
 from App.AgentsManager.AgentsConnectionServer import CAgentsConnectionServer
 
@@ -71,6 +72,7 @@ def register_NetObj_Controllers_for_AgentManager():
     reg = CNetObj_Manager.registerController
     reg( CAgent_NO, CAgentLink )
     reg( CAgent_Root_NO, CAgentsConnectionServer )
+    reg( CAgent_Root_NO, CAgentTest )
 
 def register_NetObj_Controllers_for_TransporterManager():
     reg = CNetObj_Manager.registerController
