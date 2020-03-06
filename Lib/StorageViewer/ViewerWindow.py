@@ -30,9 +30,10 @@ from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
 from Lib.GraphEntity.Node_SGItem import CNode_SGItem
 from Lib.GraphEntity.Graph_NetObjects import CGraphNode_NO, CGraphEdge_NO
 from Lib.AgentEntity.Agent_Widget import CAgent_Widget
-from Lib.AgentEntity.Agent_NetObject import CAgent_NO
+from Lib.AgentEntity.Agent_NetObject import CAgent_NO, CAgent_Root_NO
 from Lib.AgentEntity.Agent_Utils import getActual_AgentLink
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
+from Lib.AgentEntity.AgentsRoot_Widget import CAgentsRoot_Widget
 from Lib.BoxEntity.Box_NetObject import CBox_NO
 
 from .images_rc import *
@@ -75,11 +76,12 @@ class CViewerWindow(QMainWindow):
 
     def registerObjects_Widgets(self):
         reg = self.WidgetManager.registerWidget
-        reg( CAgent_NO,     CAgent_Widget,       "Agent Controls" )
-        reg( CAgent_NO,     CAgent_Cmd_Log_Form, "Agent Log", activateFunc = getActual_AgentLink )
-        reg( CGraphNode_NO, CDictProps_Widget,   "Props" )
-        reg( CGraphEdge_NO, CDictProps_Widget,   "Props" )
-        reg( CBox_NO,       CDictProps_Widget,   "Props" )
+        reg( CAgent_NO,      CAgent_Widget,       "Agent Controls" )
+        reg( CAgent_NO,      CAgent_Cmd_Log_Form, "Agent Log", activateFunc = getActual_AgentLink )
+        reg( CGraphNode_NO,  CDictProps_Widget,   "Props" )
+        reg( CGraphEdge_NO,  CDictProps_Widget,   "Props" )
+        reg( CBox_NO,        CDictProps_Widget,   "Props" )
+        reg( CAgent_Root_NO, CAgentsRoot_Widget,  "Agents Tests" )
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()
