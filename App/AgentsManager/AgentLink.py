@@ -82,7 +82,6 @@ class CAgentLink( CAgentServer_Link ):
                     agentNO.target_LU_side = cmd_desc.data if agent_side == SGT.ESide.Right else cmd_desc.data.invert()
 
                 self.pushCmd( ASP( event = cmd_desc.event, data=cmd_desc.data ) )
-                agentNO[ cmd.sPropName ] = ADT.EAgent_CMD_State.Done
 
         elif cmd.sPropName == SAP.route:
             self.processRoute()
@@ -90,9 +89,12 @@ class CAgentLink( CAgentServer_Link ):
     ##################
 
     def mainTick(self):
-        if not self.isConnected(): return
-
         agentNO = self.netObj()
+
+        for cmdPropName in cmdProps_keys:
+            agentNO[ cmdPropName ] = ADT.EAgent_CMD_State.Done
+
+        if not self.isConnected(): return
 
         # обновление статуса connectedTime для NetObj челнока
         agentNO.connectedTime += 1
