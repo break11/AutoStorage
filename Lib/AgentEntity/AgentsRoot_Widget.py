@@ -24,28 +24,27 @@ class CAgentsRoot_Widget( CNetObj_Widget ):
         super().__init__()
         uic.loadUi( FU.UI_fileName( __file__ ), self )
         CTickManager.addTicker( 500, self.AgentTest )
-        self.testType = None
+        CTickManager.addTicker( 500, self.syncButtons )
+        # self.testType = None
 
     @pyqtSlot("bool")
     def on_btnSimpleBox_Test_clicked( self, bVal ):
-        if bVal:
-            self.btnSimpleAgent_Test.setChecked( False )
-            self.testType = EAgentTest.SimpleBox
-        else:
-            self.testType = None
+        self.netObj.test_type = EAgentTest.SimpleBox if bVal else EAgentTest.Undefined
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
-        if bVal:
-            self.btnSimpleBox_Test.setChecked( False )
-            self.testType = EAgentTest.SimpleRoute
-        else:
-            self.testType = None
+        self.netObj.test_type = EAgentTest.SimpleRoute if bVal else EAgentTest.Undefined
+
+    def syncButtons(self):
+        if self.netObj is None: return
+        self.btnSimpleAgent_Test.setChecked( self.netObj.test_type == EAgentTest.SimpleRoute )
+        self.btnSimpleBox_Test.setChecked( self.netObj.test_type == EAgentTest.SimpleBox )
 
     enabledTargetNodes = { SGT.ENodeTypes.StoragePoint, SGT.ENodeTypes.PickStation }
 
     def AgentTest( self ):
-        if self.testType == None: return
+        if self.netObj is None: return
+        if self.netObj.test_type == EAgentTest.Undefined: return
 
         if graphNodeCache() is None: return
         if agentsNodeCache().childCount() == 0: return
@@ -55,7 +54,7 @@ class CAgentsRoot_Widget( CNetObj_Widget ):
             if agentNO.isOnTrack() is None: continue
             if not agentNO.task_list.isEmpty(): continue
 
-            if self.testType == EAgentTest.SimpleRoute:
+            if self.netObj.test_type == EAgentTest.SimpleRoute:
                 # поиск таргет ноды
                 nxGraph = graphNodeCache().nxGraph
                 targetNode = randomNodes( nxGraph, self.enabledTargetNodes ).pop(0)
@@ -63,7 +62,7 @@ class CAgentsRoot_Widget( CNetObj_Widget ):
                 # выдача задания
                 agentNO.task_list = ATD.CTaskList( [ ATD.CTask( ATD.ETaskType.DoCharge, 30 ), ATD.CTask( ATD.ETaskType.GoToNode, targetNode ) ] )
 
-            elif self.testType == EAgentTest.SimpleBox:
+            elif self.netObj.test_type == EAgentTest.SimpleBox:
                 box1 = random.choice( list( boxesNodeCache().children ) )
                 box2 = box1
                 while box2 == box1: box2 = random.choice( list( boxesNodeCache().children ) )
