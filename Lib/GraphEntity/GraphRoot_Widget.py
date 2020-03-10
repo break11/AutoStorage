@@ -29,9 +29,6 @@ class CGraphRoot_Widget( CNetObj_Widget ):
         loadBoxes_to_NetObj( sFBaseName + '.boxes' )
         loadTransporters_to_NetObj( sFBaseName + '.transporters' )
 
-    def on_btnLoadGraphML_released( self ):
-        self.loadStorage()
-
     def on_btnReloadGraphML_released( self ):
         self.loadStorage()
 

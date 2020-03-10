@@ -37,13 +37,6 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="btnLoadGraphML">
-       <property name="text">
-        <string>Load GraphML</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="btnReloadGraphML">
        <property name="text">
         <string>Reload GraphML</string>
