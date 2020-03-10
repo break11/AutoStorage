@@ -36,6 +36,7 @@ from Lib.AgentEntity.Agent_Utils import getActual_AgentLink
 from Lib.AgentEntity.Agent_Cmd_Log_Form import CAgent_Cmd_Log_Form
 from Lib.AgentEntity.AgentsRoot_Widget import CAgentsRoot_Widget
 from Lib.BoxEntity.Box_NetObject import CBox_NO
+from Lib.AgentEntity.AgentConnection_Widget import CAgentConnection_Widget
 
 from .images_rc import *
 from enum import Enum, auto
@@ -79,6 +80,7 @@ class CViewerWindow(QMainWindow):
         reg = self.WidgetManager.registerWidget
         reg( CAgent_NO,      CAgent_Widget,       "Agent Controls" )
         reg( CAgent_NO,      CAgent_Cmd_Log_Form, "Agent Log", activateFunc = getActual_AgentLink )
+        reg( CAgent_NO,      CAgentConnection_Widget, bTabWidget=False, layoutIndex=0, activateFunc = getActual_AgentLink )
         reg( CGraphNode_NO,  CDictProps_Widget,   "Props" )
         reg( CGraphEdge_NO,  CDictProps_Widget,   "Props" )
         reg( CBox_NO,        CDictProps_Widget,   "Props" )

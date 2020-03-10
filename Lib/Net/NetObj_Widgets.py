@@ -1,7 +1,7 @@
 
 import weakref
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QAbstractItemView, QTabWidget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView, QAbstractItemView, QTabWidget, QBoxLayout
 from PyQt5.QtGui import QStandardItemModel
 
 from .NetObj import CNetObj
@@ -17,18 +17,28 @@ class CNetObj_WidgetsManager:
         self.activeWidget = None
 
         self.tabWidget = QTabWidget( parent = widgetContainer )
+        self.layout = widgetContainer.layout()
+        assert issubclass( type(self.layout), QBoxLayout )
         widgetContainer.layout().addWidget( self.tabWidget )
     
-    def registerWidget( self, netObj_Class, netObj_Widget_Class, tabTitle, activateFunc = lambda netObj : True ):
+    def registerWidget( self, netObj_Class, netObj_Widget_Class, tabTitle="", bTabWidget = True, layoutIndex=None, activateFunc = lambda netObj : True ):
         assert issubclass( netObj_Class, CNetObj )
 
         w = self.queryWidget( netObj_Widget_Class )
         w.setWindowTitle( tabTitle )
         w.activateFunc = activateFunc
+        w.bTabWidget = bTabWidget
 
         widgets = self.__netObj_Widgets.get( netObj_Class.__name__, [] )
         widgets.append( w )
         self.__netObj_Widgets[ netObj_Class.__name__ ] = widgets
+
+        if not w.bTabWidget:
+            if layoutIndex is None:
+                self.layout.addWidget( w )
+            else:
+                self.layout.insertWidget( layoutIndex, w )
+            w.hide()
     
     def queryWidget(self, netObj_Widget_Class):
         assert issubclass( netObj_Widget_Class, CNetObj_Widget )
@@ -50,6 +60,11 @@ class CNetObj_WidgetsManager:
         
         self.tabWidget.clear()
 
+        for i in range( self.layout.count() ):
+            w = self.layout.itemAt( i ).widget()
+            if not w is self.tabWidget:
+                w.hide()
+
     def activateWidgets( self, netObj ):
         self.clearActiveWidgets()
 
@@ -60,7 +75,10 @@ class CNetObj_WidgetsManager:
         for w in widgets:
             if not w.activateFunc( netObj ): continue
             w.init( netObj )
-            self.tabWidget.addTab( w, w.windowTitle() )
+            if w.bTabWidget:
+                self.tabWidget.addTab( w, w.windowTitle() )
+            else:
+                w.show()
 
 class CNetObj_Widget( QWidget ):
     @property
