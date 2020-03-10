@@ -161,7 +161,8 @@ def createNetObjectsForGraph( nxGraph ):
         edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges, props=nxGraph.edges()[ edgeID ] )
 
 def loadGraphML_to_NetObj( sFName ):
-    graphNodeCache().destroyChildren()
+    graphNodeCache().destroy()
+    # graphNodeCache().destroyChildren()
 
     nxGraph = loadGraphML_File( sFName )
     if not nxGraph:

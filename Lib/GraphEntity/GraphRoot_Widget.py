@@ -52,7 +52,6 @@ class CGraphRoot_Widget( CNetObj_Widget ):
 
     ###################################################
 
-    @time_func( sMsg="updateNodesXYTest time", threshold=0.05 )
     def updateNodesXYTest(self):
         if not self.btnUpdateNodesXY_Test.isChecked(): return
 
