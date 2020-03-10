@@ -25,10 +25,12 @@ class CGraphRoot_Widget( CNetObj_Widget ):
     def __init__(self, parent=None):
         super().__init__( parent=parent )
         uic.loadUi( FU.UI_fileName( __file__ ), self )
-        self.leGraphML.setText( CSM.rootOpt( SC.storage_graph_file, default=SC.storage_graph_file__default ) )
 
         CTickManager.addTicker( 100, self.updateNodesXYTest )
         CTickManager.addTicker( 1000, self.updateEdgesWidthTest )
+
+    def showEvent( self, event ):
+        self.leGraphML.setText( CSM.rootOpt( SC.storage_graph_file, default=SC.storage_graph_file__default ) )
 
     def loadStorage( self ):
         sFName = correctFNameToProjectDir( self.leGraphML.text() )

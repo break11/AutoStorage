@@ -85,7 +85,7 @@ class CViewerWindow(QMainWindow):
         reg( CGraphEdge_NO,  CDictProps_Widget,   "Props" )
         reg( CBox_NO,        CDictProps_Widget,   "Props" )
         reg( CAgent_Root_NO, CAgentsRoot_Widget,  "Agents Tests" )
-        reg( CGraphRoot_NO,  CGraphRoot_Widget,   "Graph" )
+        reg( CGraphRoot_NO,  CGraphRoot_Widget,   "Graph", activateFunc = lambda netObj : self.workMode == EWorkMode.NetMonitorMode )
 
     def __init__(self, windowTitle = "", workMode = EWorkMode.MapDesignerMode):
         super().__init__()
