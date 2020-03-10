@@ -11,7 +11,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.AgentEntity.routeBuilder import CRouteBuilder, ERouteStatus
-from Lib.GraphEntity import StorageGraphTypes as SGT
+import Lib.GraphEntity.Graph_NetObjects as GNO
 import Lib.Common.GraphUtils as gu
 from Lib.AgentEntity.AgentDataTypes import MS
 
@@ -19,7 +19,8 @@ from Lib.AgentEntity.AgentDataTypes import MS
 sDir = "./UnitTests/RouteBuilder/"
 
 CNetObj_Manager.initRoot()
-loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
+CNetObj_Manager.rootObj.queryObj( GNO.s_Graph, GNO.CGraphRoot_NO ) # type:ignore
+loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml" )
 
 class CRouteCase():
     genUID = 0

@@ -36,9 +36,9 @@ class Test_StrTypeConverter(unittest.TestCase):
         CStrTypeConverter.clear()
         
     def testStdTypes( self ):
-        CStrTypeConverter.registerType( int )
-        CStrTypeConverter.registerType( str )
-        CStrTypeConverter.registerType( float )
+        CStrTypeConverter.registerStdType( int )
+        CStrTypeConverter.registerStdType( str )
+        CStrTypeConverter.registerStdType( float )
 
         a = 0
         s = CStrTypeConverter.ValToStr( a )
@@ -88,10 +88,10 @@ class Test_StrTypeConverter(unittest.TestCase):
         self.assertEqual( b, None )
 
     def testUserTypes( self ):
-        CStrTypeConverter.registerType( ECustomEnum )
+        CStrTypeConverter.registerUserType( ECustomEnum )
 
         with self.assertRaises( AssertionError ):
-            CStrTypeConverter.registerType( ECustomEnum )
+            CStrTypeConverter.registerUserType( ECustomEnum )
 
         a = ECustomEnum.Two
         s = CStrTypeConverter.ValToStr( a )
@@ -106,7 +106,7 @@ class Test_StrTypeConverter(unittest.TestCase):
 
         #################
 
-        CStrTypeConverter.registerType( CTestType )
+        CStrTypeConverter.registerUserType( CTestType )
         a = CTestType( True )
         s = CStrTypeConverter.ValToStr( a )
         self.assertEqual( s, "True" )

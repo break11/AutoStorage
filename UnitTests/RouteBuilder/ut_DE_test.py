@@ -6,14 +6,15 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
+import Lib.GraphEntity.Graph_NetObjects as GNO
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.AgentEntity.routeBuilder import CRouteBuilder, edgesListFromNodes, SI_Item, ERouteStatus
 
 sDir = "./UnitTests/RouteBuilder/"
 
 CNetObj_Manager.initRoot()
-loadGraphML_to_NetObj( sFName = sDir + "DE_test.graphml", bReload = False)
+CNetObj_Manager.rootObj.queryObj( GNO.s_Graph, GNO.CGraphRoot_NO ) # type:ignore
+GNO.loadGraphML_to_NetObj( sFName = sDir + "DE_test.graphml" )
 
 routeBuilder = CRouteBuilder()
 

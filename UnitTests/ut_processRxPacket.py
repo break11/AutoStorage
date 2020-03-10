@@ -16,11 +16,12 @@ from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket, EPacket_Status
 from Lib.AgentEntity.AgentProtocolUtils import _processRxPacket, calcNextPacketN
 from Lib.AgentEntity.AgentServer_Link import CAgentServer_Link
 from Lib.AgentEntity.AgentServer_Net_Thread import CAgentServer_Net_Thread
+from App.AgentsManager.AgentThread import CAgentThread
 
 class CDummyAgentLink( CAgentServer_Link ):
     pass
 
-class CDummyAgentThread( CAgentServer_Net_Thread ):
+class CDummyAgentThread( CAgentThread ):
     def __init__( self ):
         super().__init__()
 
@@ -45,7 +46,7 @@ class Test_processRxPacket(unittest.TestCase):
         DAT = CDummyAgentThread()
         socketDescriptor = self
         ACS = self
-        DAT.initAgentServer( socketDescriptor, ACS )
+        DAT.init( socketDescriptor, ACS )
         DAT._agentLink = weakref.ref( DAL )
         DAL.last_RX_packetN = 24
         cmd = CAgentServerPacket( event=EAgentServer_Event.BatteryState, packetN=25 )
@@ -84,7 +85,7 @@ class Test_processRxPacket(unittest.TestCase):
 
         socketDescriptor = self
         ACS = self
-        DAT.initAgentServer( socketDescriptor, ACS )
+        DAT.init( socketDescriptor, ACS )
         DAL.ACC_cmd.packetN=33
 
         cmd = CAgentServerPacket( event=EAgentServer_Event.Accepted, packetN=1 )

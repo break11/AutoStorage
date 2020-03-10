@@ -12,7 +12,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager
-from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
+import Lib.GraphEntity.Graph_NetObjects as GNO
 from Lib.GraphEntity import StorageGraphTypes as SGT
 
 from Lib.Common.TreeNodeCache import CTreeNodeCache
@@ -41,16 +41,17 @@ class CSGM_Dummy:
         self.nodeGItems = {}
         self.edgeGItems = {}
 
-        loadGraphML_to_NetObj( sFName = sFName, bReload = True )
+        CNetObj_Manager.rootObj.queryObj( GNO.s_Graph, GNO.CGraphRoot_NO )
+        GNO.loadGraphML_to_NetObj( sFName = sFName )
 
-        for nodeNetObj in graphNodeCache().nodesNode().children:
+        for nodeNetObj in GNO.graphNodeCache().nodesNode().children:
             self.addNode( nodeNetObj )
 
         for tKey in self.nxGraph.edges():
             self.addEdge( tKey )
 
     @property
-    def nxGraph(self): return graphNodeCache().nxGraph
+    def nxGraph(self): return GNO.graphNodeCache().nxGraph
 
     def addNode(self, nodeNetObj):
         dummyNodeItem = CNode_SGItem_Dummy(nodeNetObj)

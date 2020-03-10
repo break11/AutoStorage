@@ -12,7 +12,7 @@ from Lib.Net.NetCmd import CNetCmd
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.StrTypeConverter import CStrTypeConverter
 
-CStrTypeConverter.registerType( str )
+CStrTypeConverter.registerStdType( str )
 
 CNetObj( id=121, parent=CNetObj_Manager.rootObj, props={ "Test" : "Yes" } ) # type:ignore
 

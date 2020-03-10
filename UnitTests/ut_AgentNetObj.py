@@ -10,7 +10,7 @@ sys.path.append( os.path.abspath(os.curdir)  )
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.NetObj import CNetObj
 import Lib.Common.GraphUtils as GU
-from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, graphNodeCache
+import Lib.GraphEntity.Graph_NetObjects as GNO
 import Lib.AgentEntity.Agent_NetObject as ANO
 from Lib.Common.SerializedList import CStrList
 
@@ -18,7 +18,9 @@ sDir = "./GraphML/"
 
 CNetObj_Manager.initRoot()
 
-loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml", bReload = False)
+CNetObj_Manager.rootObj.queryObj( GNO.s_Graph, GNO.CGraphRoot_NO ) # type:ignore
+
+GNO.loadGraphML_to_NetObj( sFName = sDir + "magadanskaya.graphml" )
 CNetObj_Manager.rootObj.queryObj( ANO.s_Agents, CNetObj ) # type:ignore
 
 tEdgeKey_1_2   = ("1", "2")
@@ -32,8 +34,8 @@ strList_EdgeKey_2_1 = CStrList.fromTuple( tEdgeKey_2_1 )
 tEdgeKey_2_3   = ("2", "3")
 strList_EdgeKey_2_3 = CStrList.fromTuple( tEdgeKey_2_3 )
 
-edgeSize_1_2   = GU.edgeSize( graphNodeCache().nxGraph, tEdgeKey_1_2 )
-edgeSize_2_1   = GU.edgeSize( graphNodeCache().nxGraph, tEdgeKey_2_1 )
+edgeSize_1_2   = GU.edgeSize( GNO.graphNodeCache().nxGraph, tEdgeKey_1_2 )
+edgeSize_2_1   = GU.edgeSize( GNO.graphNodeCache().nxGraph, tEdgeKey_2_1 )
 
 Route_1        = ["1", "2", "3", "4", "5", "6"]
 strRoute_1     = ",".join( Route_1 )
