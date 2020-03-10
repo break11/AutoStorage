@@ -7,8 +7,7 @@ from Lib.Common.BaseApplication import EAppStartPhase
 from Lib.Common.StrConsts import SC
 import Lib.Common.FileUtils as FU
 
-from Lib.AppWidgets.SystemTests_Widget import CSystemTests_Widget
-from Lib.AppWidgets.ClientList_Widget import CClientList_Widget
+from .ClientList_Widget import CClientList_Widget
 
 import sys
 import os
@@ -20,14 +19,10 @@ class CSSD_MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi( FU.UI_fileName( __file__ ), self )
 
-        self.SystemTests_Widget = CSystemTests_Widget( self )
-        self.centralWidget().layout().addWidget( self.SystemTests_Widget )
-
         self.ClientList_Widget = CClientList_Widget( self )
         self.centralWidget().layout().addWidget( self.ClientList_Widget )
 
     def init( self, initPhase ):
-        self.SystemTests_Widget.init( initPhase )
         self.ClientList_Widget.init( initPhase )
 
         if initPhase == EAppStartPhase.AfterRedisConnect:

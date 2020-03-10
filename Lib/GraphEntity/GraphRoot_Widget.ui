@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>294</width>
-    <height>94</height>
+    <width>433</width>
+    <height>184</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,6 +40,30 @@
       <widget class="QPushButton" name="btnReloadGraphML">
        <property name="text">
         <string>Reload GraphML</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QPushButton" name="btnUpdateNodesXY_Test">
+       <property name="text">
+        <string>Update Nodes X,Y Test</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnUpdateEdgesWidth_Test">
+       <property name="text">
+        <string>Update Edges Width Test</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
