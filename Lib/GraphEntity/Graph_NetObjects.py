@@ -5,7 +5,7 @@ from Lib.Net.NetObj import CNetObj
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNode import CTreeNode
 from Lib.Common.TreeNodeCache import CTreeNodeCache
-from Lib.Net.NetObj_Utils import destroy_If_Reload, isSelfEvent
+from Lib.Net.NetObj_Utils import isSelfEvent
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
 from Lib.Common.StrConsts import SC
 import Lib.GraphEntity.StorageGraphTypes as SGT
@@ -146,8 +146,6 @@ class CGraphEdge_NO( CNetObj ):
     def nxEdge(self)      : return self.nxGraph().edges()[ self.__nxEdgeName() ] if self.__has_nxEdge() else {}
 
 def createGraph_NO_Branches( nxGraph ):
-    ##remove##
-    # Graph  = CGraphRoot_NO( name=s_Graph, parent=CNetObj_Manager.rootObj, nxGraph=nxGraph )
     Graph = CNetObj_Manager.rootObj.queryObj( sName=s_Graph, ObjClass=CGraphRoot_NO, props=nxGraph.graph )
     Nodes = CNetObj(name=s_Nodes, parent=Graph)
     Edges = CNetObj(name=s_Edges, parent=Graph)
@@ -162,8 +160,8 @@ def createNetObjectsForGraph( nxGraph ):
     for edgeID in nxGraph.edges():
         edge = CGraphEdge_NO.createEdge_NetObj( nodeID_1 = edgeID[0], nodeID_2 = edgeID[1], parent = Edges, props=nxGraph.edges()[ edgeID ] )
 
-def loadGraphML_to_NetObj( sFName, bReload ):
-    if not destroy_If_Reload( s_Graph, bReload ): return False
+def loadGraphML_to_NetObj( sFName ):
+    graphNodeCache().destroyChildren()
 
     nxGraph = loadGraphML_File( sFName )
     if not nxGraph:

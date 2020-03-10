@@ -7,7 +7,6 @@ from Lib.Net.NetObj import CNetObj
 # from Lib.Common.TreeNode import CTreeNode,
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
-from Lib.Net.NetObj_Utils import destroy_If_Reload
 import Lib.Net.NetObj_JSON as nJSON
 # import Lib.Common.GraphUtils as GU
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
@@ -58,8 +57,8 @@ class CTransporter_NO( CNetObj ):
 
 ####################
 
-def loadTransporters_to_NetObj( sFName, bReload ):
-    if not destroy_If_Reload( s_Transporters, bReload ): return False
+def loadTransporters_to_NetObj( sFName ):
+    transportersNodeCache().destroyChildren()
 
     if not os.path.exists( sFName ):
         print( f"{SC.sWarning} Transporters file not found '{sFName}'!" )

@@ -21,24 +21,19 @@ class CGraphRoot_Widget( CNetObj_Widget ):
         uic.loadUi( FU.UI_fileName( __file__ ), self )
         self.leGraphML.setText( CSM.rootOpt( SC.storage_graph_file, default=SC.storage_graph_file__default ) )
 
-    ##remove##
-    # def init( self, initPhase ):
-    #     if initPhase == EAppStartPhase.AfterRedisConnect:
-    #         self.loadGraphConfig()
-
-    def loadGraphConfig( self, bReload=False ):
+    def loadStorage( self ):
         sFName = correctFNameToProjectDir( self.leGraphML.text() )
-        loadGraphML_to_NetObj( sFName, bReload )
+        loadGraphML_to_NetObj( sFName )
 
         sFBaseName = os.path.splitext(sFName)[0]
-        loadBoxes_to_NetObj( sFBaseName + '.boxes', bReload )
-        loadTransporters_to_NetObj( sFBaseName + '.transporters', bReload )
+        loadBoxes_to_NetObj( sFBaseName + '.boxes' )
+        loadTransporters_to_NetObj( sFBaseName + '.transporters' )
 
     def on_btnLoadGraphML_released( self ):
-        self.loadGraphConfig()
+        self.loadStorage()
 
     def on_btnReloadGraphML_released( self ):
-        self.loadGraphConfig( bReload=True )
+        self.loadStorage()
 
     def on_btnSelectGraphML_released( self ):
         path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)

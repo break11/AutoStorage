@@ -4,7 +4,7 @@ import json
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Net.NetObj_JSON as nJSON
-from Lib.Net.NetObj_Utils import destroy_If_Reload, isSelfEvent
+from Lib.Net.NetObj_Utils import isSelfEvent
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Common.StrProps_Meta import СStrProps_Meta
@@ -115,8 +115,8 @@ class CBox_NO( CNetObj ):
 
 ####################
 
-def loadBoxes_to_NetObj( sFName, bReload ):
-    if not destroy_If_Reload( s_Boxes, bReload ): return False
+def loadBoxes_to_NetObj( sFName ):
+    boxesNodeCache().destroyChildren()
 
     if not os.path.exists( sFName ):
         print( f"{SC.sWarning} Boxes file not found '{sFName}'!" )

@@ -204,7 +204,7 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         self.bGraphLoading = True # For block "updateNodeMiddleLine()" on Edge creating while loading ( 5 sec overhead on "40 000 with edges" )
 
-        if not loadGraphML_to_NetObj( sFName, bReload=True ):
+        if not loadGraphML_to_NetObj( sFName ):
             self.bGraphLoading = False
             return False
 
