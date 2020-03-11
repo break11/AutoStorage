@@ -13,7 +13,7 @@ def main():
                         }
     return baseAppRun( bNetworkMode = True,
                        mainWindowClass = CViewerWindow, mainWindowParams=mainWindowParams,
-                       register_NO_Func = ( NOR.register_NetObj, NOR.register_NetObj_Props, NOR.register_NetObj_Controllers_for_AgentManager ),
+                       register_NO_Func = ( NOR.register_NetObj, NOR.register_NetObj_Props, NOR.register_NetObj_Controllers_for_FakeAgent ),
                        rootObjDict = NOR.rootObjDict )
 # from PyQt5.QtWidgets import QApplication
 # from .mainwindow import CFA_MainWindow

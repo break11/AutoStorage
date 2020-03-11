@@ -15,6 +15,7 @@ class SNetObjProps( metaclass = СStrProps_Meta ):
     ChildCount    = None
     UID           = None
     TypeName      = "type"
+    Controllers   = None
     parent        = None
     obj           = None
     props         = None
@@ -26,7 +27,7 @@ SNOP = SNetObjProps
 class CNetObj( CTreeNode ):
     def_props = {} #type:ignore
     local_props = set() #type:ignore
-    __modelHeaderData = [ SNOP.name, SNOP.ChildCount, SNOP.UID, SNOP.TypeName, ]
+    __modelHeaderData = [ SNOP.name, SNOP.ChildCount, SNOP.UID, SNOP.TypeName, SNOP.Controllers ]
 
 ###################################################################################
     def getController( self, controllerClass ):
@@ -52,10 +53,11 @@ class CNetObj( CTreeNode ):
         weakSelf = weakref.ref(self)
         
         self.__modelData = {
-                            hd.index( SNOP.name       ) : lambda: weakSelf().name,
-                            hd.index( SNOP.ChildCount ) : lambda: weakSelf().childCount(),
-                            hd.index( SNOP.UID        ) : lambda: weakSelf().UID,
-                            hd.index( SNOP.TypeName   ) : lambda: weakSelf().__class__.__name__,
+                            hd.index( SNOP.name        ) : lambda: weakSelf().name,
+                            hd.index( SNOP.ChildCount  ) : lambda: weakSelf().childCount(),
+                            hd.index( SNOP.UID         ) : lambda: weakSelf().UID,
+                            hd.index( SNOP.TypeName    ) : lambda: weakSelf().__class__.__name__,
+                            hd.index( SNOP.Controllers ) : lambda: ", ".join( weakSelf().controllers.keys() ),
                             }
 
         ## завершающая стадия конструирования объекта, когда основной __init__ уже прошел, но до отправки в редис через registerObj
