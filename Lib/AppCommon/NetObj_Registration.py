@@ -23,6 +23,8 @@ from Lib.AgentEntity.AgentTest import CAgentTest
 from App.AgentsManager.AgentLink import CAgentLink
 from App.AgentsManager.AgentsConnectionServer import CAgentsConnectionServer
 
+from App.FakeAgent.FakeAgentLink import CFakeAgentLink
+
 from Lib.TransporterEntity.Transporter_NetObject import CTransporter_NO, s_Transporters
 import Lib.TransporterEntity.TransporterDataTypes as TDT
 from App.TransporterManager.TransporterChunk import CTransporterChunk
@@ -80,3 +82,4 @@ def register_NetObj_Controllers_for_TransporterManager():
 
 def register_NetObj_Controllers_for_FakeAgent():
     reg = CNetObj_Manager.registerController
+    reg( CAgent_NO, CFakeAgentLink )
