@@ -15,6 +15,8 @@ def main():
                        mainWindowClass = CViewerWindow, mainWindowParams=mainWindowParams,
                        register_NO_Func = ( NOR.register_NetObj, NOR.register_NetObj_Props, NOR.register_NetObj_Controllers_for_FakeAgent ),
                        rootObjDict = NOR.rootObjDict )
+
+                       ##remove##
 # from PyQt5.QtWidgets import QApplication
 # from .mainwindow import CFA_MainWindow
 # from Lib.Common.SettingsManager import CSettingsManager as CSM

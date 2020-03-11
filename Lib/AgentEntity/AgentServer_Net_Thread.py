@@ -124,16 +124,17 @@ class CAgentServer_Net_Thread(QThread):
         if not self.bIsServer:
             self.tcpSocket.connectToHost(self.host, int(self.port))
 
-        self.bRunning = True
+        if self.tcpSocket.waitForConnected(100):
+            self.bRunning = True
 
-        # сервер производит идентификацию агента по входящему сообщению или ответу на HW
-        # челнок должен посылать серверу инициализационный HW при подключении
-        while self.bRunning:
-            if self.initHW(): break
+            # сервер производит идентификацию агента по входящему сообщению или ответу на HW
+            # челнок должен посылать серверу инициализационный HW при подключении
+            while self.bRunning:
+                if self.initHW(): break
 
-        self.noRxTimer = time.time()
-        while self.bRunning:
-            self.process()
+            self.noRxTimer = time.time()
+            while self.bRunning:
+                self.process()
 
         if self.bExitByLostSignal == False:
             self.tcpSocket.disconnectFromHost()

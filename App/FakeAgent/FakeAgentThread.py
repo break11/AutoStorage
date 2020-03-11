@@ -48,7 +48,7 @@ class CFakeAgentThread( CAgentServer_Net_Thread ):
         
         self.hwCounter += 1
 
-        if self.hwCounter % 100 == 0:
+        if self.hwCounter % 1000 == 0:
             self.writeTo_Socket( ASP( event = AEV.HelloWorld, timeStamp=int(time.time()),
                                     data=ADT.SHW_Data(agentN=self.agentLink().agentN, agentType="cartV1") ) )
 

@@ -144,13 +144,13 @@ class CAgent_Cmd_Log_Form( CNetObj_Widget ):
 
         self.agentLink = weakref.ref( agentLink )
         self.fillAgentLog()
-        # self.updateAgentControls()
 
     def clear( self ):
         self.teAgentFullLog.clear()
         self.teAgentErrorLog.clear()
-        if self.agentLink:
-            self.agentLink().log.clear()
+        ##remove##
+        # if self.agentLink:
+        #     self.agentLink().log.clear()
         self.buffLogRows.clear()
 
 
@@ -193,9 +193,6 @@ class CAgent_Cmd_Log_Form( CNetObj_Widget ):
         self.teAgentErrorLog.moveCursor( QTextCursor.End )
 
         self.buffLogRows.clear()
-
-    # def updateAgentControls( self ):
-    #     if self.agentLink is None: return
 
     def AgentLogUpdated( self, logRow ):
         if self.agentLink is None: return

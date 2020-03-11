@@ -102,8 +102,7 @@ class CAgentServer_Link( QObject ):
             print( f"Deleting thread {id(thread)} agentN={self.agentN} from thread list for agent.")
             self.socketThreads.remove( thread )
             
-            if hasattr( self, "netObj" ): ##remove##
-                self.netObj().connectedTime = 0
+            self.netObj().connectedTime = 0
 
         print ( f"Deleting thread {id(thread)}." )
 
