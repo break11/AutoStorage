@@ -552,6 +552,11 @@ class CStorageGraph_GScene_Manager( QObject ):
         for boxGItem in self.boxGItems.values():
             boxGItem.updatePos()
 
+    def moveNodes( self, nodeSGItems, x = 0, y = 0 ):
+        for node in nodeSGItems:
+            node.netObj().x += x
+            node.netObj().y += y
+
     #############################################################
 
     @time_func( sMsg="Create scene items time", threshold=10 )

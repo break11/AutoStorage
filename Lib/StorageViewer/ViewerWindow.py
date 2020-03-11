@@ -4,7 +4,7 @@ import os
 
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt, pyqtSlot
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPainterPath
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QMainWindow, QFileDialog, QMessageBox, QAction, QDockWidget, QLabel, QInputDialog
 from PyQt5 import uic
 
 from Lib.StorageViewer.StorageGraph_GScene_Manager import CStorageGraph_GScene_Manager, EGManagerMode, EGManagerEditMode, EGSceneSelectionMode
@@ -434,4 +434,17 @@ class CViewerWindow(QMainWindow):
     def on_acGenTestGraph_triggered(self):
         self.SGM.new()
         self.SGM.genTestGraph(nodes_side_count = 10)
-        
+
+    @pyqtSlot(bool)
+    def on_acMoveX_triggered(self):
+        delta_X, ok = QInputDialog.getInt( self, "Set delta X", "" )
+        if ok:
+            nodeSGItems = [ n for n in self.StorageMap_Scene.selectedItems() if isinstance(n, CNode_SGItem) ]
+            self.SGM.moveNodes( nodeSGItems = nodeSGItems, x = delta_X, y = 0 )
+
+    @pyqtSlot(bool)
+    def on_acMoveY_triggered(self):
+        delta_Y, ok = QInputDialog.getInt( self, "Set delta Y", "" )
+        if ok:
+            nodeSGItems = [ n for n in self.StorageMap_Scene.selectedItems() if isinstance(n, CNode_SGItem) ]
+            self.SGM.moveNodes( nodeSGItems = nodeSGItems, x = 0, y = delta_Y )

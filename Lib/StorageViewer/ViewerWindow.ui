@@ -57,7 +57,7 @@
      <x>0</x>
      <y>0</y>
      <width>1180</width>
-     <height>27</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -149,6 +149,8 @@
    <addaction name="acReverseEdges"/>
    <addaction name="acAlignVertical"/>
    <addaction name="acAlignHorisontal"/>
+   <addaction name="acMoveX"/>
+   <addaction name="acMoveY"/>
   </widget>
   <widget class="QDockWidget" name="dkView">
    <property name="font">
@@ -595,6 +597,22 @@
    </property>
    <property name="toolTip">
     <string>Align nodes horisontally, base node - first selected node.</string>
+   </property>
+  </action>
+  <action name="acMoveX">
+   <property name="text">
+    <string>X</string>
+   </property>
+   <property name="toolTip">
+    <string>Move selected nodes along the X-axis.</string>
+   </property>
+  </action>
+  <action name="acMoveY">
+   <property name="text">
+    <string>Y</string>
+   </property>
+   <property name="toolTip">
+    <string>Move selected nodes along the Y-axis.</string>
    </property>
   </action>
  </widget>
