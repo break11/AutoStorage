@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="edgeType" attr.type="string" for="edge" id="d9" />
+  <key attr.name="curvature" attr.type="string" for="edge" id="d8" />
+  <key attr.name="widthType" attr.type="string" for="edge" id="d7" />
+  <key attr.name="sensorSide" attr.type="string" for="edge" id="d6" />
+  <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d5" />
+  <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d4" />
+  <key attr.name="edgeSize" attr.type="long" for="edge" id="d3" />
+  <key attr.name="nodeType" attr.type="string" for="node" id="d2" />
+  <key attr.name="y" attr.type="long" for="node" id="d1" />
+  <key attr.name="x" attr.type="long" for="node" id="d0" />
+  <graph edgedefault="directed">
+    <node id="1">
+      <data key="d0">-2300</data>
+      <data key="d1">-2300</data>
+      <data key="d2">RailCross</data>
+    </node>
+    <node id="2">
+      <data key="d0">-1575</data>
+      <data key="d1">-2300</data>
+      <data key="d2">RailPoint</data>
+    </node>
+    <node id="4">
+      <data key="d0">-2300</data>
+      <data key="d1">-1725</data>
+      <data key="d2">RailPoint</data>
+    </node>
+    <node id="31">
+      <data key="d0">-2300</data>
+      <data key="d1">-2875</data>
+      <data key="d2">Terminal</data>
+    </node>
+    <node id="32">
+      <data key="d0">-3025</data>
+      <data key="d1">-2300</data>
+      <data key="d2">Terminal</data>
+    </node>
+    <edge source="1" target="2">
+      <data key="d3">712</data>
+      <data key="d4">0</data>
+      <data key="d5">405</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+    <edge source="1" target="4">
+      <data key="d3">560</data>
+      <data key="d4">0</data>
+      <data key="d5">380</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Wide</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+    <edge source="1" target="31">
+      <data key="d3">560</data>
+      <data key="d4">0</data>
+      <data key="d5">380</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Wide</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+    <edge source="1" target="32">
+      <data key="d3">712</data>
+      <data key="d4">0</data>
+      <data key="d5">405</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+    <edge source="2" target="1">
+      <data key="d3">712</data>
+      <data key="d4">405</data>
+      <data key="d5">0</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+    <edge source="4" target="1">
+      <data key="d3">560</data>
+      <data key="d4">380</data>
+      <data key="d5">0</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Wide</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+    <edge source="31" target="1">
+      <data key="d3">560</data>
+      <data key="d4">380</data>
+      <data key="d5">0</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Wide</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+    <edge source="32" target="1">
+      <data key="d3">712</data>
+      <data key="d4">405</data>
+      <data key="d5">0</data>
+      <data key="d6">SPassive</data>
+      <data key="d7">Narrow</data>
+      <data key="d8">Straight</data>
+      <data key="d9">Rail</data>
+    </edge>
+  </graph>
+</graphml>
