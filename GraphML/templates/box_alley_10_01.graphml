@@ -12,67 +12,67 @@
   <key attr.name="x" attr.type="long" for="node" id="d0" />
   <graph edgedefault="directed">
     <node id="15">
-      <data key="d0">-2796</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-2575</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="16">
-      <data key="d0">-2136</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-2000</data>
+      <data key="d1">-2000</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="17">
-      <data key="d0">-3246</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-3025</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="18">
-      <data key="d0">-4146</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-3925</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="19">
-      <data key="d0">-4596</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-4375</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="20">
-      <data key="d0">-5146</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-4925</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="21">
-      <data key="d0">-5596</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-5375</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="22">
-      <data key="d0">-6496</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-6275</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="23">
-      <data key="d0">-6946</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-6725</data>
+      <data key="d1">-2000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="39">
-      <data key="d0">-7436</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-7300</data>
+      <data key="d1">-2000</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="66">
       <data key="d2">StoragePoint</data>
-      <data key="d0">-6046</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-5825</data>
+      <data key="d1">-2000</data>
     </node>
     <node id="67">
       <data key="d2">StoragePoint</data>
-      <data key="d0">-3696</data>
-      <data key="d1">-2136</data>
+      <data key="d0">-3475</data>
+      <data key="d1">-2000</data>
     </node>
     <edge source="15" target="16">
-      <data key="d3">490</data>
+      <data key="d3">575</data>
       <data key="d4">170</data>
       <data key="d5">0</data>
       <data key="d6">SBoth</data>
@@ -90,7 +90,7 @@
       <data key="d9">Rail</data>
     </edge>
     <edge source="16" target="15">
-      <data key="d3">490</data>
+      <data key="d3">575</data>
       <data key="d4">0</data>
       <data key="d5">170</data>
       <data key="d6">SBoth</data>
@@ -216,7 +216,7 @@
       <data key="d9">Rail</data>
     </edge>
     <edge source="23" target="39">
-      <data key="d3">490</data>
+      <data key="d3">575</data>
       <data key="d4">170</data>
       <data key="d5">0</data>
       <data key="d6">SBoth</data>
@@ -225,7 +225,7 @@
       <data key="d9">Rail</data>
     </edge>
     <edge source="39" target="23">
-      <data key="d3">490</data>
+      <data key="d3">575</data>
       <data key="d4">0</data>
       <data key="d5">170</data>
       <data key="d6">SBoth</data>
