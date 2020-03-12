@@ -23,11 +23,12 @@ def agentDataToStr( data, bShortForm = False ):
         return data.toString( bShortForm=bShortForm )
 
 class EAgentTest( BaseEnum ):
+    NoTest      = auto()
     SimpleRoute = auto()
     SimpleBox   = auto()
 
     Undefined   = auto()
-    Default     = SimpleRoute
+    Default     = NoTest
 
 class EConnectedStatus( BaseEnum ):
     connected    = auto()
