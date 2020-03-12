@@ -18,7 +18,7 @@ from Lib.GraphEntity.Edge_SGItem import CEdge_SGItem
 from Lib.GraphEntity.EdgeDecorate_SGItem import CEdgeDecorate_SGItem
 from Lib.Common.GuiUtils import gvFitToPage
 from Lib.Common.Utils import time_func
-from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache
+from Lib.GraphEntity.Graph_NetObjects import loadGraphML_to_NetObj, createGraph_NO_Branches, graphNodeCache, loadDisjoint_Graph
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Common.StrConsts import SC
 from Lib.GraphEntity import StorageGraphTypes as SGT
@@ -29,7 +29,7 @@ from Lib.BoxEntity.Box_NetObject import CBox_NO, SBP
 from Lib.BoxEntity.Box_SGItem import CBox_SGItem
 from Lib.Common.Dummy_GItem import CDummy_GItem
 from Lib.Common.GraphUtils import (getEdgeCoords, getNodeCoords, vecsFromNodes, vecsPair_withMaxAngle,
-                                    rotateToRightSector, rotateToLeftSector, calcNodeMiddleLine)
+                                    rotateToRightSector, rotateToLeftSector, calcNodeMiddleLine, getMaxNodeID)
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.Vectors import Vector2
 
@@ -208,7 +208,7 @@ class CStorageGraph_GScene_Manager( QObject ):
             self.bGraphLoading = False
             return False
 
-        self.updateMaxNodeID()
+        self.__maxNodeID = getMaxNodeID( self.nxGraph )
 
         # после создания граней перерасчитываем линии расположения мест хранения
         for nodeID, nodeGItem in self.nodeGItems.items():
@@ -221,6 +221,10 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         print( f"GraphicsItems in scene = {len(self.gScene.items())}" )
         return True
+
+    def add_subgraph(self, sFName):
+        loadDisjoint_Graph( sFName )
+        self.__maxNodeID = getMaxNodeID( self.nxGraph )
 
     def save( self, sFName ):
         try:
@@ -294,15 +298,6 @@ class CStorageGraph_GScene_Manager( QObject ):
 
         for nodeGItem in nodeGItemsNeighbors:
             self.updateNodeMiddleLine(nodeGItem)
-
-    def updateMaxNodeID(self):
-        maxNodeID = 0
-        for nodeID in self.nodeGItems.keys():
-            try:
-                maxNodeID = int (nodeID) if int (nodeID) > maxNodeID else maxNodeID
-            except ValueError:
-                pass
-        self.__maxNodeID = maxNodeID
     
     def genStrNodeID(self):
         self.__maxNodeID += 1

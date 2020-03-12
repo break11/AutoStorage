@@ -49,6 +49,28 @@ def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
 
     return nodeID
 
+def getMaxNodeID( nxGraph ):
+    maxNodeID = 0
+    for nodeID in nxGraph.nodes():
+        try:
+            maxNodeID = int (nodeID) if int (nodeID) > maxNodeID else maxNodeID
+        except ValueError:
+            pass
+    return maxNodeID
+
+def renameDuplicateNodes( graph_to_check, graph_to_rename ):
+    class renamer:
+        maxNodeID = getMaxNodeID( graph_to_check )
+        
+        def __add__( self, other ):
+            renamer.maxNodeID += 1
+            return str( renamer.maxNodeID )
+
+    nxTemp = nx.union( graph_to_check, graph_to_rename, rename=( None, renamer() ) )
+    sub_nodes = set( nxTemp.nodes ) - set( graph_to_check.nodes )
+
+    return nxTemp.subgraph( sub_nodes )
+
 def randomNodes( nxGraph, _nodeTypes, count = 1, allowDuplicates = False ):
     nodes = [ nodeID for nodeID in nxGraph.nodes() if nodeType( nxGraph, nodeID ) in _nodeTypes ]
     assert allowDuplicates or len(nodes) >= count, f"Not enought unique nodes in the Graph for choosing {count} random nodes of {_nodeTypes} types."
