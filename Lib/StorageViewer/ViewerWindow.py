@@ -130,6 +130,9 @@ class CViewerWindow(QMainWindow):
         self.acGenTestGraph.setVisible( b )
         self.acAlignHorisontal.setVisible( b )
         self.acAlignVertical.setVisible( b )
+        self.acMoveX.setVisible( b )
+        self.acMoveY.setVisible( b )
+        self.acAddSubGraph.setVisible( b )
         self.menuGraph_Edit.setEnabled( b )
 
         self.lbWorkedArea = QLabel()
