@@ -6,7 +6,7 @@ from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Common.TreeNode import CTreeNode
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Utils import isSelfEvent
-from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File
+from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File, renameDuplicateNodes
 from Lib.Common.StrConsts import SC
 import Lib.GraphEntity.StorageGraphTypes as SGT
 
@@ -147,8 +147,10 @@ class CGraphEdge_NO( CNetObj ):
 
 def createGraph_NO_Branches( nxGraph ):
     Graph = CNetObj_Manager.rootObj.queryObj( sName=s_Graph, ObjClass=CGraphRoot_NO, props=nxGraph.graph )
-    Nodes = CNetObj(name=s_Nodes, parent=Graph)
-    Edges = CNetObj(name=s_Edges, parent=Graph)
+    Nodes = Graph.queryObj( sName=s_Nodes, ObjClass=CNetObj )
+    Edges = Graph.queryObj( sName=s_Edges, ObjClass=CNetObj )
+    # Nodes = CNetObj(name=s_Nodes, parent=Graph)
+    # Edges = CNetObj(name=s_Edges, parent=Graph)
     return Graph, Nodes, Edges
 
 def createNetObjectsForGraph( nxGraph ):
@@ -172,4 +174,13 @@ def loadGraphML_to_NetObj( sFName ):
     createNetObjectsForGraph( nxGraph )
     return True
 
+def loadDisjoint_Graph( sFName ):
+    nxSubGraph = loadGraphML_File( sFName )
+    if not nxSubGraph:
+        return False
 
+    SGT.prepareGraphProps( nxSubGraph )
+    nxSubGraph = renameDuplicateNodes( graphNodeCache().nxGraph, nxSubGraph )
+
+    createNetObjectsForGraph( nxSubGraph )
+    return True

@@ -29,7 +29,7 @@ ARP = SAgent_Root_Props
 
 class CAgent_Root_NO( CNetObj ):
     def_props = {
-                    ARP.test_type : ADT.EAgentTest.Undefined
+                    ARP.test_type : ADT.EAgentTest.NoTest
                 }
 
 ########################################################

@@ -130,6 +130,9 @@ class CViewerWindow(QMainWindow):
         self.acGenTestGraph.setVisible( b )
         self.acAlignHorisontal.setVisible( b )
         self.acAlignVertical.setVisible( b )
+        self.acMoveX.setVisible( b )
+        self.acMoveY.setVisible( b )
+        self.acAddSubGraph.setVisible( b )
         self.menuGraph_Edit.setEnabled( b )
 
         self.lbWorkedArea = QLabel()
@@ -448,3 +451,9 @@ class CViewerWindow(QMainWindow):
         if ok:
             nodeSGItems = [ n for n in self.StorageMap_Scene.selectedItems() if isinstance(n, CNode_SGItem) ]
             self.SGM.moveNodes( nodeSGItems = nodeSGItems, x = 0, y = delta_Y )
+
+    @pyqtSlot(bool)
+    def on_acAddSubGraph_triggered(self, bChecked):
+        path, extension = QFileDialog.getOpenFileName(self, "Open GraphML file", FU.graphML_Path(), sGraphML_file_filters,"", QFileDialog.DontUseNativeDialog)
+        if path:
+            self.SGM.add_subgraph( path )

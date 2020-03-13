@@ -20,7 +20,7 @@ class CAgentTest:
 
     def test( self ):
         # if self.netObj() is None: return
-        if self.netObj().test_type == EAgentTest.Undefined: return
+        if self.netObj().test_type == EAgentTest.NoTest: return
 
         if graphNodeCache() is None: return
         if agentsNodeCache().childCount() == 0: return

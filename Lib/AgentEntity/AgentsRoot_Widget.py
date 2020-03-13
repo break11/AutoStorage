@@ -15,11 +15,11 @@ class CAgentsRoot_Widget( CNetObj_Widget ):
 
     @pyqtSlot("bool")
     def on_btnSimpleBox_Test_clicked( self, bVal ):
-        self.netObj.test_type = EAgentTest.SimpleBox if bVal else EAgentTest.Undefined
+        self.netObj.test_type = EAgentTest.SimpleBox if bVal else EAgentTest.NoTest
 
     @pyqtSlot("bool")
     def on_btnSimpleAgent_Test_clicked( self, bVal ):
-        self.netObj.test_type = EAgentTest.SimpleRoute if bVal else EAgentTest.Undefined
+        self.netObj.test_type = EAgentTest.SimpleRoute if bVal else EAgentTest.NoTest
 
     def syncButtons(self):
         if self.netObj is None: return
