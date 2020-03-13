@@ -245,4 +245,4 @@ class CNetObj_Monitor(QWidget):
                 self.tvNetObj.expand( idx )
                 idx = idx.parent()
 
-        self.tvNetObj.selectionModel().select( itemSelection, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows )
+        self.tvNetObj.selectionModel().select( itemSelection, QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows )
