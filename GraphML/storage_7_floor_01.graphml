@@ -42,7 +42,7 @@
     </node>
     <node id="7">
       <data key="d0">0</data>
-      <data key="d1">1772</data>
+      <data key="d1">4832</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Right</data>
       <data key="d4">ttyS0</data>
@@ -450,15 +450,30 @@
       <data key="d0">7113</data>
       <data key="d1">0</data>
     </node>
-    <node id="114">
-      <data key="d2">RailPoint</data>
-      <data key="d0">0</data>
-      <data key="d1">2980</data>
-    </node>
     <node id="115">
       <data key="d2">TransporterPoint</data>
       <data key="d0">1500</data>
       <data key="d1">500</data>
+    </node>
+    <node id="116">
+      <data key="d2">DummyNode</data>
+      <data key="d0">0</data>
+      <data key="d1">3975</data>
+    </node>
+    <node id="117">
+      <data key="d2">DummyNode</data>
+      <data key="d0">0</data>
+      <data key="d1">3125</data>
+    </node>
+    <node id="118">
+      <data key="d2">DummyNode</data>
+      <data key="d0">0</data>
+      <data key="d1">2275</data>
+    </node>
+    <node id="119">
+      <data key="d2">DummyNode</data>
+      <data key="d0">0</data>
+      <data key="d1">1425</data>
     </node>
     <edge source="1" target="2">
       <data key="d7">712</data>
@@ -523,14 +538,14 @@
       <data key="d12">Straight</data>
       <data key="d13">Rail</data>
     </edge>
-    <edge source="4" target="7">
-      <data key="d7">1212</data>
+    <edge source="4" target="119">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
       <data key="d8">0</data>
-      <data key="d9">0</data>
+      <data key="d9">75</data>
       <data key="d10">SLeft</data>
       <data key="d11">Wide</data>
       <data key="d12">Straight</data>
-      <data key="d13">Rail</data>
     </edge>
     <edge source="5" target="6">
       <data key="d7">560</data>
@@ -541,12 +556,12 @@
       <data key="d12">Straight</data>
       <data key="d13">Rail</data>
     </edge>
-    <edge source="5" target="114">
+    <edge source="5" target="7">
       <data key="d13">Rail</data>
-      <data key="d7">2425</data>
+      <data key="d7">472</data>
       <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SBoth</data>
+      <data key="d9">82</data>
+      <data key="d10">SRight</data>
       <data key="d11">Wide</data>
       <data key="d12">Straight</data>
     </edge>
@@ -586,21 +601,21 @@
       <data key="d12">Straight</data>
       <data key="d13">Rail</data>
     </edge>
-    <edge source="7" target="4">
-      <data key="d7">1212</data>
-      <data key="d8">0</data>
-      <data key="d9">0</data>
+    <edge source="7" target="116">
+      <data key="d13">Rail</data>
+      <data key="d7">500</data>
+      <data key="d8">82</data>
+      <data key="d9">75</data>
       <data key="d10">SRight</data>
       <data key="d11">Wide</data>
       <data key="d12">Straight</data>
-      <data key="d13">Rail</data>
     </edge>
-    <edge source="7" target="114">
+    <edge source="7" target="5">
       <data key="d13">Rail</data>
-      <data key="d7">1212</data>
-      <data key="d8">0</data>
+      <data key="d7">472</data>
+      <data key="d8">82</data>
       <data key="d9">0</data>
-      <data key="d10">SBoth</data>
+      <data key="d10">SLeft</data>
       <data key="d11">Wide</data>
       <data key="d12">Straight</data>
     </edge>
@@ -1972,27 +1987,81 @@
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
     </edge>
-    <edge source="114" target="5">
-      <data key="d13">Rail</data>
-      <data key="d7">2425</data>
-      <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SBoth</data>
-      <data key="d11">Wide</data>
-      <data key="d12">Straight</data>
-    </edge>
-    <edge source="114" target="7">
-      <data key="d13">Rail</data>
-      <data key="d7">1212</data>
-      <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SBoth</data>
-      <data key="d11">Wide</data>
-      <data key="d12">Straight</data>
-    </edge>
     <edge source="115" target="49">
       <data key="d13">Transporter</data>
       <data key="d7">500</data>
+    </edge>
+    <edge source="116" target="117">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
+      <data key="d8">75</data>
+      <data key="d9">75</data>
+      <data key="d10">SRight</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="116" target="7">
+      <data key="d13">Rail</data>
+      <data key="d7">500</data>
+      <data key="d8">75</data>
+      <data key="d9">82</data>
+      <data key="d10">SLeft</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="117" target="116">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
+      <data key="d8">75</data>
+      <data key="d9">75</data>
+      <data key="d10">SLeft</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="117" target="118">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
+      <data key="d8">75</data>
+      <data key="d9">75</data>
+      <data key="d10">SRight</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="118" target="119">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
+      <data key="d8">75</data>
+      <data key="d9">75</data>
+      <data key="d10">SRight</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="118" target="117">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
+      <data key="d8">75</data>
+      <data key="d9">75</data>
+      <data key="d10">SLeft</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="119" target="118">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
+      <data key="d8">75</data>
+      <data key="d9">75</data>
+      <data key="d10">SLeft</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="119" target="4">
+      <data key="d13">Rail</data>
+      <data key="d7">850</data>
+      <data key="d8">75</data>
+      <data key="d9">0</data>
+      <data key="d10">SRight</data>
+      <data key="d11">Wide</data>
+      <data key="d12">Straight</data>
     </edge>
   </graph>
 </graphml>
