@@ -9,6 +9,7 @@ from Lib.Net.NetObj_Widgets import CNetObj_WidgetsManager, CNetObj_Widget
 from Lib.BoxEntity.Box_NetObject import CBox_NO, s_Boxes
 from Lib.BoxEntity.BoxAddress import CBoxAddress
 
+import Lib.Common.BaseTypes as BT
 from Lib.Common.StrTypeConverter import CStrTypeConverter as STC
 from Lib.Common.SerializedList import CStrList
 
@@ -66,7 +67,7 @@ def register_NetObj_Props():
     STC.registerUserType( ADT.STS_Data )
     STC.registerUserType( ATD.CTaskList )
     STC.registerUserType( TDT.ETransporterMode )
-    STC.registerUserType( TDT.ETransporterConnectionType )
+    STC.registerUserType( BT.EConnectionType )
     STC.registerUserType( CBoxAddress )
     STC.registerUserType( CStrList )
 

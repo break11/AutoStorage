@@ -13,7 +13,8 @@ from Lib.Net.NetObj_Utils import isNone_or_Empty, isSelfEvent
 import Lib.Common.FileUtils as FileUtils
 from Lib.Common.StrConsts import SC
 from Lib.Common.TreeNodeCache import CTreeNodeCache
-import Lib.Common.ChargeUtils as CU
+import Lib.PowerStationEntity.ChargeUtils as CU
+import Lib.PowerStationEntity.PowerStationTypes as PST
 from Lib.Common.SerializedList import CStrList
 from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
@@ -187,11 +188,11 @@ class CAgentLink( CAgentServer_Link ):
 
         elif cmd.event == EAgentServer_Event.ChargeBegin:
             self.netObj().status = ADT.EAgent_Status.Charging
-            self.doChargeCMD( CU.EChargeCMD.on )
+            self.doChargeCMD( PST.EChargeCMD.on )
 
         elif cmd.event == EAgentServer_Event.ChargeEnd:
             self.netObj().status = ADT.EAgent_Status.Idle
-            self.doChargeCMD( CU.EChargeCMD.off )
+            self.doChargeCMD( PST.EChargeCMD.off )
 
         elif cmd.event == EAgentServer_Event.NewTask:
             NT_Data = cmd.data

@@ -51,6 +51,8 @@ class CGraphNode_NO( CNetObj ):
                     SGT.SGA.linkLeft   : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
                     SGT.SGA.linkRight  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
                     SGT.SGA.linkPlace  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
+                    SGT.SGA.x          : 0,
+                    SGT.SGA.x          : 0,
                 }
 
     def __init__( self, name="", parent=None, id=None, saveToRedis=True, props=None, ext_fields=None ):

@@ -5,6 +5,7 @@ import json
 
 from Lib.Net.NetObj import CNetObj
 # from Lib.Common.TreeNode import CTreeNode,
+import Lib.Common.BaseTypes as BT
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Net.NetObj_JSON as nJSON
@@ -42,7 +43,7 @@ class CTransporter_NO( CNetObj ):
                 STP.busy : False,
                 STP.mode : TDT.ETransporterMode.Default,
                 STP.masterAddress     : SC.localhost,
-                STP.connectionType    : TDT.ETransporterConnectionType.Default,
+                STP.connectionType    : BT.EConnectionType.Default,
                 STP.connectionAddress : f"{SC.localhost}:5020",
                 STP.nodesList         : CStrList()
                 }
