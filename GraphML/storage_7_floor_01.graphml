@@ -53,32 +53,32 @@
       <data key="d2">RailPoint</data>
     </node>
     <node id="9">
-      <data key="d0">3000</data>
+      <data key="d0">3025</data>
       <data key="d1">6000</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="10">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">6000</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="11">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">5425</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="12">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">575</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="13">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">0</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="14">
-      <data key="d0">3000</data>
+      <data key="d0">3025</data>
       <data key="d1">0</data>
       <data key="d2">RailPoint</data>
     </node>
@@ -103,59 +103,59 @@
       <data key="d2">Terminal</data>
     </node>
     <node id="35">
-      <data key="d0">4448</data>
+      <data key="d0">4473</data>
       <data key="d1">6000</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="36">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">6575</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="37">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">-575</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="38">
-      <data key="d0">4449</data>
+      <data key="d0">4474</data>
       <data key="d1">0</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="41">
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">0</data>
       <data key="d2">PickStation</data>
       <data key="d5">155|Undefined</data>
     </node>
     <node id="42">
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">6000</data>
       <data key="d2">PickStation</data>
     </node>
     <node id="45">
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">5500</data>
       <data key="d2">TransporterPoint</data>
       <data key="d5">42|Right</data>
     </node>
     <node id="46">
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">4500</data>
       <data key="d2">TransporterPoint</data>
     </node>
     <node id="47">
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">3500</data>
       <data key="d2">TransporterPoint</data>
     </node>
     <node id="48">
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">2500</data>
       <data key="d2">TransporterPoint</data>
     </node>
     <node id="49">
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">1500</data>
       <data key="d2">TransporterPoint</data>
     </node>
@@ -166,293 +166,293 @@
       <data key="d6">49|Undefined</data>
     </node>
     <node id="53">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">1725</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="55">
-      <data key="d0">2999</data>
+      <data key="d0">3024</data>
       <data key="d1">1150</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="52">
-      <data key="d0">4449</data>
+      <data key="d0">4474</data>
       <data key="d1">1150</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="51">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">1150</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="60">
-      <data key="d0">2999</data>
+      <data key="d0">3024</data>
       <data key="d1">2300</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="58">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">2875</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="57">
-      <data key="d0">4449</data>
+      <data key="d0">4474</data>
       <data key="d1">2300</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="56">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">2300</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="65">
-      <data key="d0">2999</data>
+      <data key="d0">3024</data>
       <data key="d1">3950</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="64">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">3375</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="62">
-      <data key="d0">4449</data>
+      <data key="d0">4474</data>
       <data key="d1">3950</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="61">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">3950</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="63">
-      <data key="d0">3724</data>
+      <data key="d0">3749</data>
       <data key="d1">4525</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="69">
-      <data key="d0">7823</data>
+      <data key="d0">7848</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="70">
-      <data key="d0">7373</data>
+      <data key="d0">7398</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="73">
-      <data key="d0">5473</data>
+      <data key="d0">5498</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="74">
-      <data key="d0">5023</data>
+      <data key="d0">5048</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="66">
-      <data key="d0">9173</data>
+      <data key="d0">9198</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="76">
       <data key="d2">StoragePoint</data>
-      <data key="d0">5923</data>
+      <data key="d0">5948</data>
       <data key="d1">6000</data>
     </node>
     <node id="68">
-      <data key="d0">8723</data>
+      <data key="d0">8748</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="72">
-      <data key="d0">6373</data>
+      <data key="d0">6398</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="77">
       <data key="d2">StoragePoint</data>
-      <data key="d0">8273</data>
+      <data key="d0">8298</data>
       <data key="d1">6000</data>
     </node>
     <node id="71">
-      <data key="d0">6823</data>
+      <data key="d0">6848</data>
       <data key="d1">6000</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="82">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">0</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="80">
-      <data key="d0">10500</data>
+      <data key="d0">10525</data>
       <data key="d1">5425</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="92">
-      <data key="d0">9776</data>
+      <data key="d0">9801</data>
       <data key="d1">2300</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="87">
-      <data key="d0">11226</data>
+      <data key="d0">11251</data>
       <data key="d1">0</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="85">
-      <data key="d0">10500</data>
+      <data key="d0">10525</data>
       <data key="d1">6575</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="88">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">1725</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="94">
-      <data key="d0">11226</data>
+      <data key="d0">11251</data>
       <data key="d1">2300</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="90">
-      <data key="d0">11226</data>
+      <data key="d0">11251</data>
       <data key="d1">1150</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="100">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">4525</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="96">
-      <data key="d0">9776</data>
+      <data key="d0">9801</data>
       <data key="d1">3950</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="91">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">1150</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="99">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">3950</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="79">
-      <data key="d0">10500</data>
+      <data key="d0">10525</data>
       <data key="d1">6000</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="95">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">2300</data>
       <data key="d2">RailCross</data>
     </node>
     <node id="81">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">575</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="86">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">-575</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="78">
-      <data key="d0">9777</data>
+      <data key="d0">9802</data>
       <data key="d1">6000</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="89">
-      <data key="d0">9776</data>
+      <data key="d0">9801</data>
       <data key="d1">1150</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="84">
-      <data key="d0">11225</data>
+      <data key="d0">11250</data>
       <data key="d1">6000</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="97">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">3375</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="93">
-      <data key="d0">10501</data>
+      <data key="d0">10526</data>
       <data key="d1">2875</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="98">
-      <data key="d0">11226</data>
+      <data key="d0">11251</data>
       <data key="d1">3950</data>
       <data key="d2">Terminal</data>
     </node>
     <node id="83">
-      <data key="d0">9777</data>
+      <data key="d0">9802</data>
       <data key="d1">0</data>
       <data key="d2">RailPoint</data>
     </node>
     <node id="105">
-      <data key="d0">7374</data>
+      <data key="d0">7399</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="111">
       <data key="d2">StoragePoint</data>
-      <data key="d0">5924</data>
+      <data key="d0">5949</data>
       <data key="d1">3950</data>
     </node>
     <node id="106">
-      <data key="d0">6824</data>
+      <data key="d0">6849</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="101">
-      <data key="d0">9174</data>
+      <data key="d0">9199</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="107">
-      <data key="d0">6374</data>
+      <data key="d0">6399</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="104">
-      <data key="d0">7824</data>
+      <data key="d0">7849</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="108">
-      <data key="d0">5474</data>
+      <data key="d0">5499</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="109">
-      <data key="d0">5024</data>
+      <data key="d0">5049</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="103">
-      <data key="d0">8724</data>
+      <data key="d0">8749</data>
       <data key="d1">3950</data>
       <data key="d2">StoragePoint</data>
     </node>
     <node id="112">
       <data key="d2">StoragePoint</data>
-      <data key="d0">8274</data>
+      <data key="d0">8299</data>
       <data key="d1">3950</data>
     </node>
     <node id="113">
       <data key="d2">RailPoint</data>
-      <data key="d0">7113</data>
+      <data key="d0">7138</data>
       <data key="d1">0</data>
     </node>
     <node id="115">
       <data key="d2">TransporterPoint</data>
-      <data key="d0">1500</data>
+      <data key="d0">1980</data>
       <data key="d1">500</data>
     </node>
     <node id="116">
@@ -521,10 +521,10 @@
       <data key="d13">Rail</data>
     </edge>
     <edge source="2" target="41">
-      <data key="d7">1500</data>
+      <data key="d7">1255</data>
       <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SRight</data>
+      <data key="d9">75</data>
+      <data key="d10">SLeft</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
       <data key="d13">Rail</data>
@@ -629,10 +629,10 @@
       <data key="d13">Rail</data>
     </edge>
     <edge source="8" target="42">
-      <data key="d7">1500</data>
+      <data key="d7">1255</data>
       <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SLeft</data>
+      <data key="d9">75</data>
+      <data key="d10">SRight</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
       <data key="d13">Rail</data>
@@ -648,10 +648,10 @@
     </edge>
     <edge source="9" target="42">
       <data key="d13">Rail</data>
-      <data key="d7">2250</data>
+      <data key="d7">1045</data>
       <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SBoth</data>
+      <data key="d9">75</data>
+      <data key="d10">SLeft</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
     </edge>
@@ -774,10 +774,10 @@
     </edge>
     <edge source="14" target="41">
       <data key="d13">Rail</data>
-      <data key="d7">2250</data>
+      <data key="d7">1045</data>
       <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SBoth</data>
+      <data key="d9">75</data>
+      <data key="d10">SLeft</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
     </edge>
@@ -872,40 +872,40 @@
       <data key="d12">Straight</data>
     </edge>
     <edge source="41" target="2">
-      <data key="d7">1500</data>
-      <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SLeft</data>
-      <data key="d11">Narrow</data>
-      <data key="d12">Straight</data>
-      <data key="d13">Rail</data>
-    </edge>
-    <edge source="41" target="14">
-      <data key="d13">Rail</data>
-      <data key="d7">2250</data>
-      <data key="d8">0</data>
-      <data key="d9">0</data>
-      <data key="d10">SBoth</data>
-      <data key="d11">Narrow</data>
-      <data key="d12">Straight</data>
-    </edge>
-    <edge source="42" target="8">
-      <data key="d7">1500</data>
-      <data key="d8">0</data>
+      <data key="d7">1255</data>
+      <data key="d8">75</data>
       <data key="d9">0</data>
       <data key="d10">SRight</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
       <data key="d13">Rail</data>
     </edge>
-    <edge source="42" target="9">
+    <edge source="41" target="14">
       <data key="d13">Rail</data>
-      <data key="d7">2250</data>
-      <data key="d8">0</data>
+      <data key="d7">1045</data>
+      <data key="d8">75</data>
       <data key="d9">0</data>
-      <data key="d10">SBoth</data>
+      <data key="d10">SRight</data>
       <data key="d11">Narrow</data>
       <data key="d12">Straight</data>
+    </edge>
+    <edge source="42" target="9">
+      <data key="d13">Rail</data>
+      <data key="d7">1045</data>
+      <data key="d8">75</data>
+      <data key="d9">0</data>
+      <data key="d10">SRight</data>
+      <data key="d11">Narrow</data>
+      <data key="d12">Straight</data>
+    </edge>
+    <edge source="42" target="8">
+      <data key="d7">1255</data>
+      <data key="d8">75</data>
+      <data key="d9">0</data>
+      <data key="d10">SLeft</data>
+      <data key="d11">Narrow</data>
+      <data key="d12">Straight</data>
+      <data key="d13">Rail</data>
     </edge>
     <edge source="45" target="46">
       <data key="d7">500</data>
