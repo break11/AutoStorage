@@ -122,7 +122,7 @@ class CAgentServer_Net_Thread(QThread):
         self.tcpSocket.disconnected.connect(self.socketDisconnected)
 
         if not self.bIsServer:
-            self.tcpSocket.connectToHost(self.host, int(self.port))
+            self.tcpSocket.connectToHost(self.host, self.port)
 
         if self.tcpSocket.waitForConnected(100):
             self.bRunning = True

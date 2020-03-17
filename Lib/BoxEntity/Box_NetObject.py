@@ -42,7 +42,7 @@ def queryBoxNetObj( name ):
 ####################
 
 class CBox_NO( CNetObj ):
-    def_props = { SBP.address: CBoxAddress( addressType=EBoxAddressType.Undefined ) }
+    def_props = { SBP.address: CBoxAddress( _type=EBoxAddressType.Undefined ) }
 
     @property
     def nxGraph( self ): return graphNodeCache().nxGraph if graphNodeCache() is not None else None
@@ -101,16 +101,16 @@ class CBox_NO( CNetObj ):
     #############
 
     def isValidAddress( self ):
-        if self.address.addressType == EBoxAddressType.Undefined:
+        if self.address._type == EBoxAddressType.Undefined:
             return False
         
-        if self.address.addressType == EBoxAddressType.OnNode:
+        if self.address._type == EBoxAddressType.OnNode:
             return self.nxGraph.has_node( self.address.data.nodeID ) if self.nxGraph is not None else False
 
-        if self.address.addressType == EBoxAddressType.OnEdge:
+        if self.address._type == EBoxAddressType.OnEdge:
             return self.nxGraph.has_edge( self.address.data.nodeID_1, self.address.data.nodeID_2 ) if self.nxGraph is not None else False
 
-        if self.address.addressType == EBoxAddressType.OnAgent:
+        if self.address._type == EBoxAddressType.OnAgent:
             return agentsNodeCache().childByName( str(self.address.data) ) is not None
 
 ####################

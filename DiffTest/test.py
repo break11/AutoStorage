@@ -1,6 +1,14 @@
 
+class A:
+    def __init__(self):
+        print( self.EnumType )
 
-print( str( True ) )
+class B( A ):
+    EnumType = "Test_111111111111"
+
+b = B()
+
+# print( str( True ) )
 
 # v = 1
 

@@ -459,7 +459,7 @@ class CAgentLink( CAgentServer_Link ):
         elif task.type in ATD.BoxTasks:
             if task.type == ATD.ETaskType.LoadBoxByName:
                 box = getBox_by_Name( task.data )
-                assert box.address.addressType == EBoxAddressType.OnNode
+                assert box.address._type == EBoxAddressType.OnNode
                 nodeID = box.address.data.nodeID
                 side   = box.address.data.side
             else:
