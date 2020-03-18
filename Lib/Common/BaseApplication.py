@@ -18,6 +18,9 @@ class CBaseApplication( QApplication ):
         super().__init__( argv )
         self.console = CConsole( self )
 
+        from PyQt5.QtGui import QIcon
+        self.setWindowIcon( QIcon("/home/break1/Data/Projects/ChelnokSklad/test.png") )
+
         CTickManager.start()
 
         self.bNetworkMode = bNetworkMode
