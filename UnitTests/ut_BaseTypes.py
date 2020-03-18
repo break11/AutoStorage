@@ -39,6 +39,37 @@ class Test_BaseTypes(unittest.TestCase):
         self.assertEqual( eData.agentN, "XXX" )
         self.assertEqual( eData.bIsValid, False )
 
+    def test_ConnectionAddress( self ):
+        sData = "Undefined=25:Left|555"
+
+        val = BT.CConnectionAddress( BT.EConnectionType.Undefined, data = "25:Left|555" )
+        val_test = BT.CConnectionAddress.fromString( sData )
+
+        self.assertEqual( val, val_test )
+        self.assertEqual( val.toString(), sData )
+        self.assertEqual( val_test.toString(), sData )
+
+        ##################################################################################################
+        sData = "TCP_IP=12.56.0.4:1234"
+        addr  = BT.CConnectionAddress( BT.EConnectionType.TCP_IP, data = BT.SIPAddress( "12.56.0.4", 1234 ) )
+        addr1 = BT.CConnectionAddress( BT.EConnectionType.TCP_IP, data = BT.SIPAddress.fromString( "12.56.0.4:1234" ) )
+        addr_test = BT.CConnectionAddress.fromString( sData )
+
+        self.assertEqual( addr, addr1 )
+        self.assertEqual( addr, addr_test )
+        self.assertEqual( addr.toString(), sData )
+        self.assertEqual( addr_test.toString(), sData )
+
+        self.assertEqual( type(addr_test.data), BT.SIPAddress )
+        # ##################################################################################################
+        sData = "USB=/dev/ttyS0"
+        addr = BT.CConnectionAddress( BT.EConnectionType.USB, data="/dev/ttyS0" )
+        addr_test = BT.CConnectionAddress.fromString( sData )
+
+        self.assertEqual( addr, addr_test )
+        self.assertEqual( addr.toString(), sData )
+        self.assertEqual( addr_test.toString(), sData )
+
 
 if __name__ == '__main__':
     unittest.main()

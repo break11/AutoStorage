@@ -30,6 +30,7 @@ class SIPAddress:
         eq = eq and self.address == other.address
         eq = eq and self.port == other.port
         eq = eq and self.bValid == other.bValid
+        return eq
 
     @classmethod
     def fromString( cls, data ):
@@ -39,6 +40,7 @@ class SIPAddress:
             port = int( l[1] )
             bValid = True
         except:
+            print( f"{SC.sError} SIPAddress can't convert from '{data}'!" )
             address = SC.localhost
             port = 8888
             bValid = False
@@ -62,7 +64,7 @@ class CСompositeType:
 
         if _type != self.baseType.Undefined:
             dataType = self.dataType_by_BaseType.get( _type )
-            assert dataType == type(data), "Data type of connection invalid!"
+            assert dataType == type(data), f"Received data type { type(data) } not equal with expected data type { dataType } for enum value {_type} of {self.__class__.__name__}!"
             
         self.data = data
 
