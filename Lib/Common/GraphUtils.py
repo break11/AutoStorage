@@ -346,20 +346,15 @@ def pathWeight( nxGraph, path, weight = SGA.edgeSize):
 def findNodes( nxGraph, prop, value ):
     return [ node[0] for node in nxGraph.nodes( data = prop ) if node[1] == value ]
 
-def __routes_withDefined_TargetSide( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None, weight = SGA.edgeSize ):
-    dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, agentEdge[0], targetNode, weight = weight)
-
-    if targetSide is None:
-        return [dijkstra_path]
-
+def __routes_withDefined_TargetSide( nxGraph, agentEdge, agentAngle, base_route, targetSide, weight = SGA.edgeSize ):
     final_agentAngle, final_agentEdge = getFinalAgentAngle( nxGraph = nxGraph, agent_angle = agentAngle,
-                                                            agent_edge = agentEdge, nodes_route = dijkstra_path )
+                                                            agent_edge = agentEdge, nodes_route = base_route )
     eAgentSide = getAgentSide( nxGraph, final_agentEdge, final_agentAngle )
 
     if targetSide == eAgentSide:
-        return [dijkstra_path]
+        return [base_route]
 
-    paths_through_cycles = pathsThroughCycles( nxGraph, dijkstra_path )
+    paths_through_cycles = pathsThroughCycles( nxGraph, base_route )
     paths_correct_side = []
 
     for path in paths_through_cycles:
@@ -373,25 +368,31 @@ def __routes_withDefined_TargetSide( nxGraph, agentEdge, agentAngle, targetNode,
     return paths_correct_side
 
 def shortestNodesRoute( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None, weight = SGA.edgeSize ):
-    nodes_routes = __routes_withDefined_TargetSide( nxGraph, agentEdge, agentAngle, targetNode, targetSide = targetSide, weight = weight )
-    nodes_routes_weighted = [ (pathWeight(nxGraph, route), route) for route in nodes_routes ]
+    dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, agentEdge[0], targetNode, weight = weight)
+
+    if targetSide is None:
+        path_weight = pathWeight( nxGraph, dijkstra_path, weight = weight )
+        return path_weight, dijkstra_path
+
+    node_routes = __routes_withDefined_TargetSide( nxGraph, agentEdge, agentAngle, base_route = dijkstra_path, targetSide = targetSide, weight = weight )
+    node_routes_weighted = [ (pathWeight(nxGraph, route), route) for route in node_routes ]
     
-    if len( nodes_routes_weighted ) > 0:
-        return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
+    if len( node_routes_weighted ) > 0:
+        return min( node_routes_weighted, key = lambda weighted_route: weighted_route[0] )
     
     return 0, []
 
 def routeToServiceStation( nxGraph, agentEdge, agentAngle ):
     charge_nodes = findNodes( nxGraph, SGA.nodeType, SGT.ENodeTypes.ServiceStation )
-    nodes_routes_weighted = []
+    node_routes_weighted = []
 
     for targetNode in charge_nodes:
         targetSide = nxGraph.nodes()[ targetNode ][ SGA.chargeSide ]
         weighted_route = shortestNodesRoute( nxGraph, agentEdge, agentAngle, targetNode, targetSide = targetSide )
 
-        nodes_routes_weighted.append( weighted_route )
+        node_routes_weighted.append( weighted_route )
     
-    if len( nodes_routes_weighted ) > 0:
-        return min( nodes_routes_weighted, key = lambda weighted_route: weighted_route[0] )
+    if len( node_routes_weighted ) > 0:
+        return min( node_routes_weighted, key = lambda weighted_route: weighted_route[0] )
 
     return 0, []
