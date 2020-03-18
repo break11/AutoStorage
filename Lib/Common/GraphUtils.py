@@ -333,22 +333,21 @@ def pathsThroughCycles( nxGraph, simple_path ):
     return paths_through_cycles
 
 def pathWeight( nxGraph, path, weight = SGA.edgeSize):
-    if weight is None:
-        return( len(path) - 1 )
-    
     edges = edgesListFromNodes( path )
     path_weight = 0
     
     for tEdgeKey in edges:
-        path_weight += nxGraph.edges()[ tEdgeKey ].get( weight )
+        # если заданного поля нет, то вес рассчитывается по количеству граней
+        # nx.algorithms.dijkstra_path работает таким же образом при рассчете кратчайшего пути
+        path_weight += nxGraph.edges()[ tEdgeKey ].get( weight, 1 )
 
     return path_weight
 
 def findNodes( nxGraph, prop, value ):
     return [ node[0] for node in nxGraph.nodes( data = prop ) if node[1] == value ]
 
-def makeNodesRoutes( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None ):
-    dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, agentEdge[0], targetNode)
+def __routes_withDefined_TargetSide( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None, weight = SGA.edgeSize ):
+    dijkstra_path = nx.algorithms.dijkstra_path( nxGraph, agentEdge[0], targetNode, weight = weight)
 
     if targetSide is None:
         return [dijkstra_path]
@@ -373,8 +372,8 @@ def makeNodesRoutes( nxGraph, agentEdge, agentAngle, targetNode, targetSide = No
 
     return paths_correct_side
 
-def shortestNodesRoute( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None ):
-    nodes_routes = makeNodesRoutes( nxGraph, agentEdge, agentAngle, targetNode, targetSide = targetSide )
+def shortestNodesRoute( nxGraph, agentEdge, agentAngle, targetNode, targetSide = None, weight = SGA.edgeSize ):
+    nodes_routes = __routes_withDefined_TargetSide( nxGraph, agentEdge, agentAngle, targetNode, targetSide = targetSide, weight = weight )
     nodes_routes_weighted = [ (pathWeight(nxGraph, route), route) for route in nodes_routes ]
     
     if len( nodes_routes_weighted ) > 0:

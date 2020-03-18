@@ -4,7 +4,7 @@ import networkx as nx
 from enum import Enum, auto
 
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
-from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles, pathWeight
+from Lib.Common.GraphUtils import getAgentAngle, getFinalAgentAngle, edgesListFromNodes, edgeSize, pathsThroughCycles
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.StorageGraphTypes import SGA
 from Lib.Common.Vectors import Vector2
