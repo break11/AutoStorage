@@ -11,6 +11,7 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Utils import isNone_or_Empty, isSelfEvent
 import Lib.Common.FileUtils as FileUtils
+import Lib.Common.BaseTypes as BT
 from Lib.Common.StrConsts import SC
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 import Lib.PowerStationEntity.ChargeUtils as CU
@@ -253,8 +254,8 @@ class CAgentLink( CAgentServer_Link ):
             return
 
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
-        port = GU.nodeChargePort( self.nxGraph, nodeID )
-        if port is None:
+        chargeAddress= GU.nodeChargeAddress( self.nxGraph, nodeID )
+        if chargeAddress is None:
             self.netObj().status = ADT.EAgent_Status.CantCharge
             return
 
@@ -264,10 +265,11 @@ class CAgentLink( CAgentServer_Link ):
         tKey = self.netObj().edge.toTuple()
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
 
-        port = GU.nodeChargePort( self.nxGraph, nodeID )
+        chargeAddress = GU.nodeChargeAddress( self.nxGraph, nodeID )
         # проверка на наличие порта выполнена в prepareCharging, предполагаем, что с момента prepareCharging челнок не перемещался по нодам
 
-        CU.controlCharge( chargeCMD, port )
+        if chargeAddress._type == BT.EConnectionType.USB:
+            CU.controlCharge( chargeCMD, chargeAddress.data )
 
     #########################################################
 

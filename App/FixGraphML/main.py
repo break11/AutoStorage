@@ -91,19 +91,29 @@ def renameNodeTypes( nxGraph, renameDict ):
             if nodeProps[ SGT.SGA.nodeType ] == oldNodeTypeName:
                 nodeProps[ SGT.SGA.nodeType ] = newNodeTypeName
 
+def renameProps( itemsDict, renameDict ):
+    for itemName in itemsDict.keys():
+        for old, new in renameDict.items():
+            if old in itemsDict[ itemName ]:
+                itemsDict[ itemName ][new] = itemsDict[ itemName ][old]
+                del itemsDict[ itemName ][old]
+
 def convertTo_TransporterVersion( nxGraph ):
     print( "********************** convertTo_TransporterVersion ***************************" )
 
     # переименование типов нод
-    fieldsToRename = { "DummyNode"      : "RailPoint",
-                       "UnknownType"    : "DummyNode",
-                       "StorageSingle"  : "StoragePoint",
-                       "PickStationIn"  : "PickStation",
-                       "PickStationOut" : "PickStation",
-                       "ServiceStation" : "PowerStation",
-                       "Cross"          : "RailCross"
+    d = { "DummyNode"      : "RailPoint",
+          "UnknownType"    : "DummyNode",
+          "StorageSingle"  : "StoragePoint",
+          "PickStationIn"  : "PickStation",
+          "PickStationOut" : "PickStation",
+          "ServiceStation" : "PowerStation",
+          "Cross"          : "RailCross"
     }
-    renameNodeTypes( nxGraph, fieldsToRename )
+    renameNodeTypes( nxGraph, d )
+
+    d = { "chargePort" : "chargeAddress" }
+    renameProps( nxGraph.nodes(), d )
 
     SGT.prepareGraphProps( nxGraph )
     

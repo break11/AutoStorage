@@ -67,9 +67,9 @@ def register_NetObj_Props():
     STC.registerUserType( ADT.STS_Data )
     STC.registerUserType( ATD.CTaskList )
     STC.registerUserType( TDT.ETransporterMode )
-    STC.registerUserType( BT.EConnectionType )
     STC.registerUserType( CBoxAddress )
     STC.registerUserType( CStrList )
+    STC.registerUserType( BT.CConnectionAddress )
 
 def register_NetObj_Controllers_for_AgentManager():
     reg = CNetObj_Manager.registerController

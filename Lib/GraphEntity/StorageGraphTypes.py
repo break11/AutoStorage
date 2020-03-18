@@ -6,8 +6,8 @@ from PyQt5.QtCore import Qt
 
 from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.StrProps_Meta import СStrProps_Meta
-from Lib.Common.StrConsts import genSplitPattern
-from Lib.Common.StrConsts import SC
+from Lib.Common.StrConsts import genSplitPattern, SC
+import Lib.Common.BaseTypes as BT
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
     widthType        = None
@@ -17,7 +17,7 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     curvature        = None
     sensorSide       = None
     chargeSide       = None
-    chargePort       = None
+    chargeAddress    = None
     x                = None
     y                = None
     nodeType         = None
@@ -248,7 +248,8 @@ graphEnums = { SGA.nodeType   : ENodeTypes,
                SGA.chargeSide : ESide,
                SGA.linkLeft   : SNodePlace,
                SGA.linkRight  : SNodePlace,
-               SGA.linkPlace  : SNodePlace
+               SGA.linkPlace  : SNodePlace,
+               SGA.chargeAddress : BT.CConnectionAddress
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):

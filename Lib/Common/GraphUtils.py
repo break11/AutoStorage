@@ -35,8 +35,8 @@ def nodeProp(nxGraph, nodeID, sPropName):
 def nodeType(nxGraph, nodeID):
     return nodeProp( nxGraph, nodeID, SGA.nodeType )
 
-def nodeChargePort(nxGraph, nodeID):
-    return nodeProp( nxGraph, nodeID, SGA.chargePort )
+def nodeChargeAddress(nxGraph, nodeID):
+    return nodeProp( nxGraph, nodeID, SGA.chargeAddress )
 
 def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
     l = edgeSize( nxGraph, tKey )

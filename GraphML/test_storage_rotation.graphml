@@ -8,7 +8,7 @@
   <key attr.name="widthType" attr.type="string" for="edge" id="d7" />
   <key attr.name="y" attr.type="long" for="edge" id="d6" />
   <key attr.name="edgeSize" attr.type="long" for="edge" id="d5" />
-  <key attr.name="chargePort" attr.type="string" for="node" id="d4" />
+  <key attr.name="chargeAddress" attr.type="string" for="node" id="d4" />
   <key attr.name="chargeSide" attr.type="string" for="node" id="d3" />
   <key attr.name="nodeType" attr.type="string" for="node" id="d2" />
   <key attr.name="y" attr.type="long" for="node" id="d1" />
@@ -149,7 +149,7 @@
       <data key="d1">8200</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Right</data>
-      <data key="d4">ttyS0</data>
+      <data key="d4">Undefined</data>
     </node>
     <node id="25">
       <data key="d0">2800</data>
@@ -166,7 +166,7 @@
       <data key="d1">8200</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Left</data>
-      <data key="d4">ttyS0</data>
+      <data key="d4">Undefined</data>
     </node>
     <node id="28">
       <data key="d0">4200</data>
@@ -178,7 +178,7 @@
       <data key="d1">7200</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Right</data>
-      <data key="d4">ttyS0</data>
+      <data key="d4">Undefined</data>
     </node>
     <node id="30">
       <data key="d0">5600</data>
@@ -200,7 +200,7 @@
       <data key="d1">8400</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Left</data>
-      <data key="d4">ttyS0</data>
+      <data key="d4">Undefined</data>
     </node>
     <node id="34">
       <data key="d0">7600</data>

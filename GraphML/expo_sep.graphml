@@ -8,7 +8,7 @@
   <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d8" />
   <key attr.name="edgeSize" attr.type="long" for="edge" id="d7" />
   <key attr.name="linkPlace" attr.type="string" for="node" id="d6" />
-  <key attr.name="chargePort" attr.type="string" for="node" id="d5" />
+  <key attr.name="chargeAddress" attr.type="string" for="node" id="d5" />
   <key attr.name="chargeSide" attr.type="string" for="node" id="d4" />
   <key attr.name="linkRight" attr.type="string" for="node" id="d3" />
   <key attr.name="nodeType" attr.type="string" for="node" id="d2" />
@@ -236,7 +236,7 @@
       <data key="d1">2175</data>
       <data key="d2">PowerStation</data>
       <data key="d4">Left</data>
-      <data key="d5">ttyS0</data>
+      <data key="d5">USB=ttyS0</data>
     </node>
     <node id="45">
       <data key="d0">6900</data>

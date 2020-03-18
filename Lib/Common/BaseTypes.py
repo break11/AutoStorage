@@ -16,7 +16,7 @@ class EConnectionType( BaseEnum ):
 
 class SIPAddress:
     DS = ":"
-    "127.0.0.1:5020"
+    # "127.0.0.1:5020"
     
     def __init__( self, address, port, bValid = True ):
         self.address = address
@@ -103,6 +103,9 @@ class CСompositeType:
 ################################
 
 class CConnectionAddress( CСompositeType ):
+    @classmethod
+    def defTCP_IP(cls): return CConnectionAddress( _type=EConnectionType.TCP_IP, data=SIPAddress( address="127.0.0.1", port=8888 ) )
+
     baseType = EConnectionType
 
     dataFromStrFunc = {

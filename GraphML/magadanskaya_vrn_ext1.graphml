@@ -7,7 +7,7 @@
   <key attr.name="highRailSizeTo" attr.type="long" for="edge" id="d8" />
   <key attr.name="highRailSizeFrom" attr.type="long" for="edge" id="d7" />
   <key attr.name="edgeSize" attr.type="long" for="edge" id="d6" />
-  <key attr.name="chargePort" attr.type="string" for="node" id="d5" />
+  <key attr.name="chargeAddress" attr.type="string" for="node" id="d5" />
   <key attr.name="chargeSide" attr.type="string" for="node" id="d4" />
   <key attr.name="nodeType" attr.type="string" for="node" id="d3" />
   <key attr.name="y" attr.type="long" for="node" id="d2" />
@@ -219,7 +219,7 @@
       <data key="d2">2046</data>
       <data key="d3">PowerStation</data>
       <data key="d4">Right</data>
-      <data key="d5">ttyS0</data>
+      <data key="d5">Undefined</data>
     </node>
     <node id="41">
       <data key="d1">7107</data>

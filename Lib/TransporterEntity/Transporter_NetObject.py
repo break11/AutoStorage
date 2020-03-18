@@ -28,7 +28,6 @@ class STransporterProps( metaclass = СStrProps_Meta ):
     busy = None
     mode = None
     masterAddress     = None
-    connectionType    = None
     connectionAddress = None
     nodesList = None
 
@@ -43,7 +42,6 @@ class CTransporter_NO( CNetObj ):
                 STP.busy : False,
                 STP.mode : TDT.ETransporterMode.Default,
                 STP.masterAddress     : SC.localhost,
-                STP.connectionType    : BT.EConnectionType.Default,
                 STP.connectionAddress : f"{SC.localhost}:5020",
                 STP.nodesList         : CStrList()
                 }

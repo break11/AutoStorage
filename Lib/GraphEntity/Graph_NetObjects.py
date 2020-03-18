@@ -8,6 +8,7 @@ from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Utils import isSelfEvent
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File, renameDuplicateNodes
 from Lib.Common.StrConsts import SC
+import Lib.Common.BaseTypes as BT
 import Lib.GraphEntity.StorageGraphTypes as SGT
 
 s_Graph = "Graph"
@@ -36,7 +37,7 @@ class CGraphRoot_NO( CNetObj ):
 common_NodeProps = { SGT.SGA.x, SGT.SGA.y, SGT.SGA.nodeType }
 # spec_NodeProps - True в дикте означает обязательное присутствие свойства в объекте
 spec_NodeProps = {
-    SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargePort : True,  SGT.SGA.chargeSide : True  },
+    SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargeAddress : True,  SGT.SGA.chargeSide : True  },
     SGT.ENodeTypes.PickStation      : { SGT.SGA.linkLeft   : False, SGT.SGA.linkRight  : False },
     SGT.ENodeTypes.TransporterPoint : { SGT.SGA.linkPlace  : False }
 }
@@ -46,7 +47,7 @@ class CGraphNode_NO( CNetObj ):
                     SGT.SGA.x          : 0,
                     SGT.SGA.y          : 0,                          
                     SGT.SGA.nodeType   : SGT.ENodeTypes.DummyNode,
-                    SGT.SGA.chargePort : "ttyS0",
+                    SGT.SGA.chargeAddress : BT.CConnectionAddress.defTCP_IP(),
                     SGT.SGA.chargeSide : SGT.ESide.Default,
                     SGT.SGA.linkLeft   : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
                     SGT.SGA.linkRight  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
