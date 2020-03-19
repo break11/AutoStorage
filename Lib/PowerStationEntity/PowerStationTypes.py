@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 from Lib.Common.BaseEnum import BaseEnum
 
-class ECsChangeStage( BaseEnum ):
+class EChargeStage( BaseEnum ):
     GetState    = auto()  # Получение состояния
     SetRemote   = auto()  # Переключение на удаленное управление
     SetReset    = auto()  # Сброс
@@ -16,9 +16,9 @@ class ECsChangeStage( BaseEnum ):
     Undefined   = auto()
     Default     = GetState
 
-class EChargeCMD( BaseEnum ):
+class EChargeState( BaseEnum ):
     on      = auto()
     off     = auto()
 
     Undefined = auto()
-    Default   = on
+    Default   = off

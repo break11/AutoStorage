@@ -30,6 +30,8 @@ from Lib.TransporterEntity.Transporter_NetObject import CTransporter_NO, s_Trans
 import Lib.TransporterEntity.TransporterDataTypes as TDT
 from App.TransporterManager.TransporterChunk import CTransporterChunk
 
+import Lib.PowerStationEntity.PowerStationTypes as PST
+
 rootObjDict = { s_Agents       : CAgent_Root_NO,
                 s_Boxes        : CNetObj,
                 s_Transporters : CNetObj,
@@ -70,6 +72,8 @@ def register_NetObj_Props():
     STC.registerUserType( CBoxAddress )
     STC.registerUserType( CStrList )
     STC.registerUserType( BT.CConnectionAddress )
+    STC.registerUserType( PST.EChargeStage )
+    STC.registerUserType( PST.EChargeState )
 
 def register_NetObj_Controllers_for_AgentManager():
     reg = CNetObj_Manager.registerController

@@ -8,20 +8,27 @@ from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import genSplitPattern, SC
 import Lib.Common.BaseTypes as BT
+import Lib.PowerStationEntity.PowerStationTypes as PST
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
+    x                = None
+    y                = None
+
+    nodeType         = None
+    edgeType         = None
+
     widthType        = None
     edgeSize         = None
     highRailSizeFrom = None
     highRailSizeTo   = None
     curvature        = None
     sensorSide       = None
+
     chargeSide       = None
     chargeAddress    = None
-    x                = None
-    y                = None
-    nodeType         = None
-    edgeType         = None
+    chargeStage      = None
+    powerState       = None
+
     linkLeft         = None
     linkRight        = None
     linkPlace        = None
@@ -217,7 +224,7 @@ class SEdgePlace:
         eq = True
         eq = eq and self.nodeID_1 == other.nodeID_1
         eq = eq and self.nodeID_2 == other.nodeID_2
-        eq = eq and self.pos == other.pos
+        eq = eq and self.pos == other.posprepare
         return eq
 
     @classmethod
@@ -241,15 +248,20 @@ class SEdgePlace:
 ###########################################################
 
 graphEnums = { SGA.nodeType   : ENodeTypes, 
+
                SGA.edgeType   : EEdgeTypes,
                SGA.sensorSide : ESensorSide,
                SGA.widthType  : EWidthType, 
                SGA.curvature  : ECurvature, 
-               SGA.chargeSide : ESide,
+               
                SGA.linkLeft   : SNodePlace,
                SGA.linkRight  : SNodePlace,
                SGA.linkPlace  : SNodePlace,
-               SGA.chargeAddress : BT.CConnectionAddress
+
+               SGA.chargeSide : ESide,
+               SGA.chargeAddress : BT.CConnectionAddress,
+               SGA.chargeStage: PST.EChargeStage,
+               SGA.powerState : PST.EChargeState
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):

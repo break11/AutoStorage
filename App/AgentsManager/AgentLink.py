@@ -189,11 +189,11 @@ class CAgentLink( CAgentServer_Link ):
 
         elif cmd.event == EAgentServer_Event.ChargeBegin:
             self.netObj().status = ADT.EAgent_Status.Charging
-            self.doChargeCMD( PST.EChargeCMD.on )
+            self.doChargeCMD( PST.EChargeState.on )
 
         elif cmd.event == EAgentServer_Event.ChargeEnd:
             self.netObj().status = ADT.EAgent_Status.Idle
-            self.doChargeCMD( PST.EChargeCMD.off )
+            self.doChargeCMD( PST.EChargeState.off )
 
         elif cmd.event == EAgentServer_Event.NewTask:
             NT_Data = cmd.data

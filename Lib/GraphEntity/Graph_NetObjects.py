@@ -10,6 +10,7 @@ from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File, renameDupli
 from Lib.Common.StrConsts import SC
 import Lib.Common.BaseTypes as BT
 import Lib.GraphEntity.StorageGraphTypes as SGT
+import Lib.PowerStationEntity.PowerStationTypes as PST
 
 s_Graph = "Graph"
 s_Nodes = "Nodes"
@@ -37,7 +38,7 @@ class CGraphRoot_NO( CNetObj ):
 common_NodeProps = { SGT.SGA.x, SGT.SGA.y, SGT.SGA.nodeType }
 # spec_NodeProps - True в дикте означает обязательное присутствие свойства в объекте
 spec_NodeProps = {
-    SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargeAddress : True,  SGT.SGA.chargeSide : True  },
+    SGT.ENodeTypes.PowerStation     : { SGT.SGA.chargeAddress : True,  SGT.SGA.chargeSide : True, SGT.SGA.chargeStage : True, SGT.SGA.powerState : True },
     SGT.ENodeTypes.PickStation      : { SGT.SGA.linkLeft   : False, SGT.SGA.linkRight  : False },
     SGT.ENodeTypes.TransporterPoint : { SGT.SGA.linkPlace  : False }
 }
@@ -47,8 +48,12 @@ class CGraphNode_NO( CNetObj ):
                     SGT.SGA.x          : 0,
                     SGT.SGA.y          : 0,                          
                     SGT.SGA.nodeType   : SGT.ENodeTypes.DummyNode,
+
                     SGT.SGA.chargeAddress : BT.CConnectionAddress.defTCP_IP(),
-                    SGT.SGA.chargeSide : SGT.ESide.Default,
+                    SGT.SGA.chargeSide    : SGT.ESide.Default,
+                    SGT.SGA.chargeStage   : PST.EChargeStage.Default,
+                    SGT.SGA.powerState    : PST.EChargeState.Default,
+
                     SGT.SGA.linkLeft   : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
                     SGT.SGA.linkRight  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
                     SGT.SGA.linkPlace  : SGT.SNodePlace( SC.some_node, SGT.ESide.Undefined ),
