@@ -332,14 +332,24 @@ def pathsThroughCycles( nxGraph, simple_path ):
 
     return paths_through_cycles
 
-def pathWeight( nxGraph, path, weight = SGA.edgeSize):
+def pathWeight( nxGraph, path, weight = SGA.edgeSize ):
     edges = edgesListFromNodes( path )
     path_weight = 0
+
+    #####################################################################################
+    # в networkx для определения веса грани в различных алгоритмах(dijkstra_path и другие)
+    # может быть задана функция или атрибут грани
+    # используем тот же подход, код фактически взят из nx.algorithms._weight_function
+    weight_function = weight
+    if not callable( weight_function ):
+        if nxGraph.is_multigraph():
+            weight_function = lambda u, v, d: min(attr.get(weight, 1) for attr in d.values())
+        else:
+            weight_function = lambda u, v, data: data.get(weight, 1)
+    ######################################################################################
     
     for tEdgeKey in edges:
-        # если заданного поля нет, то вес рассчитывается по количеству граней
-        # nx.algorithms.dijkstra_path работает таким же образом при рассчете кратчайшего пути
-        path_weight += nxGraph.edges()[ tEdgeKey ].get( weight, 1 )
+        path_weight += weight_function( *tEdgeKey, nxGraph.edges()[ tEdgeKey ] )
 
     return path_weight
 
