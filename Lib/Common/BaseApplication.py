@@ -1,7 +1,9 @@
 import sys
+import os
 
 from PyQt5.QtWidgets import QApplication, QDockWidget, QWidget, QStyleFactory
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 
 from .SettingsManager import CSettingsManager as CSM
 from Lib.Net.NetObj_Manager import CNetObj_Manager
@@ -10,6 +12,7 @@ from Lib.Net.NetObj_Monitor import CNetObj_Monitor
 from Lib.Common.GuiUtils import CNoAltMenu_Style
 from Lib.Common.TickManager import CTickManager
 from Lib.Common.Console import CConsole
+import Lib.Common.FileUtils as FU
 
 class CBaseApplication( QApplication ):
     def __init__(self, argv, bNetworkMode,
@@ -18,8 +21,8 @@ class CBaseApplication( QApplication ):
         super().__init__( argv )
         self.console = CConsole( self )
 
-        from PyQt5.QtGui import QIcon
-        self.setWindowIcon( QIcon("/home/break1/Data/Projects/ChelnokSklad/test.png") )
+        if os.path.exists( FU.appIconPath() ):
+            self.setWindowIcon( QIcon( FU.appIconPath() ) )
 
         CTickManager.start()
 

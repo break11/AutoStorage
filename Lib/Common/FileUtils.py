@@ -27,6 +27,12 @@ def graphML_Path():
 def mainAppBaseName():
     return os.path.basename( baseFName ).replace( ".py", "" )
 
+def appPath():
+    return projectDir() + "App/" + mainAppBaseName() + "/"
+
+def appIconPath():
+    return appPath() + "AppIcon.png"
+
 def appLogPath():
     sLogDir = projectDir() + "Log/" + mainAppBaseName()
 
