@@ -1,11 +1,13 @@
 
-import weakref
+##remove##
 
-# базовый класс контроллера NetObj - объекта реализующего функциональные свойства конкретных NetObj
+# import weakref
 
-class CNetObj_Controller:
-    def __init__( self, netObj ):
-        self.netObj = weakref.ref( netObj )
+# # базовый класс контроллера NetObj - объекта реализующего функциональные свойства конкретных NetObj
 
-    def onTick( fSec ):
-        pass
+# class CNetObj_Controller:
+#     def __init__( self, netObj ):
+#         self.netObj = weakref.ref( netObj )
+
+#     def onTick( fSec ):
+#         pass

@@ -120,11 +120,12 @@ class CNetObj_Manager( object ):
         controllersDict[ controller ] = attachFunc
         cls.__registered_controllers[ netObjClass.__name__ ] = controllersDict
 
-    @classmethod
-    def controllersTick(cls):
-        for controller in cls.__controllers:
-            if hasattr( controller, "onTick" ):
-                controller.onTick()
+    ##remove##
+    # @classmethod
+    # def controllersTick(cls):
+    #     for controller in cls.__controllers:
+    #         if hasattr( controller, "onTick" ):
+    #             controller.onTick()
 
     #####################################################
     @classmethod
@@ -392,6 +393,6 @@ from .NetCmd import CNetCmd
 CNetObj_Manager.initRoot()
 
 CTickManager.addTicker( 100,  CNetObj_Manager.netTick,          CNetObj_Manager, )
-CTickManager.addTicker( 500,  CNetObj_Manager.controllersTick,  CNetObj_Manager, )
+##remove##CTickManager.addTicker( 500,  CNetObj_Manager.controllersTick,  CNetObj_Manager, )
 CTickManager.addTicker( 1500, CNetObj_Manager.updateClientInfo, CNetObj_Manager, )
 

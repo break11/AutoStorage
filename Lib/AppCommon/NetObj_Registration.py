@@ -31,6 +31,7 @@ import Lib.TransporterEntity.TransporterDataTypes as TDT
 from App.TransporterManager.TransporterChunk import CTransporterChunk
 
 import Lib.PowerStationEntity.PowerStationTypes as PST
+from Lib.PowerStationEntity.PowerStation import CPowerStation
 
 rootObjDict = { s_Agents       : CAgent_Root_NO,
                 s_Boxes        : CNetObj,
@@ -80,6 +81,8 @@ def register_NetObj_Controllers_for_AgentManager():
     reg( CAgent_NO, CAgentLink )
     reg( CAgent_Root_NO, CAgentsConnectionServer )
     reg( CAgent_Root_NO, CAgentTest )
+
+    reg( CGraphNode_NO, CPowerStation, attachFunc = lambda nodeNO : nodeNO.nodeType == SGT.ENodeTypes.PowerStation )
 
 def register_NetObj_Controllers_for_TransporterManager():
     reg = CNetObj_Manager.registerController

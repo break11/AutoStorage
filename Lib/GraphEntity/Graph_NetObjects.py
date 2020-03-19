@@ -95,6 +95,9 @@ class CGraphNode_NO( CNetObj ):
     def nxNode(self)      : return self.nxGraph().nodes()[ self.name ] if self.__has_nxNode() else {}
     def __has_nxNode(self): return self.nxGraph().has_node( self.name ) if self.nxGraph() else None
 
+def nodeByName( nodeID ):
+    return graphNodeCache().nodesNode().childByName( nodeID )
+
 ###################################################################################
 
 common_EdgeProps = { SGT.SGA.edgeType, SGT.SGA.edgeSize }

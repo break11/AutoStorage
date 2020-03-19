@@ -18,7 +18,7 @@ import Lib.PowerStationEntity.ChargeUtils as CU
 import Lib.PowerStationEntity.PowerStationTypes as PST
 from Lib.Common.SerializedList import CStrList
 from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
-from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache, nodeByName
 from Lib.BoxEntity.Box_NetObject import getBox_from_NodePlace, getBox_by_BoxAddress, getBox_by_Name
 from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
@@ -254,10 +254,19 @@ class CAgentLink( CAgentServer_Link ):
             return
 
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
-        chargeAddress= GU.nodeChargeAddress( self.nxGraph, nodeID )
-        if chargeAddress is None:
+
+        powerStationNode = nodeByName( nodeID )
+
+        powerStation = powerStationNode.getController( CPowerStation )
+        if powerStation is None:
             self.netObj().status = ADT.EAgent_Status.CantCharge
             return
+
+        ##remove##
+        # chargeAddress= GU.nodeChargeAddress( self.nxGraph, nodeID )
+        # if chargeAddress is None:
+        #     self.netObj().status = ADT.EAgent_Status.CantCharge
+        #     return
 
         self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
 
