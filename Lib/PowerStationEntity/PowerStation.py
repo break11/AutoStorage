@@ -1,4 +1,5 @@
 import weakref
+from collections import namedtuple
 from PyQt5.QtNetwork import QTcpSocket, QAbstractSocket
 
 from Lib.Common.StrConsts import SC
@@ -12,42 +13,66 @@ import Lib.Common.BaseTypes as BT
 
 import Lib.PowerStationEntity.ChargeUtils as CU
 
+ECS = PST.EChargeStage
+EPS = PST.EChargeState
+
+PowerDesc = namedtuple( "PowerDesc", "data stage", defaults = (None, None) )
 
 class CBase_PowerHandler:
     def __init__(self, netObj):
         self.netObj = weakref.ref( netObj )
+    
+    def mainTick(self, netObj):
+        pass
     
     @property
     def address_data(self):
         return self.netObj().chargeAddress.data 
 
 class CUSB_PowerHandler(CBase_PowerHandler):
-    
-    def mainTick(self, netObj):
-        pass
-    
     def setPowerState(self, powerState):
         CU.controlCharge( powerState, self.address_data )
 
     def __del__(self):
-        CU.controlCharge( PST.EChargeState.off, self.address_data )
-
+        CU.controlCharge( EPS.off, self.address_data )
 
 class CTCP_IP_PowerHandler(CBase_PowerHandler):
+
+    PD_Funcs_byChargeStage = {
+        # Получить статус удаленного управления
+        ECS.GetState    : lambda obj : PowerDesc( data = "SYST:LOCK:OWN?" ),
+        # Переключить на удаленное управление
+        ECS.SetRemote   : lambda obj : PowerDesc( data = "SYST:LOCK:STAT 1", stage = ECS.SetReset ),
+        # Выполнить сброс устройства для переключения в режим удаленного управления
+        ECS.SetReset    : lambda obj : PowerDesc( data = "*RST", stage = ECS.GetState ),
+        # Отправить запрос на получение напряжения
+        ECS.GetVoltage  : lambda obj : PowerDesc( data = "MEAS:VOLT?" ),
+        # Отправить запрос на получение тока
+        ECS.GetCurrent  : lambda obj : PowerDesc( data = "MEAS:CURR?" ),
+        # Отключить выход
+        ECS.SetPowerOff : lambda obj : PowerDesc( data = "OUTP OFF", stage = ECS.GetVoltage ),
+        # Установить напряжение на выходе
+        ECS.SetVoltage  : lambda obj : PowerDesc( data = f"VOLT { obj.voltageMax / 10 }", stage = ECS.SetCurrent ),
+        # Установить ток на выходе
+        ECS.SetCurrent  : lambda obj : PowerDesc( data = f"CURR { obj.currentMax / 10 }", stage = ECS.SetPowerOn ),
+        # Включить выход
+        ECS.SetPowerOn  : lambda obj : PowerDesc( data = "OUTP ON", stage = ECS.GetVoltage ),
+    }
+
     def __init__(self, netObj):
         super().__init__( netObj )
         self.tcpSocket = QTcpSocket()
         self.tcpSocket.readyRead.connect( self.bytesAvailable )
 
-        self.voltageMax = 0
-        self.currentMax = 0
+        self.voltageMax = 10
+        self.currentMax = 0.5
 
         self.voltageFact = 0
         self.currentFact = 0
 
     def __del__(self):
         stage = self.netObj().chargeStage
-        if stage == PST.EChargeStage.GetVoltage or stage == PST.EChargeStage.GetCurrent:
+        if stage == ECS.GetVoltage or stage == ECS.GetCurrent:
             self.tcpSocket.write( "OUTP OFF" )
         self.tcpSocket.disconnect()
     
@@ -56,68 +81,28 @@ class CTCP_IP_PowerHandler(CBase_PowerHandler):
             self.tcpSocket.connectToHost( self.address_data.address, self.address_data.port )
 
             if self.tcpSocket.waitForConnected(100):
-                self.netObj().chargeStage = PST.EChargeStage.GetState
+                self.netObj().chargeStage = ECS.GetState
             else:
                 print( f"{SC.sWarning} No connection with charge station { self.address_data.address, self.address_data.port }" )
         
         elif self.tcpSocket.state() == QAbstractSocket.ConnectedState:
             current_stage = self.netObj().chargeStage
-            target_stage, target_power_state, data = None, None, None
+            func = self.PD_Funcs_byChargeStage.get( current_stage )
+            targetDesc = func( self )
 
-            if current_stage == PST.EChargeStage.GetState:
-                # Получить статус удаленного управления
-                data = "SYST:LOCK:OWN?"
-            
-            elif current_stage == PST.EChargeStage.SetRemote:
-                # Переключить на удаленное управление
-                data, target_stage = "SYST:LOCK:STAT 1", PST.EChargeStage.SetReset
-
-            elif current_stage == PST.EChargeStage.SetReset:
-                # Выполнить сброс устройства для переключения в режим удаленного управления
-                data, target_stage = "*RST", PST.EChargeStage.GetState
-
-            elif current_stage == PST.EChargeStage.GetVoltage:
-                # Отправить запрос на получение напряжения
-                data = "MEAS:VOLT?"
-
-            elif current_stage == PST.EChargeStage.GetCurrent:
-                # Отправить запрос на получение тока
-                data = "MEAS:CURR?"
-
-            elif current_stage == PST.EChargeStage.SetPowerOff:
-                # Отключить выход
-                data = "OUTP OFF"
-                target_power_state = PST.EChargeState.off
-                target_stage = PST.EChargeStage.GetVoltage
-
-            elif current_stage == PST.EChargeStage.SetVoltage:
-                # Установить напряжение на выходе
-                # sprintf( data, "VOLT %d.%d", mVoltageMax / 10, mVoltageMax % 10 );
-                # mSocket.write( data, strlen( data ) );
-                data, target_stage = f"VOLT { self.voltageMax / 10 }", PST.EChargeStage.SetCurrent
-
-            elif current_stage == PST.EChargeStage.SetCurrent:
-                # Установить ток на выходе
-                # sprintf( data, "CURR %d.%d", mCurrentMax / 10, mCurrentMax % 10 );
-                # mSocket.write( data, strlen( data ) );
-                data, target_stage = f"CURR { self.currentMax / 10 }", PST.EChargeStage.SetPowerOn
-
-            elif current_stage == PST.EChargeStage.SetPowerOn:
-                # Включить выход
-                data, target_stage = "OUTP ON", PST.EChargeStage.GetVoltage
-
-            if data is not None: self.tcpSocket.write( data.encode() )
-            if target_power_state is not None: self.netObj().powerState = target_power_state
-            if target_stage is not None: self.netObj().chargeStage = target_stage
+            if targetDesc.data is not None:
+                self.tcpSocket.write( targetDesc.data.encode() )
+            if targetDesc.stage is not None:
+                self.netObj().chargeStage = targetDesc.stage
 
     def setPowerState(self, powerState):
         current_stage = self.netObj().chargeStage
-        if current_stage == PST.EChargeStage.GetVoltage or current_stage == PST.EChargeStage.GetCurrent:
-            if powerState == PST.EChargeState.on:
+        if current_stage == ECS.GetVoltage or current_stage == ECS.GetCurrent:
+            if powerState == EPS.on:
                 # Включение начинается с отправки напряжения и заканчивается, собственно, включением
-                self.netObj().chargeStage = PST.EChargeStage.SetVoltage
-            elif powerState == PST.EChargeState.off:
-                self.netObj().chargeStage = PST.EChargeStage.SetPowerOff
+                self.netObj().chargeStage = ECS.SetVoltage
+            elif powerState == EPS.off:
+                self.netObj().chargeStage = ECS.SetPowerOff
 
     def bytesAvailable(self):
         while self.tcpSocket.canReadLine():
@@ -125,28 +110,29 @@ class CTCP_IP_PowerHandler(CBase_PowerHandler):
             print(line)
             current_stage = self.netObj().chargeStage
 
-            if current_stage == PST.EChargeStage.GetState:
+            if current_stage == ECS.GetState:
                 if line == "NONE":
-                    self.netObj().chargeStage = PST.EChargeStage.SetRemote
+                    self.netObj().chargeStage = ECS.SetRemote
                 elif line == "REMOTE":
-                    self.netObj().chargeStage = PST.EChargeStage.GetVoltage
+                    self.netObj().chargeStage = ECS.GetVoltage
 
-            elif current_stage == PST.EChargeStage.GetVoltage:
+            elif current_stage == ECS.GetVoltage:
                 # Получено значение напряжения, значение возвращается в формате "0.00 V"
                 self.voltageFact = float( line.split(" ")[0] ) * 10
-                self.netObj().chargeStage = PST.EChargeStage.GetCurrent
+                self.netObj().chargeStage = ECS.GetCurrent
 
-            elif current_stage == PST.EChargeStage.GetCurrent:
+            elif current_stage == ECS.GetCurrent:
                 # Получено значение тока, значение возвращается в формате "0.0 A"
                 self.currentFact = float( line.split(" ")[0] ) * 10
-                self.netObj().chargeStage = PST.EChargeStage.GetVoltage
+                self.netObj().chargeStage = ECS.GetVoltage
+
+
+#########################################################################################################
 
 pwHandlers_byConnType = {
                             BT.EConnectionType.USB    : CUSB_PowerHandler,
                             BT.EConnectionType.TCP_IP : CTCP_IP_PowerHandler
                         }
-
-#########################################################################################################
 
 class CPowerStation:
     def __init__(self, netObj ):
@@ -165,7 +151,7 @@ class CPowerStation:
 
         if cmd.sPropName == SGT.SGA.chargeAddress:
             powerStationType = pwHandlers_byConnType.get( powerNodeNO.chargeAddress._type )
-            self.powerStation = powerStationType( powerNodeNO.chargeAddress )
+            self.powerStation = powerStationType( powerNodeNO )
 
         if cmd.sPropName == SGT.SGA.powerState:
             self.powerStation.setPowerState( cmd.value )
