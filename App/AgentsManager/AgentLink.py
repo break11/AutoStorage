@@ -11,14 +11,12 @@ from Lib.Net.NetObj_Manager import CNetObj_Manager
 from Lib.Net.Net_Events import ENet_Event as EV
 from Lib.Net.NetObj_Utils import isNone_or_Empty, isSelfEvent
 import Lib.Common.FileUtils as FileUtils
-import Lib.Common.BaseTypes as BT
 from Lib.Common.StrConsts import SC
 from Lib.Common.TreeNodeCache import CTreeNodeCache
-import Lib.PowerStationEntity.ChargeUtils as CU
 import Lib.PowerStationEntity.PowerStationTypes as PST
 from Lib.Common.SerializedList import CStrList
 from Lib.GraphEntity.StorageGraphTypes import ENodeTypes
-from Lib.GraphEntity.Graph_NetObjects import graphNodeCache, nodeByName
+from Lib.GraphEntity.Graph_NetObjects import graphNodeCache, nodeNetObj_byName
 from Lib.BoxEntity.Box_NetObject import getBox_from_NodePlace, getBox_by_BoxAddress, getBox_by_Name
 from Lib.BoxEntity.BoxAddress import CBoxAddress, EBoxAddressType
 from Lib.AgentEntity.AgentServerPacket import CAgentServerPacket as ASP
@@ -30,6 +28,7 @@ from Lib.AgentEntity.AgentLogManager import ALM
 import Lib.AgentEntity.AgentTaskData as ATD
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.TickManager import CTickManager
+from Lib.PowerStationEntity.PowerStation import CPowerStation
 
 from Lib.AgentEntity.routeBuilder import CRouteBuilder, ERouteStatus
 
@@ -189,11 +188,11 @@ class CAgentLink( CAgentServer_Link ):
 
         elif cmd.event == EAgentServer_Event.ChargeBegin:
             self.netObj().status = ADT.EAgent_Status.Charging
-            self.doChargeCMD( PST.EChargeState.on )
+            self.setPowerState( PST.EChargeState.on )
 
         elif cmd.event == EAgentServer_Event.ChargeEnd:
             self.netObj().status = ADT.EAgent_Status.Idle
-            self.doChargeCMD( PST.EChargeState.off )
+            self.setPowerState( PST.EChargeState.off )
 
         elif cmd.event == EAgentServer_Event.NewTask:
             NT_Data = cmd.data
@@ -249,36 +248,28 @@ class CAgentLink( CAgentServer_Link ):
     def prepareCharging( self ):
         agentNO = self.netObj()
         tKey = agentNO.edge.toTuple()
-        if not GU.isOnNode( self.nxGraph, tKey, agentNO.position, _nodeTypes = { ENodeTypes.PowerStation } ):
+        if not agentNO.isOnNode( nodeTypes = { ENodeTypes.PowerStation } ): 
             agentNO.status = ADT.EAgent_Status.CantCharge
             return
 
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
-
-        powerStationNode = nodeByName( nodeID )
-
+        powerStationNode = nodeNetObj_byName( nodeID )
         powerStation = powerStationNode.getController( CPowerStation )
+        
         if powerStation is None:
             self.netObj().status = ADT.EAgent_Status.CantCharge
             return
 
-        ##remove##
-        # chargeAddress= GU.nodeChargeAddress( self.nxGraph, nodeID )
-        # if chargeAddress is None:
-        #     self.netObj().status = ADT.EAgent_Status.CantCharge
-        #     return
-
         self.pushCmd( ASP( event=EAgentServer_Event.ChargeMe ) )
 
-    def doChargeCMD( self, chargeCMD ):
+    def setPowerState( self, powerState ):
         tKey = self.netObj().edge.toTuple()
+        
+        # проверка на ноду-зарядную станцию есть в prepareCharging
+        # предполагаем, что с момента prepareCharging челнок не перемещался по нодам
         nodeID = GU.nodeByPos( self.nxGraph, tKey, self.netObj().position )
-
-        chargeAddress = GU.nodeChargeAddress( self.nxGraph, nodeID )
-        # проверка на наличие порта выполнена в prepareCharging, предполагаем, что с момента prepareCharging челнок не перемещался по нодам
-
-        if chargeAddress._type == BT.EConnectionType.USB:
-            CU.controlCharge( chargeCMD, chargeAddress.data )
+        powerStationNode = nodeNetObj_byName( nodeID )
+        powerStationNode.powerState = powerState
 
     #########################################################
 
