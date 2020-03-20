@@ -39,7 +39,7 @@ while True:
                 voltage = float( data.decode().split(" ")[1] )
             elif b"CURR" in data:
                 current = float( data.decode().split(" ")[1] )
-            elif b"OUTP ON" in data:
+            elif b"OUTP OFF" in data:
                 voltage, current = 0, 0
 
             print( f"STATE: {state} {voltage} V {current} A\n" )
