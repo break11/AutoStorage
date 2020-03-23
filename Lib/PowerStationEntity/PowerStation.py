@@ -15,6 +15,7 @@ import Lib.PowerStationEntity.ChargeUtils as CU
 
 ECS = PST.EChargeStage
 EPS = PST.EChargeState
+PSC = PST.PowerStationCommands
 
 PowerDesc = namedtuple( "PowerDesc", "data stage", defaults = (None, None) )
 
@@ -31,23 +32,23 @@ class CTCP_IP_PowerHandler:
 
     PD_Funcs_byChargeStage = {
         # Получить статус удаленного управления
-        ECS.GetState    : lambda obj : PowerDesc( data = "SYST:LOCK:OWN?" ),
+        ECS.GetState    : lambda obj : PowerDesc( data = PSC.GetState ),
         # Переключить на удаленное управление
-        ECS.SetRemote   : lambda obj : PowerDesc( data = "SYST:LOCK:STAT 1", stage = ECS.SetReset ),
+        ECS.SetRemote   : lambda obj : PowerDesc( data = PSC.SetRemote, stage = ECS.SetReset ),
         # Выполнить сброс устройства для переключения в режим удаленного управления
-        ECS.SetReset    : lambda obj : PowerDesc( data = "*RST", stage = ECS.GetState ),
+        ECS.SetReset    : lambda obj : PowerDesc( data = PSC.SetReset, stage = ECS.GetState ),
         # Отправить запрос на получение напряжения
-        ECS.GetVoltage  : lambda obj : PowerDesc( data = "MEAS:VOLT?" ),
+        ECS.GetVoltage  : lambda obj : PowerDesc( data = PSC.GetVoltage ),
         # Отправить запрос на получение тока
-        ECS.GetCurrent  : lambda obj : PowerDesc( data = "MEAS:CURR?" ),
+        ECS.GetCurrent  : lambda obj : PowerDesc( data = PSC.GetCurrent ),
         # Отключить выход
-        ECS.SetPowerOff : lambda obj : PowerDesc( data = "OUTP OFF", stage = ECS.GetVoltage ),
+        ECS.SetPowerOff : lambda obj : PowerDesc( data = PSC.SetPowerOff, stage = ECS.GetVoltage ),
         # Установить напряжение на выходе
-        ECS.SetVoltage  : lambda obj : PowerDesc( data = f"VOLT { obj.voltageMax / 10 }", stage = ECS.SetCurrent ),
+        ECS.SetVoltage  : lambda obj : PowerDesc( data = PSC.Voltage( obj.voltageMax ), stage = ECS.SetCurrent ),
         # Установить ток на выходе
-        ECS.SetCurrent  : lambda obj : PowerDesc( data = f"CURR { obj.currentMax / 10 }", stage = ECS.SetPowerOn ),
+        ECS.SetCurrent  : lambda obj : PowerDesc( data = PSC.Current( obj.currentMax ), stage = ECS.SetPowerOn ),
         # Включить выход
-        ECS.SetPowerOn  : lambda obj : PowerDesc( data = "OUTP ON", stage = ECS.GetVoltage ),
+        ECS.SetPowerOn  : lambda obj : PowerDesc( data = PSC.SetPowerOn, stage = ECS.GetVoltage ),
     }
 
     def __init__(self):
@@ -63,7 +64,7 @@ class CTCP_IP_PowerHandler:
     def __del__(self):
         stage = self.netObj().chargeStage
         if stage == ECS.GetVoltage or stage == ECS.GetCurrent:
-            self.tcpSocket.write( b"OUTP OFF" )
+            self.tcpSocket.write( PSC.SetPowerOff.encode() )
         self.tcpSocket.disconnect()
     
     def mainTick(self):
@@ -100,19 +101,19 @@ class CTCP_IP_PowerHandler:
             current_stage = self.netObj().chargeStage
 
             if current_stage == ECS.GetState:
-                if line == "NONE":
+                if line == PSC.NoneState:
                     self.netObj().chargeStage = ECS.SetRemote
-                elif line == "REMOTE":
+                elif line == PSC.RemoteState:
                     self.netObj().chargeStage = ECS.GetVoltage
 
             elif current_stage == ECS.GetVoltage:
                 # Получено значение напряжения, значение возвращается в формате "0.00 V"
-                self.voltageFact = float( line.split(" ")[0] ) * 10
+                self.voltageFact = float( line.split(" ")[0] )
                 self.netObj().chargeStage = ECS.GetCurrent
 
             elif current_stage == ECS.GetCurrent:
                 # Получено значение тока, значение возвращается в формате "0.0 A"
-                self.currentFact = float( line.split(" ")[0] ) * 10
+                self.currentFact = float( line.split(" ")[0] )
                 self.netObj().chargeStage = ECS.GetVoltage
 
 
