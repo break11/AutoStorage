@@ -15,8 +15,8 @@ class EConnectionType( BaseEnum ):
 ################################
 
 class SIPAddress:
-    DS = ":"
-    # "127.0.0.1:5020"
+    DS = "|"
+    # "127.0.0.1|1111"
     
     def __init__( self, address, port, bValid = True ):
         self.address = address
@@ -42,7 +42,7 @@ class SIPAddress:
         except:
             print( f"{SC.sError} SIPAddress can't convert from '{data}'!" )
             address = SC.localhost
-            port = 8888
+            port = 1111
             bValid = False
 
         return SIPAddress( address, port, bValid )
@@ -84,7 +84,7 @@ class CСompositeType:
         if len( l ) > 1:
             data = cls.dataFromString( _type, l[1] )
         else:
-            data = None
+            data = cls.dataFromString( _type, "" )
         return cls( _type, data )
 
     def toString( self ):

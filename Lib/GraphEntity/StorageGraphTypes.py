@@ -224,7 +224,7 @@ class SEdgePlace:
         eq = True
         eq = eq and self.nodeID_1 == other.nodeID_1
         eq = eq and self.nodeID_2 == other.nodeID_2
-        eq = eq and self.pos == other.posprepare
+        eq = eq and self.pos == other.pos
         return eq
 
     @classmethod

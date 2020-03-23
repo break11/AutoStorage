@@ -50,9 +50,9 @@ class Test_BaseTypes(unittest.TestCase):
         self.assertEqual( val_test.toString(), sData )
 
         ##################################################################################################
-        sData = "TCP_IP=12.56.0.4:1234"
+        sData = "TCP_IP=12.56.0.4|1234"
         addr  = BT.CConnectionAddress( BT.EConnectionType.TCP_IP, data = BT.SIPAddress( "12.56.0.4", 1234 ) )
-        addr1 = BT.CConnectionAddress( BT.EConnectionType.TCP_IP, data = BT.SIPAddress.fromString( "12.56.0.4:1234" ) )
+        addr1 = BT.CConnectionAddress( BT.EConnectionType.TCP_IP, data = BT.SIPAddress.fromString( "12.56.0.4|1234" ) )
         addr_test = BT.CConnectionAddress.fromString( sData )
 
         self.assertEqual( addr, addr1 )
