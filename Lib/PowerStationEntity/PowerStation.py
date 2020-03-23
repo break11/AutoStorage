@@ -18,25 +18,16 @@ EPS = PST.EChargeState
 
 PowerDesc = namedtuple( "PowerDesc", "data stage", defaults = (None, None) )
 
-class CBase_PowerHandler:
-    def __init__(self, netObj):
-        self.netObj = weakref.ref( netObj )
-    
-    def mainTick(self, netObj):
-        pass
-    
-    @property
-    def address_data(self):
-        return self.netObj().chargeAddress.data 
+class CUSB_PowerHandler:
+    def mainTick(self): pass
 
-class CUSB_PowerHandler(CBase_PowerHandler):
     def setPowerState(self, powerState):
         CU.controlCharge( powerState, self.address_data )
 
     def __del__(self):
         CU.controlCharge( EPS.off, self.address_data )
 
-class CTCP_IP_PowerHandler(CBase_PowerHandler):
+class CTCP_IP_PowerHandler:
 
     PD_Funcs_byChargeStage = {
         # Получить статус удаленного управления
@@ -59,13 +50,12 @@ class CTCP_IP_PowerHandler(CBase_PowerHandler):
         ECS.SetPowerOn  : lambda obj : PowerDesc( data = "OUTP ON", stage = ECS.GetVoltage ),
     }
 
-    def __init__(self, netObj):
-        super().__init__( netObj )
+    def __init__(self):
         self.tcpSocket = QTcpSocket()
         self.tcpSocket.readyRead.connect( self.bytesAvailable )
 
-        self.voltageMax = 10
-        self.currentMax = 0.5
+        self.voltageMax = 41.5
+        self.currentMax = 100.0
 
         self.voltageFact = 0
         self.currentFact = 0
@@ -73,7 +63,7 @@ class CTCP_IP_PowerHandler(CBase_PowerHandler):
     def __del__(self):
         stage = self.netObj().chargeStage
         if stage == ECS.GetVoltage or stage == ECS.GetCurrent:
-            self.tcpSocket.write( "OUTP OFF" )
+            self.tcpSocket.write( b"OUTP OFF" )
         self.tcpSocket.disconnect()
     
     def mainTick(self):
@@ -107,7 +97,6 @@ class CTCP_IP_PowerHandler(CBase_PowerHandler):
     def bytesAvailable(self):
         while self.tcpSocket.canReadLine():
             line = self.tcpSocket.readLine().data().decode().replace( "\n", "" )
-            print(line)
             current_stage = self.netObj().chargeStage
 
             if current_stage == ECS.GetState:
@@ -138,9 +127,7 @@ class CPowerStation:
     def __init__(self, netObj ):
         CTickManager.addTicker( 1000, self.mainTick )
         CNetObj_Manager.addCallback( EV.ObjPropUpdated, self )
-
-        powerStationType = pwHandlers_byConnType.get( netObj.chargeAddress._type )
-        self.powerStation = powerStationType( netObj )
+        self.makePowerStation_Handler( netObj )
 
     def mainTick( self ):
         self.powerStation.mainTick()
@@ -150,8 +137,13 @@ class CPowerStation:
         if not isSelfEvent( cmd, powerNodeNO ): return
 
         if cmd.sPropName == SGT.SGA.chargeAddress:
-            powerStationType = pwHandlers_byConnType.get( powerNodeNO.chargeAddress._type )
-            self.powerStation = powerStationType( powerNodeNO )
+            self.makePowerStation_Handler( powerNodeNO )
 
         if cmd.sPropName == SGT.SGA.powerState:
             self.powerStation.setPowerState( cmd.value )
+
+    def makePowerStation_Handler(self, netObj):
+        powerStationType = pwHandlers_byConnType.get( netObj.chargeAddress._type )
+        self.powerStation = powerStationType()
+        self.powerStation.netObj = weakref.ref( netObj )
+        self.powerStation.address_data = netObj.chargeAddress.data
