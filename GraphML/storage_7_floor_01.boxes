@@ -1,0 +1,39 @@
+[
+    {
+        "name": "11",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=74|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "20",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=66|Right"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+
+    {
+        "name": "10",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=66|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    },
+    {
+        "name": "1",
+        "type": "CBox_NO",
+        "props": {
+            "address": "OnNode=74|Left"
+        },
+        "ext_fields": {},
+        "children": []
+    }
+]

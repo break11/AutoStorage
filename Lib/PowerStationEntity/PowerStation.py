@@ -120,8 +120,9 @@ class CTCP_IP_PowerHandler:
 #########################################################################################################
 
 pwHandlers_byConnType = {
-                            BT.EConnectionType.USB    : CUSB_PowerHandler,
-                            BT.EConnectionType.TCP_IP : CTCP_IP_PowerHandler
+                            BT.EConnectionType.USB       : CUSB_PowerHandler,
+                            BT.EConnectionType.TCP_IP    : CTCP_IP_PowerHandler,
+                            BT.EConnectionType.Undefined : CUSB_PowerHandler
                         }
 
 class CPowerStation:

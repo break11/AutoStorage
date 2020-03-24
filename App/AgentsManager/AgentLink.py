@@ -478,6 +478,11 @@ class CAgentLink( CAgentServer_Link ):
                 if tKey is None: return
 
                 route_weight, nodes_route = GU.shortestNodesRoute( self.nxGraph, tKey, agentNO.angle, nodeID )
+                # При заезде для забора коробки на ближайшее к перекрестку место с полкой, если слишком короткое расстояние до места хранения,
+                # тележка не успевает прижаться к стороне выгрузки, так как задние колеса во время прижатия находятся еще на перекрестке
+                # колеса сильно разворачиваются и тележка ударяется о бордюр перекрестка и останавливается с ошибкой.
+                # Чтобы этого избежать нужно сначала проезжать ко второй полке без прижатия,
+                # а затем возвращаться к первой с прижатием к нужной стороне.
                 nodes_route = GU.extendPath_ifCrossTooClose( self.nxGraph, nodes_route, length_treshhold=1300 )
                 agentNO.applyRoute( nodes_route )
 
