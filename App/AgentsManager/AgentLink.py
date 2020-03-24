@@ -473,7 +473,13 @@ class CAgentLink( CAgentServer_Link ):
 
             if not bOnTargetNode:
                 agentNO.target_LU_side = side
-                agentNO.goToNode( nodeID )
+
+                tKey = agentNO.isOnTrack()
+                if tKey is None: return
+
+                route_weight, nodes_route = GU.shortestNodesRoute( self.nxGraph, tKey, agentNO.angle, nodeID )
+                nodes_route = GU.extendPath_ifCrossTooClose( self.nxGraph, nodes_route, length_treshhold=1300 )
+                agentNO.applyRoute( nodes_route )
 
             elif bOnTargetNode and not bWithTargetSide:
                 taskNodeID = nodeID
