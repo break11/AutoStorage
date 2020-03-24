@@ -73,8 +73,6 @@ class CTCP_IP_PowerHandler:
 
             if self.tcpSocket.waitForConnected(100):
                 self.netObj().chargeStage = ECS.GetState
-            # else:
-            #     print( f"{SC.sWarning} No connection with charge station { self.address_data.address, self.address_data.port }" )
         
         elif self.tcpSocket.state() == QAbstractSocket.ConnectedState:
             current_stage = self.netObj().chargeStage
@@ -87,6 +85,9 @@ class CTCP_IP_PowerHandler:
                 self.netObj().chargeStage = targetDesc.stage
 
     def setPowerState(self, powerState):
+        if self.tcpSocket.state() == QAbstractSocket.UnconnectedState:
+            print( f"{SC.sWarning} No connection with charge station { self.address_data.address, self.address_data.port }" )
+
         current_stage = self.netObj().chargeStage
         if current_stage == ECS.GetVoltage or current_stage == ECS.GetCurrent:
             if powerState == EPS.on:
