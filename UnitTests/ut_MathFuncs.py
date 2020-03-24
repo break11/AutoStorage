@@ -661,5 +661,15 @@ class TestStrFuncs(unittest.TestCase):
 
         self.assertTrue( len(nodes) == count )
 
+    def test_extendPath_ifCrossTooClose(self):
+        path = [ "37", "38", "43", "44" ]
+        extended_path = [ "37", "38", "43", "44", "45", "44" ]
+
+        test_extended_path = gu.extendPath_ifCrossTooClose( nxGraph = nxGraph_mag_ext, nodes_route = path )
+        self.assertEqual( test_extended_path, path )
+
+        test_extended_path = gu.extendPath_ifCrossTooClose( nxGraph = nxGraph_mag_ext, nodes_route = path, length_treshhold=1500 )
+        self.assertEqual( test_extended_path, extended_path )
+
 if __name__ == "__main__":
     unittest.main()

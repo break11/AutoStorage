@@ -430,3 +430,27 @@ def routeToServiceStation( nxGraph, agentEdge, agentAngle ):
         return min( node_routes_weighted, key = lambda weighted_route: weighted_route[0] )
 
     return 0, []
+
+def extendPath_ifCrossTooClose( nxGraph, nodes_route, length_treshhold = 1300 ):
+    path_length = 0
+    extended_route = list(nodes_route) #создание независимой копии
+
+    edgesList = edgesListFromNodes( nodes_route )
+
+    for edge in reversed( edgesList ):
+        path_length += edgeSize( nxGraph, edge )
+        
+        if path_length <= length_treshhold:
+            if nodeType(nxGraph, edge[0]) == SGT.ENodeTypes.RailCross:
+                # берем просто первую ноду из списка исходящих нод
+                successors = nxGraph.successors( nodes_route[-1] )
+                extend_nodes = [ nodeID for nodeID in successors if nodeID not in nodes_route ]
+                nodeID_to_add = extend_nodes[0]
+
+                extended_route.append( nodeID_to_add )
+                extended_route.append( nodes_route[-1] )
+                break
+        else:
+            break
+    
+    return extended_route
