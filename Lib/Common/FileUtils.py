@@ -19,7 +19,7 @@ def correctFNameToProjectDir( sFName ):
     return correctFNameToDir( sFName, projectDir() )
 
 def powerBankDir():
-    return projectDir() + "PowerBank/"
+    return projectDir() + "/App/PowerUtils/UsbPowerStation/"
 
 def graphML_Path():
     return projectDir() + "GraphML/"
