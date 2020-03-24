@@ -25,8 +25,8 @@ class CUSB_PowerHandler:
     def setPowerState(self, powerState):
         CU.controlCharge( powerState, self.address_data )
 
-    def __del__(self):
-        CU.controlCharge( EPS.off, self.address_data )
+    # def __del__(self):
+    #     CU.controlCharge( EPS.off, self.address_data )
 
 class CTCP_IP_PowerHandler:
 
@@ -62,9 +62,9 @@ class CTCP_IP_PowerHandler:
         self.currentFact = 0
 
     def __del__(self):
-        stage = self.netObj().chargeStage
-        if stage == ECS.GetVoltage or stage == ECS.GetCurrent:
-            self.tcpSocket.write( PSC.SetPowerOff.encode() )
+    #     stage = self.netObj().chargeStage
+    #     if stage == ECS.GetVoltage or stage == ECS.GetCurrent:
+    #         self.tcpSocket.write( PSC.SetPowerOff.encode() )
         self.tcpSocket.disconnect()
     
     def mainTick(self):
@@ -73,8 +73,8 @@ class CTCP_IP_PowerHandler:
 
             if self.tcpSocket.waitForConnected(100):
                 self.netObj().chargeStage = ECS.GetState
-            else:
-                print( f"{SC.sWarning} No connection with charge station { self.address_data.address, self.address_data.port }" )
+            # else:
+            #     print( f"{SC.sWarning} No connection with charge station { self.address_data.address, self.address_data.port }" )
         
         elif self.tcpSocket.state() == QAbstractSocket.ConnectedState:
             current_stage = self.netObj().chargeStage
