@@ -316,13 +316,15 @@ class CAgentLink( CAgentServer_Link ):
         side = agentNO.getTransformedSide( angle = finalAgentAngle, edge = final_tKey )
         sensor_side = SGT.ESensorSide[ "S" + side.name ]
 
+        for cmd in seqList[-1]:
+            # замена всех SBoth на правильное значение прижима челнока к рельсам
+            if cmd.event == EAgentServer_Event.DistancePassed:
+                if cmd.data.sensorSide == SGT.ESensorSide.SBoth:
+                    cmd.data.sensorSide = sensor_side
+                    cmd.data.curvature = SGT.ECurvature.GetClose
+
         for seq in seqList:
             for cmd in seq:
-                # замена всех SBoth на правильное значение прижима челнока к рельсам
-                if cmd.event == EAgentServer_Event.DistancePassed:
-                    if cmd.data.sensorSide == SGT.ESensorSide.SBoth:
-                        cmd.data.sensorSide = sensor_side
-
                 self.pushCmd( cmd )
 
     #######################

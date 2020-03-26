@@ -111,6 +111,9 @@ railWidth = { EWidthType.Narrow : narrow_Rail_Width,
 class ECurvature( BaseEnum ):
     Curve    = auto()
     Straight = auto()
+
+    GetClose    = Curve
+    NotGetClose = Straight
     # сокращенные элементы для работы fromString по ним
     C = Curve
     S = Straight
