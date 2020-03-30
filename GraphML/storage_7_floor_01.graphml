@@ -47,7 +47,7 @@
       <data key="d1">4832</data>
       <data key="d2">PowerStation</data>
       <data key="d3">Right</data>
-      <data key="d4">Undefined</data>
+      <data key="d4">TCP_IP=192.168.5.2|5025</data>
       <data key="d5">GetState</data>
       <data key="d6">off</data>
     </node>
