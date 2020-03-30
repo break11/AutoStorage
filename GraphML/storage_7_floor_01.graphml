@@ -1525,7 +1525,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -1840,7 +1840,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -1966,7 +1966,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -1984,7 +1984,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -2227,7 +2227,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -2416,7 +2416,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -2569,7 +2569,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -2641,7 +2641,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -2951,7 +2951,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -3167,7 +3167,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -3203,7 +3203,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -3221,7 +3221,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -3581,7 +3581,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -3725,7 +3725,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -3905,7 +3905,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -3923,7 +3923,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -4022,7 +4022,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -4130,7 +4130,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -4364,7 +4364,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -4535,7 +4535,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -4850,7 +4850,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -4976,7 +4976,7 @@
       <data key="d9">575</data>
       <data key="d10">0</data>
       <data key="d11">170</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -4994,7 +4994,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
@@ -5138,7 +5138,7 @@
       <data key="d9">575</data>
       <data key="d10">170</data>
       <data key="d11">0</data>
-      <data key="d12">SBoth</data>
+      <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
     </edge>
