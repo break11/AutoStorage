@@ -58,7 +58,9 @@ class CBox_SGItem(QGraphicsItem):
 
         elif a._type == EBoxAddressType.OnEdge:
             tKey = ( a.data.nodeID_1, a.data.nodeID_2 )
-            edgeSGItem = self.SGM.edgeGItems[ frozenset(tKey) ]
+            fsKey = frozenset(tKey)
+            bReversed = tKey[0] != tuple(fsKey)[0]
+            edgeSGItem = self.SGM.edgeGItems[ fsKey ]
             self.setParentItem( edgeSGItem )
             
             eSize = edgeSize( graphNodeCache().nxGraph, tKey )
@@ -66,7 +68,8 @@ class CBox_SGItem(QGraphicsItem):
             edge_vec = Vector2( x2 - x1, y2 - y1 )
             k = edge_vec.magnitude() / eSize # соотношение длины реального вектора и прописанной длины грани
             
-            self.setPos( k * a.data.pos, 0 )
+            pos = eSize - a.data.pos if bReversed else a.data.pos
+            self.setPos( k * pos, 0 )
 
         elif a._type == EBoxAddressType.OnAgent:
             agentSGItem = self.SGM.agentGItems[ str(a.data) ]

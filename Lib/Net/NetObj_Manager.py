@@ -120,13 +120,6 @@ class CNetObj_Manager( object ):
         controllersDict[ controller ] = attachFunc
         cls.__registered_controllers[ netObjClass.__name__ ] = controllersDict
 
-    ##remove##
-    # @classmethod
-    # def controllersTick(cls):
-    #     for controller in cls.__controllers:
-    #         if hasattr( controller, "onTick" ):
-    #             controller.onTick()
-
     #####################################################
     @classmethod
     def redisKey_clientInfoName_C(cls, ClientID): return f"client:{ClientID}:name"
@@ -393,6 +386,5 @@ from .NetCmd import CNetCmd
 CNetObj_Manager.initRoot()
 
 CTickManager.addTicker( 100,  CNetObj_Manager.netTick,          CNetObj_Manager, )
-##remove##CTickManager.addTicker( 500,  CNetObj_Manager.controllersTick,  CNetObj_Manager, )
 CTickManager.addTicker( 1500, CNetObj_Manager.updateClientInfo, CNetObj_Manager, )
 
