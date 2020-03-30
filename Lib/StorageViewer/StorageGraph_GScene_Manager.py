@@ -289,8 +289,6 @@ class CStorageGraph_GScene_Manager( QObject ):
         for edgeGItem in dictEdges.values():
             edgeGItem.buildEdge()
             edgeGItem.updatePos()
-        
-        self.bHasChanges = True
 
         NeighborsIDs = list ( self.nxGraph.successors(nodeGItem.nodeID) ) + list ( self.nxGraph.predecessors(nodeGItem.nodeID) )
         nodeGItemsNeighbors = set ( [ self.nodeGItems[nodeID] for nodeID in NeighborsIDs ] )
@@ -571,37 +569,39 @@ class CStorageGraph_GScene_Manager( QObject ):
 
     def ObjPropUpdated(self, netCmd):
         netObj = CNetObj_Manager.accessObj( netCmd.Obj_UID )
-
-        # propName  = netCmd.sPropName
-        # propValue = netObj[ netCmd.sPropName ]
-        gItem = None
+        sPropName  = netCmd.sPropName
 
         if isinstance( netObj, CGraphNode_NO ):
-            gItem = self.nodeGItems[ netObj.name ]
-            gItem.init()
-            self.updateNodeIncEdges( gItem )
+            self.bHasChanges = True
+            
+            if sPropName == SGT.SGA.x or sPropName == SGT.SGA.y:
+                nodeGItem = self.nodeGItems[ netObj.name ]
+                nodeGItem.init()
+                self.updateNodeIncEdges( nodeGItem )
 
         elif isinstance( netObj, CGraphEdge_NO ):
+            self.bHasChanges = True
+        
             tKey = ( netObj.nxNodeID_1(), netObj.nxNodeID_2() )
             fsEdgeKey = frozenset( tKey )
 
-            gItem = self.edgeGItems[ fsEdgeKey ]
-            gItem.decorateSGItem.updatedDecorate()
+            edgeGItem = self.edgeGItems[ fsEdgeKey ]
+            edgeGItem.decorateSGItem.updatedDecorate()
 
         elif isinstance( netObj, CAgent_NO ):
-            gItem = self.agentGItems[ netObj.name ]
+            agentGItem = self.agentGItems[ netObj.name ]
             
-            if netCmd.sPropName == SAP.angle:
-                gItem.updateRotation()
-            elif netCmd.sPropName in [ SAP.position, SAP.edge ]:
-                gItem.updatePos()
-            elif netCmd.sPropName in [ SAP.BS, SAP.status ]:
-                gItem.update()
+            if sPropName == SAP.angle:
+                agentGItem.updateRotation()
+            elif sPropName in [ SAP.position, SAP.edge ]:
+                agentGItem.updatePos()
+            elif sPropName in [ SAP.BS, SAP.status ]:
+                agentGItem.update()
 
         elif isinstance( netObj, CBox_NO ):
-            gItem = self.boxGItems[ netObj.name ]
-            if netCmd.sPropName == SBP.address:
-                gItem.updatePos()
+            boxGItem = self.boxGItems[ netObj.name ]
+            if sPropName == SBP.address:
+                boxGItem.updatePos()
 
     #############################################################
     def selectItemsByUID( self, objSet ):
