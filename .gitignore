@@ -8,7 +8,7 @@ __pycache__/
 Settings/
 *.profile_output
 *.qmlc
-PowerBank/build/
-PowerBank/src/.qmake.stash
-PowerBank/src/Makefile
-PowerBank/bin/
+App/PowerUtils/UsbPowerStation/build/
+App/PowerUtils/UsbPowerStation/src/.qmake.stash
+App/PowerUtils/UsbPowerStation/src/Makefile
+App/PowerUtils/UsbPowerStation/bin/
