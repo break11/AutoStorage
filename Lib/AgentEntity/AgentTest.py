@@ -1,7 +1,9 @@
 import random
 
+from Lib.Common.StrConsts import SC
+
 from Lib.Common.TickManager import CTickManager
-from Lib.Common.GraphUtils import nodeType, randomNodes
+import Lib.Common.GraphUtils as GU
 
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
@@ -33,7 +35,7 @@ class CAgentTest:
             if self.netObj().test_type == EAgentTest.SimpleRoute:
                 # поиск таргет ноды
                 nxGraph = graphNodeCache().nxGraph
-                targetNode = randomNodes( nxGraph, self.enabledTargetNodes ).pop(0)
+                targetNode, = GU.randomNodes( nxGraph, self.enabledTargetNodes, count = 1 )
                 
                 # выдача задания
                 agentNO.task_list = ATD.CTaskList( [ ATD.CTask( ATD.ETaskType.DoCharge, 30 ), ATD.CTask( ATD.ETaskType.GoToNode, targetNode ) ] )
@@ -45,15 +47,30 @@ class CAgentTest:
 
                 # поиск таргет ноды PickStation
                 nxGraph = graphNodeCache().nxGraph
-                targetNode = randomNodes( nxGraph, { SGT.ENodeTypes.PickStation } ).pop(0)
+
+                targetNode, targetSide = None, None
+                pick_station_nodes = GU.findNodes( nxGraph, SGT.SGA.nodeType, SGT.ENodeTypes.PickStation )
                 
+                while len( pick_station_nodes ):
+                    targetNode = random.choice( pick_station_nodes )
+                    targetSide = GU.nodeRightLink( nxGraph, targetNode ) and SGT.ESide.Right or GU.nodeLeftLink( nxGraph, targetNode ) and SGT.ESide.Left
+
+                    if targetSide is None:
+                        pick_station_nodes.remove( targetNode )
+                    else:
+                        break
+
+                if targetSide is None:
+                    print( f"{SC.sWarning} Unable to find any PickStation with valid unload side." )
+                    return
+
                 taskList = []
                 taskList.append( ATD.CTask( ATD.ETaskType.DoCharge, 90 ) )
                 taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box1.name ) )
-                taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, SGT.SNodePlace( targetNode, targetSide ) ) )
                 taskList.append( ATD.CTask( ATD.ETaskType.LoadBoxByName, box2.name ) )
                 taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box1.address.data ) )
-                taskList.append( ATD.CTask( ATD.ETaskType.LoadBox, SGT.SNodePlace( targetNode, SGT.ESide.Left ) ) )
+                taskList.append( ATD.CTask( ATD.ETaskType.LoadBox, SGT.SNodePlace( targetNode, targetSide ) ) )
                 taskList.append( ATD.CTask( ATD.ETaskType.UnloadBox, box2.address.data ) )
 
                 agentNO.task_list = ATD.CTaskList( taskList )
