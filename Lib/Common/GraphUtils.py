@@ -38,11 +38,14 @@ def nodeType(nxGraph, nodeID):
 def nodeChargeAddress(nxGraph, nodeID):
     return nodeProp( nxGraph, nodeID, SGA.chargeAddress )
 
-def nodeLeftLink( nxGraph, nodeID ):
-    return nodeProp( nxGraph, nodeID, SGA.linkLeft, genError=False )
+def nodeLinks_bySide( nxGraph, nodeID, sides ):
+    d = { SGT.ESide.Left : SGA.linkLeft, SGT.ESide.Right : SGA.linkRight, SGT.ESide.Undefined : SGA.linkPlace }
+    links = {}
+    for side in sides:
+        link = nodeProp( nxGraph, nodeID, d[side], genError=False ) # link может отсутствовать, вернется None
+        links[ side ] = link
 
-def nodeRightLink( nxGraph, nodeID ):
-    return nodeProp( nxGraph, nodeID, SGA.linkRight, genError=False )
+    return links
 
 def nodeByPos( nxGraph, tKey, pos, allowOffset=50 ):
     l = edgeSize( nxGraph, tKey )

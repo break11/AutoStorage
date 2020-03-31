@@ -53,12 +53,15 @@ class CAgentTest:
                 
                 while len( pick_station_nodes ):
                     targetNode = random.choice( pick_station_nodes )
-                    targetSide = GU.nodeRightLink( nxGraph, targetNode ) and SGT.ESide.Right or GU.nodeLeftLink( nxGraph, targetNode ) and SGT.ESide.Left
+                    linksDict = GU.nodeLinks_bySide( nxGraph, targetNode, sides = ( SGT.ESide.Right, SGT.ESide.Left ) )
 
-                    if targetSide is None:
-                        pick_station_nodes.remove( targetNode )
+                    avaliable_sides = [ side for side in linksDict if linksDict[side] ]
+
+                    if len( avaliable_sides ):
+                        targetSide = random.choice( avaliable_sides )
+                        pick_station_nodes.clear()
                     else:
-                        break
+                        pick_station_nodes.remove( targetNode )                    
 
                 if targetSide is None:
                     print( f"{SC.sWarning} Unable to find any PickStation with valid unload side." )
