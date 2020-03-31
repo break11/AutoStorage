@@ -77,8 +77,9 @@ def renameDuplicateNodes( graph_to_check, graph_to_rename ):
 
     return nxTemp.subgraph( sub_nodes )
 
-def randomNodes( nxGraph, _nodeTypes, count = 1, allowDuplicates = False ):
+def randomNodes( nxGraph, _nodeTypes, count = None, allowDuplicates = False ):
     nodes = [ nodeID for nodeID in nxGraph.nodes() if nodeType( nxGraph, nodeID ) in _nodeTypes ]
+    count = count if count else len(nodes)
     assert allowDuplicates or len(nodes) >= count, f"Not enought unique nodes in the Graph for choosing {count} random nodes of {_nodeTypes} types."
     
     selected = []

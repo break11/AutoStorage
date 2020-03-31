@@ -661,6 +661,14 @@ class TestStrFuncs(unittest.TestCase):
 
         self.assertTrue( len(nodes) == count )
 
+        #####################################################################################
+        _nodeTypes = { SGT.ENodeTypes.StoragePoint }
+        storage_points = ['2', '4', '44', '45', '46', '5', '6', '7', '70', '71', '8', '80', '81', '9']
+        nodes = gu.randomNodes( nxGraph_mag_ext, _nodeTypes )
+
+        self.assertSequenceEqual( storage_points, sorted(nodes) )        
+        self.assertEqual( len(nodes), 14 )
+
     def test_extendPath_ifCrossTooClose(self):
         path = [ "37", "38", "43", "44" ]
         extended_path = [ "37", "38", "43", "44", "45", "44" ]
