@@ -14,16 +14,18 @@ class CTransporterChunk:
     def ObjPropUpdated( self, netCmd ):
         if not isSelfEvent( netCmd, self.netObj() ): return
 
-        if netCmd.sPropName == SGT.SGA.tsName:
-            if netCmd.value:
-                self._tsNO = CTreeNodeCache( path=self.netObj().tsName, basePath=s_Transporters)
-            else:
-                self._tsNO = None
+        # if netCmd.sPropName == SGT.SGA.tsName:
+        #     if netCmd.value:
+        #         self._tsNO = CTreeNodeCache( path=self.netObj().tsName, basePath=s_Transporters)
+        #     else:
+        #         self._tsNO = None
 
     @property
     def tsNO( self ):
-        if not self.netObj().tsName:
-            self.netObj().tsName = CTransporterLink_Manager.queryTS_Name_by_Point( self.netObj().nxNodeID_1() )
+        if self.netObj().tsName:
+            self._tsNO = CTreeNodeCache( path=self.netObj().tsName, basePath=s_Transporters)
+        else:
+            self._tsNO = None
 
         return self._tsNO() if self._tsNO is not None else None
 
@@ -33,10 +35,11 @@ class CTransporterChunk:
         CNetObj_Manager.addCallback( eventType = EV.ObjPropUpdated, obj = self )
         self._tsNO = None
 
-    def init( self ):
-        self.netObj()[ SGT.SGA.tsName ] = ""
-    
     def onTick(self):
+        # если поле tsName еще не создано - создаем его, заполняя именем правильного контроллера или пустым, если не один контроллер не владеет этой веткой конвеера
+        if not self.netObj().get( SGT.SGA.tsName ):
+            self.netObj().tsName = CTransporterLink_Manager.queryTS_Name_by_Point( self.netObj().nxNodeID_1() )
+
         if not self.tsNO: return
 
         if self.tsNO.masterAddress != SC.localhost and self.tsNO.masterAddress != NU.get_ip(): return

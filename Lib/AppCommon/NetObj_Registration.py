@@ -86,7 +86,7 @@ def register_NetObj_Controllers_for_AgentManager():
 
 def register_NetObj_Controllers_for_TransporterManager():
     reg = CNetObj_Manager.registerController
-    # reg( CGraphEdge_NO, CAgentsConnectionServer, attachFunc = lambda edgeNO : edgeNO.edgeType == SGT.EEdgeTypes.Transporter )
+    reg( CGraphEdge_NO, CTransporterChunk, attachFunc = lambda edgeNO : edgeNO.edgeType == SGT.EEdgeTypes.Transporter )
 
 def register_NetObj_Controllers_for_FakeAgent():
     reg = CNetObj_Manager.registerController
