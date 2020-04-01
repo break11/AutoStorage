@@ -54,7 +54,7 @@ class CBox_SGItem(QGraphicsItem):
             nodeSGItem = self.SGM.nodeGItems[ a.data.nodeID ]
             self.setParentItem( nodeSGItem )
             kX = CBox_SGItem.kX_by_ESide[ a.data.side ]
-            self.setPos( kX * 700, 0 )
+            self.setPos( kX * 500, 0 )
 
         elif a._type == EBoxAddressType.OnEdge:
             tKey = ( a.data.nodeID_1, a.data.nodeID_2 )

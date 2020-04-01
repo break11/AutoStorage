@@ -139,7 +139,7 @@
     </node>
     <node id="45">
       <data key="d0">1980</data>
-      <data key="d1">5500</data>
+      <data key="d1">5250</data>
       <data key="d2">TransporterPoint</data>
       <data key="d7">42|Right</data>
     </node>
@@ -457,7 +457,7 @@
     <node id="115">
       <data key="d2">TransporterPoint</data>
       <data key="d0">1980</data>
-      <data key="d1">500</data>
+      <data key="d1">750</data>
     </node>
     <node id="116">
       <data key="d2">RailPoint</data>
