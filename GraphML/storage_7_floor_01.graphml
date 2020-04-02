@@ -141,7 +141,7 @@
       <data key="d0">1980</data>
       <data key="d1">5250</data>
       <data key="d2">TransporterPoint</data>
-      <data key="d7">42|Right</data>
+      <data key="d7">42|Left</data>
     </node>
     <node id="46">
       <data key="d0">1980</data>
@@ -167,7 +167,7 @@
       <data key="d0">2500</data>
       <data key="d1">3000</data>
       <data key="d2">UserPoint</data>
-      <data key="d8">49|Undefined</data>
+      <data key="d8">|Undefined</data>
     </node>
     <node id="53">
       <data key="d0">3749</data>
@@ -1602,40 +1602,40 @@
       <data key="d15">Rail</data>
     </edge>
     <edge source="45" target="46">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="46" target="47">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="46" target="45">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="47" target="48">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="47" target="46">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="48" target="49">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="48" target="47">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="49" target="48">
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
       <data key="d15">Transporter</data>
     </edge>
     <edge source="49" target="115">
       <data key="d15">Transporter</data>
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
     </edge>
     <edge source="53" target="51">
       <data key="d9">560</data>
@@ -2701,7 +2701,7 @@
     </edge>
     <edge source="115" target="49">
       <data key="d15">Transporter</data>
-      <data key="d9">500</data>
+      <data key="d9">1000</data>
     </edge>
     <edge source="116" target="117">
       <data key="d15">Rail</data>
