@@ -1,10 +1,14 @@
 
 from PyQt5.QtWidgets import ( QGraphicsItem )
-from PyQt5.QtGui import ( QPen, QColor )
+from PyQt5.QtGui import ( QPen, QColor, QBrush )
 from PyQt5.QtCore import ( Qt, QLine, QRectF, QLineF )
 
 from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.GraphEntity.StorageGraphTypes import SGA
+
+from collections import namedtuple
+
+sensDesc = namedtuple( "sensDesc", "from_ to active" )
 
 class CEdgeDecorate_SGItem(QGraphicsItem):
     __TS_Line_Width = 250
@@ -44,6 +48,8 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
 
             if self.parentEdge.getType() == SGT.EEdgeTypes.Rail:
                 pen.setCapStyle( Qt.RoundCap )
+            else:
+                pen.setCapStyle( Qt.FlatCap )
 
             color.setAlpha( alpha )
             pen.setColor( color )
@@ -55,6 +61,10 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
             self.paintInfoLineForEdge( painter, self.parentEdge.edge1_2() )
             self.paintInfoLineForEdge( painter, self.parentEdge.edge2_1(), reverse_edge = True )
 
+        if self.parentEdge.getType() == SGT.EEdgeTypes.Transporter:
+            self.paintSensors( painter, self.parentEdge.edge1_2() )
+            self.paintSensors( painter, self.parentEdge.edge2_1(), reverse_edge = True )
+
         ## draw BBOX for debug
         if self.parentEdge.SGM.bDrawBBox == True:
             pen = QPen()
@@ -62,6 +72,31 @@ class CEdgeDecorate_SGItem(QGraphicsItem):
             pen.setColor( Qt.darkGray )
             painter.setPen( pen )
             painter.drawRect( self.__BBoxRect_Adj )
+
+    def paintSensors( self, painter, edgeNetObj, reverse_edge = False ):
+        if not edgeNetObj: return
+        bline_length = self.parentEdge.baseLine.length()
+
+        if reverse_edge:
+            t = painter.transform()
+            t.translate ( bline_length, 0 )
+            t.rotate (180)
+            painter.setTransform (t)
+
+        w = self.width / 2
+
+        sensors = []
+        # здесь будет заполнение массива сенсоров объектами sensDesc,
+        # поля from_, to - границы зоны( уже в масштабе к координатам на сцене ), которую покрывает датчик, active - текущий статус
+        
+        # для теста отрисовки - сенсор, стоящий на 90% длины эджа
+        # sensors = [ sensDesc( from_ = bline_length * 0.9 - 10, to = bline_length * 0.9 + 10, active = True ) ]
+
+        for sensor in sensors:
+            color = QColor( 255, 0, 0, 200 ) if sensor.active else QColor( 0, 100, 0, 120 )
+            brush = QBrush( color, Qt.SolidPattern )
+            rect = QRectF( sensor.from_, 0, sensor.to - sensor.from_, w )
+            painter.fillRect( rect, brush )
 
     def paintInfoLineForEdge( self, painter, edgeNetObj, reverse_edge = False ):
         if not edgeNetObj: return
