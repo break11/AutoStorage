@@ -30,8 +30,7 @@ logging.basicConfig(format=FORMAT)
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-UNIT = 0x1
-
+UNIT = 0x8
 
 def run_sync_client():
     # ------------------------------------------------------------------------#
@@ -71,7 +70,7 @@ def run_sync_client():
     # from pymodbus.transaction import ModbusRtuFramer
     # client = ModbusClient('localhost', port=5020, framer=ModbusRtuFramer)
     # client = ModbusClient(method='binary', port='/dev/ptyp0', timeout=1)
-    # client = ModbusClient(method='ascii', port='/dev/ptyp0', timeout=1)
+#     client = ModbusClient(method='ascii', port='/dev/ttyUSB0', timeout=1, baudrate=115200)
     # client = ModbusClient(method='rtu', port='/dev/ptyp0', timeout=1,
     #                       baudrate=9600)
     client.connect()
@@ -84,8 +83,18 @@ def run_sync_client():
     # which defaults to `0x00`
     # ----------------------------------------------------------------------- #
     log.debug("Reading Coils")
-    rr = client.read_coils(1, 1, unit=UNIT)
+#     rr = client.read_coils(0, 1, unit=UNIT)
+#     rr = client.read_discrete_inputs(0, 1, unit=UNIT)
+
+#     rr = client.read_input_registers(64, 12, unit=UNIT)
+#     rr = client.write_registers(64, 0, unit=UNIT)
+    rr = client.read_holding_registers(0, 8, unit=UNIT)
+#     rr = client.read_input_registers(50, 1, unit=UNIT)
+
+#     rr = client.read_discrete_inputs(8, 1, unit=UNIT)
     log.debug(rr)
+#     print( rr.bits )
+    print( rr.registers )
     print("\n===============================================================\n")
     return client
 
