@@ -47,7 +47,7 @@ class SIPAddress:
 
         return SIPAddress( address, port, bValid )
 
-    def toString( self, bShortForm = False ):
+    def toString( self ):
         sResult = f"{self.address}{ self.DS }{self.port}"
 
         return sResult

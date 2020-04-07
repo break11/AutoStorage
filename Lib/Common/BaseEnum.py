@@ -19,7 +19,7 @@ def EnumFromString( enum, sValue, defValue ):
     try:
         rVal = enum[ sValue ]
     except KeyError as e:
-        print( f"{SC.sWarning} Enum {enum} doesn't contain value for val = {sValue} of type = {type(sValue)}, using {defValue}!" )
+        print( f"{SC.sWarning} Enum {enum} doesn't contain value for val = '{sValue}' of type = {type(sValue)}, using {defValue}!" )
         rVal = defValue
     return rVal
 

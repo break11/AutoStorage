@@ -107,13 +107,15 @@ class EAgentBattery_Type( BaseEnum ):
     Supercap   = auto()
     Li         = auto()
     NoPower    = auto()
+
+    Undefined  = auto()
+    Default    = Supercap
+    
     # сокращенные элементы для работы fromString по ним
     S = Supercap
     L = Li
     N = NoPower
 
-    Undefined  = auto()
-    Default    = Supercap
     
 #########################################################
 

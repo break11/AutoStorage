@@ -47,11 +47,12 @@ class ENodeTypes( BaseEnum ):
     PowerStation     = auto()
     Terminal         = auto()
     TransporterPoint = auto()
-    TP               = TransporterPoint
     UserPoint        = auto()
 
     Undefined = auto()
     Default   = DummyNode
+
+    TP               = TransporterPoint
 
 nodeColors = {
     ENodeTypes.Undefined        : Qt.darkRed,
@@ -78,23 +79,26 @@ class EEdgeTypes( BaseEnum ):
 class ERailHeight( BaseEnum ):
     High = auto()
     Low  = auto()
-    H = High
-    L = Low
 
     Undefined = auto()
     Default = Low
+
+    H = High
+    L = Low
+
 
 #######################################################
                            
 class EWidthType( BaseEnum ):
     Narrow  = auto()
     Wide    = auto()
-    # сокращенные элементы для работы fromString по ним
-    N = Narrow
-    W = Wide
 
     Undefined = auto()
     Default = Narrow
+
+    # сокращенные элементы для работы fromString по ним
+    N = Narrow
+    W = Wide
     
 sensorNarr = 342  # half of distance between sensors (x axis)
 sensorWide = 200  # half of distance between sensors (y axis)
@@ -112,28 +116,30 @@ class ECurvature( BaseEnum ):
     Curve    = auto()
     Straight = auto()
 
+    Undefined = auto()
+    Default = Straight
+
     GetClose    = Curve
     NotGetClose = Straight
     # сокращенные элементы для работы fromString по ним
     C = Curve
     S = Straight
 
-    Undefined = auto()
-    Default = Straight
 
 class ESensorSide( BaseEnum ):
     SLeft    = auto()
     SRight   = auto()
     SBoth    = auto()
     SPassive = auto()
+
+    Undefined = auto()
+    Default   = SBoth
+
     # сокращенные элементы для работы fromString по ним
     L = SLeft
     R = SRight
     B = SBoth
     P = SPassive
-
-    Undefined = auto()
-    Default   = SBoth
 
     def shortName( self ): return self.name[1] # SLeft = L, SRight = R
 
@@ -141,23 +147,24 @@ class EDirection( BaseEnum ):
     Forward = auto()
     Rear    = auto()
     Error   = auto()
-    # сокращенные элементы для работы fromString по ним
-    F = Forward
-    R = Rear
 
     Undefined = auto()
     Default = Forward
 
+    # сокращенные элементы для работы fromString по ним
+    F = Forward
+    R = Rear
+
 class ESide( BaseEnum ):
     Left      = auto()
     Right     = auto()
+    Undefined = auto()
+    Default   = Right
+
     # сокращенные элементы для работы fromString по ним
     L         = Left
     R         = Right
-
-    Undefined = auto()
     U         = Undefined
-    Default   = Right
 
     @staticmethod
     def fromAngle( angle ):
