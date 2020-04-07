@@ -38,7 +38,7 @@ class CTransporterChunk:
     def onTick(self):
         # если поле tsName еще не создано - создаем его, заполняя именем правильного контроллера или пустым, если не один контроллер не владеет этой веткой конвеера
         if not self.netObj().get( SGT.SGA.tsName ):
-            self.netObj().tsName = CTransporterLink_Manager.queryTS_Name_by_Point( self.netObj().nxNodeID_1() )
+            self.netObj()[ SGT.SGA.tsName ] = CTransporterLink_Manager.queryTS_Name_by_Point( self.netObj().nxNodeID_1() )
 
         if not self.tsNO: return
 
