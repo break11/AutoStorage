@@ -45,7 +45,7 @@ class CRegisterAddress:
             unitID = int( l[0] )
             _type = ERegisterType.fromString( l[1] )
             number = int( l[2] )
-            bitNum = int[ l[3] ] if len( l ) > 3 else None
+            bitNum = int( l[3] ) if len( l ) > 3 else None
             bValid = True
         except:
             print( f"{SC.sError} CRegisterAddress can't convert from '{data}'!" )
