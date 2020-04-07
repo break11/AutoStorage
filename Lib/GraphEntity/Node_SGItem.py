@@ -10,6 +10,8 @@ from Lib.Common.GuiUtils import Std_Model_Item, Std_Model_FindItem
 from Lib.Net.NetObj import CNetObj
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 
+from Lib.Common.GraphUtils import nodeLinks_bySide
+
 class CNode_SGItem(QGraphicsItem):
     __R = 25
     __fBBoxD  =  2 # расширение BBox для удобства выделения
@@ -18,6 +20,7 @@ class CNode_SGItem(QGraphicsItem):
     __st_width = 640
     __clemma_offset = -80
     __clemma_width    = 60
+    __ts_offset = SGT.railWidth[ SGT.EWidthType.Narrow ] / 2 + 65
 
     stRectL = QRectF( -__st_width/2 -__st_offset, -__st_height/2, __st_width, __st_height)
     stRectR = QRectF( __st_offset - __st_width/2, -__st_height/2, __st_width, __st_height)
@@ -64,6 +67,29 @@ class CNode_SGItem(QGraphicsItem):
 
         self.__BBoxRect_Adj = self.__BBoxRect.adjusted(-1*self.__fBBoxD, -1*self.__fBBoxD, self.__fBBoxD, self.__fBBoxD)
 
+    def draw_TS_Inner( self, painter ):
+        # заготовка для отрисовки декорации конвеера ( для нод PickStation )
+        linksDict = nodeLinks_bySide( self.netObj().nxGraph(), self.nodeID, sides = ( SGT.ESide.Right, SGT.ESide.Left ) )
+        
+        pen = QPen()
+        pen.setWidth(5)        
+        painter.setPen(pen)
+
+        if linksDict.get( SGT.ESide.Left ):
+            x = - self.__ts_offset - 40
+            for i in range(3):
+                painter.fillRect( x - i*60, -150, 40, 300, QBrush( Qt.lightGray, Qt.SolidPattern ) )
+            
+            painter.drawLine( - self.__ts_offset, -170, - self.__ts_offset - 170, -170 )
+            painter.drawLine( - self.__ts_offset, 170, - self.__ts_offset - 170, 170 )
+
+        if linksDict.get( SGT.ESide.Right ):
+            x = self.__ts_offset
+            for i in range(3):
+                painter.fillRect( x + i*60, -150, 40, 300, QBrush( Qt.lightGray, Qt.SolidPattern ) )
+
+            painter.drawLine( self.__ts_offset, -170, self.__ts_offset + 170, -170 )
+            painter.drawLine( self.__ts_offset, 170, self.__ts_offset + 170, 170 )
 
     def setMiddleLineAngle( self, fVal ):
         self.middleLineAngle = fVal

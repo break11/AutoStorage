@@ -50,7 +50,7 @@ SGItemDesc = namedtuple( "SGItemDesc", "create_func delete_func" )
 
 class CStorageGraph_GScene_Manager( QObject ):
     itemTouched = pyqtSignal( QGraphicsItem )
-    nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StoragePoint, SGT.ENodeTypes.PowerStation]
+    nodeTypes_ForMiddleLine_calc = [ SGT.ENodeTypes.StoragePoint, SGT.ENodeTypes.PowerStation, SGT.ENodeTypes.PickStation ]
 
     @property
     def nxGraph(self): return graphNodeCache().nxGraph

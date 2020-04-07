@@ -277,6 +277,8 @@ def calcNodeMiddleLine ( nxGraph, nodeID, NeighborsIDs ):
     
     if eNodeType == SGT.ENodeTypes.StoragePoint:
         r_vec = rotateToRightSector( r_vec )
+    if eNodeType == SGT.ENodeTypes.PickStation:
+        r_vec = rotateToRightSector( r_vec )
     elif eNodeType == SGT.ENodeTypes.PowerStation:
         eSide = nxGraph.nodes[ nodeID ][ SGA.chargeSide ]
         r_vec = rotateToLeftSector( r_vec ) if eSide == SGT.ESide.Left else rotateToRightSector( r_vec )
