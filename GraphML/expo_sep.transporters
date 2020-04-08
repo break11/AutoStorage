@@ -6,7 +6,7 @@
             "busy": false,
             "mode": "SingleBox",
             "masterAddress"     : "localhost",
-            "connectionAddress" : "localhost:5020",
+            "connectionAddress" : "TCP_IP=localhost|5020",
             "nodesList"         : "45, 46, 47, 48, 49, 50"
                  },
         "ext_fields": {},

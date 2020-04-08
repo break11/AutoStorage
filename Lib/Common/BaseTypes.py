@@ -12,6 +12,9 @@ class EConnectionType( BaseEnum ):
     Undefined = auto()
     Default   = TCP_IP
 
+    tcp = TCP_IP
+    usb = USB
+
 ################################
 
 class SIPAddress:
@@ -105,6 +108,12 @@ class CСompositeType:
 class CConnectionAddress( CСompositeType ):
     @classmethod
     def defTCP_IP(cls): return CConnectionAddress( _type=EConnectionType.TCP_IP, data=SIPAddress( address="127.0.0.1", port=8888 ) )
+
+    @classmethod
+    def TCP_IP(cls, ip_address, port): return CConnectionAddress( _type=EConnectionType.TCP_IP, data=SIPAddress( address=ip_address, port=port ) )
+
+    @classmethod
+    def USB(cls, sDevFName): return CConnectionAddress( _type=EConnectionType.USB, data=sDevFName )
 
     baseType = EConnectionType
 

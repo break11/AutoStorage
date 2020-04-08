@@ -4,20 +4,15 @@ import os
 import json
 
 from Lib.Net.NetObj import CNetObj
-# from Lib.Common.TreeNode import CTreeNode,
 import Lib.Common.BaseTypes as BT
 from Lib.Common.TreeNodeCache import CTreeNodeCache
 from Lib.Net.NetObj_Manager import CNetObj_Manager
 import Lib.Net.NetObj_JSON as nJSON
-# import Lib.Common.GraphUtils as GU
 from Lib.GraphEntity.Graph_NetObjects import graphNodeCache
-# from Lib.AgentEntity.AgentServer_Event import EAgentServer_Event as EV
-# import Lib.AgentEntity.AgentDataTypes as ADT
-# import Lib.AgentEntity.AgentTaskData as ATD
-# from Lib.GraphEntity import StorageGraphTypes as SGT
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 import Lib.TransporterEntity.TransporterDataTypes as TDT
 from Lib.Common.StrConsts import SC
+import Lib.Common.BaseTypes as BT
 from Lib.Common.SerializedList import CStrList
 
 s_Transporters = "Transporters"
@@ -42,7 +37,7 @@ class CTransporter_NO( CNetObj ):
                 STP.busy : False,
                 STP.mode : TDT.ETransporterMode.Default,
                 STP.masterAddress     : SC.localhost,
-                STP.connectionAddress : f"{SC.localhost}:5020",
+                STP.connectionAddress : BT.CConnectionAddress.TCP_IP( SC.localhost, 5020 ),
                 STP.nodesList         : CStrList()
                 }
               
