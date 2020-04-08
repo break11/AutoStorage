@@ -9,6 +9,7 @@ from Lib.Net.NetObj_Utils import isSelfEvent
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File, renameDuplicateNodes
 from Lib.Common.StrConsts import SC
 import Lib.Common.BaseTypes as BT
+import Lib.Common.ModbusTypes as MT
 import Lib.GraphEntity.StorageGraphTypes as SGT
 import Lib.PowerStationEntity.PowerStationTypes as PST
 
@@ -104,7 +105,7 @@ common_EdgeProps = { SGT.SGA.edgeType, SGT.SGA.edgeSize }
 spec_EdgeProps = {
     SGT.EEdgeTypes.Rail : { SGT.SGA.highRailSizeFrom : True, SGT.SGA.highRailSizeTo : True,
                             SGT.SGA.sensorSide : True, SGT.SGA.widthType : True, SGT.SGA.curvature : True },
-    SGT.EEdgeTypes.Transporter : { SGT.SGA.tsName : False }
+    SGT.EEdgeTypes.Transporter : { SGT.SGA.tsName : True, SGT.SGA.sensorAddress : True, SGT.SGA.sensorState : True}
 }
 
 class CGraphEdge_NO( CNetObj ):
@@ -116,7 +117,9 @@ class CGraphEdge_NO( CNetObj ):
                     SGT.SGA.sensorSide:       SGT.ESensorSide.SBoth, 
                     SGT.SGA.widthType:        SGT.EWidthType.Narrow, 
                     SGT.SGA.curvature:        SGT.ECurvature.Straight,
-                    SGT.SGA.tsName:           ""
+                    SGT.SGA.tsName:           "",
+                    SGT.SGA.sensorAddress:    MT.CRegisterAddress.defAddress(),
+                    SGT.SGA.sensorState:      False
                 }
 
     s_NodeID_1  = "NodeID_1"

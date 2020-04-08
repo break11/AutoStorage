@@ -10,6 +10,7 @@ from Lib.BoxEntity.Box_NetObject import CBox_NO, s_Boxes
 from Lib.BoxEntity.BoxAddress import CBoxAddress
 
 import Lib.Common.BaseTypes as BT
+import Lib.Common.ModbusTypes as MT
 from Lib.Common.StrTypeConverter import CStrTypeConverter as STC
 from Lib.Common.SerializedList import CStrList
 
@@ -75,6 +76,7 @@ def register_NetObj_Props():
     STC.registerUserType( BT.CConnectionAddress )
     STC.registerUserType( PST.EChargeStage )
     STC.registerUserType( PST.EChargeState )
+    STC.registerUserType( MT.CRegisterAddress )
 
 def register_NetObj_Controllers_for_AgentManager():
     reg = CNetObj_Manager.registerController
@@ -87,6 +89,7 @@ def register_NetObj_Controllers_for_AgentManager():
 def register_NetObj_Controllers_for_TransporterManager():
     reg = CNetObj_Manager.registerController
     reg( CGraphEdge_NO, CTransporterChunk, attachFunc = lambda edgeNO : edgeNO.edgeType == SGT.EEdgeTypes.Transporter )
+
 
 def register_NetObj_Controllers_for_FakeAgent():
     reg = CNetObj_Manager.registerController

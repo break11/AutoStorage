@@ -17,6 +17,9 @@ class ERegisterType( BaseEnum ):
     AnalogOutput  = AO
 
 class CRegisterAddress:
+    @classmethod
+    def defAddress(cls): return CRegisterAddress( _type=ERegisterType.DI, number=0, unitID=1 )
+
     DS = "|"
     # "1|AI|51"
     
@@ -50,8 +53,7 @@ class CRegisterAddress:
         except:
             print( f"{SC.sError} CRegisterAddress can't convert from '{data}'!" )
             unitID = 0
-            if _type is None:
-                _type = ERegisterType.Default
+            _type = ERegisterType.Undefined
             number = 0
             bitNum = 0
             bValid = False

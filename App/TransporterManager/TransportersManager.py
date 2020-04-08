@@ -1,6 +1,6 @@
 from Lib.TransporterEntity.Transporter_NetObject import transportersNodeCache
 
-class CTransporterLink_Manager:
+class CTransportersManager:
 
     ###########################
 
@@ -10,4 +10,9 @@ class CTransporterLink_Manager:
             if pointName in tsNO.nodesList():
                 return tsNO.name
         return ""
+
+    @classmethod
+    def queryPortState( cls, tsName, registerAddress ):
+        print( tsName, registerAddress )
+        pass
 

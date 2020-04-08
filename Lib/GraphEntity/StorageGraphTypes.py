@@ -8,6 +8,7 @@ from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import genSplitPattern, SC
 import Lib.Common.BaseTypes as BT
+import Lib.Common.ModbusTypes as MT
 import Lib.PowerStationEntity.PowerStationTypes as PST
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):
@@ -33,6 +34,8 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     linkRight        = None
     linkPlace        = None
     tsName           = None
+    sensorAddress    = None
+    sensorState      = None
 
 SGA = SGraphAttrs
 
@@ -271,7 +274,9 @@ graphEnums = { SGA.nodeType   : ENodeTypes,
                SGA.chargeSide : ESide,
                SGA.chargeAddress : BT.CConnectionAddress,
                SGA.chargeStage: PST.EChargeStage,
-               SGA.powerState : PST.EChargeState
+               SGA.powerState : PST.EChargeState,
+
+               SGA.sensorAddress : MT.CRegisterAddress
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):
