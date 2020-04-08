@@ -178,3 +178,24 @@ def run_sync_client():
 
 # if __name__ == "__main__":
 client = run_sync_client()
+
+################################################################################################
+
+import sys
+import os
+
+project_dir = os.path.split( sys.path[0] )[0]
+sys.path.append( project_dir )
+
+from Lib.Common.ModbusTypes import ERegisterType
+ERT = ERegisterType
+
+
+register_cache = {
+                    "0x1": {
+                                ERT.DI: { "READ":{ 1:1, 2:0, 3:1 } },
+                                ERT.DO: { "READ":{ 1:1, 2:0, 3:1 }, "WRITE":{ 3:1, 4:0, 5:1 } },
+                                ERT.AI: { "READ":{ 51:8 } },
+                                ERT.AO: { "READ":{}, "WRITE":{50:5} }
+                            }
+                }
