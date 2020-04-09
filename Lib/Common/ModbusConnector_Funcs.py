@@ -9,14 +9,14 @@ regPacket = namedtuple( "regPacket", "start count vals", defaults = (0, 0, None)
 
 # временный кэш для примера, он будет внутри ModBusConnector
 class self:
-register_cache = {
-                    "0x1": {
-                                ERT.DI: { 1:1, 2:0, 3:1 },
-                                ERT.DO: { 1:1, 2:0, 3:1 },
-                                ERT.AI: { 51:8 },
-                                ERT.AO: { 50:5 }
-                            }
-                }
+    register_cache = {
+                        "0x1": {
+                                    ERT.DI: { 1:1, 2:0, 3:1 },
+                                    ERT.DO: { 1:1, 2:0, 3:1 },
+                                    ERT.AI: { 51:8 },
+                                    ERT.AO: { 50:5 }
+                                }
+                    }
 
 
 def pack_register_cache( cache_dict ):
