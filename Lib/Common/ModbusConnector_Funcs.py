@@ -1,6 +1,7 @@
 from collections import namedtuple
 from itertools import groupby
 
+from Lib.Common.StrConsts import SC
 from Lib.Common.ModbusTypes import ERegisterType
 
 
@@ -10,12 +11,12 @@ regPacket = namedtuple( "regPacket", "start count vals", defaults = (0, 0, None)
 # временный кэш для примера, он будет внутри ModBusConnector
 class self:
     register_cache = {
-                        "0x1": {
-                                    ERT.DI: { 1:1, 2:0, 3:1 },
-                                    ERT.DO: { 1:1, 2:0, 3:1 },
-                                    ERT.AI: { 51:8 },
-                                    ERT.AO: { 50:5 }
-                                }
+                        0x1: {
+                                ERT.DI: { 1:1, 2:0, 3:1 },
+                                ERT.DO: { 1:1, 2:0, 3:1 },
+                                ERT.AI: { 51:8 },
+                                ERT.AO: { 50:5 }
+                             }
                     }
 
 
@@ -36,3 +37,30 @@ def pack_register_cache( cache_dict ):
         packed_cache.append( packet )
 
     return packed_cache
+
+def send( self ):
+    for UNIT, cache in self.register_cache:
+        DI_cache, DO_cache = pack_register_cache( cache[EDT.DI] ), pack_register_cache( cache[EDT.DO] )
+        AI_cache, AO_cache = pack_register_cache( cache[EDT.AI] ), pack_register_cache( cache[EDT.AO] )
+
+        # WRITE
+        for packet in DO_cache:
+            self.client.write_coils(packet.start, packet.count, packet.vals, unit=UNIT)
+            req = self.register_cache[UNIT][ERT.DO].clear()
+            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
+
+        for packet in AO_cache:
+            self.client.write_registers(packet.start, packet.count, packet.vals, unit=UNIT)
+            req = self.register_cache[UNIT][ERT.AO].clear()
+            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
+
+        # READ
+        for packet in DI_cache:
+            req = self.client.read_discrete_inputs(packet.start, packet.count, unit=UNIT)
+            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
+            # здесь должна быть запись req.bits в self.register_cache
+
+        for packet in AI_cache:
+            req = self.client.read_input_registers(packet.start, packet.count, unit=UNIT)
+            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
+            # здесь должна быть запись req.registers в self.register_cache
