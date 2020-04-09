@@ -9,7 +9,7 @@ from Lib.Net.NetObj_Utils import isSelfEvent
 from Lib.Common.GraphUtils import EdgeDisplayName, loadGraphML_File, renameDuplicateNodes
 from Lib.Common.StrConsts import SC
 import Lib.Common.BaseTypes as BT
-import Lib.Common.ModbusTypes as MT
+import Lib.Modbus.ModbusTypes as MT
 import Lib.GraphEntity.StorageGraphTypes as SGT
 import Lib.PowerStationEntity.PowerStationTypes as PST
 

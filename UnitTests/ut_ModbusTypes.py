@@ -6,7 +6,7 @@ import os
 
 sys.path.append( os.path.abspath(os.curdir)  )
 
-import Lib.Common.ModbusTypes as MT
+import Lib.Modbus.ModbusTypes as MT
 
 class Test_Modbus_Types(unittest.TestCase):
     def test_CRegisterAddress_DI_DO( self ):

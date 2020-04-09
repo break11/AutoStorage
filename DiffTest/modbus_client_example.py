@@ -187,7 +187,8 @@ import os
 project_dir = os.path.split( sys.path[0] )[0]
 sys.path.append( project_dir )
 
-from Lib.Common.ModbusTypes import ERegisterType
+from Lib.Modbus.ModbusTypes import ERegisterType
+
 ERT = ERegisterType
 
 

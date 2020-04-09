@@ -8,7 +8,7 @@ from Lib.Common.BaseEnum import BaseEnum
 from Lib.Common.StrProps_Meta import СStrProps_Meta
 from Lib.Common.StrConsts import genSplitPattern, SC
 import Lib.Common.BaseTypes as BT
-import Lib.Common.ModbusTypes as MT
+import Lib.Modbus.ModbusTypes as MT
 import Lib.PowerStationEntity.PowerStationTypes as PST
 
 class SGraphAttrs( metaclass = СStrProps_Meta ):

@@ -10,7 +10,7 @@ from Lib.BoxEntity.Box_NetObject import CBox_NO, s_Boxes
 from Lib.BoxEntity.BoxAddress import CBoxAddress
 
 import Lib.Common.BaseTypes as BT
-import Lib.Common.ModbusTypes as MT
+import Lib.Modbus.ModbusTypes as MT
 from Lib.Common.StrTypeConverter import CStrTypeConverter as STC
 from Lib.Common.SerializedList import CStrList
 
