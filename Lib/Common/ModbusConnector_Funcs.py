@@ -2,7 +2,7 @@ from collections import namedtuple
 from itertools import groupby
 
 from Lib.Common.StrConsts import SC
-from Lib.Common.ModbusTypes import ERegisterType
+from Lib.Common.ModbusTypes import ERegisterType, CRegisterAddress
 
 
 ERT = ERegisterType
@@ -45,22 +45,42 @@ def send( self ):
 
         # WRITE
         for packet in DO_cache:
-            self.client.write_coils(packet.start, packet.count, packet.vals, unit=UNIT)
+            self.mbClient.write_coils(packet.start, packet.count, packet.vals, unit=UNIT)
             req = self.register_cache[UNIT][ERT.DO].clear()
             if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
 
         for packet in AO_cache:
-            self.client.write_registers(packet.start, packet.count, packet.vals, unit=UNIT)
+            self.mbClient.write_registers(packet.start, packet.count, packet.vals, unit=UNIT)
             req = self.register_cache[UNIT][ERT.AO].clear()
             if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
 
         # READ
         for packet in DI_cache:
-            req = self.client.read_discrete_inputs(packet.start, packet.count, unit=UNIT)
+            req = self.mbClient.read_discrete_inputs(packet.start, packet.count, unit=UNIT)
             if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
             # здесь должна быть запись req.bits в self.register_cache
 
         for packet in AI_cache:
-            req = self.client.read_input_registers(packet.start, packet.count, unit=UNIT)
+            req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
             if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
             # здесь должна быть запись req.registers в self.register_cache
+
+def get_register_val(self, regiser_address, default_val = 0):
+    RA = regiser_address
+    
+    #получаем значение регистра, если какой-либо элемент отсутствует в register_cache, создаем его
+    reg_val = self.register_cache.setdefault( RA.unitID, {} ).setdefault( RA._type, {} ).setdefault( RA.number, default_val )
+    reg_val = ( reg_val >> RA.bitNum ) & 1 if RA.bitNum else reg_val
+
+    return reg_val
+
+def update_register_val(self, regiser_address, val):
+    RA = regiser_address
+
+    if RA.bitNum:
+        RA_no_bit = CRegisterAddress( unitID = RA.unitID, _type = RA._type, number = RA.number )
+        reg_val = self.get_register_val( RA, default_val = RA_no_bit )
+        reg_val = reg_val ^ ( 1 << bit_num )
+        self.register_cache[RA.unitID][RA._type][RA.number] = reg_val
+    else:
+        self.get_register_val( RA, default_val = RA )
