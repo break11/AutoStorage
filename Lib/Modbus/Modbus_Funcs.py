@@ -2,8 +2,7 @@ from collections import namedtuple
 from itertools import groupby
 
 from Lib.Common.StrConsts import SC
-from Lib.Common.ModbusTypes import ERegisterType, CRegisterAddress
-
+from Lib.Modbus.ModbusTypes import ERegisterType, CRegisterAddress
 
 ERT = ERegisterType
 regPacket = namedtuple( "regPacket", "start count vals", defaults = (0, 0, None) )
@@ -40,8 +39,8 @@ def pack_register_cache( cache_dict ):
 
 def send( self ):
     for UNIT, cache in self.register_cache:
-        DI_cache, DO_cache = pack_register_cache( cache[EDT.DI] ), pack_register_cache( cache[EDT.DO] )
-        AI_cache, AO_cache = pack_register_cache( cache[EDT.AI] ), pack_register_cache( cache[EDT.AO] )
+        DI_cache, DO_cache = pack_register_cache( cache[ERT.DI] ), pack_register_cache( cache[ERT.DO] )
+        AI_cache, AO_cache = pack_register_cache( cache[ERT.AI] ), pack_register_cache( cache[ERT.AO] )
 
         # WRITE
         for packet in DO_cache:

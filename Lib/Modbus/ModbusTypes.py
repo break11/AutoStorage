@@ -15,6 +15,8 @@ class ERegisterType( BaseEnum ):
     DigitalOutput = DO
     AnalogInput   = AI
     AnalogOutput  = AO
+    
+ERT = ERegisterType
 
 class CRegisterAddress:
     @classmethod

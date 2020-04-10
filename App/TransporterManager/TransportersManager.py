@@ -41,5 +41,6 @@ class CTransportersManager:
         if connectionAddress is None: return None
 
         connector = cls.queryConnector( connectionAddress )
+        connector.get_register_val( registerAddress )
         # print( connector )
 
