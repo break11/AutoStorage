@@ -69,17 +69,18 @@ def get_register_val(self, regiser_address, default_val = 0):
     
     #получаем значение регистра, если какой-либо элемент отсутствует в register_cache, создаем его
     reg_val = self.register_cache.setdefault( RA.unitID, {} ).setdefault( RA._type, {} ).setdefault( RA.number, default_val )
-    reg_val = ( reg_val >> RA.bitNum ) & 1 if RA.bitNum else reg_val
+    reg_val = ( reg_val >> RA.bitNum ) & 1 if RA.bitNum is not None else reg_val
 
     return reg_val
 
 def update_register_val(self, regiser_address, val):
     RA = regiser_address
 
-    if RA.bitNum:
+    if RA.bitNum is not None:
+        assert val in (0, 1), "Bit accepts only 0 or 1"
         RA_no_bit = CRegisterAddress( unitID = RA.unitID, _type = RA._type, number = RA.number )
-        reg_val = self.get_register_val( RA, default_val = RA_no_bit )
-        reg_val = reg_val ^ ( 1 << bit_num )
+        reg_val = self.get_register_val( RA_no_bit )
+        reg_val = reg_val | ( 1 << bit_num ) if val else reg_val & ~( 1 << bit_num )
         self.register_cache[RA.unitID][RA._type][RA.number] = reg_val
     else:
-        self.get_register_val( RA, default_val = RA )
+        self.get_register_val( RA, default_val = val )
