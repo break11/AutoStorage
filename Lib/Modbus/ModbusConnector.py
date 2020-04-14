@@ -79,4 +79,4 @@ class CModbusConnector:
 
         except Exception as e:
             print( f"{SC.sError} {e}" )
-            self.register_cache.clear()
+            self.register_cache.clear() # обнуляем кеш в случае проблем с соединением (возможно нужно уточнение исключения)
