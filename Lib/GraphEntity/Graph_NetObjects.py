@@ -119,7 +119,7 @@ class CGraphEdge_NO( CNetObj ):
                     SGT.SGA.curvature:        SGT.ECurvature.Straight,
                     SGT.SGA.tsName:           "",
                     SGT.SGA.sensorAddress:    MT.CRegisterAddress.defAddress(),
-                    SGT.SGA.sensorState:      False
+                    SGT.SGA.sensorState:      0
                 }
 
     s_NodeID_1  = "NodeID_1"

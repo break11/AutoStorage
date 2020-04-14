@@ -44,5 +44,7 @@ class CTransporterChunk:
 
         if self.tsNO.masterAddress != SC.localhost and self.tsNO.masterAddress != NU.get_ip(): return
         
-        transportersManager().queryPortState( self.netObj().tsName, self.netObj().sensorAddress )
+        sensorState = transportersManager().queryPortState( self.netObj().tsName, self.netObj().sensorAddress )
+        if sensorState is not None:
+            self.netObj()[ SGT.SGA.sensorState ] = sensorState
         # print( self.tsNO, self.netObj().name, NU.get_ip(), id( self ) )

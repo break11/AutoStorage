@@ -34,11 +34,10 @@ class CTransportersManager:
         return self.modbusConnectorsPull[ key ]
 
     def queryPortState( self, tsName, registerAddress ):
-        # print( tsName, registerAddress )
         connectionAddress = self.getConnectionAddressByTS( tsName )
 
         if connectionAddress is None: return None
 
         connector = self.queryConnector( connectionAddress )
-        print( connector.get_register_val( registerAddress ) )
+        return connector.get_register_val( registerAddress )
 
