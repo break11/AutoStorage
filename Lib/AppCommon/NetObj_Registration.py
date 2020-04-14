@@ -94,3 +94,7 @@ def register_NetObj_Controllers_for_TransporterManager():
 def register_NetObj_Controllers_for_FakeAgent():
     reg = CNetObj_Manager.registerController
     reg( CAgent_NO, CFakeAgentLink )
+
+def register_NetObj_Controllers_for_FakeTS():
+    pass
+    # reg = CNetObj_Manager.registerController
