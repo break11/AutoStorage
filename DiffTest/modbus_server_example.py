@@ -88,7 +88,7 @@ def run_server():
     #     store = ModbusSlaveContext(..., zero_mode=True)
     # ----------------------------------------------------------------------- #
     store1 = ModbusSlaveContext(
-        di=ModbusSequentialDataBlock(0, [17]*100),
+        di=ModbusSequentialDataBlock(0, [True]*100),
         co=ModbusSequentialDataBlock(0, [17]*100),
         hr=ModbusSequentialDataBlock(0, [17]*100),
         ir=ModbusSequentialDataBlock(0, [17]*100))
@@ -100,7 +100,7 @@ def run_server():
         ir=ModbusSequentialDataBlock(0, [17]*100))
 
 
-    context = ModbusServerContext(slaves={ 0x8:store1, 0x11:store2 }, single=False)
+    context = ModbusServerContext(slaves={ 0x1:store1, 0x11:store2 }, single=False)
 
     # ----------------------------------------------------------------------- #
     # initialize the server information

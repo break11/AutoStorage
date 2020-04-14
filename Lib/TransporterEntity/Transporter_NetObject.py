@@ -19,6 +19,11 @@ s_Transporters = "Transporters"
 
 transportersNodeCache = CTreeNodeCache( path = s_Transporters )
 
+class CTransporterRoot_NO( CNetObj ): # пока заглкшка для навешивания контроллеров
+    pass
+
+#######################################
+
 class STransporterProps( metaclass = СStrProps_Meta ):
     busy = None
     mode = None
@@ -52,13 +57,14 @@ class CTransporter_NO( CNetObj ):
 ####################
 
 def loadTransporters_to_NetObj( sFName ):
-    transportersNodeCache().destroyChildren()
+    if transportersNodeCache() is not None:
+        transportersNodeCache().destroyChildren()
 
     if not os.path.exists( sFName ):
         print( f"{SC.sWarning} Transporters file not found '{sFName}'!" )
         return False
 
-    TS_NetObj = CNetObj_Manager.rootObj.queryObj( s_Transporters, CNetObj )
+    TS_NetObj = CNetObj_Manager.rootObj.queryObj( s_Transporters, CTransporterRoot_NO )
     with open( sFName, "r" ) as read_file:
         Transporters = json.load( read_file )
         nJSON.load_Data( jData=Transporters, parent=TS_NetObj, bLoadUID=False )

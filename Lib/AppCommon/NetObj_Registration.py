@@ -27,7 +27,7 @@ from App.AgentsManager.AgentsConnectionServer import CAgentsConnectionServer
 
 from App.FakeAgent.FakeAgentLink import CFakeAgentLink
 
-from Lib.TransporterEntity.Transporter_NetObject import CTransporter_NO, s_Transporters
+from Lib.TransporterEntity.Transporter_NetObject import CTransporterRoot_NO, CTransporter_NO, s_Transporters
 import Lib.TransporterEntity.TransporterDataTypes as TDT
 from App.TransporterManager.TransporterChunk import CTransporterChunk
 
@@ -36,7 +36,7 @@ from Lib.PowerStationEntity.PowerStation import CPowerStation
 
 rootObjDict = { s_Agents       : CAgent_Root_NO,
                 s_Boxes        : CNetObj,
-                s_Transporters : CNetObj,
+                s_Transporters : CTransporterRoot_NO,
                 s_Graph        : CGraphRoot_NO }
 
 def register_NetObj():
@@ -48,6 +48,7 @@ def register_NetObj():
     reg( CAgent_NO )
     reg( CAgent_Root_NO )
     reg( CBox_NO )
+    reg( CTransporterRoot_NO )
     reg( CTransporter_NO )
 
 def register_NetObj_Props():

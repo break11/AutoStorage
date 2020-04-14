@@ -37,7 +37,7 @@ class CRegisterAddress:
     def __eq__( self, other ):
         eq = True
         eq = eq and self.unitID == other.unitID
-        eq = eq and self.type == other.type
+        eq = eq and self._type == other._type
         eq = eq and self.number == other.number
         eq = eq and self.bitNum == other.bitNum
         eq = eq and self.bValid == other.bValid

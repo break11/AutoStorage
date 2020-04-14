@@ -116,7 +116,8 @@ class CBox_NO( CNetObj ):
 ####################
 
 def loadBoxes_to_NetObj( sFName ):
-    boxesNodeCache().destroyChildren()
+    if boxesNodeCache() is not None:
+        boxesNodeCache().destroyChildren()
 
     if not os.path.exists( sFName ):
         print( f"{SC.sWarning} Boxes file not found '{sFName}'!" )
