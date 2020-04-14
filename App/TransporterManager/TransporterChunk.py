@@ -46,14 +46,14 @@ class CTransporterChunk:
         if self.tsNO.masterAddress != SC.localhost and self.tsNO.masterAddress != NU.get_ip(): return
 
         # как бы проверка что грань должна читать такой датчик из модбаз - нет поля не читаем        
-        if self.netObj().get( SGT.SGA.sensorState ) is not None:
+        if self.netObj().propsDict().get( SGT.SGA.sensorState ) is not None:
             state = transportersManager().readPortState( self.netObj().tsName, self.netObj().sensorAddress )
             if state is not None:
-                self.netObj().sensorState = state
+                self.netObj()[ SGT.SGA.sensorState ] = state
 
 
         # как бы проверка что грань должна писать состояние мотора в модбаз - нет поля не пишем
-        if self.netObj().get( SGT.SGA.engineState ) is not None:
+        if self.netObj().propsDict().get( SGT.SGA.engineState ) is not None:
             val = self.netObj().engineState
 
             if self.t > 5:
@@ -61,5 +61,5 @@ class CTransporterChunk:
                 self.t = 0
             self.t += 1
 
-            self.netObj().engineState = val
+            self.netObj()[ SGT.SGA.engineState ] = val
             transportersManager().writePortState( self.netObj().tsName, self.netObj().engineAddress, val )

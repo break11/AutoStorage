@@ -168,8 +168,7 @@ class CNetObj_Monitor(QWidget):
         propName = self.netObj_PropsModel.headerData( idx.row(), Qt.Vertical )
         for idx in self.tvNetObj.selectionModel().selectedRows():
             netObj = self.netObjModel.netObj_From_Index( idx )
-            if netObj.get( propName ):
-                del netObj[ propName ]
+            del netObj[ propName ]
 
     def on_btnAdd_Prop_released ( self ):
         if self.propCreateDlg.exec():
