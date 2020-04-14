@@ -58,7 +58,7 @@ class CModbusConnector:
                 if req.isError(): print( f"{SC.sError} Modbus error={ req }; sent data = { packet }" )
                 # запись req.bits в self.register_cache
                 for regShift in range( 0, packet.count ):
-                    self.register_cache[ UNIT ][ MT.ERT.DI ][ packet.start + regShift ] = req.bits[ regShift ]
+                    self.register_cache[ UNIT ][ MT.ERT.DI ][ packet.start + regShift ] = int( req.bits[ regShift ] )
 
             for packet in AI_cache:
                 req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
