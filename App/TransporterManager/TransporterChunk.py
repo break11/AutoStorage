@@ -35,6 +35,7 @@ class CTransporterChunk:
         CNetObj_Manager.addCallback( eventType = EV.ObjPropUpdated, obj = self )
         self._tsNO = None
 
+    t = 0
     def onTick(self):
         # если поле tsName еще не создано - создаем его, заполняя именем правильного контроллера или пустым, если не один контроллер не владеет этой веткой конвеера
         if not self.netObj().get( SGT.SGA.tsName ):
@@ -43,8 +44,22 @@ class CTransporterChunk:
         if not self.tsNO: return
 
         if self.tsNO.masterAddress != SC.localhost and self.tsNO.masterAddress != NU.get_ip(): return
-        
-        sensorState = transportersManager().queryPortState( self.netObj().tsName, self.netObj().sensorAddress )
-        if sensorState is not None:
-            self.netObj()[ SGT.SGA.sensorState ] = sensorState
-        # print( self.tsNO, self.netObj().name, NU.get_ip(), id( self ) )
+
+        # как бы проверка что грань должна читать такой датчик из модбаз - нет поля не читаем        
+        if self.netObj().get( SGT.SGA.sensorState ) is not None:
+            state = transportersManager().readPortState( self.netObj().tsName, self.netObj().sensorAddress )
+            if state is not None:
+                self.netObj().sensorState = state
+
+
+        # как бы проверка что грань должна писать состояние мотора в модбаз - нет поля не пишем
+        if self.netObj().get( SGT.SGA.engineState ) is not None:
+            val = self.netObj().engineState
+
+            if self.t > 5:
+                val = int( not val )
+                self.t = 0
+            self.t += 1
+
+            self.netObj().engineState = val
+            transportersManager().writePortState( self.netObj().tsName, self.netObj().engineAddress, val )

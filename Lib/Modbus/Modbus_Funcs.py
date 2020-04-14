@@ -1,23 +1,7 @@
 from collections import namedtuple
 from itertools import groupby
 
-from Lib.Common.StrConsts import SC
-from Lib.Modbus.ModbusTypes import ERegisterType, CRegisterAddress
-
-ERT = ERegisterType
 regPacket = namedtuple( "regPacket", "start count vals", defaults = (0, 0, None) )
-
-# временный кэш для примера, он будет внутри ModBusConnector
-class self:
-    register_cache = {
-                        0x1: {
-                                ERT.DI: { 1:1, 2:0, 3:1 },
-                                ERT.DO: { 1:1, 2:0, 3:1 },
-                                ERT.AI: { 51:8 },
-                                ERT.AO: { 50:5 }
-                             }
-                    }
-
 
 def pack_register_cache( cache_dict ):
     packed_cache = []
@@ -36,51 +20,3 @@ def pack_register_cache( cache_dict ):
         packed_cache.append( packet )
 
     return packed_cache
-
-def send( self ):
-    for UNIT, cache in self.register_cache:
-        DI_cache, DO_cache = pack_register_cache( cache[ERT.DI] ), pack_register_cache( cache[ERT.DO] )
-        AI_cache, AO_cache = pack_register_cache( cache[ERT.AI] ), pack_register_cache( cache[ERT.AO] )
-
-        # WRITE
-        for packet in DO_cache:
-            self.mbClient.write_coils(packet.start, packet.count, packet.vals, unit=UNIT)
-            req = self.register_cache[UNIT][ERT.DO].clear()
-            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
-
-        for packet in AO_cache:
-            self.mbClient.write_registers(packet.start, packet.count, packet.vals, unit=UNIT)
-            req = self.register_cache[UNIT][ERT.AO].clear()
-            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
-
-        # READ
-        for packet in DI_cache:
-            req = self.mbClient.read_discrete_inputs(packet.start, packet.count, unit=UNIT)
-            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
-            # здесь должна быть запись req.bits в self.register_cache
-
-        for packet in AI_cache:
-            req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
-            if req.isError(): print( f"{SC.sError} Modbus error={ r }; sent data = { packet }" )
-            # здесь должна быть запись req.registers в self.register_cache
-
-def get_register_val(self, regiser_address, default_val = 0):
-    RA = regiser_address
-    
-    #получаем значение регистра, если какой-либо элемент отсутствует в register_cache, создаем его
-    reg_val = self.register_cache.setdefault( RA.unitID, {} ).setdefault( RA._type, {} ).setdefault( RA.number, default_val )
-    reg_val = ( reg_val >> RA.bitNum ) & 1 if RA.bitNum is not None else reg_val
-
-    return reg_val
-
-def update_register_val(self, regiser_address, val):
-    RA = regiser_address
-
-    if RA.bitNum is not None:
-        assert val in (0, 1), "Bit accepts only 0 or 1"
-        RA_no_bit = CRegisterAddress( unitID = RA.unitID, _type = RA._type, number = RA.number )
-        reg_val = self.get_register_val( RA_no_bit )
-        reg_val = reg_val | ( 1 << bit_num ) if val else reg_val & ~( 1 << bit_num )
-        self.register_cache[RA.unitID][RA._type][RA.number] = reg_val
-    else:
-        self.get_register_val( RA, default_val = val )

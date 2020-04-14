@@ -26,7 +26,7 @@ class CModbusConnector:
                                  #                          }
                                  #                 }
 
-        CTickManager.addTicker( 1000, self.readWrite_Tick )
+        CTickManager.addTicker( 500, self.readWrite_Tick )
 
     def __del__(self):
         self.mbClient.close()
@@ -37,6 +37,8 @@ class CModbusConnector:
                 print( f"{SC.sError} Can't connect to modbus device on address: {self.connectionAddress}!" )
         return self.mbClient.is_socket_open()
 
+    ###################################
+
     def get_register_val(self, regiser_address, default_val = 0):
         RA = regiser_address
         
@@ -46,10 +48,27 @@ class CModbusConnector:
 
         return reg_val
 
-    def resultValid( self, req ):
+    def update_register_val(self, regiser_address, val):
+        RA = regiser_address
+
+        if RA.bitNum is not None:
+            assert val in (0, 1), "Bit accepts only 0 or 1"
+            RA_no_bit = MT.CRegisterAddress( unitID = RA.unitID, _type = RA._type, number = RA.number )
+            reg_val = self.get_register_val( RA_no_bit )
+            reg_val = reg_val | ( 1 << RA.bitNum ) if val else reg_val & ~( 1 << RA.bitNum )
+            self.register_cache[ RA.unitID ][ RA._type ][ RA.number ] = reg_val
+        else:
+            self.get_register_val( RA, default_val = val )
+
+    ###################################
+
+    def __resultValid( self, req, sContext ):
         if req.isError():
-            print( f"{SC.sError} { req }!" )
+            print( f"{SC.sError} { req }! {sContext}" )
         return not req.isError()
+
+    def __makeAddressContext( self, unit, _type, start, count ):
+        return f"unit={unit} type={_type} start={start} count={count}"
 
     def readWrite_Tick( self ):
         if not self.tryConnect(): return
@@ -62,17 +81,32 @@ class CModbusConnector:
                 DI_cache, DO_cache = MF.pack_register_cache( cache.get( MT.ERT.DI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.DO, {} ) )
                 AI_cache, AO_cache = MF.pack_register_cache( cache.get( MT.ERT.AI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.AO, {} ) )
 
+                # WRITE
+                for packet in DO_cache:
+                    req = self.mbClient.write_coils( address=packet.start, values=packet.vals, unit=UNIT )
+                    sContext = self.__makeAddressContext( unit=UNIT, _type=MT.ERT.DO, start=packet.start, count=packet.count )
+                    if self.__resultValid( req, sContext  ):
+                        self.register_cache[ UNIT ][ MT.ERT.DO ].clear()
+
+                for packet in AO_cache:
+                    req = self.mbClient.write_registers( address=packet.start, values=packet.vals, unit=UNIT)
+                    sContext = self.__makeAddressContext( unit=UNIT, _type=MT.ERT.AO, start=packet.start, count=packet.count )
+                    if self.__resultValid( req, sContext  ):
+                        self.register_cache[ UNIT ][ MT.ERT.AO ].clear()
+
                 # READ
                 for packet in DI_cache:
-                    req = self.mbClient.read_discrete_inputs( packet.start, packet.count, unit=UNIT )
-                    if self.resultValid( req ):
+                    req = self.mbClient.read_discrete_inputs( address=packet.start, count=packet.count, unit=UNIT )
+                    sContext = self.__makeAddressContext( unit=UNIT, _type=MT.ERT.DI, start=packet.start, count=packet.count )
+                    if self.__resultValid( req, sContext ):
                         # запись req.bits в self.register_cache
                         for regShift in range( 0, packet.count ):
                             self.register_cache[ UNIT ][ MT.ERT.DI ][ packet.start + regShift ] = int( req.bits[ regShift ] )
 
                 for packet in AI_cache:
-                    req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
-                    if self.resultValid( req ):
+                    req = self.mbClient.read_input_registers( packet.start, packet.count, unit=UNIT)
+                    sContext = self.__makeAddressContext( unit=UNIT, _type=MT.ERT.AI, start=packet.start, count=packet.count )
+                    if self.__resultValid( req, sContext ):
                         # запись req.registers в self.register_cache
                         for regShift in range( 0, packet.count ):
                             self.register_cache[ UNIT ][ MT.ERT.AI ][ packet.start + regShift ] = req.registers[ regShift ]

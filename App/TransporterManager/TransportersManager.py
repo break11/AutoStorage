@@ -33,11 +33,18 @@ class CTransportersManager:
 
         return self.modbusConnectorsPull[ key ]
 
-    def queryPortState( self, tsName, registerAddress ):
-        connectionAddress = self.getConnectionAddressByTS( tsName )
+    ###########################################
 
+    def readPortState( self, tsName, registerAddress ):
+        connectionAddress = self.getConnectionAddressByTS( tsName )
         if connectionAddress is None: return None
 
         connector = self.queryConnector( connectionAddress )
         return connector.get_register_val( registerAddress )
 
+    def writePortState( self, tsName, registerAddress, val ):
+        connectionAddress = self.getConnectionAddressByTS( tsName )
+        if connectionAddress is None: return None
+
+        connector = self.queryConnector( connectionAddress )
+        connector.update_register_val( registerAddress, val )
