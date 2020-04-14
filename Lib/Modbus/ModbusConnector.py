@@ -75,6 +75,8 @@ class CModbusConnector:
                     if self.resultValid( req ):
                         # запись req.registers в self.register_cache
                         for regShift in range( 0, packet.count ):
-                            self.register_cache[ UNIT ][ MT.ERT.AI ][ packet.start + regShift ] = req.bits[ regShift ]
+                            self.register_cache[ UNIT ][ MT.ERT.AI ][ packet.start + regShift ] = req.registers[ regShift ]
+
         except Exception as e:
             print( f"{SC.sError} {e}" )
+            self.register_cache.clear()
