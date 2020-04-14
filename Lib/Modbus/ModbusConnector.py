@@ -48,7 +48,7 @@ class CModbusConnector:
 
     def resultValid( self, req ):
         if req.isError():
-            print( f"{SC.sError} Modbus error={ req }!" )
+            print( f"{SC.sError} { req }!" )
         return not req.isError()
 
     def readWrite_Tick( self ):
@@ -57,21 +57,24 @@ class CModbusConnector:
         DI_cache, DO_cache = {}, {}
         AI_cache, AO_cache = {}, {}
 
-        for UNIT, cache in self.register_cache.items():
-            DI_cache, DO_cache = MF.pack_register_cache( cache.get( MT.ERT.DI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.DO, {} ) )
-            AI_cache, AO_cache = MF.pack_register_cache( cache.get( MT.ERT.AI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.AO, {} ) )
+        try:
+            for UNIT, cache in self.register_cache.items():
+                DI_cache, DO_cache = MF.pack_register_cache( cache.get( MT.ERT.DI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.DO, {} ) )
+                AI_cache, AO_cache = MF.pack_register_cache( cache.get( MT.ERT.AI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.AO, {} ) )
 
-            # READ
-            for packet in DI_cache:
-                req = self.mbClient.read_discrete_inputs( packet.start, packet.count, unit=UNIT )
-                if self.resultValid( req ):
-                    # запись req.bits в self.register_cache
-                    for regShift in range( 0, packet.count ):
-                        self.register_cache[ UNIT ][ MT.ERT.DI ][ packet.start + regShift ] = int( req.bits[ regShift ] )
+                # READ
+                for packet in DI_cache:
+                    req = self.mbClient.read_discrete_inputs( packet.start, packet.count, unit=UNIT )
+                    if self.resultValid( req ):
+                        # запись req.bits в self.register_cache
+                        for regShift in range( 0, packet.count ):
+                            self.register_cache[ UNIT ][ MT.ERT.DI ][ packet.start + regShift ] = int( req.bits[ regShift ] )
 
-            for packet in AI_cache:
-                req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
-                if self.resultValid( req ):
-                    # запись req.registers в self.register_cache
-                    for regShift in range( 0, packet.count ):
-                        self.register_cache[ UNIT ][ MT.ERT.AI ][ packet.start + regShift ] = req.bits[ regShift ]
+                for packet in AI_cache:
+                    req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
+                    if self.resultValid( req ):
+                        # запись req.registers в self.register_cache
+                        for regShift in range( 0, packet.count ):
+                            self.register_cache[ UNIT ][ MT.ERT.AI ][ packet.start + regShift ] = req.bits[ regShift ]
+        except Exception as e:
+            print( f"{SC.sError} {e}" )

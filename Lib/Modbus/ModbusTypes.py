@@ -20,7 +20,16 @@ ERT = ERegisterType
 
 class CRegisterAddress:
     @classmethod
-    def defAddress(cls): return CRegisterAddress( _type=ERegisterType.DI, number=0, unitID=1 )
+    def def_DI(cls): return cls.def_address( _type=ERegisterType.DI )
+    @classmethod
+    def def_DO(cls): return cls.def_address( _type=ERegisterType.DO )
+    @classmethod
+    def def_AI(cls): return cls.def_address( _type=ERegisterType.AI )
+    @classmethod
+    def def_AO(cls): return cls.def_address( _type=ERegisterType.AO )
+
+    @classmethod
+    def def_address( cls, _type=ERegisterType.DI, number=0, unitID=1 ): return CRegisterAddress( _type=_type, number=0, unitID=1 )
 
     DS = "|"
     # "1|AI|51"

@@ -36,6 +36,8 @@ class SGraphAttrs( metaclass = СStrProps_Meta ):
     tsName           = None
     sensorAddress    = None
     sensorState      = None
+    engineAddress    = None
+    engineState      = None
 
 SGA = SGraphAttrs
 
@@ -276,7 +278,8 @@ graphEnums = { SGA.nodeType   : ENodeTypes,
                SGA.chargeStage: PST.EChargeStage,
                SGA.powerState : PST.EChargeState,
 
-               SGA.sensorAddress : MT.CRegisterAddress
+               SGA.sensorAddress : MT.CRegisterAddress,
+               SGA.engineAddress : MT.CRegisterAddress
              }
 
 def prepareGraphProps( nxGraph, bToEnum = True ):

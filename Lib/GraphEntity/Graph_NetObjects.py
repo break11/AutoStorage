@@ -105,7 +105,9 @@ common_EdgeProps = { SGT.SGA.edgeType, SGT.SGA.edgeSize }
 spec_EdgeProps = {
     SGT.EEdgeTypes.Rail : { SGT.SGA.highRailSizeFrom : True, SGT.SGA.highRailSizeTo : True,
                             SGT.SGA.sensorSide : True, SGT.SGA.widthType : True, SGT.SGA.curvature : True },
-    SGT.EEdgeTypes.Transporter : { SGT.SGA.tsName : True, SGT.SGA.sensorAddress : True, SGT.SGA.sensorState : True}
+    SGT.EEdgeTypes.Transporter : { SGT.SGA.tsName : True,
+                                   SGT.SGA.sensorAddress : True, SGT.SGA.sensorState : True,
+                                   SGT.SGA.engineAddress : True, SGT.SGA.engineState : True }
 }
 
 class CGraphEdge_NO( CNetObj ):
@@ -118,8 +120,10 @@ class CGraphEdge_NO( CNetObj ):
                     SGT.SGA.widthType:        SGT.EWidthType.Narrow, 
                     SGT.SGA.curvature:        SGT.ECurvature.Straight,
                     SGT.SGA.tsName:           "",
-                    SGT.SGA.sensorAddress:    MT.CRegisterAddress.defAddress(),
-                    SGT.SGA.sensorState:      0
+                    SGT.SGA.sensorAddress:    MT.CRegisterAddress.def_DI(),
+                    SGT.SGA.sensorState:      0,
+                    SGT.SGA.engineAddress:    MT.CRegisterAddress.def_DO(),
+                    SGT.SGA.engineState:      0
                 }
 
     s_NodeID_1  = "NodeID_1"
