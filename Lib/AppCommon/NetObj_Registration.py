@@ -26,6 +26,7 @@ from App.AgentsManager.AgentLink import CAgentLink
 from App.AgentsManager.AgentsConnectionServer import CAgentsConnectionServer
 
 from App.FakeAgent.FakeAgentLink import CFakeAgentLink
+from App.FakeTransporter.FakeTransporter import CFakeTransporter
 
 from Lib.TransporterEntity.Transporter_NetObject import CTransporterRoot_NO, CTransporter_NO, s_Transporters
 import Lib.TransporterEntity.TransporterDataTypes as TDT
@@ -93,11 +94,10 @@ def register_NetObj_Controllers_for_TransporterManager():
     reg( CGraphEdge_NO, CTransporterChunk, attachFunc = lambda edgeNO : edgeNO.edgeType == SGT.EEdgeTypes.Transporter )
     reg( CTransporterRoot_NO, CTransportersManager )
 
-
 def register_NetObj_Controllers_for_FakeAgent():
     reg = CNetObj_Manager.registerController
     reg( CAgent_NO, CFakeAgentLink )
 
 def register_NetObj_Controllers_for_FakeTS():
-    pass
-    # reg = CNetObj_Manager.registerController
+    reg = CNetObj_Manager.registerController
+    reg( CTransporterRoot_NO, CFakeTransporter )
