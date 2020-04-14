@@ -1,8 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <key attr.name="sensorAddress" attr.type="string" for="edge" id="d18" />
-  <key attr.name="sensorState" attr.type="boolean" for="edge" id="d17" />
-  <key attr.name="tsName" attr.type="string" for="edge" id="d16" />
+  <key attr.name="tsName" attr.type="string" for="edge" id="d20" />
+  <key attr.name="engineAddress" attr.type="string" for="edge" id="d19" />
+  <key attr.name="engineState" attr.type="long" for="edge" id="d18" />
+  <key attr.name="sensorState" attr.type="long" for="edge" id="d17" />
+  <key attr.name="sensorAddress" attr.type="string" for="edge" id="d16" />
   <key attr.name="edgeType" attr.type="string" for="edge" id="d15" />
   <key attr.name="curvature" attr.type="string" for="edge" id="d14" />
   <key attr.name="widthType" attr.type="string" for="edge" id="d13" />
@@ -1055,58 +1057,74 @@
     <edge source="45" target="46">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
     <edge source="46" target="47">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
     <edge source="46" target="45">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
     <edge source="47" target="48">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
     <edge source="47" target="46">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
     <edge source="48" target="49">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
     <edge source="48" target="47">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
     <edge source="49" target="48">
       <data key="d9">500</data>
       <data key="d15">Transporter</data>
-      <data key="d16" />
-      <data key="d17">False</data>
-      <data key="d18">1|DI|0</data>
+      <data key="d16">1|DI|0</data>
+      <data key="d17">0</data>
+      <data key="d18">0</data>
+      <data key="d19">1|DO|0</data>
+      <data key="d20" />
     </edge>
   </graph>
 </graphml>

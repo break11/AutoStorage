@@ -31,6 +31,7 @@ from App.FakeTransporter.FakeTransporter import CFakeTransporter
 from Lib.TransporterEntity.Transporter_NetObject import CTransporterRoot_NO, CTransporter_NO, s_Transporters
 import Lib.TransporterEntity.TransporterDataTypes as TDT
 from App.TransporterManager.TransporterChunk import CTransporterChunk
+from App.TransporterManager.TransportersManager import CTransportersManager
 
 import Lib.PowerStationEntity.PowerStationTypes as PST
 from Lib.PowerStationEntity.PowerStation import CPowerStation
@@ -91,6 +92,7 @@ def register_NetObj_Controllers_for_AgentManager():
 def register_NetObj_Controllers_for_TransporterManager():
     reg = CNetObj_Manager.registerController
     reg( CGraphEdge_NO, CTransporterChunk, attachFunc = lambda edgeNO : edgeNO.edgeType == SGT.EEdgeTypes.Transporter )
+    reg( CTransporterRoot_NO, CTransportersManager )
 
 def register_NetObj_Controllers_for_FakeAgent():
     reg = CNetObj_Manager.registerController

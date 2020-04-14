@@ -9,15 +9,13 @@ import Lib.Modbus.ModbusTypes as MT
 
 class CModbusConnector:
     def __init__(self, connectionAddress):
+        self.connectionAddress = connectionAddress
+
         if connectionAddress._type == BT.EConnectionType.USB:
             self.mbClient = ModbusSerialClient(method='ascii', port=connectionAddress.data, timeout=1, baudrate=115200)
         elif connectionAddress._type == BT.EConnectionType.TCP_IP:
             self.mbClient = ModbusTcpClient( host=connectionAddress.data.address, port=connectionAddress.data.port, timeout=1)
         
-        self.bConnected = self.mbClient.connect()
-        if not self.bConnected:
-            print( f"{SC.sError} Can't connect to modbus device on address: {connectionAddress}!" )
-
         self.register_cache = {} # кеш всех регистров данноего соединения с цепочкой устройств модбаз 
                                  # register_cache = {
                                  #                     0x1: {
@@ -33,6 +31,12 @@ class CModbusConnector:
     def __del__(self):
         self.mbClient.close()
 
+    def tryConnect( self ):
+        if not self.mbClient.is_socket_open():
+            if not self.mbClient.connect():
+                print( f"{SC.sError} Can't connect to modbus device on address: {self.connectionAddress}!" )
+        return self.mbClient.is_socket_open()
+
     def get_register_val(self, regiser_address, default_val = 0):
         RA = regiser_address
         
@@ -42,27 +46,35 @@ class CModbusConnector:
 
         return reg_val
 
+    def resultValid( self, req ):
+        if req.isError():
+            print( f"{SC.sError} { req }!" )
+        return not req.isError()
+
     def readWrite_Tick( self ):
-        if not self.bConnected: return
+        if not self.tryConnect(): return
 
         DI_cache, DO_cache = {}, {}
         AI_cache, AO_cache = {}, {}
 
-        for UNIT, cache in self.register_cache.items():
-            DI_cache, DO_cache = MF.pack_register_cache( cache.get( MT.ERT.DI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.DO, {} ) )
-            AI_cache, AO_cache = MF.pack_register_cache( cache.get( MT.ERT.AI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.AO, {} ) )
+        try:
+            for UNIT, cache in self.register_cache.items():
+                DI_cache, DO_cache = MF.pack_register_cache( cache.get( MT.ERT.DI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.DO, {} ) )
+                AI_cache, AO_cache = MF.pack_register_cache( cache.get( MT.ERT.AI, {} ) ), MF.pack_register_cache( cache.get( MT.ERT.AO, {} ) )
 
-            # READ
-            for packet in DI_cache:
-                req = self.mbClient.read_discrete_inputs(packet.start, packet.count, unit=UNIT)
-                if req.isError(): print( f"{SC.sError} Modbus error={ req }; sent data = { packet }" )
-                # запись req.bits в self.register_cache
-                for regShift in range( 0, packet.count ):
-                    self.register_cache[ UNIT ][ MT.ERT.DI ][ packet.start + regShift ] = req.bits[ regShift ]
+                # READ
+                for packet in DI_cache:
+                    req = self.mbClient.read_discrete_inputs( packet.start, packet.count, unit=UNIT )
+                    if self.resultValid( req ):
+                        # запись req.bits в self.register_cache
+                        for regShift in range( 0, packet.count ):
+                            self.register_cache[ UNIT ][ MT.ERT.DI ][ packet.start + regShift ] = int( req.bits[ regShift ] )
 
-            for packet in AI_cache:
-                req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
-                if req.isError(): print( f"{SC.sError} Modbus error={ req }; sent data = { packet }" )
-                # запись req.registers в self.register_cache
-                for regShift in range( 0, packet.count ):
-                    self.register_cache[ UNIT ][ MT.ERT.AI ][ packet.start + regShift ] = req.bits[ regShift ]
+                for packet in AI_cache:
+                    req = self.mbClient.read_input_registers(packet.start, packet.count, unit=UNIT)
+                    if self.resultValid( req ):
+                        # запись req.registers в self.register_cache
+                        for regShift in range( 0, packet.count ):
+                            self.register_cache[ UNIT ][ MT.ERT.AI ][ packet.start + regShift ] = req.bits[ regShift ]
+        except Exception as e:
+            print( f"{SC.sError} {e}" )
