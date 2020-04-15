@@ -30,7 +30,7 @@ logging.basicConfig(format=FORMAT)
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-UNIT = 0x8
+UNIT = 0x1
 
 def run_sync_client():
     # ------------------------------------------------------------------------#
@@ -82,19 +82,19 @@ def run_sync_client():
     # individual request. This can be done by specifying the `unit` parameter
     # which defaults to `0x00`
     # ----------------------------------------------------------------------- #
-    log.debug("Reading Coils")
+    # log.debug("Reading Coils")
 #     rr = client.read_coils(0, 1, unit=UNIT)
 #     rr = client.read_discrete_inputs(0, 1, unit=UNIT)
 
 #     rr = client.read_input_registers(64, 12, unit=UNIT)
 #     rr = client.write_registers(64, 0, unit=UNIT)
-    rr = client.read_holding_registers(0, 8, unit=UNIT)
+    # rr = client.read_holding_registers(0, 8, unit=UNIT)
 #     rr = client.read_input_registers(50, 1, unit=UNIT)
 
 #     rr = client.read_discrete_inputs(8, 1, unit=UNIT)
-    log.debug(rr)
+    # log.debug(rr)
 #     print( rr.bits )
-    print( rr.registers )
+    # print( rr.registers )
     print("\n===============================================================\n")
     return client
 

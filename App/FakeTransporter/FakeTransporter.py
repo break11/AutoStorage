@@ -11,8 +11,7 @@ import Lib.Modbus.ModbusTypes as MT
 
 class CFakeTransporter:
     
-    def __init__(self, netObj):
-        
+    def __init__(self, netObj):        
         self.context = self.load_context()
         self.mbServer =  ModbusTcpServer( context = self.context, address=("localhost", 5020) ) # TODO:адрес нужно вынести в настройки
         self.server_thread = Thread( target = self.mbServer.serve_forever )
@@ -44,10 +43,15 @@ class CFakeTransporter:
         for edgeNO in graphNodeCache().edgesNode().children:
             if edgeNO.edgeType == SGT.EEdgeTypes.Transporter:
                 
-                if hasattr( edgeNO, "sensorAddress" ):
+                if edgeNO.propsDict().get( SGT.SGA.sensorAddress ) is not None:
                     RA = edgeNO.sensorAddress
-                    # TODO: нужно заполнять текущими значениями(для sensorAddress, например, значение sensorVal)
-                    register_cache.setdefault(RA.unitID, {}).setdefault(RA._type, {})[RA.number] = 0
+                    val = edgeNO.propsDict().get( SGT.SGA.sensorState ) or 0
+                    register_cache.setdefault(RA.unitID, {}).setdefault(RA._type, {})[RA.number] = val
+
+                if edgeNO.propsDict().get( SGT.SGA.engineAddress ) is not None:
+                    RA = edgeNO.engineAddress
+                    val = edgeNO.propsDict().get( SGT.SGA.engineState ) or 0
+                    register_cache.setdefault(RA.unitID, {}).setdefault(RA._type, {})[RA.number] = val
 
         # создаем из register_cache модбаз-контекст, пример структуры контекста:
         slaves = {}
