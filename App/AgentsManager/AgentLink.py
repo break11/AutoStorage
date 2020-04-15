@@ -232,7 +232,7 @@ class CAgentLink( CAgentServer_Link ):
             self.push_ES_and_ErrorStatus()
         else:
             agentNO.position  = self.currSII().pos
-            agentNO.angle     = float( self.currSII().angle )
+            agentNO.angle     = self.currSII().angle
             tKey              = self.currSII().edge
             agentNO.edge      = CStrList.fromTuple( tKey )
             try:

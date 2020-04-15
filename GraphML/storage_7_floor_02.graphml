@@ -3404,7 +3404,7 @@
       <data key="d15">Rail</data>
       <data key="d9">5200</data>
       <data key="d10">5200</data>
-      <data key="d11">5200</data>
+      <data key="d11">0</data>
       <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
@@ -4016,7 +4016,7 @@
       <data key="d15">Rail</data>
       <data key="d9">5200</data>
       <data key="d10">5200</data>
-      <data key="d11">5200</data>
+      <data key="d11">0</data>
       <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
@@ -5231,7 +5231,7 @@
       <data key="d15">Rail</data>
       <data key="d9">5200</data>
       <data key="d10">5200</data>
-      <data key="d11">5200</data>
+      <data key="d11">0</data>
       <data key="d12">SLeft</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
@@ -5257,8 +5257,8 @@
     <edge source="256" target="257">
       <data key="d15">Rail</data>
       <data key="d9">5200</data>
-      <data key="d10">0</data>
-      <data key="d11">5200</data>
+      <data key="d10">5200</data>
+      <data key="d11">0</data>
       <data key="d12">SRight</data>
       <data key="d13">Narrow</data>
       <data key="d14">Straight</data>
